@@ -30,6 +30,8 @@ Requires Windows MSVC build tools, Rust 1.99.1 and Python 3 for helper tests. Ru
 
 This snapshot uses enshwick alpha.14 with a reproducible local framework extension, ABI 11.20. Prepare the sibling SDK checkout exactly as [patches/README.md](patches/README.md) describes. Cargo's path patch deliberately requires that sibling checkout. The upstream PR is separate from this project; no released framework support is claimed.
 
+The private 11.20 extension and current-main 11.28 extension have different ABI lineages. Do not load a private-11.20 consumer under a newer official/main loader merely because its version number is higher. Rebuild consumers against the matching SDK before changing loader lineages.
+
 ```text
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
