@@ -1,0 +1,15 @@
+[package]
+name = "mcp-transport"
+version = "0.1.0"
+description = "Shared loopback-only HTTP transport for Enshrouded MCP endpoints"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+enshwick.workspace = true
+policy.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

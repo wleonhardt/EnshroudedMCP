@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "purpose": "Curated research evidence embedded by knowledge_search; not executable policy or proof of current-world behavior.",
+  "records": [
+    {
+      "id": "coordinates.altar-zone-boundaries",
+      "kind": "mechanic",
+      "subject": "altar zones",
+      "statement": "The pinned framework describes altar zones as half-open boxes of half-metre cells. This differs from inclusive capture corners.",
+      "status": "static_inspected",
+      "applicability": {
+        "framework": "1.0.0-alpha.14",
+        "live_build_verified": null
+      },
+      "evidence": [
+        {
+          "source": "https://github.com/enshwick/enshwick/blob/8fa382949551f0256a6505ed161cb28e5a0ea8f5/book/src/altars.md",
+          "checked": "2026-11-13",
+          "method": "read pinned local source"
+        }
+      ],
+      "next_test": "Compare exact zone-edge points and capture endpoints around a test altar; test metre-to-cell conversion at both boundaries."
+    },
+    {
+      "id": "catalogue.recipe-kind-loading",
+      "kind": "capability",
+      "subject": "recipe classification",
+      "statement": "RecipeView::kind can be unavailable before its output item loads; the documented first dedicated-server registry build can lack kinds.",
+      "status": "static_inspected",
+      "applicability": {
+        "framework": "1.0.0-alpha.14",
+        "live_build_verified": null
+      },
+      "evidence": [
+        {
+          "source": "https://github.com/enshwick/enshwick/blob/8fa382949551f0256a6505ed161cb28e5a0ea8f5/book/src/content/recipes.md",
+          "checked": "2026-11-13",
+          "method": "read pinned local source"
+        }
+      ],
+      "next_test": "Read a known building item's classification before and after normal item loading. Preserve unavailable separately from Other."
+    },
+    {
+      "id": "progression.revoke-not-inverse",
+      "kind": "mechanic",
+      "subject": "progression recovery",
+      "statement": "The framework documents that revoking knowledge does not reverse all consequences of a grant, including granted experience, chained unlocks and spent skill points.",
+      "status": "static_inspected",
+      "applicability": {
+        "framework": "1.0.0-alpha.14",
+        "live_build_verified": null
+      },
+      "evidence": [
+        {
+          "source": "https://github.com/enshwick/enshwick/blob/8fa382949551f0256a6505ed161cb28e5a0ea8f5/book/src/knowledge.md",
+          "checked": "2026-11-13",
+          "method": "read pinned local source"
+        }
+      ],
+      "next_test": "First observe normal progression dependencies on a disposable character/world. Do not advertise reversible progression writes without an independent recovery test."
+    },
+    {
+      "id": "building.rotation-categories",
+      "kind": "mechanic",
+      "subject": "placement rotation",
+      "statement": "Keen's January 2025 update distinguishes free decorative-prop rotation, vertical-axis interactive props, and quarter-turn building shapes.",
+      "status": "documented",
+      "applicability": {
+        "source_game_version": "0.8.0.0",
+        "current_build_verified": null
+      },
+      "evidence": [
+        {
+          "source": "https://enshrouded.com/en-US/news/enshrouded-pact-of-the-flame-update",
+          "checked": "2026-11-13",
+          "method": "read official historical patch notes"
+        }
+      ],
+      "next_test": "Reproduce allowed rotations for one current example of each category and verify interaction after placement before enforcing a planner rule."
+    },
+    {
+      "id": "capability.server-versus-client",
+      "kind": "capability",
+      "subject": "client feature requirements",
+      "statement": "The pinned framework distinguishes server and both sides; both requires matching client mods. The dedicated server has no crafting UI bundle.",
+      "status": "static_inspected",
+      "applicability": {
+        "framework": "1.0.0-alpha.14",
+        "live_build_verified": null
+      },
+      "evidence": [
+        {
+          "source": "https://github.com/enshwick/enshwick/blob/8fa382949551f0256a6505ed161cb28e5a0ea8f5/book/src/concepts/sides-and-hosting.md",
+          "checked": "2026-11-13",
+          "method": "read pinned local source"
+        },
+        {
+          "source": "https://github.com/enshwick/enshwick/blob/8fa382949551f0256a6505ed161cb28e5a0ea8f5/book/src/content/recipes.md",
+          "checked": "2026-11-13",
+          "method": "read pinned local source"
+        }
+      ],
+      "next_test": "Keep server-only observation as the baseline; assess join and installation requirements in a separate test before any client extension."
+    },
+    {
+      "id": "strategy.workshop-from-available-stock",
+      "kind": "strategy",
+      "subject": "first end-to-end planning benchmark",
+      "statement": "A compact workshop built from eligible existing stock can exercise item lookup, recipe dependencies, unlocks, inventory, layout, persistence, placement and read-back in one bounded project.",
+      "status": "hypothesis",
+      "applicability": {
+        "objective": "functional workshop with minimal new gathering",
+        "game_build_verified": null
+      },
+      "evidence": [
+        {
+          "source": "plans/knowledge/README.md",
+          "checked": "2026-11-13",
+          "method": "project design proposal, not a game observation"
+        }
+      ],
+      "next_test": "Produce a read-only bill of materials and layout for known test-world stock, with unresolved requirements explicit, before proposing execution."
+    },
+    {
+      "id": "inventory.linked-slots-controlled-split",
+      "kind": "capability",
+      "subject": "linked inventory reads",
+      "statement": "On an isolated dedicated server, a player inventory returned 72 linked slots; five sequential 16-slot pages matched one full quiet snapshot. A user-controlled Raw lean meat split changed exactly one item from a stack of six to stacks of one and five. One equipped item durability matched the UI at 263/319.",
+      "status": "live_observed",
+      "applicability": {
+        "framework": "1.0.0-alpha.14",
+        "mcp_version": "0.5.0",
+        "executable_identity": "f1e760a53ff247409ab91462e88b8f49/224",
+        "scope": "one player, one quiet inventory, no linked chest or concurrent paging guarantee"
+      },
+      "evidence": [
+        {
+          "source": "plans/research/2026-11-13-live-validation.md",
+          "checked": "2026-11-13",
+          "method": "real MCP reads, sequential page equality, independently reported UI values and controlled user stack split"
+        }
+      ],
+      "next_test": "Verify known chest stacks, cross-inventory eligibility, instance definitions and behavior while contents change. Reacquire all runtime identities each session."
+    },
+    {
+      "id": "health.network-enemy-before-after",
+      "kind": "capability",
+      "subject": "enemy NetworkHealth",
+      "statement": "On an isolated dedicated server, a nearby spear-carrying enemy had NetworkHealth 64/73. After the user reported three unarmed hits and a decreased UI bar, the same session entity read 55/73. Other candidates, including the player, had explicit absent NetworkHealth states.",
+      "status": "live_observed",
+      "applicability": {
+        "framework": "1.0.0-alpha.14",
+        "mcp_version": "0.5.0",
+        "executable_identity": "f1e760a53ff247409ab91462e88b8f49/224",
+        "scope": "one enemy before/after observation; not player health or complete combat simulation"
+      },
+      "evidence": [
+        {
+          "source": "plans/research/2026-11-13-live-validation.md",
+          "checked": "2026-11-13",
+          "method": "typed MCP reads plus independent component presence and user-reported health-bar decrease"
+        }
+      ],
+      "next_test": "Compare a known full-health and damaged fixture numerically with UI. Test wider actor coverage; do not infer per-hit damage or absent health from absent NetworkHealth."
+    }
+  ]
+}

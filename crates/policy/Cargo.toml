@@ -1,0 +1,11 @@
+[package]
+name = "policy"
+version = "0.1.0"
+description = "Game-free rules of the MCP endpoint: request admission, HTTP framing, JSON-RPC and MCP dispatch, argument checks, world bounds"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+serde_json.workspace = true

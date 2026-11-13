@@ -1,0 +1,27 @@
+[package]
+name = "mcp"
+version = "0.6.0"
+description = "An MCP endpoint on 127.0.0.1 that lets an agent read the running world"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+# `side = "server"`: runs where the world runs, on the dedicated server or a
+# client that hosts (solo play included). Players need not install it.
+[package.metadata.enshwick]
+id = "enshrouded.mcp"
+side = "server"
+name = "Enshrouded MCP"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+enshwick = { workspace = true, features = ["unstable", "typed"] }
+policy.workspace = true
+mcp-transport.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+enshwick = { workspace = true, features = ["unstable", "test"] }

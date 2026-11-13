@@ -1,0 +1,17 @@
+/target/
+/gamedata/
+*.dll
+*.pdb
+*.log
+.env
+.env.*
+!.env.example
+**/savegame/
+**/journal.jsonl
+**/ALLOW_WRITES
+__pycache__/
+**/enshrouded_server.json
+**/logs/
+**/recovery/
+*.zip
+*.7z

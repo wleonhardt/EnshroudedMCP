@@ -1,0 +1,1202 @@
+diff --git a/book/src/game-events.md b/book/src/game-events.md
+index 7ce0fdb4..800598ae 100644
+--- a/book/src/game-events.md
++++ b/book/src/game-events.md
+@@ -200,3 +200,38 @@ end)
+ 
+ Game events run on the server's game thread before the step's systems, as
+ for a Rust mod. On a client they run only while it hosts a game.
++
++## Client-world observations
++
++A native client mod may explicitly subscribe to one reflected client-world
++ECS event with `Load::on_client_raw_game_event`, or use the generated typed
++`EventType<T>::on_client`. These require ABI 11.20. An older loader refuses
++the new mod; existing server subscriptions retain their behavior.
++
++```rust
++use enshwick::typed::{EventType, ecs::OpenHudScreenEvent};
++
++fn init(load: &mut enshwick::Load<'_>) -> Result<(), enshwick::Off> {
++    EventType::<OpenHudScreenEvent>::resolve(load)?.on_client(load, |event| {
++        enshwick::debug!("client opened {:?}", event.screen);
++    })
++}
++```
++
++Handlers run on the client's simulation thread after its event merge.
++They do not enter a server-world quiet scope and grant no server `World`
++read or mutation authority. Client and hosted-server subscriptions and
++copied batches remain separate. There is no client all-events mode.
++Registration is limited to 32 client subscriptions per mod.
++
++Each client merge copies at most 256 selected events and 64 KiB of payload.
++Traversal stops after 65,536 records or 256 streams. A warning is logged
++once when a copy, traversal or reentrant pending-batch cap drops
++observations. There is no public dropped-event counter or lossless-delivery
++promise. Reacquire state through a supported state API where one exists.
++
++`UiSelectCraftingStationRecipeEvent` carries a recipe identifier and input
++category selections. Its existence does not establish that passive recipe
++highlighting or top-level tab changes emit it. This API observes events;
++it does not expose a persistent selected tab or recipe. Those semantics
++remain to be validated against independent client UI fixtures.
+diff --git a/crates/enshwick/CHANGELOG.md b/crates/enshwick/CHANGELOG.md
+index 6067197c..c65f3f85 100644
+--- a/crates/enshwick/CHANGELOG.md
++++ b/crates/enshwick/CHANGELOG.md
+@@ -6,6 +6,15 @@ Each entry names the pull request that made the change.
+ 
+ ## [Unreleased]
+ 
++### Added
++
++- Local compatibility experiment: ABI 11.20 appends explicit client-world
++  event subscriptions through `Load::on_client_raw_game_event` and
++  `typed::EventType::on_client`. The existing event-merge route keeps client
++  and hosted-server callbacks and batches separate. Client observations
++  have bounded copy/traversal budgets and may be dropped; no passive UI
++  selection semantics or server-world authority is inferred.
++
+ ## [1.0.0-alpha.14] - 2026-11-09
+ 
+ ### Added
+diff --git a/crates/enshwick/include/enshwick.h b/crates/enshwick/include/enshwick.h
+index 6be4f3e4..af178073 100644
+--- a/crates/enshwick/include/enshwick.h
++++ b/crates/enshwick/include/enshwick.h
+@@ -22,7 +22,7 @@
+ // A loader loads mods built for its minor or an older one, and reads a
+ // field appended after the mod's minor only where
+ // `Header::covers` it.
+-#define ENSHWICK_ABI_MINOR 19
++#define ENSHWICK_ABI_MINOR 20
+ 
+ // The damage types of a hit, one per value of the game's `DamageTypeNew`:
+ // the length of `DamageCheck::amounts`.
+@@ -5031,6 +5031,16 @@ typedef struct EnshwickHostApi {
+   // mod without actions. A panic in the loader returns
+   // `Status::REFUSED`. ABI 11.19.
+   EnshwickStatus (*actions_changed)(EnshwickModHandle me);
++  // Subscribes to one event type from the client's own ECS world only.
++  // Init only. Client binary only (`Status::UNAVAILABLE` otherwise).
++  // Hash 0 and more than 32 subscriptions per mod are `Status::BAD_ARGS`.
++  // Delivery is on the client simulation thread without server-world read
++  // or mutation authority. Copies are capped at 256 events and 64 KiB
++  // per merge, with a warning once on dropped observations. ABI 11.20.
++  EnshwickStatus (*client_game_event)(EnshwickModHandle me,
++                                      uint32_t type_hash,
++                                      EnshwickGameEventFn callback,
++                                      void *user);
+ } EnshwickHostApi;
+ 
+ // The data of the `KnowledgeChanged` event.
+diff --git a/crates/enshwick/src/abi.rs b/crates/enshwick/src/abi.rs
+index b5b96666..59b52b7d 100644
+--- a/crates/enshwick/src/abi.rs
++++ b/crates/enshwick/src/abi.rs
+@@ -741,7 +741,8 @@ const _: () = {
+     assert!(size_of::<StatModify>() == 8 + 8 + 12 + 4 + 8);
+     assert!(size_of::<StatChange>() == 8 + 24);
+     assert!(core::mem::offset_of!(HostApi, language) == 24 + 122 * 8);
+-    assert!(size_of::<HostApi>() == 24 + 197 * 8);
++    assert!(size_of::<HostApi>() == 24 + 198 * 8);
++    assert!(core::mem::offset_of!(HostApi, client_game_event) == 24 + 197 * 8);
+     assert!(core::mem::offset_of!(HostApi, actions_changed) == 24 + 196 * 8);
+     assert!(core::mem::offset_of!(HostApi, command_list) == 24 + 195 * 8);
+     assert!(core::mem::offset_of!(HostApi, run_command) == 24 + 194 * 8);
+diff --git a/crates/enshwick/src/abi/host_api.rs b/crates/enshwick/src/abi/host_api.rs
+index 48721cf9..fedc0f7c 100644
+--- a/crates/enshwick/src/abi/host_api.rs
++++ b/crates/enshwick/src/abi/host_api.rs
+@@ -1830,4 +1830,16 @@ pub struct HostApi {
+     /// mod without actions. A panic in the loader returns
+     /// [`Status::REFUSED`]. ABI 11.19.
+     pub actions_changed: extern "system" fn(me: ModHandle) -> Status,
++    /// Subscribes to one event type from the client's own ECS world only.
++    /// Init only. Client binary only (`Status::UNAVAILABLE` otherwise).
++    /// Hash 0 and more than 32 subscriptions per mod are `Status::BAD_ARGS`.
++    /// Delivery is on the client simulation thread without server-world read
++    /// or mutation authority. Copies are capped at 256 events and 64 KiB
++    /// per merge, with a warning once on dropped observations. ABI 11.20.
++    pub client_game_event: extern "system" fn(
++        me: ModHandle,
++        type_hash: u32,
++        callback: GameEventFn,
++        user: *mut c_void,
++    ) -> Status,
+ }
+diff --git a/crates/enshwick/src/abi/layout.txt b/crates/enshwick/src/abi/layout.txt
+index 844001c4..30f43445 100644
+--- a/crates/enshwick/src/abi/layout.txt
++++ b/crates/enshwick/src/abi/layout.txt
+@@ -1,4 +1,4 @@
+-abi 11.19
++abi 11.20
+ AccountActionType size 1 align 1
+     0 at 0 size 1 type u8
+ ActionCall size 192 align 8 born 144
+@@ -334,7 +334,7 @@ HookSpec size 32 align 8
+     next at 16 size 8 type *const Atomic<usize>
+     priority at 24 size 4 type i32
+     flags at 28 size 4 type HookFlags
+-HostApi size 1600 align 8
++HostApi size 1608 align 8
+     header at 0 size 8 type Header
+     host_version at 8 size 16 type Str
+     build at 24 size 8 type extern "system" fn(*mut BuildInfo)
+@@ -534,6 +534,7 @@ HostApi size 1600 align 8
+     run_command at 1576 size 8 type extern "system" fn(ModHandle, Str, Str, u32, *mut ActionReply) -> Status
+     command_list at 1584 size 8 type extern "system" fn(ModHandle, *mut CommandInfo, u32, u32, *mut u32) -> Status
+     actions_changed at 1592 size 8 type extern "system" fn(ModHandle) -> Status
++    client_game_event at 1600 size 8 type extern "system" fn(ModHandle, u32, unsafe extern "system" fn(*const GameEventData, *mut c_void), *mut c_void) -> Status
+ Interaction size 56 align 8 born 56
+     header at 0 size 8 type Header
+     kind at 8 size 4 type u32
+diff --git a/crates/enshwick/src/abi/layout_tests.rs b/crates/enshwick/src/abi/layout_tests.rs
+index b3090a47..c27a0f3f 100644
+--- a/crates/enshwick/src/abi/layout_tests.rs
++++ b/crates/enshwick/src/abi/layout_tests.rs
+@@ -247,7 +247,7 @@ shapes! {
+         TypeConstant { name, value },
+         TypeField { name, type_name, offset, attribute_count, attributes },
+         TypeEntry { header, name, impact_name, qualified_name, inner, internal_hash, size, align, element_align, kind, flags, reserved, count, field_count, constant_count, attribute_count, fields, constants, attributes },
+-        HostApi { header, host_version, build, symbol, system, field_offset, type_size, hook, caller_frame, fault, log, settings, publish, service, constant, data_dir, log_level, subscribe, type_hash, component, entity_template, player, players, serve_resource, add_text, mods, code_range, patch_code, workshop_recipes, hosting, server_world, chat, set_label, rename_filter, join_missing, hook_at, inventory_open, item_info, inventory_submit, status, run_console, altars_open, altars, building_zone_check_filter, survivor_lookup, survivor_bed_check, summon_filter, summon_item, survivor_status, interaction_filter, skill_override, comfort_filter, experience_filter, raise_base_limit, base_zones, game_event, entities, destroy, save_world, world_key, component_write, emit, teleport, spawn, craft_filter, build_filter, net_channel, net_send, net_ready, notify, time_of_day, set_time_of_day, time_speed_control, set_time_speed, game_settings, set_game_settings, damage_filter, buff_types, buffs, apply_buff, remove_buff, knowledge, grant_knowledge, quests, weather_at, weather_fronts, set_weather, terrain_materials, terrain_edit, config_schema, summoned, item_data_open, item_data_get, item_data_set, ui_frame, ui_widget, ui_dialog, ui_hud, ui_markers, config_check, texts, content_serve, content_read, icons_ready, stat_open, stat_info, stat_value, stat_modify, stat_buff, stats_changed, stat_sources, stat_watch, define_event, subscribe_event, send_event, affix_open, affix_roll, item_lines, affix_info, rename_content, declare_content, entity_data_open, mod_dir, knowledge_input_filter, language, keep_game_settings, forget_game_settings, revoke_knowledge, account_knowledge, resource_read, game_text, rebuild_resource, recipe_rule, recipe_disabled, define_point, attach_point, run_point, actions, event_types, recipe_kind, feature, rate, set_rate, change_data, loop_wait, server_wait, task_workers, altar_zone_filter, altar_zones_changed, altar_limit_filter, base_limit, voxel_read, declare_change, set_change, build_rights, transaction_commit, transaction_undo, transaction_status, transaction_commit_for, world_quiet, fog_open, fog_read, serve_call, find_call, call, transaction_entities, world_persists, map_markers, account_action, subscribe_tick, set_tick_every, map_frame, request_base_limits, map_marker_types, use_content, chat_mute_set, chat_mute_has, set_base_cap, resource_keys, content_hashes, types, game_version, control, run_action, ui_extension, item_filter, chat_filter, save_info, hold_saves, crafting_prop, set_saved, run_action_at, local_held, read_only, resource_served, commands, run_command, command_list, actions_changed },
++        HostApi { header, host_version, build, symbol, system, field_offset, type_size, hook, caller_frame, fault, log, settings, publish, service, constant, data_dir, log_level, subscribe, type_hash, component, entity_template, player, players, serve_resource, add_text, mods, code_range, patch_code, workshop_recipes, hosting, server_world, chat, set_label, rename_filter, join_missing, hook_at, inventory_open, item_info, inventory_submit, status, run_console, altars_open, altars, building_zone_check_filter, survivor_lookup, survivor_bed_check, summon_filter, summon_item, survivor_status, interaction_filter, skill_override, comfort_filter, experience_filter, raise_base_limit, base_zones, game_event, entities, destroy, save_world, world_key, component_write, emit, teleport, spawn, craft_filter, build_filter, net_channel, net_send, net_ready, notify, time_of_day, set_time_of_day, time_speed_control, set_time_speed, game_settings, set_game_settings, damage_filter, buff_types, buffs, apply_buff, remove_buff, knowledge, grant_knowledge, quests, weather_at, weather_fronts, set_weather, terrain_materials, terrain_edit, config_schema, summoned, item_data_open, item_data_get, item_data_set, ui_frame, ui_widget, ui_dialog, ui_hud, ui_markers, config_check, texts, content_serve, content_read, icons_ready, stat_open, stat_info, stat_value, stat_modify, stat_buff, stats_changed, stat_sources, stat_watch, define_event, subscribe_event, send_event, affix_open, affix_roll, item_lines, affix_info, rename_content, declare_content, entity_data_open, mod_dir, knowledge_input_filter, language, keep_game_settings, forget_game_settings, revoke_knowledge, account_knowledge, resource_read, game_text, rebuild_resource, recipe_rule, recipe_disabled, define_point, attach_point, run_point, actions, event_types, recipe_kind, feature, rate, set_rate, change_data, loop_wait, server_wait, task_workers, altar_zone_filter, altar_zones_changed, altar_limit_filter, base_limit, voxel_read, declare_change, set_change, build_rights, transaction_commit, transaction_undo, transaction_status, transaction_commit_for, world_quiet, fog_open, fog_read, serve_call, find_call, call, transaction_entities, world_persists, map_markers, account_action, subscribe_tick, set_tick_every, map_frame, request_base_limits, map_marker_types, use_content, chat_mute_set, chat_mute_has, set_base_cap, resource_keys, content_hashes, types, game_version, control, run_action, ui_extension, item_filter, chat_filter, save_info, hold_saves, crafting_prop, set_saved, run_action_at, local_held, read_only, resource_served, commands, run_command, command_list, actions_changed, client_game_event },
+         SaveInfo { header, world, saved_at, size, backups, reserved },
+         ChatLine { header, player, entity, kind, loca, text },
+         ChatRewrite { header, buffer, capacity, len },
+diff --git a/crates/enshwick/src/abi/version.rs b/crates/enshwick/src/abi/version.rs
+index 1488aa05..ed61d538 100644
+--- a/crates/enshwick/src/abi/version.rs
++++ b/crates/enshwick/src/abi/version.rs
+@@ -32,7 +32,7 @@ pub const ABI_MAJOR: u16 = 11;
+ ///
+ /// assert_eq!(Header::of::<Manifest>().abi_minor, ABI_MINOR);
+ /// ```
+-pub const ABI_MINOR: u16 = 19;
++pub const ABI_MINOR: u16 = 20;
+ 
+ /// Why a loader or its tools refuse a mod built for another ABI, naming the
+ /// mod's version, this build's and what to do.
+diff --git a/crates/enshwick/src/host.rs b/crates/enshwick/src/host.rs
+index 646b0778..176448a4 100644
+--- a/crates/enshwick/src/host.rs
++++ b/crates/enshwick/src/host.rs
+@@ -428,6 +428,23 @@ mod tests {
+         assert_eq!(seen.recv().ok(), Some(Some(ModHandle(2))));
+     }
+ 
++    #[cfg(feature = "test")]
++    #[test]
++    fn client_event_api_refuses_an_older_or_short_loader_table() {
++        let loader = crate::test::FakeHost::new().install();
++        for minor in [19, crate::abi::ABI_MINOR] {
++            // SAFETY: the fake API is valid and readable for its full size.
++            let mut old = unsafe { *loader.api() };
++            old.header.abi_minor = minor;
++            old.header.size =
++                u32::try_from(core::mem::offset_of!(HostApi, client_game_event)).unwrap();
++            let old = Box::leak(Box::new(old));
++            // SAFETY: this aligned table is readable for the declared prefix
++            // and remains valid and unchanged for the rest of the process.
++            assert!(unsafe { Host::new(old, ModHandle(1)) }.is_none());
++        }
++    }
++
+     #[test]
+     fn a_table_serves_mods_of_its_major_up_to_its_minor() {
+         assert!(serves(table(ABI_MAJOR, 1), 0));
+diff --git a/crates/enshwick/src/load.rs b/crates/enshwick/src/load.rs
+index effe3297..16dd039a 100644
+--- a/crates/enshwick/src/load.rs
++++ b/crates/enshwick/src/load.rs
+@@ -571,4 +571,4 @@ mod settings;
+ mod tests;
+ 
+ #[cfg(feature = "typed")]
+-pub(crate) use events::game_events_of;
++pub(crate) use events::{client_game_events_of, game_events_of};
+diff --git a/crates/enshwick/src/load/events.rs b/crates/enshwick/src/load/events.rs
+index fc85f7b3..3120d11b 100644
+--- a/crates/enshwick/src/load/events.rs
++++ b/crates/enshwick/src/load/events.rs
+@@ -169,6 +169,35 @@ impl Load<'_> {
+         self.game_events(ty.hash(), ty.name(), handler)
+     }
+ 
++    /// Observes one selected event type in the client's own ECS world.
++    /// Server subscriptions are unchanged. Client entity IDs never imply
++    /// server World access; this callback grants no write authority.
++    ///
++    /// # Errors
++    ///
++    /// Off outside a client binary, after init, for hash 0, or after 32
++    /// client subscriptions. The loader caps copies at 256 events/64 KiB per
++    /// merge and logs once when observations are dropped.
++    ///
++    /// # Examples
++    ///
++    /// ```
++    /// fn init(load: &mut enshwick::Load<'_>) -> Result<(), enshwick::Off> {
++    ///     let ty = load.game_event_type("ecs::OpenHudScreenEvent")?;
++    ///     load.on_client_raw_game_event(ty, |_event| {})
++    /// }
++    /// ```
++    pub fn on_client_raw_game_event<F>(
++        &mut self,
++        ty: crate::game_events::EventType,
++        handler: F,
++    ) -> Result<(), Off>
++    where
++        F: Fn(&crate::game_events::RawGameEvent<'_>) + Send + Sync + 'static,
++    {
++        client_game_events_of(self.host, ty.hash(), ty.name(), handler)
++    }
++
+     /// Calls `handler` on every game event of every type, for finding out
+     /// what the game raises. Each event is copied for the mod, so leave this
+     /// to development builds.
+@@ -288,6 +317,23 @@ where
+     )
+ }
+ 
++/// Client-scoped counterpart of `game_events_of`; no all-events mode.
++pub(crate) fn client_game_events_of<F>(
++    host: Host,
++    type_hash: u32,
++    what: &str,
++    handler: F,
++) -> Result<(), Off>
++where
++    F: Fn(&crate::game_events::RawGameEvent<'_>) + Send + Sync + 'static,
++{
++    hand_over(
++        handler,
++        |user| (host.api().client_game_event)(host.handle(), type_hash, deliver_game::<F>, user),
++        &format!("client game events of {what}"),
++    )
++}
++
+ /// A tick handler on the raw data, which reads it as a [`TickData`].
+ fn typed_tick(handler: impl Fn(&TickData)) -> impl Fn(*const c_void) {
+     move |raw| {
+diff --git a/crates/enshwick/src/test/events.rs b/crates/enshwick/src/test/events.rs
+index 51198818..38816bd3 100644
+--- a/crates/enshwick/src/test/events.rs
++++ b/crates/enshwick/src/test/events.rs
+@@ -160,6 +160,37 @@ impl Installed {
+         handlers.len()
+     }
+ 
++    /// Emits only to explicitly client-scoped subscriptions of the fake.
++    ///
++    /// # Examples
++    ///
++    /// ```
++    /// let loader = enshwick::test::FakeHost::new().install();
++    /// assert_eq!(loader.raise_client_game_event(42, &[0;16]), 0);
++    /// ```
++    #[must_use]
++    pub fn raise_client_game_event(&self, type_hash: u32, bytes: &[u8]) -> usize {
++        let handlers: Vec<_> = table::with(Vec::new(), |s| {
++            s.client_game_events
++                .iter()
++                .filter(|g| g.0 == type_hash)
++                .map(|g| g.1)
++                .collect()
++        });
++        let data = crate::abi::GameEventData {
++            header: Header::of::<crate::abi::GameEventData>(),
++            type_hash,
++            size: u32::try_from(bytes.len()).unwrap_or(u32::MAX),
++            data: bytes.as_ptr(),
++        };
++        for handler in &handlers {
++            // SAFETY: the copied event envelope and bytes remain readable
++            // for this synchronous call; user belongs to the subscription.
++            handler.run(|callback, user| unsafe { callback(&raw const data, user) });
++        }
++        handlers.len()
++    }
++
+     /// The mod events the mod defined, by name, in order.
+     ///
+     /// # Examples
+diff --git a/crates/enshwick/src/test/table.rs b/crates/enshwick/src/test/table.rs
+index 9260dd82..4454e6ae 100644
+--- a/crates/enshwick/src/test/table.rs
++++ b/crates/enshwick/src/test/table.rs
+@@ -178,6 +178,7 @@ pub(crate) struct State {
+     pub(crate) subscriptions: Vec<(Event, Registered<EventFn>)>,
+     /// Game event handlers, by type hash (0 for every type).
+     pub(crate) game_events: Vec<(u32, Registered<GameEventFn>)>,
++    pub(crate) client_game_events: Vec<(u32, Registered<GameEventFn>)>,
+     pub(crate) served: Vec<(ServedResource, Registered<ResourcePatchFn>)>,
+     /// Every rebuild of a served resource the mod asked for, at init and
+     /// after.
+@@ -677,6 +678,7 @@ pub(crate) fn install(host: FakeHost) -> MutexGuard<'static, ()> {
+         mid_hooks: Vec::new(),
+         subscriptions: Vec::new(),
+         game_events: Vec::new(),
++        client_game_events: Vec::new(),
+         served: Vec::new(),
+         rebuilds: Vec::new(),
+         changes: DataChanges::default(),
+@@ -1138,4 +1140,5 @@ pub(crate) static TABLE: HostApi = HostApi {
+     run_command: commands::run_command,
+     command_list: commands::command_list,
+     actions_changed: commands::actions_changed,
++    client_game_event: world::client_game_event,
+ };
+diff --git a/crates/enshwick/src/test/table/world.rs b/crates/enshwick/src/test/table/world.rs
+index a9efb03e..f3091b92 100644
+--- a/crates/enshwick/src/test/table/world.rs
++++ b/crates/enshwick/src/test/table/world.rs
+@@ -203,6 +203,28 @@ pub(crate) extern "system" fn game_event(
+     })
+ }
+ 
++pub(crate) extern "system" fn client_game_event(
++    me: ModHandle,
++    type_hash: u32,
++    callback: GameEventFn,
++    user: *mut c_void,
++) -> Status {
++    with(Status::MISSING, |s| {
++        if s.host.side != Side::CLIENT {
++            return Status::UNAVAILABLE;
++        }
++        if s.registration == crate::test::table::Registration::Closed {
++            return Status::TOO_LATE;
++        }
++        if type_hash == 0 || s.client_game_events.len() >= 32 {
++            return Status::BAD_ARGS;
++        }
++        s.client_game_events
++            .push((type_hash, Registered::new(callback, user, me)));
++        Status::OK
++    })
++}
++
+ pub(crate) extern "system" fn event_types(
+     _me: ModHandle,
+     out: *mut EventTypeInfo,
+diff --git a/crates/enshwick/src/typed/runtime/handles.rs b/crates/enshwick/src/typed/runtime/handles.rs
+index ee16495a..8c9eeec7 100644
+--- a/crates/enshwick/src/typed/runtime/handles.rs
++++ b/crates/enshwick/src/typed/runtime/handles.rs
+@@ -222,6 +222,13 @@ impl RawEvent {
+     /// codec's [`Value`]; an event that does not read, or that `handler`
+     /// refuses, is logged once and skipped.
+     pub(crate) fn on<F>(self, host: Host, handler: F) -> Result<(), Off>
++    where
++        F: Fn(&Value) -> Result<(), Off> + Send + Sync + 'static,
++    {
++        self.on_scoped(host, false, handler)
++    }
++
++    fn on_scoped<F>(self, host: Host, client: bool, handler: F) -> Result<(), Off>
+     where
+         F: Fn(&Value) -> Result<(), Off> + Send + Sync + 'static,
+     {
+@@ -229,7 +236,7 @@ impl RawEvent {
+         // One warning per handler: a `static` here would be shared by every
+         // event type.
+         let warned = AtomicBool::new(false);
+-        crate::load::game_events_of(host, ty.hash(), ty.name(), move |raw| {
++        let decode = move |raw: &crate::game_events::RawGameEvent<'_>| {
+             let outcome = Registry::game()
+                 .and_then(|registry| Ok(registry.decode(name, raw.bytes())?))
+                 .and_then(|value| handler(&value));
+@@ -238,7 +245,12 @@ impl RawEvent {
+             {
+                 crate::warn!("typed {id}: an event does not read: {why}");
+             }
+-        })
++        };
++        if client {
++            crate::load::client_game_events_of(host, ty.hash(), ty.name(), decode)
++        } else {
++            crate::load::game_events_of(host, ty.hash(), ty.name(), decode)
++        }
+     }
+ }
+ 
+@@ -517,6 +529,32 @@ impl<T: Event> EventType<T> {
+             Ok(())
+         })
+     }
++    /// Observes this event type from the client's own ECS world only.
++    /// No server World authority is available in the handler. This reports
++    /// events, not persistent UI selection state or passive recipe highlights.
++    ///
++    /// # Errors
++    ///
++    /// As `Load::on_client_raw_game_event`, plus typed decoding failures
++    /// are logged once and skipped as for `EventType::on`.
++    ///
++    /// # Examples
++    ///
++    /// ```
++    /// use enshwick::typed::{EventType, ecs::OpenHudScreenEvent};
++    /// fn init(load: &mut enshwick::Load<'_>) -> Result<(), enshwick::Off> {
++    ///     EventType::<OpenHudScreenEvent>::resolve(load)?.on_client(load, |_event| {})
++    /// }
++    /// ```
++    pub fn on_client<F>(self, load: &mut Load<'_>, handler: F) -> Result<(), Off>
++    where
++        F: Fn(&T) + Send + Sync + 'static,
++    {
++        self.raw.on_scoped(load.host(), true, move |value| {
++            handler(&T::from_value(value)?);
++            Ok(())
++        })
++    }
+ }
+ 
+ /// A generated resource type resolved on the running build: the keys of
+diff --git a/crates/enshwick/tests/client_game_events.rs b/crates/enshwick/tests/client_game_events.rs
+new file mode 100644
+index 00000000..def117df
+--- /dev/null
++++ b/crates/enshwick/tests/client_game_events.rs
+@@ -0,0 +1,193 @@
++//! Explicit client event subscriptions never receive hosted server events.
++
++#[cfg(test)]
++mod tests {
++    use enshwick::abi::{Side, Status};
++    use enshwick::resources::{Constant, Field, Kind, Type, fnv1a32};
++    use enshwick::typed::{
++        EventType,
++        ecs::{OpenHudScreenEvent, UiSelectCraftingStationRecipeEvent},
++    };
++    use enshwick::{Load, Mod, Off};
++    use std::sync::Mutex;
++
++    static CLIENT: Mutex<Vec<u32>> = Mutex::new(Vec::new());
++    static SERVER: Mutex<Vec<u32>> = Mutex::new(Vec::new());
++    struct Watch;
++    impl Mod for Watch {
++        fn init(load: &mut Load<'_>) -> Result<Self, Off> {
++            let open = EventType::<OpenHudScreenEvent>::resolve(load)?;
++            open.on_client(load, |event| {
++                CLIENT.lock().unwrap().push(event.interaction_host_id.id);
++            })?;
++            EventType::<UiSelectCraftingStationRecipeEvent>::resolve(load)?.on_client(
++                load,
++                |event| {
++                    CLIENT.lock().unwrap().push(event.recipe_id.value);
++                },
++            )?;
++            let raw = load.game_event_type("ecs::OpenHudScreenEvent")?;
++            load.on_raw_game_event(raw, |event| {
++                SERVER.lock().unwrap().push(event.type_hash());
++            })?;
++            Ok(Self)
++        }
++    }
++    enshwick::test::declare_mod!(
++        Watch,
++        r#"id = "test.client-events"
++side = "both""#
++    );
++
++    fn types() -> Vec<Type<'static>> {
++        let field = |name, offset, ty| Field::new(name, offset, ty);
++        let mut out = vec![
++            Type::new("keen::uint8", Kind::Uint8, 1, 1),
++            Type::new("keen::uint32", Kind::Uint32, 4, 4),
++            Type::new("keen::sint64", Kind::Sint64, 8, 8),
++            Type::new("keen::Time", Kind::Struct, 8, 8).with_fields(vec![field(
++                "value",
++                0,
++                "keen::sint64",
++            )]),
++            Type::new("keen::ecs::Event", Kind::Struct, 1, 1),
++            Type::new("keen::ecs::GameEvent", Kind::Struct, 8, 8)
++                .with_inner("keen::ecs::Event")
++                .with_fields(vec![field("timeStamp", 0, "keen::Time")]),
++            Type::new("keen::HudScreenType", Kind::Enum, 1, 1)
++                .with_inner("keen::uint8")
++                .with_constants(vec![Constant::new("InGameMenu", 4)]),
++            Type::new("keen::RecipeInputCategorySelection", Kind::Struct, 8, 4).with_fields(vec![
++                field("id", 0, "keen::HashKey32"),
++                field("selectedIndex", 4, "keen::uint8"),
++            ]),
++            Type::new(
++                "keen::StaticArray<keen::RecipeInputCategorySelection,4>",
++                Kind::StaticArray,
++                32,
++                4,
++            )
++            .with_inner("keen::RecipeInputCategorySelection")
++            .with_count(4),
++            Type::new("keen::RecipeInputCategorySelections", Kind::Struct, 32, 4).with_fields(
++                vec![field(
++                    "selections",
++                    0,
++                    "keen::StaticArray<keen::RecipeInputCategorySelection,4>",
++                )],
++            ),
++            Type::new("keen::ecs::OpenHudScreenEvent", Kind::Struct, 24, 8)
++                .with_inner("keen::ecs::GameEvent")
++                .with_fields(vec![
++                    field("playerEntityId", 8, "keen::ecs::EntityId"),
++                    field("interactionHostId", 12, "keen::ecs::EntityId"),
++                    field("screen", 16, "keen::HudScreenType"),
++                ]),
++            Type::new(
++                "keen::ecs::UiSelectCraftingStationRecipeEvent",
++                Kind::Struct,
++                56,
++                8,
++            )
++            .with_inner("keen::ecs::GameEvent")
++            .with_fields(vec![
++                field("craftingOperatorId", 8, "keen::ecs::EntityId"),
++                field("craftingStationId", 12, "keen::ecs::EntityId"),
++                field("recipeId", 16, "keen::RecipeId"),
++                field(
++                    "inputCategorySelections",
++                    20,
++                    "keen::RecipeInputCategorySelections",
++                ),
++            ]),
++        ];
++        for (name, member) in [
++            ("keen::ecs::EntityId", "id"),
++            ("keen::HashKey32", "value"),
++            ("keen::RecipeId", "value"),
++        ] {
++            out.push(Type::new(name, Kind::Struct, 4, 4).with_fields(vec![field(
++                member,
++                0,
++                "keen::uint32",
++            )]));
++        }
++        out
++    }
++
++    #[test]
++    fn typed_client_events_and_server_events_have_independent_delivery() {
++        let hash = |name: &str| fnv1a32(name.as_bytes());
++        let loader = enshwick::test::FakeHost::new()
++            .side(Side::CLIENT)
++            .types(types())
++            .game_event_type(
++                "ecs::OpenHudScreenEvent",
++                hash("keen::ecs::OpenHudScreenEvent"),
++                24,
++            )
++            .game_event_type(
++                "ecs::UiSelectCraftingStationRecipeEvent",
++                hash("keen::ecs::UiSelectCraftingStationRecipeEvent"),
++                56,
++            )
++            .install();
++        // SAFETY: these exports are generated for this module's test mod.
++        let status =
++            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) };
++        assert_eq!(status, Status::OK, "{:?}", loader.logs());
++        let mut open = [0; 24];
++        open[12..16].copy_from_slice(&42u32.to_le_bytes());
++        open[16] = 4;
++        let open_hash = hash("keen::ecs::OpenHudScreenEvent");
++        assert_eq!(loader.raise_game_event(open_hash, &open), 1);
++        assert!(CLIENT.lock().unwrap().is_empty());
++        assert_eq!(loader.raise_client_game_event(open_hash, &open), 1);
++        let mut recipe = [0; 56];
++        recipe[16..20].copy_from_slice(&99u32.to_le_bytes());
++        assert_eq!(
++            loader.raise_client_game_event(
++                hash("keen::ecs::UiSelectCraftingStationRecipeEvent"),
++                &recipe
++            ),
++            1
++        );
++        assert_eq!(*CLIENT.lock().unwrap(), [42, 99]);
++        assert_eq!(*SERVER.lock().unwrap(), [open_hash]);
++    }
++
++    #[test]
++    fn client_subscriptions_are_refused_on_the_server_and_for_all_events() {
++        use enshwick::abi::{GameEventData, ModHandle};
++        unsafe extern "system" fn unused(
++            _event: *const GameEventData,
++            _user: *mut core::ffi::c_void,
++        ) {
++        }
++        for side in [Side::SERVER, Side::CLIENT] {
++            let loader = enshwick::test::FakeHost::new().side(side).install();
++            // SAFETY: the fake's table is readable and lives for the installation.
++            let register = unsafe { &*loader.api() }.client_game_event;
++            assert_eq!(
++                register(ModHandle(0), 0, unused, core::ptr::null_mut()),
++                if side == Side::SERVER {
++                    Status::UNAVAILABLE
++                } else {
++                    Status::BAD_ARGS
++                }
++            );
++            if side == Side::CLIENT {
++                for _ in 0..32 {
++                    assert_eq!(
++                        register(ModHandle(0), 42, unused, core::ptr::null_mut()),
++                        Status::OK
++                    );
++                }
++                assert_eq!(
++                    register(ModHandle(0), 42, unused, core::ptr::null_mut()),
++                    Status::BAD_ARGS
++                );
++            }
++        }
++    }
++}
+diff --git a/crates/enshwick/tests/main.rs b/crates/enshwick/tests/main.rs
+index 4c4917c7..4eda8a06 100644
+--- a/crates/enshwick/tests/main.rs
++++ b/crates/enshwick/tests/main.rs
+@@ -233,3 +233,6 @@ mod world_settings;
+ mod worlds;
+ #[cfg(feature = "unstable")]
+ mod writes;
++
++#[cfg(feature = "typed")]
++mod client_game_events;
+diff --git a/crates/internal/loader/src/game_events.rs b/crates/internal/loader/src/game_events.rs
+index c2430fd4..b8f50150 100644
+--- a/crates/internal/loader/src/game_events.rs
++++ b/crates/internal/loader/src/game_events.rs
+@@ -13,7 +13,7 @@
+ 
+ use core::cell::RefCell;
+ use core::ffi::c_void;
+-use std::sync::atomic::Ordering;
++use std::sync::atomic::{AtomicBool, Ordering};
+ use std::sync::{Mutex, OnceLock};
+ 
+ use enshwick::abi::{GameEventData, GameEventFn, Header, HookFlags, Side, Status};
+@@ -39,9 +39,60 @@ pub(crate) const TABLE_IDS: &[&str] = &[
+     pinned::ecs::EVENT_STREAMS.id(),
+ ];
+ 
++/// Client observations never share a batch or callbacks with server events.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++enum Scope {
++    Server,
++    Client,
++}
++
++impl Scope {
++    fn matches(self, delivered: Self, wanted: u32, actual: u32) -> bool {
++        self == delivered && (wanted == actual || self == Self::Server && wanted == 0)
++    }
++}
++
++fn scope_for(side: Side, server: bool, own_client: bool) -> Option<Scope> {
++    if server {
++        Some(Scope::Server)
++    } else if side == Side::CLIENT && own_client {
++        Some(Scope::Client)
++    } else {
++        None
++    }
++}
++
++const CLIENT_EVENTS: usize = 256;
++const CLIENT_BYTES: usize = 64 * 1024;
++const CLIENT_SUBSCRIPTIONS: usize = 32;
++/// Bound traversal even when no subscribed event occurs in a client merge.
++const CLIENT_RECORDS: usize = 65_536;
++const CLIENT_STREAMS: usize = 256;
++static CLIENT_DROPPED: AtomicBool = AtomicBool::new(false);
++
++fn client_registration(side: Side, type_hash: u32, count: usize) -> Status {
++    if side != Side::CLIENT {
++        Status::UNAVAILABLE
++    } else if type_hash == 0 || count >= CLIENT_SUBSCRIPTIONS {
++        Status::BAD_ARGS
++    } else {
++        Status::OK
++    }
++}
++
++fn client_drop() {
++    if !CLIENT_DROPPED.swap(true, Ordering::Relaxed) {
++        crate::log!(
++            WARN,
++            "client game events: copy or scan cap reached; observations dropped (256 events, 64 KiB, 65536 records, 256 streams per merge)"
++        );
++    }
++}
++
+ /// A mod's handler for one event type, or for all with hash 0.
+ #[derive(Debug, Clone, Copy)]
+ struct Subscriber {
++    scope: Scope,
+     owner: ModIndex,
+     type_hash: u32,
+     callback: GameEventFn,
+@@ -53,14 +104,20 @@ struct Subscriber {
+ struct Sealed {
+     subscribers: Box<[Subscriber]>,
+     wanted: FxHashSet<u32>,
++    client_wanted: FxHashSet<u32>,
+     every: bool,
+     /// The equipment event, when stats follow it.
+     equipment: Option<u32>,
+ }
+ 
+ impl Sealed {
+-    fn wants(&self, type_hash: u32) -> bool {
+-        self.every || self.wanted.contains(&type_hash) || self.equipment == Some(type_hash)
++    fn wants(&self, scope: Scope, type_hash: u32) -> bool {
++        match scope {
++            Scope::Server => {
++                self.every || self.wanted.contains(&type_hash) || self.equipment == Some(type_hash)
++            }
++            Scope::Client => self.client_wanted.contains(&type_hash),
++        }
+     }
+ }
+ 
+@@ -105,22 +162,36 @@ impl Batch {
+ 
+ /// Takes this thread's batch out of its cell, so the mod callbacks that run
+ /// while it is filled or handed out may reach the loader again.
+-fn take_batch() -> Batch {
+-    BATCH.take()
++fn take_batch(scope: Scope) -> Batch {
++    match scope {
++        Scope::Server => BATCH.take(),
++        Scope::Client => CLIENT_BATCH.take(),
++    }
+ }
+ 
+ /// Puts `batch` back into this thread's cell, after the events a callback
+ /// copied meanwhile, keeping its buffers when there were none.
+-fn give_back(mut batch: Batch) {
+-    BATCH.with_borrow_mut(|held| {
++fn give_back(scope: Scope, mut batch: Batch) {
++    let put = |held: &mut Batch| {
+         if held.events.is_empty() && held.bytes.is_empty() {
+             core::mem::swap(held, &mut batch);
+         } else {
+             let newer = core::mem::take(held);
+-            batch.append(&newer);
++            if scope == Scope::Client
++                && (batch.events.len() + newer.events.len() > CLIENT_EVENTS
++                    || batch.bytes.len() + newer.bytes.len() > CLIENT_BYTES)
++            {
++                client_drop();
++            } else {
++                batch.append(&newer);
++            }
+             *held = batch;
+         }
+-    });
++    };
++    match scope {
++        Scope::Server => BATCH.with_borrow_mut(put),
++        Scope::Client => CLIENT_BATCH.with_borrow_mut(put),
++    }
+ }
+ 
+ static PENDING: Mutex<Vec<Subscriber>> = Mutex::new(Vec::new());
+@@ -132,6 +203,7 @@ static LOADED: OnceLock<(&'static Loader, Layout)> = OnceLock::new();
+ static MERGE_NEXT: Next<MergeFn> = unsafe { Next::new() };
+ /// Game events, off once the loader's own copy or delivery panicked.
+ static EVENTS_FUSE: Fuse = Fuse::new("game events");
++static CLIENT_FUSE: Fuse = Fuse::new("client game events");
+ /// The client's notices from its server, off once raising one panicked.
+ static NOTICES_FUSE: Fuse = Fuse::new("server notices");
+ /// The switch for freeing what the loader handed the game.
+@@ -139,6 +211,7 @@ static RETIRE_FUSE: Fuse = Fuse::new("freeing handed lists");
+ 
+ thread_local! {
+     static BATCH: RefCell<Batch> = RefCell::new(Batch::default());
++    static CLIENT_BATCH: RefCell<Batch> = RefCell::new(Batch::default());
+ }
+ 
+ type MergeFn = unsafe extern "system" fn(entity_world: *mut u8);
+@@ -154,6 +227,37 @@ pub(crate) fn register(
+         return Status::TOO_LATE;
+     }
+     PENDING.relock().push(Subscriber {
++        scope: Scope::Server,
++        owner,
++        type_hash,
++        callback,
++        user: user.expose_provenance(),
++    });
++    Status::OK
++}
++
++/// A separate, explicitly selected client-world observation subscription.
++pub(crate) fn register_client(
++    side: Side,
++    owner: ModIndex,
++    type_hash: u32,
++    callback: GameEventFn,
++    user: *mut c_void,
++) -> Status {
++    if SEALED.get().is_some() {
++        return Status::TOO_LATE;
++    }
++    let mut pending = PENDING.relock();
++    let count = pending
++        .iter()
++        .filter(|s| s.owner == owner && s.scope == Scope::Client)
++        .count();
++    let status = client_registration(side, type_hash, count);
++    if !status.is_ok() {
++        return status;
++    }
++    pending.push(Subscriber {
++        scope: Scope::Client,
+         owner,
+         type_hash,
+         callback,
+@@ -174,8 +278,19 @@ pub(crate) fn link(loader: &'static Loader) {
+         })
+         .flatten();
+     let sealed = Sealed {
+-        wanted: subscribers.iter().map(|s| s.type_hash).collect(),
+-        every: subscribers.iter().any(|s| s.type_hash == 0),
++        wanted: subscribers
++            .iter()
++            .filter(|s| s.scope == Scope::Server)
++            .map(|s| s.type_hash)
++            .collect(),
++        client_wanted: subscribers
++            .iter()
++            .filter(|s| s.scope == Scope::Client)
++            .map(|s| s.type_hash)
++            .collect(),
++        every: subscribers
++            .iter()
++            .any(|s| s.scope == Scope::Server && s.type_hash == 0),
+         subscribers: subscribers.into_boxed_slice(),
+         equipment,
+     };
+@@ -236,13 +351,20 @@ unsafe extern "system" fn merge(entity_world: *mut u8) {
+         // is its game thread (checked by `is_server`); the game passed it to
+         // `ecs.event_merge`, which has not moved its streams yet.
+         let _copied = EVENTS_FUSE.run("the event link's copy", || unsafe {
+-            copy(layout, entity_world);
++            copy(layout, entity_world, Scope::Server);
+         });
+-    } else if let Some((loader, _)) = LOADED.get()
++    } else if let Some((loader, layout)) = LOADED.get()
+         && loader.side == Side::CLIENT
+         && !entity_world.is_null()
+         && entity_world.addr() as u64 != crate::world::server_world()
+     {
++        if !CLIENT_FUSE.is_off() {
++            // SAFETY: this branch identifies the client world from the same
++            // existing event-merge route. It is live on its simulation thread.
++            let _copied = CLIENT_FUSE.run("client event copy", || unsafe {
++                copy(layout, entity_world, Scope::Client);
++            });
++        }
+         // SAFETY: on a client, `entity_world` is non-null and not the hosted
+         // server's (the `if let` conditions), so the client's own live entity
+         // world, which the game passed to `ecs.event_merge` on its game thread
+@@ -260,7 +382,15 @@ unsafe extern "system" fn merge(entity_world: *mut u8) {
+     }
+     if let Some((loader, _)) = ours {
+         let _quiet = crate::world::Quiet::enter();
+-        let _delivered = EVENTS_FUSE.run("the event link's delivery", || deliver(loader));
++        let _delivered = EVENTS_FUSE.run("the event link's delivery", || {
++            deliver(loader, Scope::Server);
++        });
++    } else if let Some((loader, _)) = LOADED.get()
++        && scope_for(loader.side, false, own_world) == Some(Scope::Client)
++        && !CLIENT_FUSE.is_off()
++    {
++        let _delivered =
++            CLIENT_FUSE.run("client event delivery", || deliver(loader, Scope::Client));
+     }
+ }
+ 
+@@ -270,32 +400,44 @@ fn is_server(entity_world: *mut u8) -> bool {
+     server != 0 && entity_world.addr() as u64 == server && crate::world::reader().is_ok()
+ }
+ 
+-/// Copies every wanted event of the server's streams into this thread's
+-/// batch.
++/// Copies wanted events from one explicitly selected simulation world into
++/// its own thread-local batch.
+ ///
+ /// # Safety
+ ///
+-/// - `entity_world` is the running server's live entity world.
+-/// - Called on the server's game thread before the engine moves its event
+-///   streams, so no system writes them during the call.
+-unsafe fn copy(layout: &Layout, entity_world: *mut u8) {
++/// - `entity_world` is the live simulation world identified by `scope`.
++/// - Called on that world's simulation thread before the engine moves its
++///   event streams, so no system writes them during the call.
++unsafe fn copy(layout: &Layout, entity_world: *mut u8, scope: Scope) {
+     let Some(sealed) = SEALED.get() else {
+         return;
+     };
++    if scope == Scope::Client && sealed.client_wanted.is_empty() {
++        return;
++    }
+     let world = entity_world.expose_provenance();
+-    // SAFETY: `world` is the server's live entity world on its game thread
++    // SAFETY: `world` is the selected live simulation world on its thread
+     // (the caller's contract); the table's `ecs.event_streams` offset holds
+     // its stream array pointer.
+     let streams: usize = unsafe { crate::memory::read(world, layout.streams) };
+-    // SAFETY: `world` is the server's live entity world on its game thread
++    // SAFETY: `world` is the selected live simulation world on its thread
+     // (the caller's contract); the table's `ecs.event_stream_count` offset
+     // holds its stream count.
+     let count: usize = unsafe { crate::memory::read(world, layout.stream_count) };
+     if streams == 0 {
+         return;
+     }
+-    let mut batch = take_batch();
+-    for index in 0..count {
++    let mut batch = take_batch(scope);
++    let mut records = 0;
++    let streams_count = if scope == Scope::Client {
++        count.min(CLIENT_STREAMS)
++    } else {
++        count
++    };
++    if streams_count != count {
++        client_drop();
++    }
++    'streams: for index in 0..streams_count {
+         let stream = streams + index * layout.stream_size;
+         // SAFETY: `streams` is non-zero (`streams == 0` returns first) and
+         // holds `count` streams of the table's `ecs.event_stream_size` bytes,
+@@ -312,6 +454,11 @@ unsafe fn copy(layout: &Layout, entity_world: *mut u8) {
+         }
+         let mut at = 0;
+         while at + layout.record_header <= used {
++            if scope == Scope::Client && records >= CLIENT_RECORDS {
++                client_drop();
++                break 'streams;
++            }
++            records += 1;
+             let record = base + at;
+             // SAFETY: `base` is non-zero (`base == 0` skips the stream) and
+             // `record` lies inside its bytes used, header included (`at +
+@@ -326,20 +473,30 @@ unsafe fn copy(layout: &Layout, entity_world: *mut u8) {
+             if at + layout.record_header + size > used {
+                 break;
+             }
+-            // SAFETY: the payload is the live event of `type_hash` after the
+-            // record's header, `size` bytes inside the bytes used (the `> used`
+-            // check breaks first), on the game thread before the engine moves
+-            // the streams (the caller's contract).
+-            unsafe {
+-                crate::vetoes::screen(
+-                    type_hash,
+-                    core::ptr::with_exposed_provenance_mut(record + layout.record_header),
+-                    size,
+-                );
+-            };
++            if scope == Scope::Server {
++                // SAFETY: the payload is the server event of `type_hash`
++                // after its header, `size` bytes inside the bytes used (the
++                // check above breaks first), before the engine moves streams.
++                unsafe {
++                    crate::vetoes::screen(
++                        type_hash,
++                        core::ptr::with_exposed_provenance_mut(record + layout.record_header),
++                        size,
++                    );
++                }
++            }
+             // Item notices are after the fact: they go out with the batch,
+             // after the merge, so a filter may change the world.
+-            if sealed.wants(type_hash) || crate::item_actions::hears(type_hash) {
++            if sealed.wants(scope, type_hash)
++                || scope == Scope::Server && crate::item_actions::hears(type_hash)
++            {
++                if scope == Scope::Client
++                    && (batch.events.len() >= CLIENT_EVENTS
++                        || batch.bytes.len().saturating_add(size) > CLIENT_BYTES)
++                {
++                    client_drop();
++                    break 'streams;
++                }
+                 batch.events.push(Copied {
+                     type_hash,
+                     size: u32::try_from(size).unwrap_or(0),
+@@ -356,22 +513,23 @@ unsafe fn copy(layout: &Layout, entity_world: *mut u8) {
+             at += layout.record_header + size.next_multiple_of(layout.record_align);
+         }
+     }
+-    give_back(batch);
++    give_back(scope, batch);
+ }
+ 
+ /// Hands this thread's batch to the subscribers still on, and empties it.
+-fn deliver(loader: &Loader) {
++fn deliver(loader: &Loader, scope: Scope) {
+     let Some(sealed) = SEALED.get() else {
+         return;
+     };
+-    let mut batch = take_batch();
++    let mut batch = take_batch(scope);
+     for event in &batch.events {
+-        if sealed.equipment == Some(event.type_hash) {
++        if scope == Scope::Server && sealed.equipment == Some(event.type_hash) {
+             crate::stats::equipment_changed();
+         }
+-        if let Some(payload) = usize::try_from(event.size)
+-            .ok()
+-            .and_then(|size| batch.bytes.get(event.start..event.start + size))
++        if scope == Scope::Server
++            && let Some(payload) = usize::try_from(event.size)
++                .ok()
++                .and_then(|size| batch.bytes.get(event.start..event.start + size))
+         {
+             // SAFETY: `payload` is the event's copy in this batch, its `size`
+             // bytes, which nothing writes during the call.
+@@ -386,7 +544,7 @@ fn deliver(loader: &Loader) {
+             data: batch.bytes[event.start..].as_ptr(),
+         };
+         for subscriber in sealed.subscribers.iter().filter(|s| {
+-            (s.type_hash == 0 || s.type_hash == event.type_hash)
++            s.scope.matches(scope, s.type_hash, event.type_hash)
+                 && loader
+                     .mods
+                     .get(s.owner.get())
+@@ -410,13 +568,72 @@ fn deliver(loader: &Loader) {
+     }
+     batch.events.clear();
+     batch.bytes.clear();
+-    give_back(batch);
++    give_back(scope, batch);
+ }
+ 
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+ 
++    #[test]
++    fn hosted_client_and_server_scopes_never_cross() {
++        assert_eq!(scope_for(Side::CLIENT, true, false), Some(Scope::Server));
++        assert_eq!(scope_for(Side::CLIENT, false, true), Some(Scope::Client));
++        assert_eq!(scope_for(Side::SERVER, false, true), None);
++        assert_eq!(scope_for(Side::CLIENT, false, false), None);
++        assert!(!Scope::Client.matches(Scope::Server, 42, 42));
++        assert!(!Scope::Server.matches(Scope::Client, 0, 42));
++        assert!(Scope::Server.matches(Scope::Server, 0, 42));
++        assert!(Scope::Client.matches(Scope::Client, 42, 42));
++        assert!(!client_registration(Side::SERVER, 42, 0).is_ok());
++        assert!(!client_registration(Side::CLIENT, 0, 0).is_ok());
++        assert!(!client_registration(Side::CLIENT, 42, 32).is_ok());
++        assert!(client_registration(Side::CLIENT, 42, 31).is_ok());
++    }
++
++    #[test]
++    fn client_batches_are_separate_and_reentrant_copies_stay_bounded() {
++        give_back(Scope::Server, Batch::default());
++        give_back(Scope::Client, Batch::default());
++        let mut server = take_batch(Scope::Server);
++        copied(1, b"server", &mut server);
++        give_back(Scope::Server, server);
++        let mut client = take_batch(Scope::Client);
++        copied(2, b"client", &mut client);
++        give_back(Scope::Client, client);
++        assert_eq!(
++            payloads(&take_batch(Scope::Server)),
++            [(1, b"server".to_vec())]
++        );
++        assert_eq!(
++            payloads(&take_batch(Scope::Client)),
++            [(2, b"client".to_vec())]
++        );
++        let mut outer = Batch::default();
++        for _ in 0..CLIENT_EVENTS {
++            copied(3, b"x", &mut outer);
++        }
++        CLIENT_BATCH.with_borrow_mut(|held| copied(4, b"y", held));
++        give_back(Scope::Client, outer);
++        let back = take_batch(Scope::Client);
++        assert_eq!(back.events.len(), CLIENT_EVENTS);
++        assert!(back.bytes.len() <= CLIENT_BYTES);
++    }
++
++    #[test]
++    fn no_client_subscriptions_request_no_client_event_types() {
++        let sealed = Sealed {
++            subscribers: Box::new([]),
++            wanted: [42].into_iter().collect(),
++            client_wanted: FxHashSet::default(),
++            every: true,
++            equipment: Some(43),
++        };
++        assert!(!sealed.wants(Scope::Client, 42));
++        assert!(!sealed.wants(Scope::Client, 43));
++        assert!(sealed.wants(Scope::Server, 99));
++    }
++
+     fn copied(type_hash: u32, bytes: &[u8], into: &mut Batch) {
+         into.events.push(Copied {
+             type_hash,
+@@ -439,13 +656,13 @@ mod tests {
+ 
+     #[test]
+     fn a_batch_taken_out_leaves_the_cell_free_and_keeps_events_copied_meanwhile() {
+-        let mut first = take_batch();
++        let mut first = take_batch(Scope::Server);
+         copied(1, b"ab", &mut first);
+         BATCH.with_borrow_mut(|held| copied(2, b"cde", held));
+-        give_back(first);
+-        let back = take_batch();
++        give_back(Scope::Server, first);
++        let back = take_batch(Scope::Server);
+         assert_eq!(payloads(&back), [(1, b"ab".to_vec()), (2, b"cde".to_vec())]);
+-        give_back(Batch::default());
++        give_back(Scope::Server, Batch::default());
+         BATCH.with_borrow(|held| assert!(held.events.is_empty() && held.bytes.is_empty()));
+     }
+ }
+diff --git a/crates/internal/loader/src/host/api.rs b/crates/internal/loader/src/host/api.rs
+index 278d050e..2146f6c5 100644
+--- a/crates/internal/loader/src/host/api.rs
++++ b/crates/internal/loader/src/host/api.rs
+@@ -262,4 +262,5 @@ pub(crate) static API: HostApi = HostApi {
+     run_command,
+     command_list,
+     actions_changed,
++    client_game_event: super::entries::world::client_game_event,
+ };
+diff --git a/crates/internal/loader/src/host/entries/world.rs b/crates/internal/loader/src/host/entries/world.rs
+index 37af5a7e..eb18e53d 100644
+--- a/crates/internal/loader/src/host/entries/world.rs
++++ b/crates/internal/loader/src/host/entries/world.rs
+@@ -357,6 +357,21 @@ pub(crate) extern "system" fn game_event(
+     })
+ }
+ 
++pub(crate) extern "system" fn client_game_event(
++    me: ModHandle,
++    type_hash: u32,
++    callback: api_frame::GameEventFn,
++    user: *mut core::ffi::c_void,
++) -> Status {
++    entry("client_game_event", || {
++        let (loader, index, _) = match calling(me) {
++            Ok(found) => found,
++            Err(status) => return status,
++        };
++        crate::game_events::register_client(loader.side, index, type_hash, callback, user)
++    })
++}
++
+ pub(crate) extern "system" fn entities(
+     me: ModHandle,
+     type_hash: u32,

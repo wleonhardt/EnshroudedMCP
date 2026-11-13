@@ -1,0 +1,25 @@
+[package]
+name = "mcp-client"
+version = "0.2.0"
+description = "Optional native Enshrouded client research companion"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[package.metadata.enshwick]
+id = "enshrouded.mcp-client"
+side = "both"
+name = "Enshrouded MCP Research Client"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+enshwick = { workspace = true, features = ["unstable", "typed"] }
+policy.workspace = true
+mcp-transport.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+enshwick = { workspace = true, features = ["unstable", "typed", "test"] }

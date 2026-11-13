@@ -1,0 +1,119 @@
+"""Fixed-probe behavior tests without game access."""
+
+import json
+import unittest
+from unittest.mock import patch
+
+from validate_tools import READS, Validation
+
+
+class Fixture:
+    def __init__(self, broken=None):
+        self.broken = broken
+        self.calls = []
+
+    def call(self, method, params=None):
+        self.calls.append((method, params))
+        if method == "initialize":
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.6.0"}, "protocolVersion": "2025-06-18"}
+        if method == "tools/list":
+            return {"tools": [{"name": name} for name in READS | {"give_item", "future_write"}]}
+        name, args = params["name"], params["arguments"]
+        error = False
+        if "validation_unknown" in args:
+            error, value = True, "unknown argument"
+        elif name == "item_info":
+            error = args["item"] != "Prop_Storage_24_T1_Box"
+            value = "no vanilla item" if error else {"guid": "fixture", "metadata": {"item_id": 213939880}}
+        elif name == "item_lookup":
+            error = args["ids"] == [0]
+            value = "ids must contain nonzero u32 values" if error else {
+                "source": "vanilla_archive_item_registry", "effective_definition_verified": False,
+                "results": [{"item_id": 213939880, "state": "single_match", "total_matches": 1,
+                             "truncated": False, "matches": [{"guid": "fixture", "debug_name": "Prop_Storage_24_T1_Box"}]}]}
+        elif name == "inventory_read":
+            error = args.get("entity") != 4294967295
+            if not error:
+                value = {"slots": [], "total_slots": 0, "entity": "private-id", "world_key": "private-world"}
+            elif not args:
+                value = "provide exactly one of player or entity"
+            elif args.get("entity") == 0:
+                value = "argument 'entity' must be at least 1"
+            else:
+                value = "no connected player"
+        elif name == "capabilities":
+            value = {"mod_version": "0.6.0", "inventory_read": True, "item_info": True, "item_lookup": True,
+                     "typed_network_health": True, "new_inspection_tools_live_verified": False}
+        elif name == "entity_health":
+            value = {"entities": [], "total_candidates": 0, "truncated": False}
+        elif name == "knowledge_search":
+            value = {"applicability_checked_against_current_world": False, "records": [
+                {"applicability": {}, "status": "hypothesis", "next_test": "test", "evidence": [
+                    {"source": "source", "checked": "date", "method": "method"}]}]}
+        elif name == "recipe_plan":
+            value = {"mode": "report_only", "provenance": "caller_supplied_unverified", "feasible_under_supplied_assumptions": True,
+                     "steps": [{"batches": 2, "produced": 4}], "planned_surplus": [{"item": "boards", "count": 1}],
+                     "stock_reserved": [{"item": "wood", "count": 6}], "missing_raw_items": []}
+        elif name == "building_plan":
+            value = {"executable": False, "geometry": {"solid_cell_count": 16}, "cell_minima": [[x, 0, z] for x in range(4) for z in range(4)]}
+        if name == self.broken and not error:
+            if name == "recipe_plan":
+                value["steps"][0]["batches"] = 1
+            elif name == "building_plan":
+                value["cell_minima"][-1] = value["cell_minima"][0]
+            elif name == "item_lookup":
+                value["results"][0]["matches"][0]["debug_name"] = "Wrong_Item"
+            else:
+                value = {"unexpected": "private-do-not-persist"}
+        return {"isError": error, "content": [{"type": "text", "text": value if error else json.dumps(value)}]}
+
+
+class ValidationTests(unittest.TestCase):
+    def test_unrelated_errors_do_not_prove_specific_refusals(self):
+        for label in ("invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused"):
+            client = Fixture()
+            original = client.call
+
+            def reply(method, params=None):
+                if method == "tools/call":
+                    name, args = params["name"], params["arguments"]
+                    target = ((label == "invalid_item_refused" and name == "item_info" and args["item"].startswith("Not_")) or
+                              (label == "missing_inventory_selector" and name == "inventory_read" and not args) or
+                              (label == "invalid_inventory_selector" and name == "inventory_read" and args.get("entity") == 0) or
+                              (label == "invalid_lookup_id_refused" and name == "item_lookup" and args["ids"] == [0]))
+                    if target:
+                        return {"isError": True, "content": [{"type": "text", "text": "tool unavailable"}]}
+                return original(method, params)
+
+            with self.subTest(label=label), patch.object(client, "call", side_effect=reply):
+                report = Validation(client, pause=lambda _: None).run()
+                self.assertEqual(next(c for c in report["checks"] if c["name"] == label)["outcome"], "fail")
+
+    def test_fixed_reads_only_and_sanitized_incomplete_report(self):
+        client = Fixture()
+        report = Validation(client, pause=lambda _: None).run()
+        self.assertEqual(report["verdict"], "incomplete")
+        self.assertEqual(len(report["checks"]), 15)
+        self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
+        self.assertTrue(report["incomplete"])
+        self.assertNotIn("private-", json.dumps(report))
+        called = {params["name"] for method, params in client.calls if method == "tools/call"}
+        self.assertEqual(called, READS)
+        self.assertFalse(any("dry" in params.get("arguments", {}) for method, params in client.calls if method == "tools/call"))
+
+    def test_shape_arithmetic_provenance_and_geometry_mismatches_fail(self):
+        for tool in ("capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
+            with self.subTest(tool=tool):
+                report = Validation(Fixture(tool), pause=lambda _: None).run()
+                self.assertEqual(report["verdict"], "failed")
+                self.assertNotIn("private-", json.dumps(report))
+
+    def test_write_rejected_before_client_call(self):
+        client = Fixture()
+        with self.assertRaises(ValueError):
+            Validation(client).probe("write", "give_item", {"dry": True})
+        self.assertEqual(client.calls, [])
+
+
+if __name__ == "__main__":
+    unittest.main()
