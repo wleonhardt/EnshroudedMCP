@@ -18,6 +18,7 @@ The server endpoint is `POST http://127.0.0.1:8751/mcp`. Its mod ID is `enshroud
 | `knowledge_search` | Curated evidence with provenance and applicability |
 | `recipe_plan` | Pure single-output recipe arithmetic over supplied recipes and stock |
 | `building_plan` | Floor, wall and doorway previews on a half-metre grid; no placement |
+| `building_survey` | At most 4096 complete half-metre cells with exact material/fill, persistence and optional connected-player build rights; no edits |
 | `give_item` | One explicitly gated inventory transaction |
 
 The optional research companion uses `POST http://127.0.0.1:8754/mcp` and mod ID `enshrouded.mcp-client`. It exposes `client_capabilities`, `client_state`, `client_events`, `client_item`, `client_recipes` and `client_selection_events`. The framework requires side `both`: matching companion installations are needed on the isolated research server and its clients. The dedicated-server half is a no-op. The companion copies native UI snapshots and named client events; it provides no desktop automation or gameplay actions.
@@ -70,6 +71,10 @@ Entity IDs and slot references are session-scoped. Output caps do not necessaril
 Recipe outputs are conditional on supplied assumptions. Alternatives, catalysts, coproducts, real inventory reservation and survival-cost debits are unsupported. Building previews do not check material mapping, collision, traversal, build rights, appearance or persistence.
 
 ## Validation and roadmap
+
+Version 0.7.0 adds bounded read-only site surveys. Supply `x`, `y`, `z`, `width`, `height`, `depth` on the 0.5 m grid, with sides at most 8 m. Optional `player` selects one connected name/account key for rights. Voxel output uses x-fastest, then y, then z order. Unloaded reads return errors; unavailable persistence/rights stay unknown. Runtime voxel material IDs are not inventory item IDs or a validated palette. The zone check is not save/reload proof, and an allowed observation does not authorize a later write. Props, collision, traversal, survival costs and complete altar boundaries remain unchecked.
+
+The focused framework contribution is [enshwick PR #1079](https://github.com/enshwick/enshwick/pull/1079). It contains no MCP code and does not replace this snapshot's pinned compatibility patch automatically.
 
 The source has offline tests and limited isolated live evidence. Known inventory splits, one durability comparison, one enemy health decrease and cold file restoration have been observed. These findings do not establish general mechanics or complete object-state recovery. See [public evidence](plans/research/live-validation.md), [the construction roadmap](plans/goal.md) and [the queue](plans/next-up.md).
 

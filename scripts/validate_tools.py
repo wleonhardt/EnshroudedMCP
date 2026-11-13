@@ -1,4 +1,4 @@
-"""Read-only 0.6.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.7.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ from investigate import Client, InvalidReply
 
 
 READS = frozenset(("capabilities", "inventory_read", "item_info", "entity_health",
-                   "knowledge_search", "recipe_plan", "building_plan", "item_lookup"))
+                   "knowledge_search", "recipe_plan", "building_plan", "building_survey", "item_lookup"))
 RECIPE = {"catalog_label": "synthetic-validation", "goals": [{"item": "boards", "count": 3}],
           "stock": [{"item": "wood", "count": 6}], "stations": [], "unlocks": [],
           "recipes": [{"id": "boards", "item": "boards", "count": 2,
@@ -60,14 +60,14 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.6.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.7.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(READS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.6.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.7.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.6.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.7.0" and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "new_inspection_tools_live_verified")))
         self.probe("known_item_lookup", "item_lookup", {"ids": [213939880]}, lambda v:
                    v.get("source") == "vanilla_archive_item_registry" and v.get("effective_definition_verified") is False and
@@ -100,6 +100,12 @@ class Validation:
         self.probe("floor_geometry", "building_plan", FLOOR, lambda v:
                    v.get("executable") is False and v["geometry"]["solid_cell_count"] == 16 and
                    len(v["cell_minima"]) == 16 and len({tuple(p) for p in v["cell_minima"]}) == 16)
+        # Admission-only probes: neither request reaches game-thread survey reads.
+        survey = {"x": 100, "y": 100, "z": 100, "width": 0.5, "height": 0.5, "depth": 0.5}
+        self.probe("survey_off_grid_refused", "building_survey", {**survey, "x": 100.25},
+                   refusal="'x' must be a 0.5 m grid value")
+        self.probe("survey_write_argument_refused", "building_survey", {**survey, "confirm": "server-write"},
+                   refusal="unknown argument 'confirm'")
         self.probe("unknown_argument_refused", "capabilities", {"validation_unknown": True}, refusal="unknown argument")
         outcomes = {c["outcome"] for c in self.checks}
         return self.report("failed" if "fail" in outcomes else "blocked" if "blocked" in outcomes else "incomplete")
@@ -108,7 +114,9 @@ class Validation:
         result = {"started_utc": datetime.now(timezone.utc).isoformat(), "verdict": verdict, "checks": self.checks,
                   "incomplete": ["Known stock and inventory eligibility versus UI remain unverified.",
                                  "Known healthy/damaged fixture versus UI remains unverified.",
-                                 "Synthetic planning and empty reads do not establish live game semantics."]}
+                                 "Synthetic planning and empty reads do not establish live game semantics.",
+                                 "Survey probes cover off-grid and unknown write-argument refusal only; no valid survey read is validated.",
+                                 "Live building geometry comparison and persistence acceptance remain incomplete."]}
         if reason:
             result["reason"] = reason
         return result

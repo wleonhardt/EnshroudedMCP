@@ -3,6 +3,7 @@
 //! game thread through the scheduler (`tools.rs`).
 
 mod building_plan;
+mod building_survey;
 mod item_lookup;
 mod knowledge;
 mod recipe_plan;

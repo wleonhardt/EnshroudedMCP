@@ -2,7 +2,8 @@
 
 ## Queue
 
-- Implement bounded site/material/build-right observations, then prove a tiny gated placement/read-back/undo cycle in an isolated world.
+- Validate the new bounded voxel/persistence/build-right survey against known isolated fixtures. Material mapping and complete altar boundaries remain open.
+- Prove a tiny gated placement/read-back/undo cycle in an isolated world.
 - Add operation identity and unknown-outcome reconciliation before mutation retries.
 - Build idempotent administrative plan jobs and measured reusable modules.
 - Obtain a supported selected-tab/passive-recipe state getter; current client selections remain unknown.

@@ -118,6 +118,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::building_survey::tool(),
             crate::item_lookup::tool(),
             Tool {
                 name: "capabilities",
@@ -216,6 +217,11 @@ impl Tools for GameTools {
             network_health,
         } = self.game;
         match name {
+            "building_survey" => {
+                let spec = policy::building_survey::check(a)?;
+                let game = self.game;
+                on_game_thread(scheduler, move || crate::building_survey::read(game, spec))?
+            }
             "item_lookup" => {
                 let ids = policy::item_lookup::check(a)?;
                 let layout = item_layout.ok_or("vanilla item registry layout unavailable")?;
@@ -241,9 +247,10 @@ impl Tools for GameTools {
                 "inventory_read":inventories.is_some(),
                 "item_info":inventories.is_some(),
                 "item_lookup":item_layout.is_some(),
+                "building_survey":true,
                 "typed_network_health":network_health.is_some(),
                 "resolved_component_names":self.components.len(),
-                "limits":{"health_radius_m":inspection::HEALTH_RADIUS,"health_entities":inspection::HEALTH_LIMIT,"inventory_page_slots":inspection::SLOT_LIMIT,"inventory_offset":inspection::SLOT_OFFSET_MAX,"wait_seconds":GAME_WAIT.as_secs()},
+                "limits":{"health_radius_m":inspection::HEALTH_RADIUS,"health_entities":inspection::HEALTH_LIMIT,"inventory_page_slots":inspection::SLOT_LIMIT,"inventory_offset":inspection::SLOT_OFFSET_MAX,"survey_cells":policy::building_survey::MAX_CELLS,"survey_side_m":policy::building_survey::MAX_SIDE_M,"wait_seconds":GAME_WAIT.as_secs()},
                 "limitations":["output limits do not cap enshwick spatial discovery or virtual-inventory traversal","a response timeout does not cancel a queued read","entity IDs and slot references are session-only","inventory pages are independent snapshots"]
             })),
             "inventory_read" => {

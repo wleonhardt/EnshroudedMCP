@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.0
+
+- Add read-only `building_survey`, bounded to 8 m per side and 4096 complete cells, with exact runtime material/fill, whole-box persistence and optional connected-player build rights. Gate arguments, allocation, full-cell bounds and selectors before scheduling onto the game thread. Unloaded and unavailable states remain explicit.
+- Keep construction execution, material mapping, collision, survival accounting and recovery acceptance open. Surveying does not authorize writes.
+
 ## Research snapshot
 
 - Server 0.6.0 provides fifteen tools, including bounded inspection, curated evidence, pure recipe/geometry previews and gated `give_item`.
