@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.15.0
+
+- Add dry-by-default `player_reposition`, one bounded server administrative teleport request for a sole connected living actor. Bind preview to exact current server actor/session/generation/position and target; require fresh write gates again before dispatch. The 16 m gate limits the requested point, not the engine's best-spawn correction.
+- Synchronize bounded durable identity/intent and journal before a retained once marker and one native request attempt. Canonical same-ID replay does not redispatch; altered requests and stale durable identities refuse. Submission stays `issued_unknown`, not an arrival receipt. Returning needs another separately gated request; no automatic retry, chain, native undo, walking, camera or menu executor.
+- Pass 143 Rust tests, 30 Python tests, Clippy, formatting and release build. Correct an outdated tool-advertisement fixture; the read-only validator advertises the new write without ever invoking it. Independent scoped security review found no blocking issue, without asserting complete safety.
+- Validate one isolated two-command fixture through six explicit phases, independent rendered/position observations, replay with unchanged journals, exact 4,096-cell construction preservation and cold-reload stale refusal after a verified 40-file archive. Observed positions differed from requested points. A zero-player old-preview/new-identity refusal establishes actor refusal only. Exact arrival, precise return, arrival causality and complete player-state recovery remain unverified.
+
 ## 0.14.0 and companion 0.3.0
 
 - Pin official development revision `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30, in a dedicated sibling checkout. Retire the private client-event ABI from the active build and retain only a three-file existing-field SDK metadata extension with no native ABI change.

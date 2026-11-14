@@ -15,5 +15,6 @@ pub mod item_lookup;
 pub mod knowledge;
 pub mod mcp;
 pub mod recipe_plan;
+pub mod reposition;
 pub mod request;
 pub mod write_gate;

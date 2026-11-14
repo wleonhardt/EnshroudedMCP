@@ -15,3 +15,5 @@ __pycache__/
 **/recovery/
 *.zip
 *.7z
+**/construction-operations/
+**/reposition-operations/

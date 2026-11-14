@@ -2,6 +2,9 @@
 
 ## Open
 
+- Why do official local held-input observations remain null in the tested joined-world fixture?
+- Can a supported interface provide a causal arrival receipt or a bound on engine best-spawn correction? Existing later position reads cannot supply that proof.
+
 - How do larger layered modules behave under the documented quiescent-site limits? The small frame/filler proof does not establish general concurrent safety.
 
 - What supported UI model reader exposes the current inner tab and passive recipe highlight?

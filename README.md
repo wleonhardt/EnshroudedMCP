@@ -2,7 +2,7 @@
 
 An experimental [enshwick](https://github.com/enshwick/enshwick) mod that exposes a loopback MCP endpoint for inspecting Enshrouded. Server reads run on the game thread. Request admission, argument bounds and write gates are implemented in a game-free policy crate.
 
-Server version 0.14.0 exposes twenty-one tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
+Server version 0.15.0 exposes twenty-two tools: inspection, pure planning, gated `give_item`, bounded administrative construction, and one gated administrative reposition request. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
 
 The project is unofficial. Keen's Terms of Use forbid mods (3.3(f)); assess the terms before use. This project contains no game binaries, saves, generated catalogues or credentials and does not modify the Steam DRM stub.
 
@@ -22,6 +22,7 @@ The server endpoint is `POST http://127.0.0.1:8751/mcp`. Its mod ID is `enshroud
 | `building_place_cell`, `building_apply_plan` | Gated exact-voxel copy into one air cell or up to 256 primitive or composite floor/wall/doorway cells across eight aligned bricks, at most 64 per brick |
 | `building_operation`, `building_undo_cell` | Session-bound native transaction reconciliation and guarded undo for cells or plans |
 | `building_accept` | Gated acceptance of an exact applied capture to allow another bounded operation; retains session-only undo |
+| `player_reposition` | Dry-by-default once-only administrative teleport request for the sole connected living actor; a requested point within 16 m, not guaranteed arrival or bounded engine correction |
 | `give_item` | One explicitly gated inventory transaction |
 
 The optional research companion 0.3.0 uses `POST http://127.0.0.1:8754/mcp` and mod ID `enshrouded.mcp-client`. It exposes `client_capabilities`, `client_state`, `client_events`, `client_item`, `client_recipes` and `client_selection_events`. The framework requires side `both`: matching companion installations are needed on the isolated research server and its clients. The dedicated-server half is a no-op. The companion copies native UI snapshots, nullable screen-host templates and named client events. Compiled framework revision/ABI are reported separately from live verification. It provides no desktop automation or gameplay actions.
@@ -107,7 +108,21 @@ Version 0.14.0 and companion 0.3.0 were rebuilt against the exact official devel
 
 All eighteen server and nine companion read-only probes passed with broader acceptance incomplete. The prior shell's entire 4,096-cell reverted baseline remained exact and its old construction receipt stayed stale. Fresh native Menu and joined InGame frames were observed. Local held-input metadata remained null. A non-null host-template fixture and named event delivery after migration remain unverified; the altar interaction trial stopped when an enemy attacked, and the client subsequently logged out with the server empty and write flags absent.
 
-Published input masks and control bindings observe actions; they do not synthesize vanilla walking, camera input, lobby actions or menu navigation. No selected-tab or passive-recipe getter is claimed. Supported native administrative repositioning remains a separately reviewed future action, not an advertised capability in this version. No screenshots, runtime identities or controller patches are included.
+Published input masks and control bindings observe actions; they do not synthesize vanilla walking, camera input, lobby actions or menu navigation. No selected-tab or passive-recipe getter is claimed. Version 0.15 adds the separate bounded server reposition request described below; it is not a vanilla walking or menu actuator. No screenshots, runtime identities or controller patches are included.
+
+## Bounded native administrative reposition
+
+`player_reposition` accepts `operation`, `player`, `x`, `y`, `z`, and optional `dry`, `preview`, `confirm`. It defaults to report-only `dry: true`. Use the returned preview unchanged in a separately gated real request. The exact preview binds the current server session, account, character, actor generation, observed position and requested point. Joined, left and death events invalidate actor generations. A sole connected matching actor with observed positive health is required; client UI entity IDs are not player selectors.
+
+The 16 m Euclidean gate bounds the requested point from the observed current position. The published native route uses engine best-spawn search with its preserve-orientation default. The adjustment radius is not published, so actual displacement, collision safety, hazards and precise arrival are not guaranteed. Operator authority remains the trusted loopback caller, fresh `ALLOW_WRITES` flag and exact `confirm: "server-write"`; no gameplay role is changed.
+
+Before one dispatch attempt, the adapter synchronizes an exclusive durable identity/intent and journal, then retains a once marker in memory. Repeating the same canonical identity returns the stored outcome without dispatching again. Altered requests and old-session durable identities refuse. Partial storage/native failure preserves the blocked identity and uncertainty. Never change identity to conceal an unknown outcome or automate retries.
+
+Submission remains `issued_unknown`, with `arrival_verified: false`, even when `native_request_accepted` is true. That flag means request acceptance, not completion. Observe later server positions and rendered state independently. Returning toward the original point requires a new preview, identity and separately gated command; it is not undo and does not restore health, velocity, camera, input or complete player state. No automatic chaining, walking, camera, menu or lobby executor is added.
+
+The isolated two-command fixture passed six separate phases, rendered/position observations, replay without journal append, exact preservation of all 4,096 construction cells, and cold-reload stale refusal after a verified 40-file archive. The engine-selected observations differed from both requested points. The zero-player old-preview/new-identity refusal proves actor refusal only, not live preview-session-specific rejection. Exact arrival/return, arrival causality, player-position persistence and stateful recovery remain unverified.
+
+Back up `reposition-operations/` together with `construction-operations/`, `journal.jsonl` and the save. These records contain private runtime context and remain outside publication inputs.
 
 ## License
 

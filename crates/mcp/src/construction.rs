@@ -291,6 +291,10 @@ impl Construction {
             self.shared.epoch.load(Ordering::SeqCst)
         )
     }
+    pub(crate) fn active_session(&self) -> Result<String, String> {
+        require_active(&self.shared.active)?;
+        Ok(self.session())
+    }
     fn gate(&self, dry: bool, confirm: Option<&str>) -> Result<(), String> {
         let age = write_gate::flag_age(&self.shared.dir.join(write_gate::FLAG));
         write_gate::check(dry, true, age, confirm)

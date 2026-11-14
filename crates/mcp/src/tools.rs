@@ -85,6 +85,7 @@ pub(crate) struct GameTools {
     /// The mod's folder: the write flag and the journal live there.
     mod_dir: Option<std::path::PathBuf>,
     construction: Option<crate::construction::Construction>,
+    reposition: Option<crate::reposition::Reposition>,
     list: Vec<Tool>,
 }
 
@@ -94,6 +95,7 @@ impl GameTools {
         components: Components,
         mod_dir: Option<std::path::PathBuf>,
         construction: Option<crate::construction::Construction>,
+        reposition: Option<crate::reposition::Reposition>,
     ) -> Self {
         let point = |extra: &str| {
             json!({"type": "object", "properties": {
@@ -191,11 +193,17 @@ impl GameTools {
         ];
         list.extend(offline_tools());
         list.extend(crate::construction::tools());
+        list.push(Tool {
+            name: "player_reposition",
+            description: "ADMIN WRITE, dry by default. Submit one bounded server teleport request for the sole connected living player, using engine free-spot search. Requested target must be within 16 m of observed position. Exact actor/session preview, fresh write flag and confirmation required. Durable same-ID replay never dispatches again. Submission is not arrival; spawn adjustment is unbounded by this interface. No walking, camera, menu, native undo or automatic retry. Observe players separately; return requires a new gated request.",
+            schema: policy::reposition::schema(),
+        });
         Self {
             game,
             components,
             mod_dir,
             construction,
+            reposition,
             list,
         }
     }
@@ -221,6 +229,26 @@ impl Tools for GameTools {
             network_health,
         } = self.game;
         match name {
+            "player_reposition" => {
+                let spec = policy::reposition::check(a)?;
+                let reposition = self
+                    .reposition
+                    .clone()
+                    .ok_or("native reposition unavailable")?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted_session = construction.active_session()?;
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    policy::construction::check_session(
+                        &admitted_session,
+                        &construction.active_session()?,
+                    )?;
+                    reposition.run(game, spec)
+                })?
+            }
             "building_apply_plan" => {
                 let spec = policy::construction::check_plan(a)?;
                 let construction = self
@@ -319,6 +347,8 @@ impl Tools for GameTools {
             }
             "capabilities" => Ok(json!({
                 "mod_version":env!("CARGO_PKG_VERSION"),
+                "native_reposition":self.reposition.is_some(),
+                "native_reposition_live_verified":false,
                 "enshwick":"1.0.0-alpha.15",
                 "compiled_framework_revision":"5f647f46d7f987e93d397e00596014b23f3c1112",
                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),

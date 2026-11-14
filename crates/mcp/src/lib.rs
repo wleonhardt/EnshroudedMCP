@@ -8,6 +8,7 @@ mod construction;
 mod item_lookup;
 mod knowledge;
 mod recipe_plan;
+mod reposition;
 mod server;
 mod tools;
 
@@ -42,8 +43,19 @@ impl Mod for Mcp {
         let construction = construction::Construction::new(load)
             .map_err(|error| enshwick::warn!("construction unavailable: {error}"))
             .ok();
+        let reposition = construction.clone().and_then(|construction| {
+            reposition::Reposition::new(load, construction)
+                .map_err(|error| enshwick::warn!("reposition unavailable: {error}"))
+                .ok()
+        });
         Ok(Self {
-            tools: tools::GameTools::new(game, components, load.mod_dir().ok(), construction),
+            tools: tools::GameTools::new(
+                game,
+                components,
+                load.mod_dir().ok(),
+                construction,
+                reposition,
+            ),
         })
     }
 

@@ -1,6 +1,6 @@
 # Pinned official framework and SDK metadata patch
 
-The active MCP 0.14.0/companion 0.3.0 build pins official enshwick commit `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30. Its package string remains alpha.15, but the alpha.15 release tag is ABI 11.28. Package version strings alone are not compatibility evidence.
+The active MCP 0.15.0/companion 0.3.0 build pins official enshwick commit `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30. Its package string remains alpha.15, but the alpha.15 release tag is ABI 11.28. Package version strings alone are not compatibility evidence.
 
 ## Reproduce the SDK source
 

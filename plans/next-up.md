@@ -3,7 +3,7 @@
 ## Queue
 
 - Validate a quiescent native host-template and named-event fixture after the official ABI 11.30 migration. Local held-input observations remain null; do not infer absent input or actuator support.
-- Review separately supported native administrative repositioning before proposing a new gated action. No vanilla walking, camera or menu executor is advertised.
+- Investigate why supported local held-input observations remain absent and address native client/menu API gaps. The bounded administrative reposition request is separate from vanilla walking, camera and menu control.
 
 - Validate functional-prop identity and complete footprint observations before adding a state-aware prop lifecycle. Read-only placed-template mapping is implemented but does not establish eligibility or safe spawning.
 
@@ -21,16 +21,18 @@
 
 ## Done
 
+- Server 0.15.0 adds dry-by-default bounded once-command repositioning with exact actor previews, positive-health/sole-actor checks, durable intent and replay refusal. One isolated outbound/return fixture passed rendered/position observation, journal replay, 4,096-cell preservation and a 40-file cold-reload stale-refusal proof. Neither exact arrival nor player-state recovery is claimed.
+
 - MCP 0.14.0 and companion 0.3.0 migrated to exact official development revision/ABI 11.30 with only the three-file SDK metadata patch. The SDK passed 538 nextest tests. Matching isolated binaries passed eighteen server and nine companion read probes; broader acceptance remains incomplete.
 - The isolated 164-cell workshop shell passed independent whole-4,096-cell verification, rendered inspection, undo and post-undo cold reload before migration. The same reverted baseline remains exact after migration; this is not applied-shell persistence or traversal/workshop acceptance.
 
 - Version 0.13.0 exposes explicit placed-template states through `item_info`, using an existing ABI field without replacing the loader or companion. All 18 settled fixed read probes passed; immediate startup readiness failed one of 18 checks and remains recorded separately.
 
-- Server 0.14.0 provides twenty-one tools; bounded plan implementation and strict multi-cell undo admission have offline tests.
+- Server 0.15.0 provides twenty-two tools; bounded plan implementation and strict multi-cell undo admission have offline tests.
 - Single-cell isolated placement/read-back/undo passed exact capture checks, replay reconciliation and cold reload of all 512 baseline voxels.
 - Original research-ID 0.12.0 installation passed 18 fixed read-only probes. Neutral publication IDs remain untested live.
 - A 16-cell floor passed exact read-back, replay, undo and post-undo reload; a separate applied-floor checkpoint preserved all 512 captured voxels after reload.
-- Offline checks passed: 133 Rust tests, 30 Python tests, Clippy, formatting and release build.
+- Offline checks passed: 143 Rust tests, 30 Python tests, Clippy, formatting and release build.
 - Version 0.11.0 staged five-cell frame plus one-cell filler passed six exact 512-cell phases, acceptance/replay guards, safe wrong-order refusal and reverse-order undo. Rendered gap closure/reopening/disappearance and post-undo cold reload passed. Larger layers and applied persistence for this fixture remain unverified.
 - Rendered 0.10 cell and separate gap/solid comparisons have narrow observations with exact baseline undo; no incremental fill or workshop acceptance is claimed.
 - One 0.12.0 six-cell compound union from eight raw part cells/two overlaps passed sixteen live proof checks and exact 512-cell post-undo cold reload, with canonical replay and stale identity/token guards.
