@@ -107,7 +107,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_state",
-                    description: "Latest native UI-frame snapshot: screen, interaction prompt, screen host and local held gameplay controls. Stale/unavailable observations explicit; no world authority inferred.",
+                    description: "Latest native UI-frame snapshot: screen, interaction prompt, screen host/template and local held gameplay controls. A null template may mean no host, first-frame/unresolved metadata or unavailable reader. Stale/unavailable observations explicit; no world authority or current inner selection inferred.",
                     schema: json!({"type":"object"}),
                 },
                 Tool {
@@ -186,7 +186,7 @@ impl Tools for ClientTools {
         policy::args::check(&tool.schema, args)?;
         match name {
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.14","framework_extension":"client-scoped events, local ABI 11.20 build","ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.15","compiled_framework_revision":"5f647f46d7f987e93d397e00596014b23f3c1112","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"pinned nightly SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -240,8 +240,8 @@ fn resolve(host: Host, layout: Option<RecipeLayout>, request: Request) -> Result
         }
         Request::Recipe(_, limit) => {
             let layout = layout.ok_or("recipe layout unavailable")?;
-            let key = enshwick::content::recipes::RECIPE_REGISTRY
-                .key(types::RECIPE_REGISTRY_RESOURCE)
+            let key = types::RECIPE_REGISTRY_RESOURCE
+                .key(enshwick::content::recipes::RECIPE_REGISTRY)
                 .map_err(|e| e.to_string())?;
             let bytes = host
                 .game_resource(key)
@@ -271,7 +271,7 @@ impl Mod for ResearchClient {
         load.on_frame(move |frame|{
             let prompt=frame.prompt().map(|prompt|json!({"title":policy::client::text(&prompt.title),"title_truncated":prompt.title.len()>policy::client::TEXT,"verb":prompt.verb}));
             let held=input.and_then(|input|input.local_held()).map(|mask|mask.iter().map(|action|action.name()).collect::<Vec<_>>());
-            let value=json!({"screen":format!("{:?}",frame.screen()),"hud_screen":frame.open_screen().map(|screen|screen.name()),"prompt":prompt,"host":frame.screen_host().map(|entity|entity.0),"host_position":frame.screen_host_position(),"held_actions":held});
+            let value=json!({"screen":format!("{:?}",frame.screen()),"hud_screen":frame.open_screen().map(|screen|screen.name()),"prompt":prompt,"host":frame.screen_host().map(|entity|entity.0),"host_position":frame.screen_host_position(),"host_template":frame.screen_host_template().map(|guid|guid.to_string()),"held_actions":held});
             let left_game=frames.observation.lock().map(|mut observation|observation.record(value)).unwrap_or(false);
             if left_game && let Ok(mut evidence)=frames.selection.lock(){evidence.end_session();}
             let job=frames.pending.lock().ok().and_then(|mut job|job.take());
@@ -342,14 +342,42 @@ side = "both""#
         assert_eq!(state["observation"]["hud_screen"], "StorageChest");
         assert_eq!(state["observation"]["host"], 42);
         assert_eq!(state["observation"]["prompt"]["title"], "Test chest");
+        assert!(
+            state["observation"]
+                .get("host_template")
+                .is_some_and(Value::is_null)
+        );
+        let template = enshwick::content::Guid([17; 16]);
+        loader.read_screen_host(template, [1.0, 2.0, 3.0]);
+        let _ = loader.draw_frame();
+        let state = shared.observation.lock().unwrap().snapshot();
+        assert_eq!(state["observation"]["host_template"], template.to_string());
+        assert_eq!(state["sequence"], 1); // Metadata freshness is not a new screen/host event.
+
         loader.open_screen(Some(HudScreenType::InGame));
         loader.host_screen(None);
         loader.show_prompt(None);
         let _ = loader.draw_frame();
         let state = shared.observation.lock().unwrap().snapshot();
         assert!(state["observation"]["host"].is_null());
+        assert!(state["observation"]["host_template"].is_null());
         assert!(state["observation"]["prompt"].is_null());
         assert_eq!(state["sequence"], 2);
+    }
+
+    #[test]
+    fn compiled_framework_provenance_is_separate_from_live_verification() {
+        let tools = ClientTools::new(Arc::default(), false, false);
+        let value = tools.call("client_capabilities", &Map::new()).unwrap();
+        assert_eq!(value["enshwick"], "1.0.0-alpha.15");
+        assert_eq!(
+            value["compiled_framework_revision"],
+            "5f647f46d7f987e93d397e00596014b23f3c1112"
+        );
+        assert_eq!(value["compiled_framework_abi"], "11.30");
+        assert_eq!(value["screen_host_template_observation"], true);
+        assert_eq!(value["live_verified"], false);
+        assert_eq!(value["semantic_gameplay_actions"], json!([]));
     }
 
     #[test]

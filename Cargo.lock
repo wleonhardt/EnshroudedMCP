@@ -96,17 +96,59 @@ checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
 
 [[package]]
 name = "enshwick"
-version = "1.0.0-alpha.14"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "document-features",
+ "enshwick-abi",
+ "enshwick-actions",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-core",
+ "enshwick-fake",
+ "enshwick-inventory",
+ "enshwick-knowledge",
+ "enshwick-macros",
+ "enshwick-packs",
+ "enshwick-ui",
+ "enshwick-values",
+ "enshwick-world",
+]
+
+[[package]]
+name = "enshwick-abi"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "bytemuck",
+ "enshwick-values",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "enshwick-actions"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "bytemuck",
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-macros",
+ "enshwick-values",
+ "enshwick-world",
+ "thiserror",
+]
+
+[[package]]
+name = "enshwick-base"
+version = "1.0.0-alpha.15"
 dependencies = [
  "aho-corasick",
- "bcdec_rs",
  "bytemuck",
- "const-sha1",
  "const_format",
- "document-features",
+ "enshwick-abi",
  "enshwick-macros",
+ "enshwick-values",
  "fastrand",
- "hound",
  "memchr",
  "postcard",
  "rustc-hash",
@@ -114,18 +156,166 @@ dependencies = [
  "strsim",
  "thiserror",
  "toml",
+]
+
+[[package]]
+name = "enshwick-content"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "bcdec_rs",
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-macros",
+ "enshwick-typed",
+ "enshwick-values",
+ "rustc-hash",
+ "thiserror",
  "zune-core",
  "zune-png",
 ]
 
 [[package]]
+name = "enshwick-core"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "enshwick-abi",
+ "enshwick-actions",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-inventory",
+ "enshwick-knowledge",
+ "enshwick-macros",
+ "enshwick-packs",
+ "enshwick-ui",
+ "enshwick-values",
+ "enshwick-world",
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "enshwick-fake"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "bytemuck",
+ "enshwick-core",
+ "enshwick-macros",
+ "postcard",
+ "rustc-hash",
+ "serde",
+ "thiserror",
+ "toml",
+]
+
+[[package]]
+name = "enshwick-inventory"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "bytemuck",
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-macros",
+ "enshwick-values",
+ "enshwick-world",
+ "fastrand",
+ "postcard",
+ "rustc-hash",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "enshwick-knowledge"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-inventory",
+ "enshwick-macros",
+ "enshwick-values",
+ "enshwick-world",
+ "fastrand",
+ "serde",
+]
+
+[[package]]
 name = "enshwick-macros"
-version = "1.0.0-alpha.14"
+version = "1.0.0-alpha.15"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
  "toml",
+]
+
+[[package]]
+name = "enshwick-packs"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-inventory",
+ "enshwick-knowledge",
+ "enshwick-ui",
+ "enshwick-values",
+ "enshwick-world",
+ "rustc-hash",
+ "serde",
+ "thiserror",
+ "toml",
+]
+
+[[package]]
+name = "enshwick-typed"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "enshwick-values",
+ "thiserror",
+]
+
+[[package]]
+name = "enshwick-ui"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-macros",
+ "enshwick-values",
+ "enshwick-world",
+ "hound",
+ "thiserror",
+]
+
+[[package]]
+name = "enshwick-values"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "const-sha1",
+ "const_format",
+ "enshwick-macros",
+ "rustc-hash",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "enshwick-world"
+version = "1.0.0-alpha.15"
+dependencies = [
+ "enshwick-abi",
+ "enshwick-base",
+ "enshwick-content",
+ "enshwick-macros",
+ "enshwick-typed",
+ "enshwick-values",
+ "postcard",
+ "rustc-hash",
+ "serde",
+ "thiserror",
 ]
 
 [[package]]
@@ -191,7 +381,7 @@ checksum = "4744e383959f0db86ede514b809b1c53251889093803c05267acc7d4e7030d70"
 
 [[package]]
 name = "mcp"
-version = "0.13.0"
+version = "0.14.0"
 dependencies = [
  "enshwick",
  "mcp-transport",
@@ -201,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "mcp-client"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "enshwick",
  "mcp-transport",

@@ -1,0 +1,83 @@
+diff --git a/crates/enshwick/tests/inventory.rs b/crates/enshwick/tests/inventory.rs
+index 0f0ec672..e64026b8 100644
+--- a/crates/enshwick/tests/inventory.rs
++++ b/crates/enshwick/tests/inventory.rs
+@@ -23,6 +23,8 @@ mod tests {
+     const PLAYER: u32 = 2;
+     const SWORD: u32 = 0x5e01;
+     const COIN: u32 = 0x0c01;
++    const PROP: u32 = 0x7701;
++    const PLACED_TEMPLATE: [u8; 16] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+ 
+     static INVENTORIES: OnceLock<Inventories> = OnceLock::new();
+     static OUTCOMES: Mutex<Vec<Outcome>> = Mutex::new(Vec::new());
+@@ -133,6 +135,10 @@ mod tests {
+             .component(Entity(900), durability, &worn)
+             .component(Entity(901), fuel, &lamp)
+             .item(enshwick::ItemId::new(SWORD), 1, ItemData::HAS_PIDE)
++            .item_category(enshwick::ItemId::new(SWORD), 2)
++            .item(enshwick::ItemId::new(PROP), 8, 0)
++            .item_category(enshwick::ItemId::new(PROP), 3)
++            .item_places(enshwick::ItemId::new(PROP), PLACED_TEMPLATE)
+     }
+ 
+     fn record(outcome: &Outcome) {
+@@ -183,6 +189,31 @@ mod tests {
+                 .is_some_and(|i| i.has_pide() && i.max_stack_size == 1)
+         );
+         assert!(inventories.item_info(enshwick::ItemId::new(COIN)).is_none());
++        let sword = inventories.item_info(enshwick::ItemId::new(SWORD)).unwrap();
++        assert_eq!(sword.placed_entity_template, None);
++        assert_eq!(
++            (
++                sword.id.get(),
++                sword.max_stack_size,
++                sword.category,
++                sword.flags
++            ),
++            (SWORD, 1, 2, ItemData::HAS_PIDE)
++        );
++        let prop = inventories.item_info(enshwick::ItemId::new(PROP)).unwrap();
++        assert_eq!(prop.placed_entity_template, Some(PLACED_TEMPLATE));
++        assert_eq!(
++            (
++                prop.id.get(),
++                prop.max_stack_size,
++                prop.category,
++                prop.flags
++            ),
++            (PROP, 8, 3, 0)
++        );
++        // An inventory item's PIDE and the entity it places are independent.
++        assert!(sword.has_pide());
++        assert!(!prop.has_pide());
+ 
+         let ticket = inventories.move_all(Entity(CORPSE), Entity(PLAYER), record);
+         let requests = loader.inventory_requests();
+diff --git a/crates/internal/inventory/src/inventory/read.rs b/crates/internal/inventory/src/inventory/read.rs
+index ca546ed7..0c77b20a 100644
+--- a/crates/internal/inventory/src/inventory/read.rs
++++ b/crates/internal/inventory/src/inventory/read.rs
+@@ -187,6 +187,7 @@ impl Inventories {
+             max_stack_size: out.max_stack,
+             flags: out.flags,
+             category: out.category,
++            placed_entity_template: (out.placed_entity != [0; 16]).then_some(out.placed_entity),
+         })
+     }
+ 
+diff --git a/crates/internal/inventory/src/inventory/slots.rs b/crates/internal/inventory/src/inventory/slots.rs
+index beba1029..7cefff29 100644
+--- a/crates/internal/inventory/src/inventory/slots.rs
++++ b/crates/internal/inventory/src/inventory/slots.rs
+@@ -135,6 +135,10 @@ pub struct ItemInfo {
+     /// The game's `ItemCategory`: 1 equipment (armour and rings), 2
+     /// weapons, 3 tools, and so on.
+     pub category: u8,
++    /// The template placed from this item, in GUID file order; `None` for
++    /// a known item that places nothing. This is not the inventory item's
++    /// own entity template, and does not prove eligibility for prop placement.
++    pub placed_entity_template: Option<[u8; 16]>,
+ }
+ 
+ impl ItemInfo {

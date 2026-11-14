@@ -29,3 +29,5 @@ Run the checks above. Update public documentation and changelog for behavior cha
 ## Structure
 
 Rust 2024 workspace: `crates/policy` holds rules, `crates/mcp` the server adapter, `crates/transport` loopback HTTP/MCP, and `crates/client` the optional native research companion. `scripts` contains Python read-only probes and helper tests. `patches` contains the reproducible pinned framework extension. Read its instructions before building.
+
+The current SDK pin is official commit `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30, through sibling `enshwick-nightly`. Apply only the active metadata patch; the old private event patch is historical. Read `patches/README.md` before changing dependency or loader lineage.

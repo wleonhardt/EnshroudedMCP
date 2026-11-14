@@ -307,8 +307,8 @@ impl Tools for GameTools {
                 let ids = policy::item_lookup::check(a)?;
                 let layout = item_layout.ok_or("vanilla item registry layout unavailable")?;
                 on_game_thread(scheduler, move || {
-                    let key = enshwick::content::items::ITEM_REGISTRY
-                        .key(enshwick::content::types::ITEM_REGISTRY_RESOURCE)
+                    let key = enshwick::content::types::ITEM_REGISTRY_RESOURCE
+                        .key(enshwick::content::items::ITEM_REGISTRY)
                         .map_err(|e| e.to_string())?;
                     let host = enshwick::host().ok_or("game host unavailable")?;
                     let bytes = host
@@ -319,7 +319,9 @@ impl Tools for GameTools {
             }
             "capabilities" => Ok(json!({
                 "mod_version":env!("CARGO_PKG_VERSION"),
-                "enshwick":"1.0.0-alpha.14",
+                "enshwick":"1.0.0-alpha.15",
+                "compiled_framework_revision":"5f647f46d7f987e93d397e00596014b23f3c1112",
+                "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
                 "game_build":null,
                 "game_build_status":"not_observed",
                 "offline_tools":offline_tools().iter().map(|tool|tool.name).collect::<Vec<_>>(),

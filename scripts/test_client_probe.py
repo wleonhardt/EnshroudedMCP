@@ -2,6 +2,7 @@
 
 import json
 import unittest
+from unittest.mock import patch
 
 from client_probe import Probe, READS
 
@@ -15,7 +16,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.2.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.3.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"client_press", "future_write", "give_item"}]}
         name, args = params["name"], params["arguments"]
@@ -25,13 +26,15 @@ class Fixture:
         elif name == "client_recipes" and args.get("limit") == 9:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
-            value = {"role": "optional_client_companion", "version": "0.2.0", "enshwick": "1.0.0-alpha.14",
+            value = {"role": "optional_client_companion", "version": "0.3.0", "enshwick": "1.0.0-alpha.15",
                      "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
+                     "compiled_framework_revision": "5f647f46d7f987e93d397e00596014b23f3c1112", "compiled_framework_abi": "11.30",
+                     "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
                      "semantic_gameplay_actions": []}
         elif name == "client_state":
             value = {"age_ms": 2000 if self.stale else 0, "stale": self.stale, "sequence": 1,
-                     "observation": {"screen": "private-screen", "prompt": {"title": "private-prompt"}, "host": "private-session"}}
+                     "observation": {"screen": "private-screen", "prompt": {"title": "private-prompt"}, "host": "private-session", "host_template": "22222222-2222-2222-2222-222222222222"}}
         elif name == "client_events":
             value = {"events": [{"sequence": 1, "host": "private-session", "screen": "private-screen"}],
                      "next_after": 1, "latest_sequence": 1, "dropped_total": 0, "cursor_gap": False}
@@ -90,6 +93,7 @@ class ClientProbeTests(unittest.TestCase):
         serialized = json.dumps(report)
         self.assertNotIn("private-", serialized)
         self.assertNotIn("11111111-1111", serialized)
+        self.assertNotIn("22222222-2222", serialized)
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
 
     def test_stale_and_missing_localization_remain_explicitly_incomplete(self):
@@ -127,6 +131,40 @@ class ClientProbeTests(unittest.TestCase):
         for name, label in (("client_state", "unknown_argument_refused"), ("client_recipes", "invalid_recipe_limit_refused")):
             report = Probe(Fixture(broken=name), pause=lambda _: None).run()
             self.assertEqual(next(check for check in report["checks"] if check["name"] == label)["outcome"], "fail")
+
+    def test_compiled_framework_provenance_cannot_substitute_for_live_verification(self):
+        for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True)):
+            client = Fixture()
+            original = client.call
+            def reply(method, params=None):
+                result = original(method, params)
+                if method == "tools/call" and params["name"] == "client_capabilities" and not result["isError"]:
+                    data = json.loads(result["content"][0]["text"])
+                    data[key] = value
+                    result["content"][0]["text"] = json.dumps(data)
+                return result
+            with self.subTest(key=key), patch.object(client, "call", side_effect=reply):
+                report = Probe(client, pause=lambda _: None).run()
+                self.assertEqual(next(c for c in report["checks"] if c["name"] == "capabilities")["outcome"], "fail")
+
+    def test_host_template_is_nullable_observation_and_never_saved(self):
+        for template, expected in ((None, "pass"), ("22222222-2222-2222-2222-222222222222", "pass"), ("not-a-guid", "fail")):
+            client = Fixture()
+            original = client.call
+            def reply(method, params=None):
+                result = original(method, params)
+                if method == "tools/call" and params["name"] == "client_state" and not result["isError"]:
+                    data = json.loads(result["content"][0]["text"])
+                    data["observation"]["host_template"] = template
+                    result["content"][0]["text"] = json.dumps(data)
+                return result
+            with self.subTest(template=template), patch.object(client, "call", side_effect=reply):
+                report = Probe(client, pause=lambda _: None).run()
+                check = next(c for c in report["checks"] if c["name"] == "state_shape")
+                self.assertEqual(check["outcome"], expected)
+                if expected == "pass":
+                    self.assertEqual(check["observation"]["host_template_available"], template is not None)
+                self.assertNotIn("22222222-2222", json.dumps(report))
 
     def test_actions_are_refused_before_call(self):
         client = Fixture()

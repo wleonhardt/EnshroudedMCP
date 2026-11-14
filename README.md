@@ -2,7 +2,7 @@
 
 An experimental [enshwick](https://github.com/enshwick/enshwick) mod that exposes a loopback MCP endpoint for inspecting Enshrouded. Server reads run on the game thread. Request admission, argument bounds and write gates are implemented in a game-free policy crate.
 
-Server version 0.13.0 exposes twenty-one tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
+Server version 0.14.0 exposes twenty-one tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
 
 The project is unofficial. Keen's Terms of Use forbid mods (3.3(f)); assess the terms before use. This project contains no game binaries, saves, generated catalogues or credentials and does not modify the Steam DRM stub.
 
@@ -24,7 +24,7 @@ The server endpoint is `POST http://127.0.0.1:8751/mcp`. Its mod ID is `enshroud
 | `building_accept` | Gated acceptance of an exact applied capture to allow another bounded operation; retains session-only undo |
 | `give_item` | One explicitly gated inventory transaction |
 
-The optional research companion uses `POST http://127.0.0.1:8754/mcp` and mod ID `enshrouded.mcp-client`. It exposes `client_capabilities`, `client_state`, `client_events`, `client_item`, `client_recipes` and `client_selection_events`. The framework requires side `both`: matching companion installations are needed on the isolated research server and its clients. The dedicated-server half is a no-op. The companion copies native UI snapshots and named client events; it provides no desktop automation or gameplay actions.
+The optional research companion 0.3.0 uses `POST http://127.0.0.1:8754/mcp` and mod ID `enshrouded.mcp-client`. It exposes `client_capabilities`, `client_state`, `client_events`, `client_item`, `client_recipes` and `client_selection_events`. The framework requires side `both`: matching companion installations are needed on the isolated research server and its clients. The dedicated-server half is a no-op. The companion copies native UI snapshots, nullable screen-host templates and named client events. Compiled framework revision/ABI are reported separately from live verification. It provides no desktop automation or gameplay actions.
 
 Current selected tab and passively highlighted recipe remain unknown. The outer Backpack screen is insufficient to identify the Crafting tab. Observed event delivery does not prove current selection or successful crafting.
 
@@ -32,9 +32,9 @@ Current selected tab and passively highlighted recipe remain unknown. The outer 
 
 Requires Windows MSVC build tools, Rust 1.99.1 and Python 3 for helper tests. Rust is pinned in `rust-toolchain.toml`.
 
-This snapshot uses enshwick alpha.14 with a reproducible local framework extension, ABI 11.20. Prepare the sibling SDK checkout exactly as [patches/README.md](patches/README.md) describes. Cargo's path patch deliberately requires that sibling checkout. The upstream PR is separate from this project; no released framework support is claimed.
+The active source pin is official enshwick development commit `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30. Its package label remains alpha.15, while the alpha.15 release tag uses ABI 11.28. Prepare the dedicated sibling checkout `../enshwick-nightly` and apply only the three-file SDK metadata patch as [patches/README.md](patches/README.md) describes. Use the matching official development loader artifact and rebuild server and companion together.
 
-The private 11.20 extension and current-main 11.28 extension have different ABI lineages. Do not load a private-11.20 consumer under a newer official/main loader merely because its version number is higher. Rebuild consumers against the matching SDK before changing loader lineages.
+The old private alpha.14 ABI 11.20 event extension is historical and inactive. Its function-table layout collides with later official appends; a higher version number does not make those consumers compatible. Do not apply the historical event patch to this pinned official revision or mix SDK/loader lineages.
 
 ```text
 cargo test --workspace
@@ -48,7 +48,7 @@ cargo build --workspace --release
 
 Back up the loader, mods and a cold isolated-world save before testing. Exit the client and coordinate disconnected players before replacing loaded DLLs. An empty-player query alone can race with reconnecting players. Do not test new writes on a shared world.
 
-Install the matching extended framework loader according to its instructions. Do not use `--with-loader`, which can replace it with an incompatible stock loader. Then install the mod into a chosen game or dedicated-server folder:
+Install the exact matching official development loader according to the patch instructions. Do not use `--with-loader`, which can substitute the ABI-incompatible alpha.15 release loader. Then install the mod into a chosen game or dedicated-server folder:
 
 ```text
 cargo enshwick install -p mcp --game <game-folder>
@@ -99,7 +99,15 @@ Generated type catalogues and component-name lists must be produced locally thro
 
 Version 0.13.0 adds read-only `item_info.placement`: `observed` with a placed `template_guid`, `known_no_template` for a known item without one, or `unavailable` when runtime item metadata cannot be read. GUIDs use 32 lowercase hexadecimal characters in file-byte order. An unavailable runtime definition returns `metadata: null`. This mapping is separate from the inventory item entity template; it does not establish placement eligibility, footprint, rights, collision or spawning authority. The SDK exposes an existing native ABI field, so this increment does not replace the loader or companion.
 
-The combined pinned SDK patch now contains 23 files: the original 20 client-event-extension files are unchanged, and three inventory source/test files expose the existing placement mapping. Exact patch reproduction against the pinned base passed. This remains the private alpha.14 ABI 11.20 lineage; do not mix it with later upstream function-table layouts.
+The historical 0.13 compatibility patch retains its 23-file private alpha.14 experiment. Version 0.14 does not apply that patch. The only active extension is `enshwick-nightly-item-template.patch`: three SDK/test files expose existing item metadata without changing official ABI 11.30.
+
+## Official development migration evidence
+
+Version 0.14.0 and companion 0.3.0 were rebuilt against the exact official development revision. The source workspace passed 133 Rust tests, 30 Python tests, Clippy, formatting and both release builds; the SDK passed 538 prescribed nextest tests. A matched isolated installation replaced eight backed-up binaries only after a verified 38-file cold archive. Installed hashes matched the selected official artifact or rebuilt mods.
+
+All eighteen server and nine companion read-only probes passed with broader acceptance incomplete. The prior shell's entire 4,096-cell reverted baseline remained exact and its old construction receipt stayed stale. Fresh native Menu and joined InGame frames were observed. Local held-input metadata remained null. A non-null host-template fixture and named event delivery after migration remain unverified; the altar interaction trial stopped when an enemy attacked, and the client subsequently logged out with the server empty and write flags absent.
+
+Published input masks and control bindings observe actions; they do not synthesize vanilla walking, camera input, lobby actions or menu navigation. No selected-tab or passive-recipe getter is claimed. Supported native administrative repositioning remains a separately reviewed future action, not an advertised capability in this version. No screenshots, runtime identities or controller patches are included.
 
 ## License
 

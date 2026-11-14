@@ -2,7 +2,7 @@
 
 The dated [isolated evidence](2026-11-13-live-validation.md) records narrow semantic observations. It does not prove general mechanics, complete crafting eligibility or overall construction acceptance.
 
-The 0.13.0 publication snapshot passed 132 Rust tests, 28 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.13.0 deployment passed all 18 settled fixed read-only probes after an initial startup readiness failure. Neutral publication module IDs have not been installed or tested live.
+The 0.14.0/companion 0.3.0 source snapshot passed 133 Rust tests, 30 Python helper tests, Clippy with warnings denied, formatting and both release builds. The original research-ID isolated deployment passed eighteen server and nine companion read-only probes with broader acceptance incomplete. Neutral publication module IDs have not been installed or tested live.
 
 One quiet single-cell proof passed exact whole-capture placement/read-back/undo. Lost-response reconciliation and repeated operation identity did not duplicate transactions. After cold reload, all 512 baseline voxels matched; stale session tokens and old native receipts were refused. This establishes the reverted fixture, not persistence of an applied structure, full stateful restoration or general concurrency safety.
 
@@ -62,3 +62,21 @@ The isolated research-ID installation changed only the MCP DLL. The matching loa
 The first immediate startup run passed 17 fixed read-only checks and failed one construction-status refusal/readiness check. After hosted-world readiness settled, the next run passed all 18. Both results are retained privately. The settled run's broader acceptance verdict remains incomplete, and the checks do not establish a complete safe prop lifecycle.
 
 The neutral-ID source snapshot passed 132 Rust tests, 28 Python helper tests, Clippy with warnings denied, formatting and a release build. Neutral publication module IDs remain untested live. No new construction writes or prop spawning are claimed by this metadata increment.
+
+## Shell and independent metadata observations after the 0.13 publication
+
+A separately identified existing altar's runtime template agreed with its item placement mapping. The runtime entity read and static item metadata use different published API routes. A known equipped rag-armor fixture returned known-no-template. These narrow positive/negative observations do not establish every item's placement eligibility. A placed storage-box mapping remains uncorroborated by an independent storage fixture.
+
+A six-part shell combined a floor, back wall, framed entrance, side walls and flat roof. Independent arithmetic produced 164 unique cells from 184 part contributions. Four undo bricks changed; the surrounding eight-brick baseline contained 4,096 cells. Placement and undo matched that entire independent capture, and rendered inspection observed the shell and entrance. A 38-file verified cold archive and post-undo reload preserved all 4,096 baseline cells, refused stale receipts/preview sessions without a new reservation, and left ledgers unchanged. The raised entrance was not accepted as traversable; stairs, ramp, structural rules, applied-shell persistence and functional props remain unverified.
+
+## Exact official development migration, 0.14.0 and companion 0.3.0
+
+The active SDK and matching official artifact are pinned to `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30. The alpha.15 package label alone cannot identify this artifact. The historical private event ABI patch is inactive; a three-file SDK metadata exposure reads an existing field without changing the ABI. Its regression first failed with E0609 and then passed. The SDK's prescribed nextest run passed 538 tests.
+
+Workspace checks passed 133 Rust tests (33 server, nine companion, five transport and 86 policy), 30 Python tests, Clippy, formatting and both release builds. Fake-host behavior covers absent, present and cleared screen-host templates without inventing a screen-change event. Compiled revision/ABI and reader availability remain distinct from live acceptance.
+
+A verified 38-file cold save/ledger archive and rollback hashes preceded matched isolated replacement of eight binaries across client/server. All installed hashes matched the official artifact or rebuilt mods. All eighteen server and nine companion read probes passed with incomplete acceptance. The 4,096-cell reverted shell baseline stayed exact and the old native receipt remained stale.
+
+Fresh native Menu observations agreed with the rendered menu. One initial private assertion expected MainMenu instead of the actual Menu enum name; that failed assumption was retained and only the private probe was corrected. Joined InGame frames were fresh, but local held-input metadata stayed null. An enemy interrupted the altar interaction trial, so non-null host-template and named-event delivery after migration remain unverified. Logout completed; the server was empty and write flags absent. No MCP combat or construction write was issued during the trial.
+
+Official input masks and controls observe actions; they do not synthesize vanilla walking, camera, menu, lobby or crafting input. Current inner tab and passive recipe selection remain unknown. Administrative repositioning is a separately reviewed future action. No raw screenshots, coordinates, runtime identifiers, source configuration or controller patches are included.
