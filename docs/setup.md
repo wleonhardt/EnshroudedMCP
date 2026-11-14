@@ -25,6 +25,12 @@ The exact revision identifies **ABI 11.30**. Its package label is alpha.15; the 
 
 ## Build and install
 
+Install the matching Cargo subcommand from the prepared source checkout if `cargo enshwick --version` is unavailable:
+
+```text
+cargo install --locked --path ../enshwick-nightly/crates/cargo-enshwick
+```
+
 Run the [development checks](contributing.md), then build in release mode. With the selected official loader already installed:
 
 ```text
