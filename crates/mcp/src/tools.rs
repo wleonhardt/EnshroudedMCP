@@ -25,6 +25,15 @@ const NEAR_MAX: usize = 200;
 /// The most entities one `entity_components` answer describes.
 const DESCRIBE_MAX: usize = 20;
 
+fn give_gate(
+    dry: bool,
+    dir: Option<&std::path::Path>,
+    confirm: Option<&str>,
+) -> Result<(), String> {
+    let age = dir.and_then(|d| write_gate::flag_age(&d.join(write_gate::FLAG)));
+    write_gate::check(dry, true, age, confirm)
+}
+
 /// The component types this build reflects, by the game's name, read from
 /// `components.txt` in the mod's folder (`scripts/component_names.py`).
 pub(crate) type Components = Arc<Vec<(String, ComponentType)>>;
@@ -156,7 +165,7 @@ impl GameTools {
             },
             Tool {
                 name: "players",
-                description: "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up).",
+                description: "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up), and nullable native health/stamina/mana meters. Raw SDK integer values; unavailable differs from zero and UI conversion is unverified.",
                 schema: json!({"type": "object"}),
             },
             Tool {
@@ -459,7 +468,7 @@ impl Tools for GameTools {
                     world
                         .players()
                         .into_iter()
-                        .map(|p| json!({"name": p.name, "key": p.key.0.to_string(), "slot": p.slot, "admin": p.is_admin(), "position": world.position(p.entity)}))
+                        .map(|p| json!({"name": p.name, "key": p.key.0.to_string(), "slot": p.slot, "admin": p.is_admin(), "position": world.position(p.entity), "vitals": crate::player_vitals::encode(world.vitals(p.entity))}))
                         .collect(),
                 )
             }),
@@ -591,17 +600,9 @@ impl Tools for GameTools {
             }
             "give_item" => {
                 let dry = a.get("dry").and_then(Value::as_bool).unwrap_or(false);
-                let flag_age = self.mod_dir.as_ref().and_then(|d| {
-                    let modified = std::fs::metadata(d.join(write_gate::FLAG))
-                        .ok()?
-                        .modified()
-                        .ok()?;
-                    Some(modified.elapsed().unwrap_or_default())
-                });
-                write_gate::check(
+                give_gate(
                     dry,
-                    true,
-                    flag_age,
+                    self.mod_dir.as_deref(),
                     a.get("confirm").and_then(Value::as_str),
                 )?;
                 let inventories =
@@ -740,6 +741,39 @@ fn on_game_thread<T: Send + 'static>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn give_gate_refuses_directory_and_future_flag_but_allows_valid_preview() {
+        use std::{
+            fs,
+            time::{Duration, SystemTime, UNIX_EPOCH},
+        };
+        let dir = std::env::temp_dir().join(format!(
+            "mcp-give-gate-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir(&dir).unwrap();
+        let flag = dir.join(write_gate::FLAG);
+        fs::create_dir(&flag).unwrap();
+        assert!(give_gate(false, Some(&dir), Some("server-write")).is_err());
+        fs::remove_dir(&flag).unwrap();
+        let file = fs::File::create(&flag).unwrap();
+        file.set_times(
+            fs::FileTimes::new().set_modified(SystemTime::now() + Duration::from_secs(60)),
+        )
+        .unwrap();
+        assert!(give_gate(false, Some(&dir), Some("server-write")).is_err());
+        assert!(give_gate(true, Some(&dir), None).is_ok());
+        file.set_times(fs::FileTimes::new().set_modified(SystemTime::now()))
+            .unwrap();
+        assert!(give_gate(false, Some(&dir), Some("server-write")).is_ok());
+        assert!(give_gate(false, Some(&dir), None).is_err());
+        drop(file);
+        fs::remove_dir_all(dir).unwrap();
+    }
 
     #[test]
     fn item_inspection_distinguishes_mapping_absence_and_unavailable_metadata() {

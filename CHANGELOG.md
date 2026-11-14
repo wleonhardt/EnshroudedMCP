@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.16.0
+
+- Add nullable native health, stamina and mana to existing player rows. Preserve raw SDK integer values, observed zero and independent unavailable pools; UI unit conversion remains unverified.
+- Add neutral original branding, setup, tool reference, architecture, research boundaries and contribution documentation.
+- Pass 146 Rust tests, 30 Python tests, Clippy, formatting and both release builds in source and sanitized publication. Earlier isolated meter reads passed; the final write-gate correction below is source-tested and not live-installed.
+- Fix `give_item` write-flag admission to use the common metadata validator: directory flags and future timestamps are refused. A regression first reproduced directory admission, then passed with the fix. This changes write admission only; no live give was performed for this fix.
+
 ## 0.15.0
 
 - Add dry-by-default `player_reposition`, one bounded server administrative teleport request for a sole connected living actor. Bind preview to exact current server actor/session/generation/position and target; require fresh write gates again before dispatch. The 16 m gate limits the requested point, not the engine's best-spawn correction.

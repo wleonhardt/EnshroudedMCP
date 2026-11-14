@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 280" role="img" aria-labelledby="title desc">
+  <title id="title">Enshrouded MCP</title>
+  <desc id="desc">Observe. Plan. Build. Verify. Original geometric arch and flame illustration.</desc>
+  <rect width="1200" height="280" rx="24" fill="#112329"/>
+  <g fill="none" stroke="#29444a" stroke-width="1">
+    <path d="M760 0v280m80-280v280m80-280v280m80-280v280m80-280v280M720 60h480M720 140h480M720 220h480"/>
+  </g>
+  <text x="60" y="112" fill="#f1f5ee" font-family="Segoe UI,Arial,sans-serif" font-size="54" font-weight="700" letter-spacing="-1">Enshrouded MCP</text>
+  <text x="63" y="164" fill="#9fbbb7" font-family="Segoe UI,Arial,sans-serif" font-size="23">Observe. Plan. Build. Verify.</text>
+  <rect x="64" y="204" width="48" height="4" rx="2" fill="#72d4bb"/>
+  <g transform="translate(912 48) scale(1.5)">
+    <g fill="#72d4bb">
+      <path d="M16 112V48h16v64zm64 0V48h16v64zM32 32h48v16H32z"/>
+      <path d="M16 48V32h16v16zm64 0V32h16v16z" opacity=".55"/>
+    </g>
+    <path d="M58 51c2 16 17 20 17 34a19 19 0 0 1-38 0c0-10 8-16 10-25 3 6 4 11 3 16 8-5 10-13 8-25z" fill="#f2b866"/>
+    <path d="M56 78c-2 8-8 10-8 16a8 8 0 0 0 16 0c0-6-6-9-8-16z" fill="#fff0c7"/>
+  </g>
+</svg>

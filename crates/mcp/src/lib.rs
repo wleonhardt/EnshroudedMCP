@@ -7,6 +7,7 @@ mod building_survey;
 mod construction;
 mod item_lookup;
 mod knowledge;
+mod player_vitals;
 mod recipe_plan;
 mod reposition;
 mod server;

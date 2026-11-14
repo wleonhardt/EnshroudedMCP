@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Enshrouded MCP mark</title>
+  <desc id="desc">An original geometric voxel arch surrounding an amber flame.</desc>
+  <rect width="128" height="128" rx="28" fill="#112329"/>
+  <g fill="#72d4bb">
+    <path d="M24 96V48h16v48zm64 0V48h16v48zM40 32h48v16H40z"/>
+    <path d="M24 48V32h16v16zm64 0V32h16v16z" opacity=".55"/>
+  </g>
+  <path d="M66 50c2 16 17 20 17 34a19 19 0 0 1-38 0c0-10 8-16 10-25 3 6 4 11 3 16 8-5 10-13 8-25z" fill="#f2b866"/>
+  <path d="M64 77c-2 8-8 10-8 16a8 8 0 0 0 16 0c0-6-6-9-8-16z" fill="#fff0c7"/>
+</svg>
