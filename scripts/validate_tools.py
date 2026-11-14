@@ -1,4 +1,4 @@
-"""Read-only 0.12.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.13.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -27,6 +27,16 @@ FLOOR = {"kind": "floor", "x": 100, "y": 100, "z": 100, "width": 2,
 def require(condition):
     if not condition:
         raise InvalidReply("response did not match this fixed probe")
+
+
+def observed_template(value):
+    placement = value.get("placement")
+    if not isinstance(placement, dict):
+        return False
+    template = placement.get("template_guid")
+    return (placement.get("state") == "observed" and isinstance(template, str)
+            and len(template) == 32 and set(template) <= set("0123456789abcdef")
+            and template != "0" * 32)
 
 
 class Validation:
@@ -72,14 +82,14 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.12.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.13.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.12.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.13.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.12.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.13.0" and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "new_inspection_tools_live_verified")))
         self.probe("known_item_lookup", "item_lookup", {"ids": [213939880]}, lambda v:
                    v.get("source") == "vanilla_archive_item_registry" and v.get("effective_definition_verified") is False and
@@ -89,7 +99,8 @@ class Validation:
                    v["results"][0]["matches"][0]["debug_name"] == "Prop_Storage_24_T1_Box")
         self.probe("invalid_lookup_id_refused", "item_lookup", {"ids": [0]}, refusal="ids must contain nonzero u32 values")
         self.probe("known_static_item", "item_info", {"item": "Prop_Storage_24_T1_Box"},
-                   lambda v: v["metadata"]["item_id"] == 213939880 and isinstance(v.get("guid"), str))
+                   lambda v: v["metadata"]["item_id"] == 213939880 and isinstance(v.get("guid"), str)
+                   and observed_template(v))
         self.probe("invalid_item_refused", "item_info", {"item": "Not_A_Vanilla_Item_Validation"}, refusal="no vanilla item")
         self.probe("missing_inventory_selector", "inventory_read", {}, refusal="provide exactly one of player or entity")
         self.probe("invalid_inventory_selector", "inventory_read", {"entity": 0}, refusal="argument 'entity' must be at least 1")

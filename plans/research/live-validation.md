@@ -2,7 +2,7 @@
 
 The dated [isolated evidence](2026-11-13-live-validation.md) records narrow semantic observations. It does not prove general mechanics, complete crafting eligibility or overall construction acceptance.
 
-The 0.12.0 publication snapshot passed 131 Rust tests, 27 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.12.0 deployment passed all 18 settled fixed read-only probes. Neutral publication module IDs have not been installed or tested live.
+The 0.13.0 publication snapshot passed 132 Rust tests, 28 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.13.0 deployment passed all 18 settled fixed read-only probes after an initial startup readiness failure. Neutral publication module IDs have not been installed or tested live.
 
 One quiet single-cell proof passed exact whole-capture placement/read-back/undo. Lost-response reconciliation and repeated operation identity did not duplicate transactions. After cold reload, all 512 baseline voxels matched; stale session tokens and old native receipts were refused. This establishes the reverted fixture, not persistence of an applied structure, full stateful restoration or general concurrency safety.
 
@@ -52,3 +52,13 @@ On 2026-11-14, a small compound fixture passed sixteen isolated proof checks. Ei
 A 36-file pre-install archive and a 37-file post-proof cold archive passed integrity and SHA-256 verification. Post-undo cold reload matched all 512 baseline cells. Stale accept/undo requests, old preview tokens and same-identity replay were refused; ledger hashes stayed unchanged. All 18 fixed read-only probes passed while their broader verdict remained incomplete. Neutral publication IDs remain untested live.
 
 Composition uses at most eight absolute-position primitive parts, a 16 m full admitted footprint per axis and 1024 total candidates before expansion. The union retains at most 256 unique cells, eight bricks and 64 cells per brick. Lexical part IDs determine canonical order and overlap ownership; omitted doorway cells are not subtraction. Pure `building_plan` behavior is unchanged. These limits and tests do not establish general atomicity, concurrent editing safety, applied-compound persistence, stateful recovery or workshop functionality.
+
+## Read-only placement metadata checkpoint, 0.13.0
+
+On 2026-11-14, `item_info` gained explicit `observed`, `known_no_template` and `unavailable` placement states, preserving the distinction between a known item without a placed template and unavailable runtime metadata. GUIDs retain 16-byte file order and lowercase hexadecimal encoding. Mapping does not prove footprint, placement eligibility, rights, collision, stateful recovery or a functional workshop.
+
+The isolated research-ID installation changed only the MCP DLL. The matching loader and companion remained unchanged. The SDK addition reads an already published native ABI field; no function slot, native layout or ABI version changed. The combined patch applies to the exact pinned alpha.14 base, reproduces all 23 resulting files, and preserves the previous 20 event-extension files unchanged.
+
+The first immediate startup run passed 17 fixed read-only checks and failed one construction-status refusal/readiness check. After hosted-world readiness settled, the next run passed all 18. Both results are retained privately. The settled run's broader acceptance verdict remains incomplete, and the checks do not establish a complete safe prop lifecycle.
+
+The neutral-ID source snapshot passed 132 Rust tests, 28 Python helper tests, Clippy with warnings denied, formatting and a release build. Neutral publication module IDs remain untested live. No new construction writes or prop spawning are claimed by this metadata increment.

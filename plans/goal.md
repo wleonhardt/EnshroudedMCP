@@ -20,3 +20,5 @@ Recipe alternatives, unlock reads, eligible stock and survival debit/refund rema
 
 
 The isolated two-brick proof passed exact whole-capture placement/read-back/replay/undo; its final cold reload passed with all 1024 baseline cells equal. Applied voxel persistence has narrow separate floor evidence. Stateful recovery and the functional workshop remain open.
+
+Version 0.13.0 adds read-only placed-template mapping with observed, known-absent and unavailable states. Full shape bounds, eligibility and runtime labels remain separate unresolved prerequisites for a safe functional-prop lifecycle. No prop placement or recovery claim follows from the mapping.

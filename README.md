@@ -2,7 +2,7 @@
 
 An experimental [enshwick](https://github.com/enshwick/enshwick) mod that exposes a loopback MCP endpoint for inspecting Enshrouded. Server reads run on the game thread. Request admission, argument bounds and write gates are implemented in a game-free policy crate.
 
-Server version 0.12.0 exposes twenty-one tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
+Server version 0.13.0 exposes twenty-one tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
 
 The project is unofficial. Keen's Terms of Use forbid mods (3.3(f)); assess the terms before use. This project contains no game binaries, saves, generated catalogues or credentials and does not modify the Steam DRM stub.
 
@@ -14,7 +14,7 @@ The server endpoint is `POST http://127.0.0.1:8751/mcp`. Its mod ID is `enshroud
 | --- | --- |
 | `status`, `players` | Hosting state and connected players |
 | `voxel_sample`, `props_in`, `entities_near`, `entity_components` | Bounded spatial inspection; component names require a locally generated catalogue |
-| `capabilities`, `inventory_read`, `item_info`, `item_lookup`, `entity_health` | Available APIs, linked inventory pages, vanilla metadata and typed health observations |
+| `capabilities`, `inventory_read`, `item_info`, `item_lookup`, `entity_health` | Available APIs, linked inventory pages, vanilla metadata with explicit placed-template states, and typed health observations |
 | `knowledge_search` | Curated evidence with provenance and applicability |
 | `recipe_plan` | Pure single-output recipe arithmetic over supplied recipes and stock |
 | `building_plan` | Floor, wall and doorway previews on a half-metre grid; no placement |
@@ -96,6 +96,10 @@ The source has limited isolated live evidence. Known inventory splits, one durab
 `python -B scripts/smoke.py` checks baseline reads. `scripts/investigate.py`, `scripts/validate_tools.py` and `scripts/client_probe.py` perform fixed read-only probes and save private reports under ignored `gamedata/`. Passing transport probes does not satisfy fixture acceptance. Run `--help` for options.
 
 Generated type catalogues and component-name lists must be produced locally through enshwick's published tooling and remain in ignored `gamedata/`. No generated game catalogue is included.
+
+Version 0.13.0 adds read-only `item_info.placement`: `observed` with a placed `template_guid`, `known_no_template` for a known item without one, or `unavailable` when runtime item metadata cannot be read. GUIDs use 32 lowercase hexadecimal characters in file-byte order. An unavailable runtime definition returns `metadata: null`. This mapping is separate from the inventory item entity template; it does not establish placement eligibility, footprint, rights, collision or spawning authority. The SDK exposes an existing native ABI field, so this increment does not replace the loader or companion.
+
+The combined pinned SDK patch now contains 23 files: the original 20 client-event-extension files are unchanged, and three inventory source/test files expose the existing placement mapping. Exact patch reproduction against the pinned base passed. This remains the private alpha.14 ABI 11.20 lineage; do not mix it with later upstream function-table layouts.
 
 ## License
 

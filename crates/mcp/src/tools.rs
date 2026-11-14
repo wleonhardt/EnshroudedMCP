@@ -139,7 +139,7 @@ impl GameTools {
             },
             Tool {
                 name: "item_info",
-                description: "Resolve one vanilla item debug name and read static stack-size, category and capability flags from the running world. Does not infer recipes, rarity, unlocks, or crafting eligibility.",
+                description: "Resolve one vanilla item debug name and read static stack-size, category, capability flags and placed-entity template mapping from the running world. Known absent templates and unavailable metadata are distinct. Mapping does not establish placement eligibility, footprint, build rights, spawn authorization or crafting feasibility.",
                 schema: json!({"type":"object","properties":{"item":{"type":"string"}},"required":["item"]}),
             },
             Tool {
@@ -385,12 +385,11 @@ impl Tools for GameTools {
                     let guid =
                         enshwick::content::vanilla::item(&name).map_err(|e| e.to_string())?;
                     let item = enshwick::ItemId::from_guid(guid);
-                    let info = inventories
-                        .item_info(item)
-                        .ok_or("item metadata unavailable; ensure a world is loaded")?;
-                    Ok::<_, String>(
-                        json!({"debug_name":name,"guid":guid.to_string(),"world_key":world.key(),"metadata":item_metadata(info)}),
-                    )
+                    let mut result = item_inspection(inventories.item_info(item));
+                    result["debug_name"] = json!(name);
+                    result["guid"] = json!(guid.to_string());
+                    result["world_key"] = json!(world.key());
+                    Ok::<_, String>(result)
                 })?
             }
             "entity_health" => {
@@ -652,6 +651,19 @@ fn item_metadata(info: enshwick::inventory::ItemInfo) -> Value {
     json!({"item_id":info.id.0,"max_stack_size":info.max_stack_size,"category":info.category,"flags":info.flags,"has_item_entity":info.has_pide(),"is_container":info.is_container(),"is_blueprint":info.is_blueprint()})
 }
 
+fn item_inspection(info: Option<enshwick::inventory::ItemInfo>) -> Value {
+    let (state, template) = match info {
+        Some(info) => match info.placed_entity_template {
+            Some(template) => ("observed", Some(hex(template))),
+            None => ("known_no_template", None),
+        },
+        None => ("unavailable", None),
+    };
+    json!({"metadata":info.map(item_metadata),"placement":{"state":state,"template_guid":template,
+        "source":"enshwick_item_info","guid_encoding":"lowercase hex; 16 GUID bytes in file order",
+        "limitations":"mapping only; no placement eligibility, footprint, build-rights or spawn authorization claim"}})
+}
+
 fn offline_tools() -> [Tool; 3] {
     [
         crate::knowledge::tool(),
@@ -696,6 +708,46 @@ fn on_game_thread<T: Send + 'static>(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn item_inspection_distinguishes_mapping_absence_and_unavailable_metadata() {
+        let info = enshwick::inventory::ItemInfo {
+            id: enshwick::ItemId::new(7),
+            max_stack_size: 24,
+            flags: 0,
+            category: 3,
+            placed_entity_template: Some([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 255]),
+        };
+        let expected_metadata = json!({"item_id":7,"max_stack_size":24,"category":3,"flags":0,
+            "has_item_entity":false,"is_container":false,"is_blueprint":false});
+        let mapped = item_inspection(Some(info));
+        assert_eq!(mapped["metadata"], expected_metadata);
+        assert_eq!(mapped["placement"]["state"], "observed");
+        assert_eq!(
+            mapped["placement"]["template_guid"],
+            "000102030405060708090a0b0c0d0eff"
+        );
+        let absent = item_inspection(Some(enshwick::inventory::ItemInfo {
+            placed_entity_template: None,
+            ..info
+        }));
+        assert_eq!(absent["metadata"], expected_metadata);
+        assert_eq!(absent["placement"]["state"], "known_no_template");
+        assert_eq!(absent["placement"]["template_guid"], Value::Null);
+        let unavailable = item_inspection(None);
+        assert_eq!(unavailable["metadata"], Value::Null);
+        assert_eq!(unavailable["placement"]["state"], "unavailable");
+        assert_eq!(unavailable["placement"]["template_guid"], Value::Null);
+        for result in [mapped, absent, unavailable] {
+            assert_eq!(result["placement"]["source"], "enshwick_item_info");
+            assert!(
+                result["placement"]["limitations"]
+                    .as_str()
+                    .unwrap()
+                    .contains("no placement eligibility")
+            );
+        }
+    }
 
     #[test]
     fn registered_offline_tools_dispatch_without_game_handles() {

@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.12.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.13.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in SERVER_TOOLS | {"future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -24,7 +24,8 @@ class Fixture:
             error, value = True, "unknown argument"
         elif name == "item_info":
             error = args["item"] != "Prop_Storage_24_T1_Box"
-            value = "no vanilla item" if error else {"guid": "fixture", "metadata": {"item_id": 213939880}}
+            value = "no vanilla item" if error else {"guid": "fixture", "metadata": {"item_id": 213939880},
+                "placement": {"state": "observed", "template_guid": "000102030405060708090a0b0c0d0eff"}}
         elif name == "item_lookup":
             error = args["ids"] == [0]
             value = "ids must contain nonzero u32 values" if error else {
@@ -42,7 +43,7 @@ class Fixture:
             else:
                 value = "no connected player"
         elif name == "capabilities":
-            value = {"mod_version": "0.12.0", "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"mod_version": "0.13.0", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -74,6 +75,27 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_storage_mapping_must_be_observed_nonzero_file_order_hex(self):
+        for state, template in [("unavailable", None), ("known_no_template", None),
+                                ("observed", None), ("observed", "0" * 32),
+                                ("observed", "z" * 32), ("observed", "A" * 32),
+                                ("observed", "1" * 31)]:
+            client = Fixture()
+            original = client.call
+
+            def reply(method, params=None):
+                result = original(method, params)
+                if method == "tools/call" and params["name"] == "item_info" and not result["isError"]:
+                    value = json.loads(result["content"][0]["text"])
+                    value["placement"] = {"state": state, "template_guid": template}
+                    result["content"][0]["text"] = json.dumps(value)
+                return result
+
+            with self.subTest(state=state, template=template), patch.object(client, "call", side_effect=reply):
+                report = Validation(client, pause=lambda _: None).run()
+                check = next(c for c in report["checks"] if c["name"] == "known_static_item")
+                self.assertEqual(check["outcome"], "fail")
+
     def test_unrelated_errors_do_not_prove_specific_refusals(self):
         for label in ("invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
                       "survey_off_grid_refused", "survey_write_argument_refused", "unknown_construction_operation_refused"):
@@ -163,7 +185,7 @@ class ValidationTests(unittest.TestCase):
 
         def reply(method, params=None):
             if method == "initialize":
-                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.12.0"}, "protocolVersion": "2025-06-18"}
+                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.13.0"}, "protocolVersion": "2025-06-18"}
             if method == "tools/list":
                 return {"tools": [{"name": name} for name in advertised]}
             return original(method, params)
