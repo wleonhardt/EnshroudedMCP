@@ -84,7 +84,7 @@ The focused framework contribution is [enshwick PR #1079](https://github.com/ens
 
 The 0.9.1 source passed 119 Rust tests, 24 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated installation passed all 18 fixed read-only probes. Neutral publication IDs have not been exercised live.
 
-A single-cell proof passed exact whole-capture placement/read-back/undo, idempotent receipt replay and cold reload with all 512 baseline voxels equal. The 16-cell plan live proof remains pending. Undo-then-reload baseline equality does not prove persistence of an applied structure.
+A single-cell proof passed exact whole-capture placement/read-back/undo, idempotent receipt replay and cold reload with all 512 baseline voxels equal. The 16-cell floor plan passed isolated placement, exact read-back, replay, undo and post-undo cold reload. Undo-then-reload baseline equality does not prove persistence of an applied structure.
 
 The source has limited isolated live evidence. Known inventory splits, one durability comparison, one enemy health decrease and cold file restoration have been observed. These findings do not establish general mechanics or complete object-state recovery. See [public evidence](plans/research/live-validation.md), [the construction roadmap](plans/goal.md) and [the queue](plans/next-up.md).
 
@@ -95,3 +95,6 @@ Generated type catalogues and component-name lists must be produced locally thro
 ## License
 
 MIT. The framework patch retains its upstream license in [patches/enshwick-LICENSE](patches/enshwick-LICENSE). This project is not affiliated with Keen Games or enshwick.
+
+
+The isolated 16-cell floor passed exact whole-brick read-back, replay, undo and post-undo cold reload. Applied persistence, larger jobs and the functional workshop remain pending.

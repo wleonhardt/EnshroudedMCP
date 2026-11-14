@@ -19,3 +19,6 @@
 - Native companion provides bounded outer-screen, item, raw recipe and named-event observations without claiming passive selection.
 
 Overall acceptance remains incomplete. Keep isolated proofs quiescent, retain private backups and coordinate disconnected players before any restart.
+
+
+The isolated 16-cell floor passed exact whole-brick read-back, replay, undo and post-undo cold reload. Applied persistence, larger jobs and the functional workshop remain pending.

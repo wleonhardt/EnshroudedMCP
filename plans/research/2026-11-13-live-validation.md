@@ -10,6 +10,15 @@ Vanilla registry lookup correlated known inventory item IDs with debug names. Re
 
 Native outer-screen observations matched Backpack and an altar interaction. Controlled top-menu changes and passive recipe highlights produced no corresponding recipe-selection event. Current selected tab and recipe remain unknown. Client/server event scope is separate.
 
-Cold file recovery matched archived file hashes and three voxel samples after reload. A later isolated single-cell construction proof passed exact capture/read-back/undo and cold reload equality for all 512 baseline voxels. Lost-response/status replay did not duplicate work. Full object contents, progression, stateful prop recovery and applied advanced-building persistence remain unverified. The 16-cell plan live proof is pending.
+Cold file recovery matched archived file hashes and three voxel samples after reload. A later isolated single-cell construction proof passed exact capture/read-back/undo and cold reload equality for all 512 baseline voxels. Lost-response/status replay did not duplicate work. Full object contents, progression, stateful prop recovery and applied advanced-building persistence remain unverified. The 16-cell floor live proof and post-undo cold reload passed.
 
 No session entity identifiers, player names, account keys, private locations, host names or raw runtime reports are retained in this public summary.
+
+
+## 16-cell floor acceptance checkpoint
+
+On 2026-11-13, the isolated 0.9.1 floor proof passed ten checks: unchanged dry previews, missing-gate refusal before reservation, discarded-response reconciliation, exact whole-capture verification, independent verification of all 16 target cells and 496 untouched cells, canonical replay without another commit, changed-request refusal, unchanged dry undo, discarded undo response recovery and duplicate no-ops, and one durable commit/undo receipt pair. Undo restored all 512 baseline cells. The session-created flag was removed.
+
+After coordinated logout and two empty checks, a 21-file cold save/ledger archive passed integrity and SHA256 verification. Reload restored all 512 baseline cells. The plan identity stayed stale without reconstructing its native transaction; old-session replay was refused with a fresh gate, and ledger hashes stayed unchanged. The temporary flag was removed. An initial startup stale-state assertion failed without capturing the returned state; a subsequent direct observation and complete rerun passed. Startup readiness is not yet a fixed acceptance fixture.
+
+This proves a controlled bounded floor and post-undo persistence. It does not prove persistence while applied, appearance/usability, general concurrent safety, stateful recovery, or advanced workshop completion. Next: applied save-checkpoint validation and measured multi-brick jobs with reconciliation, cancellation and protected regions.

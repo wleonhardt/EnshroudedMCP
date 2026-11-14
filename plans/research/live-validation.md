@@ -6,8 +6,17 @@ The 0.9.1 publication snapshot passed 119 Rust tests, 24 Python helper tests, Cl
 
 One quiet single-cell proof passed exact whole-capture placement/read-back/undo. Lost-response reconciliation and repeated operation identity did not duplicate transactions. After cold reload, all 512 baseline voxels matched; stale session tokens and old native receipts were refused. This establishes the reverted fixture, not persistence of an applied structure, full stateful restoration or general concurrency safety.
 
-Version 0.9.1 implements up to 64 keyed planned cells in one aligned brick, but the 16-cell live plan proof remains pending. The framework has no placement compare-and-swap or atomicity guarantee and may absorb foreign edits during multi-change application. Strict multi-cell undo requires exact expected voxels in addition to unchanged props, persistence and the native conflict check. All proofs require a quiescent isolated site.
+Version 0.9.1 implements up to 64 keyed planned cells in one aligned brick, and the 16-cell floor live proof and post-undo cold reload passed. The framework has no placement compare-and-swap or atomicity guarantee and may absorb foreign edits during multi-change application. Strict multi-cell undo requires exact expected voxels in addition to unchanged props, persistence and the native conflict check. All proofs require a quiescent isolated site.
 
 Earlier bounded survey evidence compared separate voxel samples with sampled survey cells and observed whole-box persistence. That check does not prove complete protection boundaries, independent material semantics, connected-player permission behavior or applied save/reload persistence.
 
 Raw reports, game-derived catalogues, logs, session receipts and deployment details remain private and excluded.
+
+
+## 16-cell floor acceptance checkpoint
+
+On 2026-11-13, the isolated 0.9.1 floor proof passed ten checks: unchanged dry previews, missing-gate refusal before reservation, discarded-response reconciliation, exact whole-capture verification, independent verification of all 16 target cells and 496 untouched cells, canonical replay without another commit, changed-request refusal, unchanged dry undo, discarded undo response recovery and duplicate no-ops, and one durable commit/undo receipt pair. Undo restored all 512 baseline cells. The session-created flag was removed.
+
+After coordinated logout and two empty checks, a 21-file cold save/ledger archive passed integrity and SHA256 verification. Reload restored all 512 baseline cells. The plan identity stayed stale without reconstructing its native transaction; old-session replay was refused with a fresh gate, and ledger hashes stayed unchanged. The temporary flag was removed. An initial startup stale-state assertion failed without capturing the returned state; a subsequent direct observation and complete rerun passed. Startup readiness is not yet a fixed acceptance fixture.
+
+This proves a controlled bounded floor and post-undo persistence. It does not prove persistence while applied, appearance/usability, general concurrent safety, stateful recovery, or advanced workshop completion. Next: applied save-checkpoint validation and measured multi-brick jobs with reconciliation, cancellation and protected regions.

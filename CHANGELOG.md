@@ -4,7 +4,7 @@
 
 - Add `building_apply_plan` for floor, wall and doorway geometry bounded to 64 requested cells in one aligned voxel brick. Preserve logical element keys, exact source material/fill, one native transaction and full-brick verification.
 - Require an exact expected whole-voxel postimage before multi-cell undo. This mitigates a framework application-window foreign-edit gap without claiming concurrent safety, compare-and-swap or atomicity.
-- Retain the single-cell recovery path, unchanged-props/persistence checks and native undo conflict guard. The 16-cell live plan proof is pending.
+- Retain the single-cell recovery path, unchanged-props/persistence checks and native undo conflict guard. The 16-cell floor live proof and post-undo cold reload passed.
 
 ## 0.8.0
 
