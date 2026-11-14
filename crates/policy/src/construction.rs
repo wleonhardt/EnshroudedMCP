@@ -7,7 +7,48 @@ pub const JOURNAL_MAX_BYTES: usize = 8 * 1024 * 1024;
 pub const MAX_RECORD_BYTES: usize = 65_536;
 pub const MAX_CAPTURE_PROPS: usize = 16;
 
-pub const PLAN_MAX_CELLS: usize = 64;
+pub const PLAN_MAX_CELLS: usize = 256;
+pub const PLAN_MAX_BRICKS: usize = 8;
+pub const PLAN_MAX_CELLS_PER_BRICK: usize = 64;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BrickTargets {
+    pub min: [u32; 3],
+    pub targets: Vec<[u32; 3]>,
+}
+
+/// Groups bounded complete cells into aligned bricks in lexicographic order.
+/// # Errors
+/// Refuses empty, duplicate, outside-world or excessive target sets.
+pub fn target_bricks(targets: &[[u32; 3]]) -> Result<Vec<BrickTargets>, String> {
+    use std::collections::{BTreeMap, BTreeSet};
+    if targets.is_empty() || targets.len() > PLAN_MAX_CELLS {
+        return Err("construction plan must contain 1 to 256 solid cells".into());
+    }
+    let mut groups: BTreeMap<[u32; 3], Vec<[u32; 3]>> = BTreeMap::new();
+    let mut seen = BTreeSet::new();
+    for &target in targets {
+        if !crate::bounds::in_world(target.map(|n| f64::from(n) * 0.5 + 0.5)) {
+            return Err("complete plan cells must lie inside world bounds".into());
+        }
+        if !seen.insert(target) {
+            return Err("construction plan targets must be unique".into());
+        }
+        let min = target.map(|n| n / 8 * 8);
+        if !groups.contains_key(&min) && groups.len() >= PLAN_MAX_BRICKS {
+            return Err("construction plan exceeds 8 aligned bricks".into());
+        }
+        let group = groups.entry(min).or_default();
+        if group.len() >= PLAN_MAX_CELLS_PER_BRICK {
+            return Err("construction plan exceeds 64 solid cells per brick".into());
+        }
+        group.push(target);
+    }
+    Ok(groups
+        .into_iter()
+        .map(|(min, targets)| BrickTargets { min, targets })
+        .collect())
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlanSpec {
@@ -51,8 +92,8 @@ pub fn plan_schema() -> Value {
 }
 
 /// # Errors
-/// Refuses malformed geometry, material labels, over 64 solids, multiple target
-/// bricks, source overlap and any unconfirmed or unbound non-dry request.
+/// Refuses malformed geometry, material labels, excessive cells or bricks,
+/// source overlap and any unconfirmed or unbound non-dry request.
 pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
     crate::args::check(&plan_schema(), args)?;
     let plan = args
@@ -65,7 +106,7 @@ pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
     let spec = crate::building_plan::check(&geometry)?;
     let local = crate::building_plan::local_cells(&spec);
     if local.len() > PLAN_MAX_CELLS {
-        return Err("construction plan exceeds 64 solid cells".into());
+        return Err("construction plan exceeds 256 solid cells".into());
     }
     let mut elements = Vec::with_capacity(local.len());
     for [x, y, z] in local {
@@ -81,12 +122,7 @@ pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
     let first = targets
         .first()
         .ok_or("construction plan has no solid cells")?;
-    if targets
-        .iter()
-        .any(|p| p.map(|n| n / 8) != first.map(|n| n / 8))
-    {
-        return Err("construction plan targets must occupy one aligned 8-cell brick".into());
-    }
+    target_bricks(&targets)?;
     // Reuse identical source, player and mode admission without exposing plan-only fields.
     let mut placement = args.clone();
     placement.remove("plan");
@@ -562,6 +598,61 @@ mod tests {
         assert!(check_journal_size(1, usize::MAX).is_err());
     }
 
+    #[test]
+    fn brick_grouping_bounds_cardinality_and_coordinates_before_execution() {
+        let brick = |offset: u32, count: usize| {
+            (0..count)
+                .map(|i| [offset + (i % 8) as u32, (i / 8 % 8) as u32, (i / 64) as u32])
+                .collect::<Vec<_>>()
+        };
+        assert!(target_bricks(&[]).is_err());
+        assert_eq!(target_bricks(&brick(0, 64)).unwrap()[0].targets.len(), 64);
+        assert!(
+            target_bricks(&brick(0, 65))
+                .unwrap_err()
+                .contains("per brick")
+        );
+        let eight: Vec<_> = (0..8).map(|i| [i * 8, 0, 0]).collect();
+        assert_eq!(target_bricks(&eight).unwrap().len(), 8);
+        let mut nine = eight;
+        nine.push([64, 0, 0]);
+        assert!(target_bricks(&nine).unwrap_err().contains("8 aligned"));
+        let cells: Vec<_> = (0..4).flat_map(|i| brick(i * 8, 64)).collect();
+        assert_eq!(
+            target_bricks(&cells)
+                .unwrap()
+                .iter()
+                .map(|b| b.targets.len())
+                .sum::<usize>(),
+            256
+        );
+        let mut excessive = cells;
+        excessive.push([32, 0, 0]);
+        assert!(target_bricks(&excessive).is_err());
+        assert!(target_bricks(&[[0, 0, 0], [0, 0, 0]]).is_err());
+        assert!(target_bricks(&[[20480, 0, 0]]).is_err());
+        assert!(target_bricks(&[[0, 2048, 0]]).is_err());
+        assert!(target_bricks(&[[u32::MAX, 0, 0]]).is_err());
+        let mut args = plan_request();
+        args.get_mut("plan").unwrap()["width"] = json!(8);
+        args.get_mut("plan").unwrap()["depth"] = json!(8);
+        for yaw in [0, 90, 180, 270] {
+            args.get_mut("plan").unwrap()["x"] = json!(12);
+            args.get_mut("plan").unwrap()["z"] = json!(12);
+            args.get_mut("plan").unwrap()["yaw"] = json!(yaw);
+            let spec = check_plan(&args).unwrap();
+            let groups = target_bricks(&spec.targets).unwrap();
+            assert_eq!(spec.targets.len(), 256);
+            assert_eq!(groups.len(), 4);
+            assert!(groups.iter().all(|b| b.targets.len() == 64));
+            let all: std::collections::BTreeSet<_> = groups
+                .iter()
+                .flat_map(|b| b.targets.iter().copied())
+                .collect();
+            assert_eq!(all, spec.targets.into_iter().collect());
+        }
+    }
+
     fn plan_request() -> Map<String, Value> {
         json!({"operation":"plan-1","source_x":0,"source_y":0,"source_z":0,"player":"Researcher",
             "plan":{"kind":"floor","x":4,"y":4,"z":4,"width":2,"height":0.5,"depth":2}})
@@ -615,10 +706,15 @@ mod tests {
         assert_eq!(check_plan(&args).unwrap().targets.len(), 64);
         args.get_mut("plan").unwrap()["width"] = json!(6.5);
         args.get_mut("plan").unwrap()["depth"] = json!(2.5);
-        assert!(check_plan(&args).unwrap_err().contains("64 solid"));
+        assert_eq!(check_plan(&args).unwrap().targets.len(), 65);
         let mut args = plan_request();
         args.get_mut("plan").unwrap()["x"] = json!(7.5);
-        assert!(check_plan(&args).unwrap_err().contains("one aligned"));
+        assert_eq!(
+            target_bricks(&check_plan(&args).unwrap().targets)
+                .unwrap()
+                .len(),
+            2
+        );
         for (key, value) in [
             ("material", json!("stone")),
             ("x", json!(10240)),

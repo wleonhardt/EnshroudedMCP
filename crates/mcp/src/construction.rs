@@ -42,8 +42,7 @@ struct Shared {
 struct Operation {
     request: Value,
     epoch: u64,
-    baseline: Capture,
-    expected: VoxelBox,
+    bricks: Vec<Brick>,
     targets: Vec<[u32; 3]>,
     region_min: [f64; 3],
     region_max: [f64; 3],
@@ -54,6 +53,63 @@ struct Operation {
     settled: bool,
 }
 
+#[derive(Debug)]
+struct Brick {
+    baseline: Capture,
+    expected: VoxelBox,
+    targets: Vec<[u32; 3]>,
+}
+fn expected_box(
+    baseline: &Capture,
+    targets: &[[u32; 3]],
+    source: enshwick::voxels::Voxel,
+) -> Result<VoxelBox, String> {
+    let corner = baseline.origin().to_array();
+    let mut expected = baseline.voxels().clone();
+    for target in targets {
+        let local = std::array::from_fn(|i| target[i] - corner[i]);
+        if !expected.set(local.into(), source) {
+            return Err("target outside baseline capture".into());
+        }
+    }
+    Ok(expected)
+}
+// Compare every captured brick, not only bricks containing a sampled target.
+fn compare(bricks: &[Brick], now: &[Capture]) -> (bool, bool, bool, bool) {
+    let count_equal = bricks.len() == now.len();
+    let baseline = count_equal && bricks.iter().zip(now).all(|(b, n)| n == &b.baseline);
+    let props = count_equal
+        && bricks.iter().zip(now).all(|(b, n)| {
+            n.origin() == b.baseline.origin()
+                && n.size() == b.baseline.size()
+                && n.props() == b.baseline.props()
+        });
+    let expected = props
+        && bricks
+            .iter()
+            .zip(now)
+            .all(|(b, n)| n.voxels() == &b.expected);
+    let cells = count_equal
+        && bricks.iter().zip(now).all(|(b, n)| {
+            b.targets.iter().all(|target| {
+                let corner = b.baseline.origin().to_array();
+                let local = std::array::from_fn(|i| target[i] - corner[i]);
+                n.voxels().get(local.into()) == b.expected.get(local.into())
+            })
+        });
+    (expected, baseline, props, cells)
+}
+fn capture_bricks(game: crate::tools::Game, bricks: &[Brick]) -> Result<Vec<Capture>, String> {
+    bricks
+        .iter()
+        .map(|b| {
+            let corner = b.baseline.origin().to_array();
+            game.world
+                .capture(corner.into(), corner.map(|n| n + 7).into())
+                .map_err(|e| format!("verification unavailable: {e}"))
+        })
+        .collect()
+}
 pub(crate) fn tools() -> Vec<Tool> {
     vec![
         Tool {
@@ -63,7 +119,7 @@ pub(crate) fn tools() -> Vec<Tool> {
         },
         Tool {
             name: "building_apply_plan",
-            description: "WRITE: Copy exact source building voxel into at most 64 planned floor/wall/doorway cells in one brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
+            description: "WRITE: Copy exact source building voxel into at most 256 planned floor/wall/doorway cells across at most 8 bricks, 64 cells per brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
             schema: construction::plan_schema(),
         },
         Tool {
@@ -159,14 +215,14 @@ fn append(dir: &Path, value: &Value) -> Result<(), String> {
         .and_then(|()| file.sync_all())
         .map_err(|e| format!("journal durability failed: {e}"))
 }
-fn proof_headroom(dir: &Path) -> Result<(), String> {
+fn proof_headroom(dir: &Path, brick_count: usize) -> Result<(), String> {
     let size = match fs::metadata(dir.join("journal.jsonl")) {
         Ok(meta) if meta.is_file() => meta.len(),
         Ok(_) => return Err("construction journal must be a regular file".into()),
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => 0,
         Err(error) => return Err(format!("journal preflight failed: {error}")),
     };
-    construction::check_journal_size(size, 4 * construction::MAX_RECORD_BYTES)
+    construction::check_journal_size(size, (2 * brick_count + 4) * construction::MAX_RECORD_BYTES)
 }
 fn reserve(dir: &Path, operation: &str, value: &Value) -> Result<(), String> {
     let bytes = record(value)?;
@@ -308,40 +364,53 @@ impl Construction {
         game.world
             .can_build(actor, min, max)
             .map_err(|e| e.to_string())?;
-        let corner = spec.target.map(|n| n / 8 * 8);
-        let baseline = game
-            .world
-            .capture(corner.into(), corner.map(|n| n + 7).into())
-            .map_err(|e| e.to_string())?;
-        construction::check_capture_props(baseline.props().len())?;
-        let mut expected = baseline.voxels().clone();
+        let groups = construction::target_bricks(&targets)?;
         let persists = game.world.persists(min, max).map_err(|e| e.to_string())?;
         let mut targets_before = Vec::with_capacity(targets.len());
-        for target in &targets {
-            let local = std::array::from_fn(|i| target[i] - corner[i]);
-            let before = baseline
-                .voxels()
-                .get(VoxelPos::from(local))
-                .ok_or("target outside baseline capture")?;
-            construction::check_context(construction::PlacementFacts {
-                source: cell(source),
-                target: cell(before),
-                persists,
-                connected_players: players.len(),
-                matching_actors: actors.len(),
-            })?;
-            targets_before.push(json!({"cells":target,"material":format!("{:?}",before.material()),"fill":before.fill()}));
-            if !expected.set(VoxelPos::from(local), source) {
-                return Err("target outside baseline capture".into());
+        let mut bricks = Vec::with_capacity(groups.len());
+        for group in groups {
+            let corner = group.min;
+            let baseline = game
+                .world
+                .capture(corner.into(), corner.map(|n| n + 7).into())
+                .map_err(|e| e.to_string())?;
+            construction::check_capture_props(baseline.props().len())?;
+            for target in &group.targets {
+                let local = std::array::from_fn(|i| target[i] - corner[i]);
+                let before = baseline
+                    .voxels()
+                    .get(VoxelPos::from(local))
+                    .ok_or("target outside baseline capture")?;
+                construction::check_context(construction::PlacementFacts {
+                    source: cell(source),
+                    target: cell(before),
+                    persists,
+                    connected_players: players.len(),
+                    matching_actors: actors.len(),
+                })?;
+                targets_before.push(json!({"cells":target,"material":format!("{:?}",before.material()),"fill":before.fill()}));
             }
+            let expected = expected_box(&baseline, &group.targets, source)?;
+            bricks.push(Brick {
+                baseline,
+                expected,
+                targets: group.targets,
+            });
         }
-        proof_headroom(&self.shared.dir)?;
+        // Admit every baseline record before creating the durable replay tombstone.
+        for (index, brick) in bricks.iter().enumerate() {
+            record(
+                &json!({"kind":"construction_brick_baseline","operation":spec.operation,"index":index,"baseline":brick.baseline}),
+            )?;
+        }
+        proof_headroom(&self.shared.dir, bricks.len())?;
+        let brick_summary:Vec<_>=bricks.iter().map(|b|json!({"min_cells":b.baseline.origin().to_array(),"size_cells":b.baseline.size(),"props_count":b.baseline.props().len(),"planned_cells":b.targets.len()})).collect();
         if spec.dry {
             return Ok(
-                json!({"state":"dry","session":session,"world_mutated":false,"event_counter":self.shared.events.load(Ordering::SeqCst),"whole_brick_captured":true,"journal_cycle_headroom_checked":true,"source_cells":spec.source,"target_cells":spec.target,"source":{"material":format!("{:?}",source.material()),"fill":source.fill()},"target_before":targets_before[0],"targets_before":targets_before,"targets_cells":targets,"geometry":geometry,"elements":elements,"planned_cells":targets.len(),"limits":{"max_plan_cells":construction::PLAN_MAX_CELLS,"max_capture_props":construction::MAX_CAPTURE_PROPS},"keyed_cells":elements.iter().map(|(key,cells)|json!({"key":key,"cells":cells})).collect::<Vec<_>>(),"region_min_m":min,"region_max_exclusive_m":max,"brick_min_cells":corner,"brick_size_cells":baseline.size(),"props_count":baseline.props().len(),"build_rights_checked":true,"target_persists_checked":true,"requires_quiescent_isolated_site":true,"placement_cas":false,"zero_events_is_not_absolute_proof":true}),
+                json!({"state":"dry","session":session,"world_mutated":false,"event_counter":self.shared.events.load(Ordering::SeqCst),"whole_brick_captured":true,"journal_cycle_headroom_checked":true,"source_cells":spec.source,"target_cells":spec.target,"source":{"material":format!("{:?}",source.material()),"fill":source.fill()},"target_before":targets_before.iter().find(|cell| cell["cells"] == json!(spec.target)),"targets_before":targets_before,"targets_cells":targets,"geometry":geometry,"elements":elements,"planned_cells":targets.len(),"limits":{"max_plan_cells":construction::PLAN_MAX_CELLS,"max_capture_props_per_brick":construction::MAX_CAPTURE_PROPS,"max_bricks":construction::PLAN_MAX_BRICKS,"max_cells_per_brick":construction::PLAN_MAX_CELLS_PER_BRICK},"keyed_cells":elements.iter().map(|(key,cells)|json!({"key":key,"cells":cells})).collect::<Vec<_>>(),"region_min_m":min,"region_max_exclusive_m":max,"brick_min_cells":bricks[0].baseline.origin().to_array(),"brick_size_cells":bricks[0].baseline.size(),"props_count":bricks.iter().map(|b|b.baseline.props().len()).sum::<usize>(),"brick_count":bricks.len(),"bricks":brick_summary,"build_rights_checked":true,"target_persists_checked":true,"requires_quiescent_isolated_site":true,"placement_cas":false,"zero_events_is_not_absolute_proof":true}),
             );
         }
-        let intent = json!({"kind":"construction_intent","operation":spec.operation,"request":request,"session":self.shared.boot,"epoch":epoch,"actor_account_key":actor.key.0,"baseline":baseline});
+        let intent = json!({"kind":"construction_intent","operation":spec.operation,"request":request,"session":self.shared.boot,"epoch":epoch,"actor_account_key":actor.key.0,"brick_count":bricks.len()});
         reserve(&self.shared.dir, &spec.operation, &intent)?;
         // From reservation onward even a precommit error conservatively blocks this proof.
         let mut ops = self
@@ -354,8 +423,7 @@ impl Construction {
             Operation {
                 request,
                 epoch,
-                baseline,
-                expected,
+                bricks,
                 targets: targets.clone(),
                 region_min: min,
                 region_max: max,
@@ -369,8 +437,16 @@ impl Construction {
         let op = ops
             .get_mut(&spec.operation)
             .ok_or("operation disappeared")?;
-        let preparation = append(&self.shared.dir, &intent)
-            .and_then(|()| self.gate(false, spec.confirm.as_deref()));
+        let preparation = (|| {
+            append(&self.shared.dir, &intent)?;
+            for (index, brick) in op.bricks.iter().enumerate() {
+                append(
+                    &self.shared.dir,
+                    &json!({"kind":"construction_brick_baseline","operation":spec.operation,"index":index,"baseline":brick.baseline}),
+                )?;
+            }
+            self.gate(false, spec.confirm.as_deref())
+        })();
         if let Err(e) = preparation {
             op.error = Some(e.clone());
             return Err(e);
@@ -455,22 +531,11 @@ impl Construction {
                     | TransactionStatus::Failed(_)
             )
         ) {
-            let corner = op.baseline.origin().to_array();
-            let now = game
-                .world
-                .capture(corner.into(), corner.map(|n| n + 7).into())
-                .map_err(|e| format!("verification unavailable: {e}"))?;
-            baseline_equal = Some(now == op.baseline);
-            expected_equal = Some(
-                now.origin() == op.baseline.origin()
-                    && now.size() == op.baseline.size()
-                    && now.props() == op.baseline.props()
-                    && now.voxels() == &op.expected,
-            );
-            cell_equal = Some(op.targets.iter().all(|target| {
-                let local = std::array::from_fn(|i| target[i] - corner[i]);
-                now.voxels().get(local.into()) == op.expected.get(local.into())
-            }));
+            let now = capture_bricks(game, &op.bricks)?;
+            let (expected, baseline, _, cells) = compare(&op.bricks, &now);
+            baseline_equal = Some(baseline);
+            expected_equal = Some(expected);
+            cell_equal = Some(cells);
             if matches!(native, Some(TransactionStatus::Undone)) && baseline_equal == Some(true) {
                 op.settled = true;
             }
@@ -494,7 +559,7 @@ impl Construction {
             _ => "unknown",
         };
         Ok(
-            json!({"operation":operation,"state":state,"session":self.session(),"native_status":format!("{native:?}"),"transaction":op.id.map(TransactionId::get),"whole_capture_expected_equal":expected_equal,"whole_capture_baseline_equal":baseline_equal,"cell_expected_equal":cell_equal,"planned_cell_count":op.targets.len(),"region_min_m":op.region_min,"region_max_exclusive_m":op.region_max,"settled":op.settled,"journal_error":op.error,"undo_requested":op.undo_requested,"event_counter":self.shared.events.load(Ordering::SeqCst),"placement_cas":false,"requires_quiescent_isolated_site":true,"save_reload_verified":false}),
+            json!({"operation":operation,"state":state,"session":self.session(),"native_status":format!("{native:?}"),"transaction":op.id.map(TransactionId::get),"whole_capture_expected_equal":expected_equal,"whole_capture_baseline_equal":baseline_equal,"cell_expected_equal":cell_equal,"planned_cell_count":op.targets.len(),"brick_count":op.bricks.len(),"region_min_m":op.region_min,"region_max_exclusive_m":op.region_max,"settled":op.settled,"journal_error":op.error,"undo_requested":op.undo_requested,"event_counter":self.shared.events.load(Ordering::SeqCst),"placement_cas":false,"requires_quiescent_isolated_site":true,"save_reload_verified":false}),
         )
     }
     pub(crate) fn undo(&self, game: crate::tools::Game, spec: UndoSpec) -> Result<Value, String> {
@@ -540,18 +605,8 @@ impl Construction {
         game.world
             .can_build(actors[0], min, max)
             .map_err(|e| e.to_string())?;
-        let corner = op.baseline.origin().to_array();
-        let now = game
-            .world
-            .capture(corner.into(), corner.map(|n| n + 7).into())
-            .map_err(|e| e.to_string())?;
-        let expected = now.origin() == op.baseline.origin()
-            && now.size() == op.baseline.size()
-            && now.props() == op.baseline.props()
-            && now.voxels() == &op.expected;
-        let props_unchanged = now.origin() == op.baseline.origin()
-            && now.size() == op.baseline.size()
-            && now.props() == op.baseline.props();
+        let now = capture_bricks(game, &op.bricks)?;
+        let (expected, baseline_equal, props_unchanged, _) = compare(&op.bricks, &now);
         let persists = game.world.persists(min, max).map_err(|e| e.to_string())?;
         construction::check_undo_context(construction::UndoFacts {
             props_unchanged,
@@ -561,13 +616,19 @@ impl Construction {
         })?;
         if spec.dry {
             return Ok(
-                json!({"state":"dry_undo","world_mutated":false,"application_expected_equal":expected,"whole_capture_baseline_equal":now==op.baseline,"props_unchanged":props_unchanged,"native_conflict_check_required":true}),
+                json!({"state":"dry_undo","world_mutated":false,"application_expected_equal":expected,"whole_capture_baseline_equal":baseline_equal,"props_unchanged":props_unchanged,"native_conflict_check_required":true}),
             );
         }
         append(
             &self.shared.dir,
-            &json!({"kind":"construction_undo_intent","operation":spec.operation,"transaction":id.get(),"application_expected_equal":expected,"whole_capture_baseline_equal":now==op.baseline,"props_unchanged":props_unchanged,"actual_before_undo":now,"native_conflict_check_required":true}),
+            &json!({"kind":"construction_undo_intent","operation":spec.operation,"transaction":id.get(),"application_expected_equal":expected,"whole_capture_baseline_equal":baseline_equal,"props_unchanged":props_unchanged,"brick_count":now.len(),"native_conflict_check_required":true}),
         )?;
+        for (index, capture) in now.iter().enumerate() {
+            append(
+                &self.shared.dir,
+                &json!({"kind":"construction_undo_brick","operation":spec.operation,"index":index,"actual_before_undo":capture}),
+            )?;
+        }
         self.gate(false, spec.confirm.as_deref())?;
         construction::check_epoch(op.epoch, self.shared.epoch.load(Ordering::SeqCst))?;
         require_active(&self.shared.active)?;
@@ -592,9 +653,11 @@ impl Construction {
 mod tests {
     use super::*;
     fn dir() -> PathBuf {
+        static NEXT: AtomicU64 = AtomicU64::new(0);
         let p = std::env::temp_dir().join(format!(
-            "mcp-construction-{}-{}",
+            "mcp-construction-{}-{}-{}",
             std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed),
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()
@@ -643,6 +706,65 @@ mod tests {
             placement.targets
         );
     }
+    fn synthetic_capture(corner: [u32; 3], voxels: VoxelBox) -> Capture {
+        serde_json::from_value(json!({"origin":VoxelPos::from(corner),"voxels":voxels,"props":[]}))
+            .unwrap()
+    }
+    #[test]
+    fn multi_brick_expected_images_preserve_unrequested_cells_and_compare_every_brick() {
+        use enshwick::voxels::Voxel;
+        let air = Voxel::new(VoxelMaterial::Air, 0);
+        let source = Voxel::new(VoxelMaterial::Building(7), 7);
+        let targets = vec![[7, 0, 0], [8, 0, 0]];
+        let bricks: Vec<_> = construction::target_bricks(&targets)
+            .unwrap()
+            .into_iter()
+            .map(|group| {
+                let baseline = synthetic_capture(
+                    group.min,
+                    VoxelBox::new([0; 3].into(), [8; 3], vec![air; 512]).unwrap(),
+                );
+                let expected = expected_box(&baseline, &group.targets, source).unwrap();
+                assert_eq!(
+                    expected.as_slice().iter().filter(|v| **v == source).count(),
+                    1
+                );
+                Brick {
+                    baseline,
+                    expected,
+                    targets: group.targets,
+                }
+            })
+            .collect();
+        let baseline: Vec<_> = bricks.iter().map(|b| b.baseline.clone()).collect();
+        assert_eq!(compare(&bricks, &baseline), (false, true, true, false));
+        let mut applied: Vec<_> = bricks
+            .iter()
+            .map(|b| synthetic_capture(b.baseline.origin().to_array(), b.expected.clone()))
+            .collect();
+        assert_eq!(compare(&bricks, &applied), (true, false, true, true));
+        let mut drifted = bricks[1].expected.clone();
+        assert!(drifted.set([7, 7, 7].into(), source));
+        applied[1] = synthetic_capture([8, 0, 0], drifted);
+        assert_eq!(compare(&bricks, &applied), (false, false, true, true));
+        assert_eq!(
+            compare(&bricks, &applied[..1]),
+            (false, false, false, false)
+        );
+    }
+    #[test]
+    fn eight_brick_ledger_headroom_reserves_all_baseline_and_undo_records() {
+        let d = dir();
+        let file = fs::File::create(d.join("journal.jsonl")).unwrap();
+        let boundary =
+            (construction::JOURNAL_MAX_BYTES - 20 * construction::MAX_RECORD_BYTES) as u64;
+        file.set_len(boundary).unwrap();
+        assert!(proof_headroom(&d, 8).is_ok());
+        file.set_len(boundary + 1).unwrap();
+        assert!(proof_headroom(&d, 8).is_err());
+        drop(file);
+        fs::remove_dir_all(d).unwrap();
+    }
     #[test]
     fn shutdown_blocks_new_tokens_until_a_new_world_loads() {
         let active = std::sync::atomic::AtomicBool::new(false);
@@ -665,19 +787,19 @@ mod tests {
     #[test]
     fn complete_cycle_headroom_is_required_before_reservation() {
         let d = dir();
-        assert!(proof_headroom(&d).is_ok());
+        assert!(proof_headroom(&d, 1).is_ok());
         let file = fs::File::create(d.join("journal.jsonl")).unwrap();
         let boundary =
-            (construction::JOURNAL_MAX_BYTES - 4 * construction::MAX_RECORD_BYTES) as u64;
+            (construction::JOURNAL_MAX_BYTES - 6 * construction::MAX_RECORD_BYTES) as u64;
         file.set_len(boundary).unwrap();
-        assert!(proof_headroom(&d).is_ok());
+        assert!(proof_headroom(&d, 1).is_ok());
         file.set_len(boundary + 1).unwrap();
-        assert!(proof_headroom(&d).is_err());
+        assert!(proof_headroom(&d, 1).is_err());
         assert!(!d.join("construction-operations").exists());
         drop(file);
         fs::remove_file(d.join("journal.jsonl")).unwrap();
         fs::create_dir(d.join("journal.jsonl")).unwrap();
-        assert!(proof_headroom(&d).is_err());
+        assert!(proof_headroom(&d, 1).is_err());
         fs::remove_dir_all(d).unwrap();
     }
     #[test]

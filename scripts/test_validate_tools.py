@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.9.1"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.10.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"give_item", "future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -42,7 +42,7 @@ class Fixture:
             else:
                 value = "no connected player"
         elif name == "capabilities":
-            value = {"mod_version": "0.9.1", "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"mod_version": "0.10.0", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -129,6 +129,30 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(report["verdict"], "incomplete")
         self.assertTrue(any("no valid survey read is validated" in note for note in report["incomplete"]))
         self.assertTrue(any("persistence acceptance remain incomplete" in note for note in report["incomplete"]))
+
+    def test_unknown_operation_probe_retries_only_bounded_inactive_session(self):
+        for state, inactive_count, expected, calls in [
+            ("inactive_session_unknown", 1, "pass", 2),
+            ("inactive_session_unknown", 10, "fail", 3),
+            ("stale_session_unknown", 1, "fail", 1),
+            ("failed_unknown", 1, "fail", 1),
+        ]:
+            client = Fixture()
+            original = client.call
+            attempts = []
+
+            def reply(method, params=None):
+                if method == "tools/call" and params["name"] == "building_operation":
+                    attempts.append(1)
+                    if len(attempts) <= inactive_count:
+                        return {"isError": False, "content": [{"type": "text", "text": json.dumps({"state": state})}]}
+                return original(method, params)
+
+            with self.subTest(state=state, count=inactive_count), patch.object(client, "call", side_effect=reply):
+                report = Validation(client, pause=lambda _: None).run()
+                check = next(c for c in report["checks"] if c["name"] == "unknown_construction_operation_refused")
+                self.assertEqual(check["outcome"], expected)
+                self.assertEqual(len(attempts), calls)
 
     def test_write_rejected_before_client_call(self):
         client = Fixture()

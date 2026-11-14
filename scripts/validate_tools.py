@@ -1,4 +1,4 @@
-"""Read-only 0.9.1 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.10.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -36,12 +36,20 @@ class Validation:
         check = {"name": label, "outcome": "fail"}
         self.checks.append(check)
         try:
-            reply = self.client.call("tools/call", {"name": name, "arguments": args})
-            require(isinstance(reply, dict) and type(reply.get("isError")) is bool)
-            content = reply.get("content")
-            require(isinstance(content, list) and len(content) == 1 and content[0].get("type") == "text")
-            message = content[0]["text"]
-            require(isinstance(message, str))
+            for attempt in range(3):
+                reply = self.client.call("tools/call", {"name": name, "arguments": args})
+                require(isinstance(reply, dict) and type(reply.get("isError")) is bool)
+                content = reply.get("content")
+                require(isinstance(content, list) and len(content) == 1 and content[0].get("type") == "text")
+                message = content[0]["text"]
+                require(isinstance(message, str))
+                # A restarted world may not have emitted its loaded callback yet.
+                # Retry only this fixed status probe and this exact readiness state.
+                if (label == "unknown_construction_operation_refused" and name == "building_operation" and
+                        not reply["isError"] and json.loads(message).get("state") == "inactive_session_unknown" and attempt < 2):
+                    self.pause(0.5)
+                    continue
+                break
             if refusal is not None:
                 require(reply["isError"] and refusal in message.casefold())
             else:
@@ -60,14 +68,14 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.9.1"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.10.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(READS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.9.1", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.10.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.9.1" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.10.0" and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "new_inspection_tools_live_verified")))
         self.probe("known_item_lookup", "item_lookup", {"ids": [213939880]}, lambda v:
                    v.get("source") == "vanilla_archive_item_registry" and v.get("effective_definition_verified") is False and

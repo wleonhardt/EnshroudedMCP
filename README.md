@@ -2,7 +2,7 @@
 
 An experimental [enshwick](https://github.com/enshwick/enshwick) mod that exposes a loopback MCP endpoint for inspecting Enshrouded. Server reads run on the game thread. Request admission, argument bounds and write gates are implemented in a game-free policy crate.
 
-Server version 0.9.1 exposes twenty tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
+Server version 0.10.0 exposes twenty tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
 
 The project is unofficial. Keen's Terms of Use forbid mods (3.3(f)); assess the terms before use. This project contains no game binaries, saves, generated catalogues or credentials and does not modify the Steam DRM stub.
 
@@ -19,7 +19,7 @@ The server endpoint is `POST http://127.0.0.1:8751/mcp`. Its mod ID is `enshroud
 | `recipe_plan` | Pure single-output recipe arithmetic over supplied recipes and stock |
 | `building_plan` | Floor, wall and doorway previews on a half-metre grid; no placement |
 | `building_survey` | At most 4096 complete half-metre cells with exact material/fill, persistence and optional connected-player build rights; no edits |
-| `building_place_cell`, `building_apply_plan` | Gated exact-voxel copy into one air cell or up to 64 floor/wall/doorway cells in one aligned 8-cube brick |
+| `building_place_cell`, `building_apply_plan` | Gated exact-voxel copy into one air cell or up to 256 floor/wall/doorway cells across eight aligned bricks, at most 64 per brick |
 | `building_operation`, `building_undo_cell` | Session-bound native transaction reconciliation and guarded undo for cells or plans |
 | `give_item` | One explicitly gated inventory transaction |
 
@@ -72,9 +72,9 @@ Entity IDs and slot references are session-scoped. Output caps do not necessaril
 
 Recipe outputs are conditional on supplied assumptions. Alternatives, catalysts, coproducts, real inventory reservation and survival-cost debits are unsupported. Building previews do not check material mapping, collision, traversal, build rights, appearance or persistence.
 
-Construction uses a dry preview session token, validated operation identity and stable logical cell keys. Durable intent is synced before commit; native transaction IDs remain typed in memory. Repeating the same canonical operation polls its receipt rather than committing again. A prior-process tombstone prevents replay but cannot reconstruct native IDs or provide stateful recovery. A lost undo response is reconciled without requeueing undo. Only one unsettled proof is allowed.
+Construction uses a dry preview session token, validated operation identity and stable logical cell keys. Durable intent is synced before commit; native transaction IDs remain typed in memory. Repeating the same canonical operation polls its receipt rather than committing again. A prior-process tombstone prevents replay but cannot reconstruct native IDs or provide stateful recovery. A lost undo response is reconciled without requeueing undo. Only one unsettled proof is allowed. Each touched brick has a complete baseline and expected capture. Captures are journaled as separate synced records, each at most 64 KiB; full-cycle headroom is reserved under the 8 MiB ledger cap. One native transaction is not a resumable job system.
 
-Plan placement requires every target cell to be air, one connected actor, build rights and persistence across the full target bounds. Each native change writes exactly one requested cell. Keep the isolated site quiescent through placement and undo; do not run other writes during a proof. Native placement has no compare-and-swap and no atomicity guarantee. The framework can absorb a foreign voxel edit during multi-change application into its recorded postimage. Version 0.9.1 therefore refuses multi-cell undo unless the entire expected voxel postimage still matches; props, persistence and the native undo conflict check remain required. This guard is not a general concurrent-edit safety guarantee. No inventory debit, collision, traversal, stateful prop recovery or applied-structure persistence is established.
+Plan placement requires every target cell to be air, one connected actor, build rights and persistence across the full target bounds. Each native change writes exactly one requested cell. Keep the isolated site quiescent through placement and undo; do not run other writes during a proof. Native placement has no compare-and-swap and no atomicity guarantee. The framework can absorb a foreign voxel edit during multi-change application into its recorded postimage. Version 0.9.1 therefore refuses multi-cell undo unless the entire expected voxel postimage still matches; props, persistence and the native undo conflict check remain required. This guard is not a general concurrent-edit safety guarantee. No inventory debit, collision, traversal or stateful prop recovery is established. Applied voxel persistence has only the narrow isolated floor evidence described below.
 
 ## Validation and roadmap
 
@@ -82,9 +82,9 @@ Version 0.7.0 adds bounded read-only site surveys. Supply `x`, `y`, `z`, `width`
 
 The focused framework contribution is [enshwick PR #1079](https://github.com/enshwick/enshwick/pull/1079). It contains no MCP code and does not replace this snapshot's pinned compatibility patch automatically.
 
-The 0.9.1 source passed 119 Rust tests, 24 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated installation passed all 18 fixed read-only probes. Neutral publication IDs have not been exercised live.
+The 0.10.0 source passed 122 Rust tests, 25 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.10.0 installation passed all 18 settled fixed read-only probes. Neutral publication IDs have not been exercised live.
 
-A single-cell proof passed exact whole-capture placement/read-back/undo, idempotent receipt replay and cold reload with all 512 baseline voxels equal. The 16-cell floor plan passed isolated placement, exact read-back, replay, undo and post-undo cold reload. Undo-then-reload baseline equality does not prove persistence of an applied structure.
+A single-cell proof passed exact whole-capture placement/read-back/undo, idempotent receipt replay and cold reload with all 512 baseline voxels equal. The 16-cell floor plan passed isolated placement, exact read-back, replay, undo and post-undo cold reload. A separate floor experiment verified all 512 applied-capture voxels after cold reload while preserving the placed fixture. Old native receipts remained stale. The 32-cell, two-brick live proof passed exact placement/read-back/replay/undo, with all 1024 capture cells verified and 992 neighbors unchanged. Its final post-undo cold reload passed with all 1024 baseline cells equal; applied floor persistence does not establish stateful workshop recovery or usability.
 
 The source has limited isolated live evidence. Known inventory splits, one durability comparison, one enemy health decrease and cold file restoration have been observed. These findings do not establish general mechanics or complete object-state recovery. See [public evidence](plans/research/live-validation.md), [the construction roadmap](plans/goal.md) and [the queue](plans/next-up.md).
 
@@ -95,6 +95,3 @@ Generated type catalogues and component-name lists must be produced locally thro
 ## License
 
 MIT. The framework patch retains its upstream license in [patches/enshwick-LICENSE](patches/enshwick-LICENSE). This project is not affiliated with Keen Games or enshwick.
-
-
-The isolated 16-cell floor passed exact whole-brick read-back, replay, undo and post-undo cold reload. Applied persistence, larger jobs and the functional workshop remain pending.
