@@ -4,8 +4,8 @@
 
 - Add nullable native health, stamina and mana to existing player rows. Preserve raw SDK integer values, observed zero and independent unavailable pools; UI unit conversion remains unverified.
 - Add neutral original branding, setup, tool reference, architecture, research boundaries and contribution documentation.
-- Pass 146 Rust tests, 30 Python tests, Clippy, formatting and both release builds in source and sanitized publication. Earlier isolated meter reads passed; the final write-gate correction below is source-tested and not live-installed.
-- Fix `give_item` write-flag admission to use the common metadata validator: directory flags and future timestamps are refused. A regression first reproduced directory admission, then passed with the fix. This changes write admission only; no live give was performed for this fix.
+- Pass 146 Rust tests, 30 Python tests, Clippy, formatting and both release builds in source and sanitized publication. Isolated meter reads passed. The final write-gate correction also passed refusal-only research checks after a verified cold archive; no valid inventory grant was performed.
+- Fix `give_item` write-flag admission to use the common metadata validator: directory flags and future timestamps are refused. A regression first reproduced directory admission, then passed with the fix. This changes write admission only. Live invalid-flag refusals preserved all 4096 baseline cells and ledger bytes; no inventory grant was performed.
 
 ## 0.15.0
 
