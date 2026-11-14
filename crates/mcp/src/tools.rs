@@ -264,6 +264,23 @@ impl Tools for GameTools {
                 let game = self.game;
                 on_game_thread(scheduler, move || construction.status(game, operation))?
             }
+            "building_accept" => {
+                let spec = policy::construction::check_accept(a)?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("construction unavailable")?;
+                let admission_session = construction.session();
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    policy::construction::check_session(
+                        &admission_session,
+                        &construction.session(),
+                    )
+                    .map_err(|_| "world session changed while request was queued".to_owned())?;
+                    construction.accept(game, spec)
+                })?
+            }
             "building_undo_cell" => {
                 let spec = policy::construction::check_undo(a)?;
                 let construction = self

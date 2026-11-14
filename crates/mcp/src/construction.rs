@@ -1,6 +1,6 @@
 //! Bounded, session-bound construction proof. Call only on the game thread.
 //! Placement has no native compare-and-swap: requires a quiescent isolated site.
-//! Multi-cell undo also requires exact expected voxels; this does not guarantee
+//! Multi-cell and accepted-receipt undo require exact expected voxels; this does not guarantee
 //! safe concurrent editing. Keep actors quiescent through placement and undo.
 use enshwick::{
     Load, Off,
@@ -50,6 +50,7 @@ struct Operation {
     id: Option<TransactionId>,
     undo_requested: bool,
     error: Option<String>,
+    accepted: bool,
     settled: bool,
 }
 
@@ -126,6 +127,11 @@ pub(crate) fn tools() -> Vec<Tool> {
             name: "building_operation",
             description: "Poll a session-bound construction transaction and verify its whole brick and props. Never reconstruct native IDs after restart.",
             schema: construction::status_schema(),
+        },
+        Tool {
+            name: "building_accept",
+            description: "WRITE: Accept an exactly verified applied operation, allowing another bounded placement while retaining session-only native undo. Dry by default. Does not prove save/reload persistence.",
+            schema: construction::accept_schema(),
         },
         Tool {
             name: "building_undo_cell",
@@ -222,7 +228,7 @@ fn proof_headroom(dir: &Path, brick_count: usize) -> Result<(), String> {
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => 0,
         Err(error) => return Err(format!("journal preflight failed: {error}")),
     };
-    construction::check_journal_size(size, (2 * brick_count + 4) * construction::MAX_RECORD_BYTES)
+    construction::check_journal_size(size, (2 * brick_count + 5) * construction::MAX_RECORD_BYTES)
 }
 fn reserve(dir: &Path, operation: &str, value: &Value) -> Result<(), String> {
     let bytes = record(value)?;
@@ -431,6 +437,7 @@ impl Construction {
                 id: None,
                 undo_requested: false,
                 error: None,
+                accepted: false,
                 settled: false,
             },
         );
@@ -559,8 +566,68 @@ impl Construction {
             _ => "unknown",
         };
         Ok(
-            json!({"operation":operation,"state":state,"session":self.session(),"native_status":format!("{native:?}"),"transaction":op.id.map(TransactionId::get),"whole_capture_expected_equal":expected_equal,"whole_capture_baseline_equal":baseline_equal,"cell_expected_equal":cell_equal,"planned_cell_count":op.targets.len(),"brick_count":op.bricks.len(),"region_min_m":op.region_min,"region_max_exclusive_m":op.region_max,"settled":op.settled,"journal_error":op.error,"undo_requested":op.undo_requested,"event_counter":self.shared.events.load(Ordering::SeqCst),"placement_cas":false,"requires_quiescent_isolated_site":true,"save_reload_verified":false}),
+            json!({"operation":operation,"state":state,"session":self.session(),"native_status":format!("{native:?}"),"transaction":op.id.map(TransactionId::get),"whole_capture_expected_equal":expected_equal,"whole_capture_baseline_equal":baseline_equal,"cell_expected_equal":cell_equal,"planned_cell_count":op.targets.len(),"brick_count":op.bricks.len(),"region_min_m":op.region_min,"region_max_exclusive_m":op.region_max,"settled":op.settled,"accepted":op.accepted,"journal_error":op.error,"undo_requested":op.undo_requested,"event_counter":self.shared.events.load(Ordering::SeqCst),"placement_cas":false,"requires_quiescent_isolated_site":true,"save_reload_verified":false}),
         )
+    }
+    pub(crate) fn accept(&self, game: crate::tools::Game, spec: UndoSpec) -> Result<Value, String> {
+        self.gate(spec.dry, spec.confirm.as_deref())?;
+        require_active(&self.shared.active)?;
+        let mut ops = self
+            .shared
+            .operations
+            .lock()
+            .map_err(|_| "construction state poisoned")?;
+        let op = ops
+            .get_mut(&spec.operation)
+            .ok_or("stale operation cannot be accepted")?;
+        construction::check_epoch(op.epoch, self.shared.epoch.load(Ordering::SeqCst))?;
+        let id = op
+            .id
+            .ok_or("no retained native transaction; outcome unknown")?;
+        if op.accepted {
+            drop(ops);
+            return self.status(game, spec.operation);
+        }
+        let state = game.world.transaction_status(id);
+        let now = capture_bricks(game, &op.bricks)?;
+        let (expected, _, _, _) = compare(&op.bricks, &now);
+        let persists = game
+            .world
+            .persists(op.region_min, op.region_max)
+            .map_err(|e| e.to_string())?;
+        construction::check_accept_context(construction::AcceptFacts {
+            applied: matches!(state, Some(TransactionStatus::Applied)),
+            expected_equal: expected,
+            journal_ok: op.error.is_none(),
+            undo_requested: op.undo_requested,
+            persists,
+        })?;
+        let players = game.world.players();
+        let actors: Vec<_> = players.iter().filter(|p| p.key.0 == op.actor).collect();
+        construction::check_actor_counts(players.len(), actors.len())?;
+        game.world
+            .can_build(actors[0], op.region_min, op.region_max)
+            .map_err(|e| e.to_string())?;
+        if spec.dry {
+            return Ok(
+                json!({"state":"dry_accept","operation":spec.operation,"world_mutated":false,"whole_capture_expected_equal":expected,"accepted":false,"save_reload_verified":false}),
+            );
+        }
+        self.gate(false, spec.confirm.as_deref())?;
+        require_active(&self.shared.active)?;
+        construction::check_epoch(op.epoch, self.shared.epoch.load(Ordering::SeqCst))?;
+        // Release placement exclusivity only after the acceptance record is durable.
+        if let Err(error) = append(
+            &self.shared.dir,
+            &json!({"kind":"construction_accepted","operation":spec.operation,"transaction":id.get(),"whole_capture_expected_equal":expected,"brick_count":now.len(),"save_reload_verified":false}),
+        ) {
+            op.error = Some(error.clone());
+            return Err(error);
+        }
+        op.accepted = true;
+        op.settled = true;
+        drop(ops);
+        self.status(game, spec.operation)
     }
     pub(crate) fn undo(&self, game: crate::tools::Game, spec: UndoSpec) -> Result<Value, String> {
         self.gate(spec.dry, spec.confirm.as_deref())?;
@@ -571,6 +638,9 @@ impl Construction {
             .operations
             .lock()
             .map_err(|_| "construction state poisoned")?;
+        let other_unsettled = ops
+            .iter()
+            .any(|(name, op)| name != &spec.operation && !op.settled);
         let op = ops
             .get_mut(&spec.operation)
             .ok_or("stale operation cannot be undone")?;
@@ -591,6 +661,7 @@ impl Construction {
             drop(ops);
             return self.status(game, spec.operation);
         }
+        construction::check_undo_interlock(other_unsettled)?;
         if !matches!(
             state,
             Some(TransactionStatus::Applied | TransactionStatus::Failed(_))
@@ -609,6 +680,7 @@ impl Construction {
         let (expected, baseline_equal, props_unchanged, _) = compare(&op.bricks, &now);
         let persists = game.world.persists(min, max).map_err(|e| e.to_string())?;
         construction::check_undo_context(construction::UndoFacts {
+            accepted: op.accepted,
             props_unchanged,
             persists,
             planned_cells: op.targets.len(),
@@ -632,8 +704,15 @@ impl Construction {
         self.gate(false, spec.confirm.as_deref())?;
         construction::check_epoch(op.epoch, self.shared.epoch.load(Ordering::SeqCst))?;
         require_active(&self.shared.active)?;
-        game.world.undo(id).map_err(|e| e.to_string())?;
+        // Accepted receipts become exclusive again before the native undo call.
+        // Even a queue refusal is fail-stop; replay must never reissue this undo.
+        op.settled = false;
         op.undo_requested = true;
+        if let Err(error) = game.world.undo(id) {
+            let error = format!("undo request failed; outcome unknown: {error}");
+            op.error = Some(error.clone());
+            return Err(error);
+        }
         if let Err(e) = append(
             &self.shared.dir,
             &json!({"kind":"construction_undo_queued","operation":spec.operation,"transaction":id.get()}),
@@ -753,11 +832,50 @@ mod tests {
         );
     }
     #[test]
+    fn same_brick_layer_undo_requires_reverse_order_even_after_acceptance() {
+        use enshwick::voxels::Voxel;
+        let air = Voxel::new(VoxelMaterial::Air, 0);
+        let stone = Voxel::new(VoxelMaterial::Building(157), 7);
+        let baseline = synthetic_capture(
+            [0; 3],
+            VoxelBox::new([0; 3].into(), [8; 3], vec![air; 512]).unwrap(),
+        );
+        let frame = Brick {
+            expected: expected_box(&baseline, &[[0, 0, 0]], stone).unwrap(),
+            baseline,
+            targets: vec![[0, 0, 0]],
+        };
+        let frame_image = synthetic_capture([0; 3], frame.expected.clone());
+        let fill = Brick {
+            expected: expected_box(&frame_image, &[[1, 0, 0]], stone).unwrap(),
+            baseline: frame_image.clone(),
+            targets: vec![[1, 0, 0]],
+        };
+        let filled = synthetic_capture([0; 3], fill.expected.clone());
+        assert!(!compare(std::slice::from_ref(&frame), std::slice::from_ref(&filled)).0);
+        assert!(compare(std::slice::from_ref(&fill), std::slice::from_ref(&filled)).0);
+        // Undoing the fill restores exactly the accepted frame's expected image.
+        assert!(
+            compare(
+                std::slice::from_ref(&fill),
+                std::slice::from_ref(&frame_image)
+            )
+            .1
+        );
+        assert!(
+            compare(
+                std::slice::from_ref(&frame),
+                std::slice::from_ref(&frame_image)
+            )
+            .0
+        );
+    }
+    #[test]
     fn eight_brick_ledger_headroom_reserves_all_baseline_and_undo_records() {
         let d = dir();
         let file = fs::File::create(d.join("journal.jsonl")).unwrap();
         let boundary =
-            (construction::JOURNAL_MAX_BYTES - 20 * construction::MAX_RECORD_BYTES) as u64;
+            (construction::JOURNAL_MAX_BYTES - 21 * construction::MAX_RECORD_BYTES) as u64;
         file.set_len(boundary).unwrap();
         assert!(proof_headroom(&d, 8).is_ok());
         file.set_len(boundary + 1).unwrap();
@@ -790,7 +908,7 @@ mod tests {
         assert!(proof_headroom(&d, 1).is_ok());
         let file = fs::File::create(d.join("journal.jsonl")).unwrap();
         let boundary =
-            (construction::JOURNAL_MAX_BYTES - 6 * construction::MAX_RECORD_BYTES) as u64;
+            (construction::JOURNAL_MAX_BYTES - 7 * construction::MAX_RECORD_BYTES) as u64;
         file.set_len(boundary).unwrap();
         assert!(proof_headroom(&d, 1).is_ok());
         file.set_len(boundary + 1).unwrap();

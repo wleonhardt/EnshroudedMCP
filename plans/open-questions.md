@@ -2,6 +2,8 @@
 
 ## Open
 
+- Does explicit acceptance permit safe layered fixture construction and reverse-order undo under the documented quiescent-site limits? Offline checks alone do not answer this.
+
 - What supported UI model reader exposes the current inner tab and passive recipe highlight?
 - Do supported labels survive save/reload and permit reliable reacquisition?
 - Which runtime shape/material mappings give safe bounded placement extents?

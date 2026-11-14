@@ -359,9 +359,65 @@ pub fn check_place(args: &Map<String, Value>) -> Result<PlaceSpec, String> {
     })
 }
 
+/// Facts required before acknowledging a retained native operation as complete.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AcceptFacts {
+    pub persists: bool,
+    pub applied: bool,
+    pub expected_equal: bool,
+    pub journal_ok: bool,
+    pub undo_requested: bool,
+}
+
+/// Acceptance uses the same strict operation and write-confirmation arguments.
+#[must_use]
+pub fn accept_schema() -> Value {
+    undo_schema()
+}
+
+/// # Errors
+/// Refuses unknown fields, invalid operation identifiers and unconfirmed writes.
+pub fn check_accept(args: &Map<String, Value>) -> Result<UndoSpec, String> {
+    check_undo(args)
+}
+
+/// # Errors
+/// Refuses acceptance without persistent storage, an applied exact postimage,
+/// an intact journal and no undo.
+pub fn check_accept_context(facts: AcceptFacts) -> Result<(), String> {
+    if !facts.persists {
+        return Err("acceptance requires persistent world".into());
+    }
+    if !facts.applied {
+        return Err("acceptance requires an applied native operation".into());
+    }
+    if !facts.expected_equal {
+        return Err("acceptance requires exact expected whole capture".into());
+    }
+    if !facts.journal_ok {
+        return Err("acceptance requires an intact operation journal".into());
+    }
+    if facts.undo_requested {
+        return Err("acceptance is refused after undo was requested".into());
+    }
+    Ok(())
+}
+
+/// # Errors
+/// Refuses undo while another operation is unsettled. The caller excludes the
+/// operation being undone so recovery of the current unsettled proof remains possible.
+pub fn check_undo_interlock(other_unsettled: bool) -> Result<(), String> {
+    if other_unsettled {
+        Err("another construction operation remains unsettled; undo refused".into())
+    } else {
+        Ok(())
+    }
+}
+
 /// Facts independently observed before undo, including complete voxel equality.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct UndoFacts {
+    pub accepted: bool,
     pub planned_cells: usize,
     pub expected_voxels_equal: bool,
     pub props_unchanged: bool,
@@ -464,10 +520,11 @@ pub fn check_journal_size(existing: u64, incoming: usize) -> Result<(), String> 
 }
 
 /// # Errors
-/// Refuses changed props, non-persistent sites and multi-cell postimage mismatches.
+/// Refuses changed props, non-persistent sites and postimage mismatches for
+/// accepted or multi-cell operations.
 pub fn check_undo_context(facts: UndoFacts) -> Result<(), String> {
-    if facts.planned_cells > 1 && !facts.expected_voxels_equal {
-        return Err("multi-cell undo requires exact expected voxel postimage".into());
+    if (facts.planned_cells > 1 || facts.accepted) && !facts.expected_voxels_equal {
+        return Err("accepted or multi-cell undo requires exact expected voxel postimage".into());
     }
     if !facts.props_unchanged {
         return Err("undo capture props changed".into());
@@ -519,6 +576,7 @@ mod tests {
             for persists in [false, true] {
                 assert_eq!(
                     check_undo_context(UndoFacts {
+                        accepted: false,
                         planned_cells: 1,
                         expected_voxels_equal: false,
                         props_unchanged,
@@ -534,12 +592,28 @@ mod tests {
     #[test]
     fn multi_cell_undo_requires_exact_voxel_postimage() {
         let facts = UndoFacts {
+            accepted: false,
             planned_cells: 1,
             expected_voxels_equal: false,
             props_unchanged: true,
             persists: true,
         };
         assert!(check_undo_context(facts).is_ok());
+        assert!(
+            check_undo_context(UndoFacts {
+                accepted: true,
+                ..facts
+            })
+            .is_err()
+        );
+        assert!(
+            check_undo_context(UndoFacts {
+                accepted: true,
+                expected_voxels_equal: true,
+                ..facts
+            })
+            .is_ok()
+        );
         assert!(
             check_undo_context(UndoFacts {
                 planned_cells: 16,
@@ -741,6 +815,69 @@ mod tests {
         assert!(check_plan(&args).is_ok());
         args.insert("session".into(), json!("invalid/session"));
         assert!(check_plan(&args).is_err());
+    }
+
+    #[test]
+    fn acceptance_requires_applied_exact_journaled_operation_without_undo() {
+        let facts = AcceptFacts {
+            persists: true,
+            applied: true,
+            expected_equal: true,
+            journal_ok: true,
+            undo_requested: false,
+        };
+        assert!(check_accept_context(facts).is_ok());
+        assert!(
+            check_accept_context(AcceptFacts {
+                persists: false,
+                ..facts
+            })
+            .is_err()
+        );
+        assert!(
+            check_accept_context(AcceptFacts {
+                applied: false,
+                ..facts
+            })
+            .is_err()
+        );
+        assert!(
+            check_accept_context(AcceptFacts {
+                expected_equal: false,
+                ..facts
+            })
+            .is_err()
+        );
+        assert!(
+            check_accept_context(AcceptFacts {
+                journal_ok: false,
+                ..facts
+            })
+            .is_err()
+        );
+        assert!(
+            check_accept_context(AcceptFacts {
+                undo_requested: true,
+                ..facts
+            })
+            .is_err()
+        );
+        let args = json!({"operation":"accept-1"});
+        assert!(check_accept(args.as_object().unwrap()).unwrap().dry);
+        let args = json!({"operation":"accept-1","dry":false});
+        assert!(check_accept(args.as_object().unwrap()).is_err());
+        let args = json!({"operation":"accept-1","dry":false,"confirm":"server-write"});
+        assert!(!check_accept(args.as_object().unwrap()).unwrap().dry);
+        let args = json!({"operation":"accept-1","force":true});
+        assert!(check_accept(args.as_object().unwrap()).is_err());
+        let args = json!({"operation":"accept-1","session":"boot-1"});
+        assert!(check_accept(args.as_object().unwrap()).is_err());
+    }
+
+    #[test]
+    fn undo_interlock_excludes_self_but_refuses_any_other_unsettled_operation() {
+        assert!(check_undo_interlock(false).is_ok());
+        assert!(check_undo_interlock(true).is_err());
     }
 
     fn request() -> Map<String, Value> {

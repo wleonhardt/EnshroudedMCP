@@ -2,7 +2,7 @@
 
 The dated [isolated evidence](2026-11-13-live-validation.md) records narrow semantic observations. It does not prove general mechanics, complete crafting eligibility or overall construction acceptance.
 
-The 0.10.0 publication snapshot passed 122 Rust tests, 25 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.10.0 deployment passed all 18 settled fixed read-only probes. Neutral publication module IDs have not been installed or tested live.
+The 0.11.0 publication snapshot passed 125 Rust tests, 27 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.11.0 deployment passed all 18 settled fixed read-only probes. Neutral publication module IDs have not been installed or tested live.
 
 One quiet single-cell proof passed exact whole-capture placement/read-back/undo. Lost-response reconciliation and repeated operation identity did not duplicate transactions. After cold reload, all 512 baseline voxels matched; stale session tokens and old native receipts were refused. This establishes the reverted fixture, not persistence of an applied structure, full stateful restoration or general concurrency safety.
 
@@ -28,3 +28,11 @@ The isolated 0.10.0 plan placed 32 cells across two aligned bricks and passed te
 The fixed read-only validator waits boundedly for a hosted-world state when an operation-status probe reports an inactive session during startup. Listener availability alone is not readiness; unrelated errors and terminal unknown outcomes are not retried.
 
 Final two-brick acceptance includes a verified cold archive, all 1024 baseline cells equal after reload, refusal of stale IDs/tokens behind a fresh gate, unchanged ledger hashes and an absent session flag. The separately applied floor still matched all 512 captured voxels. All 18 settled read-only probes passed while their overall broader acceptance verdict remained incomplete. This is two-brick post-undo persistence plus separate single-brick applied persistence; it does not establish two-brick persistence while applied or validate the maximum eight-brick plan size.
+
+## 0.11 acceptance scope
+
+The isolated research-ID 0.11.0 deployment passed 18 settled fixed read-only probes after a verified cold archive. The validator requires the known twenty-one-tool surface but never invokes `building_accept` or other writes, even when advertised. Its broader verdict remains incomplete. Neutral publication IDs remain untested live.
+
+`building_accept` has offline admission and state-transition coverage only. It requires a native Applied transaction, exact current captures, the sole original actor, rights, persistence and a healthy journal. A synced acceptance record precedes interlock release. Acceptance retains the session-native receipt and is not a save/reload claim. Duplicate acceptance does not append another record. Accepted undo requires the strict postimage even for one cell, is blocked by another unsettled operation and revokes acceptance/settlement when queued until exact baseline verification. Live acceptance and layering are pending.
+
+Rendered 0.10 experiments observed one cell appear and disappear on undo. Separate five-cell-gap and six-cell-solid trials compared appearance; they did not prove incremental filling between accepted layers. A sampled air cell above terrain rendered a building patch contacting grass visually, then undo restored the exact baseline. These observations do not establish a general material palette, collision/traversal behavior or workshop usability. External desktop control used for observation is not part of this repository; no screenshots or controller patches are included.
