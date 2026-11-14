@@ -10,6 +10,7 @@ pub const MAX_CAPTURE_PROPS: usize = 16;
 pub const PLAN_MAX_CELLS: usize = 256;
 pub const PLAN_MAX_BRICKS: usize = 8;
 pub const PLAN_MAX_CELLS_PER_BRICK: usize = 64;
+pub const PLAN_MAX_PARTS: usize = 8;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BrickTargets {
@@ -63,13 +64,7 @@ pub struct PlanSpec {
     pub canonical_plan: Value,
 }
 
-/// Bounded geometric plan whose material comes exclusively from the source cell.
-#[must_use]
-pub fn plan_schema() -> Value {
-    let mut schema = place_schema();
-    for key in ["x", "y", "z"] {
-        schema["properties"].as_object_mut().unwrap().remove(key);
-    }
+fn primitive_schema() -> Value {
     let mut plan = crate::building_plan::schema();
     plan["properties"]
         .as_object_mut()
@@ -79,7 +74,24 @@ pub fn plan_schema() -> Value {
         .as_array_mut()
         .unwrap()
         .retain(|key| key != "material");
-    schema["properties"]["plan"] = plan;
+    plan
+}
+fn composite_schema() -> Value {
+    let mut part = primitive_schema();
+    part["properties"]["id"] =
+        json!({"type":"string","minLength":1,"maxLength":32,"pattern":"^[A-Za-z0-9_-]+$"});
+    part["required"].as_array_mut().unwrap().push(json!("id"));
+    json!({"type":"object","additionalProperties":false,"properties":{"kind":{"type":"string","enum":["composite"]},"parts":{"type":"array","minItems":1,"maxItems":PLAN_MAX_PARTS,"items":part}},"required":["kind","parts"]})
+}
+/// Bounded primitive or primitive union with one observed source material.
+#[must_use]
+pub fn plan_schema() -> Value {
+    let mut schema = place_schema();
+    for key in ["x", "y", "z"] {
+        schema["properties"].as_object_mut().unwrap().remove(key);
+    }
+    schema["properties"]["plan"] =
+        json!({"type":"object","oneOf":[primitive_schema(),composite_schema()]});
     schema["required"] = json!([
         "operation",
         "source_x",
@@ -100,30 +112,18 @@ pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
         .get("plan")
         .and_then(Value::as_object)
         .ok_or("missing plan object")?;
-    crate::args::check(&plan_schema()["properties"]["plan"], plan)?;
-    let mut geometry = plan.clone();
-    geometry.insert("material".into(), json!("copied_source_voxel"));
-    let spec = crate::building_plan::check(&geometry)?;
-    let local = crate::building_plan::local_cells(&spec);
-    if local.len() > PLAN_MAX_CELLS {
-        return Err("construction plan exceeds 256 solid cells".into());
-    }
-    let mut elements = Vec::with_capacity(local.len());
-    for [x, y, z] in local {
-        let cell = crate::building_plan::cell(&spec, x, y, z);
-        let target = [
-            u32::try_from(cell[0]).map_err(|_| "negative plan coordinate")?,
-            u32::try_from(cell[1]).map_err(|_| "negative plan coordinate")?,
-            u32::try_from(cell[2]).map_err(|_| "negative plan coordinate")?,
-        ];
-        elements.push((format!("cell_{x}_{y}_{z}"), target));
-    }
+    let (elements, canonical_plan) =
+        if plan.get("kind").and_then(Value::as_str) == Some("composite") {
+            compile_composite(plan)?
+        } else {
+            let spec = primitive(plan)?;
+            (primitive_elements(&spec)?, canonical_primitive(&spec))
+        };
     let targets: Vec<_> = elements.iter().map(|(_, p)| *p).collect();
     let first = targets
         .first()
         .ok_or("construction plan has no solid cells")?;
     target_bricks(&targets)?;
-    // Reuse identical source, player and mode admission without exposing plan-only fields.
     let mut placement = args.clone();
     placement.remove("plan");
     for (key, n) in ["x", "y", "z"].into_iter().zip(first) {
@@ -132,14 +132,6 @@ pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
     let base = check_place(&placement)?;
     if targets.contains(&base.source) {
         return Err("source and target cells must differ".into());
-    }
-    let mut canonical_plan = json!({"kind":match spec.shape { crate::building_plan::Shape::Floor => "floor", crate::building_plan::Shape::Wall => "wall", crate::building_plan::Shape::Doorway => "doorway" },
-        "x":f64::from(spec.origin[0])*0.5,"y":f64::from(spec.origin[1])*0.5,"z":f64::from(spec.origin[2])*0.5,
-        "width":f64::from(spec.size[0])*0.5,"height":f64::from(spec.size[1])*0.5,"depth":f64::from(spec.size[2])*0.5,"yaw":spec.yaw});
-    if let Some([offset, width, height]) = spec.door {
-        canonical_plan["door_offset"] = json!(f64::from(offset) * 0.5);
-        canonical_plan["door_width"] = json!(f64::from(width) * 0.5);
-        canonical_plan["door_height"] = json!(f64::from(height) * 0.5);
     }
     Ok(PlanSpec {
         operation: base.operation,
@@ -152,6 +144,104 @@ pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
         elements,
         canonical_plan,
     })
+}
+fn primitive(plan: &Map<String, Value>) -> Result<crate::building_plan::Spec, String> {
+    crate::args::check(&primitive_schema(), plan)?;
+    let mut geometry = plan.clone();
+    geometry.insert("material".into(), json!("copied_source_voxel"));
+    crate::building_plan::check(&geometry)
+}
+type Elements = Vec<(String, [u32; 3])>;
+fn primitive_elements(spec: &crate::building_plan::Spec) -> Result<Elements, String> {
+    let local = crate::building_plan::local_cells(spec);
+    if local.len() > PLAN_MAX_CELLS {
+        return Err("construction plan exceeds 256 solid cells".into());
+    }
+    let mut elements = Vec::with_capacity(local.len());
+    for [x, y, z] in local {
+        let cell = crate::building_plan::cell(spec, x, y, z);
+        let target = [
+            u32::try_from(cell[0]).map_err(|_| "negative plan coordinate")?,
+            u32::try_from(cell[1]).map_err(|_| "negative plan coordinate")?,
+            u32::try_from(cell[2]).map_err(|_| "negative plan coordinate")?,
+        ];
+        elements.push((format!("cell_{x}_{y}_{z}"), target));
+    }
+    Ok(elements)
+}
+fn canonical_primitive(spec: &crate::building_plan::Spec) -> Value {
+    let mut canonical_plan = json!({"kind":match spec.shape { crate::building_plan::Shape::Floor => "floor", crate::building_plan::Shape::Wall => "wall", crate::building_plan::Shape::Doorway => "doorway" },
+        "x":f64::from(spec.origin[0])*0.5,"y":f64::from(spec.origin[1])*0.5,"z":f64::from(spec.origin[2])*0.5,
+        "width":f64::from(spec.size[0])*0.5,"height":f64::from(spec.size[1])*0.5,"depth":f64::from(spec.size[2])*0.5,"yaw":spec.yaw});
+    if let Some([offset, width, height]) = spec.door {
+        canonical_plan["door_offset"] = json!(f64::from(offset) * 0.5);
+        canonical_plan["door_width"] = json!(f64::from(width) * 0.5);
+        canonical_plan["door_height"] = json!(f64::from(height) * 0.5);
+    }
+    canonical_plan
+}
+fn compile_composite(plan: &Map<String, Value>) -> Result<(Elements, Value), String> {
+    use std::collections::{BTreeMap, BTreeSet};
+    crate::args::check(&composite_schema(), plan)?;
+    let parts = plan["parts"].as_array().ok_or("parts must be an array")?;
+    if parts.is_empty() || parts.len() > PLAN_MAX_PARTS {
+        return Err("composite requires 1 to 8 primitive parts".into());
+    }
+    let mut checked = BTreeMap::new();
+    let mut candidates = 0;
+    for part in parts {
+        let part = part.as_object().ok_or("each part must be an object")?;
+        crate::args::check(&composite_schema()["properties"]["parts"]["items"], part)?;
+        let id = part["id"].as_str().ok_or("part id must be a string")?;
+        if id.is_empty()
+            || id.len() > 32
+            || !id
+                .bytes()
+                .all(|c| c.is_ascii_alphanumeric() || b"_-".contains(&c))
+        {
+            return Err(
+                "part id must be 1..32 ASCII letters, digits, underscores or hyphens".into(),
+            );
+        }
+        let mut geometry = part.clone();
+        geometry.remove("id");
+        let spec = primitive(&geometry)?;
+        candidates += spec.size.iter().product::<i32>();
+        if candidates > crate::building_plan::MAX_CELLS {
+            return Err("composite exceeds 1024 candidate cells".into());
+        }
+        if checked.insert(id.to_owned(), spec).is_some() {
+            return Err("composite part ids must be unique".into());
+        }
+    }
+    // Bound the full compound footprint before expanding any solid cells.
+    // Door openings are omissions and do not shrink a part's admitted extent.
+    for axis in 0..3 {
+        let min = checked.values().map(|s| s.min[axis]).min().unwrap();
+        let max = checked
+            .values()
+            .map(|s| s.max_exclusive[axis])
+            .max()
+            .unwrap();
+        if max - min > 32 {
+            return Err("composite full extent must not exceed 16 m on any axis".into());
+        }
+    }
+    let mut seen = BTreeSet::new();
+    let mut elements = Vec::new();
+    let mut canonical = Vec::new();
+    for (id, spec) in checked {
+        let mut part = canonical_primitive(&spec);
+        part["id"] = json!(id);
+        canonical.push(part);
+        for (key, cell) in primitive_elements(&spec)? {
+            // Lexical part order assigns overlapping cells one stable owner.
+            if seen.insert(cell) {
+                elements.push((format!("part_{id}_{key}"), cell));
+            }
+        }
+    }
+    Ok((elements, json!({"kind":"composite","parts":canonical})))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -733,6 +823,191 @@ mod tests {
         .as_object()
         .unwrap()
         .clone()
+    }
+
+    fn composite(parts: Vec<Value>) -> Map<String, Value> {
+        let mut args = plan_request();
+        args.insert("plan".into(), json!({"kind":"composite","parts":parts}));
+        args
+    }
+    fn part(id: &str, x: f64) -> Value {
+        json!({"id":id,"kind":"floor","x":x,"y":4,"z":4,"width":1,"height":0.5,"depth":0.5})
+    }
+    #[test]
+    fn composite_union_is_independent_of_part_order_and_has_one_lexical_owner() {
+        let args = composite(vec![part("z", 4.5), part("a", 4.0)]);
+        let spec = check_plan(&args).unwrap();
+        assert_eq!(spec.targets, vec![[8, 8, 8], [9, 8, 8], [10, 8, 8]]);
+        assert_eq!(
+            spec.elements,
+            vec![
+                ("part_a_cell_0_0_0".into(), [8, 8, 8]),
+                ("part_a_cell_1_0_0".into(), [9, 8, 8]),
+                ("part_z_cell_1_0_0".into(), [10, 8, 8])
+            ]
+        );
+        let reversed = check_plan(&composite(vec![part("a", 4.0), part("z", 4.5)])).unwrap();
+        assert_eq!(spec, reversed);
+        let mut normalized = args;
+        for p in normalized["plan"]["parts"].as_array_mut().unwrap() {
+            p["yaw"] = json!(0);
+        }
+        assert_eq!(spec, check_plan(&normalized).unwrap());
+    }
+    #[test]
+    fn composite_nested_admission_and_ids_are_strict() {
+        for parts in [
+            vec![],
+            vec![part("a", 4.0); 9],
+            vec![part("a", 4.0), part("a", 5.0)],
+            vec![json!(false)],
+        ] {
+            assert!(check_plan(&composite(parts)).is_err());
+        }
+        for id in ["", "a.b", "a/b", "é", &"a".repeat(33)] {
+            assert!(check_plan(&composite(vec![part(id, 4.0)])).is_err());
+        }
+        for (field, value) in [
+            ("material", json!("stone")),
+            ("source_x", json!(0)),
+            ("parts", json!([])),
+            ("kind", json!("composite")),
+            ("yaw", json!(90.0)),
+            ("width", json!(true)),
+        ] {
+            let mut p = part("a", 4.0);
+            p[field] = value;
+            assert!(check_plan(&composite(vec![p])).is_err());
+        }
+        let mut args = composite(vec![part("a", 4.0)]);
+        args["plan"]["x"] = json!(4);
+        assert!(check_plan(&args).is_err());
+        let mut args = composite(vec![part("a", 4.0)]);
+        args["plan"]["parts"] = json!({});
+        assert!(check_plan(&args).is_err());
+    }
+    #[test]
+    fn composite_candidates_count_before_dedup_and_existing_write_limits_hold() {
+        let mut p = part("a", 4.0);
+        p["width"] = json!(4);
+        p["depth"] = json!(4);
+        let parts: Vec<_> = (0..8)
+            .map(|n| {
+                let mut p = p.clone();
+                p["id"] = json!(format!("p{n}"));
+                p
+            })
+            .collect();
+        assert_eq!(check_plan(&composite(parts)).unwrap().targets.len(), 64);
+        // Eight overlapping 128-candidate walls with large omitted openings
+        // admit exactly 1024 candidates while retaining fewer than 64 solids.
+        let p = json!({"kind":"doorway","x":4,"y":4,"z":4,"width":8,"height":4,"depth":0.5,"door_offset":0.5,"door_width":7,"door_height":3.5});
+        let mut parts: Vec<_> = (0..8)
+            .map(|n| {
+                let mut p = p.clone();
+                p["id"] = json!(format!("p{n}"));
+                p
+            })
+            .collect();
+        assert!(check_plan(&composite(parts.clone())).is_ok());
+        parts[0]["width"] = json!(8.5);
+        assert!(
+            check_plan(&composite(parts))
+                .unwrap_err()
+                .contains("1024 candidate")
+        );
+        let mut p = part("a", 4.0);
+        p["width"] = json!(4);
+        p["depth"] = json!(4);
+        let mut extra = part("b", 4.0);
+        extra["y"] = json!(4.5);
+        assert!(
+            check_plan(&composite(vec![p, extra]))
+                .unwrap_err()
+                .contains("64 solid cells per brick")
+        );
+        let mut args = composite(vec![part("a", 4.0), part("z", 10.0)]);
+        args.insert("source_x".into(), json!(10));
+        args.insert("source_y".into(), json!(4));
+        args.insert("source_z".into(), json!(4));
+        assert!(check_plan(&args).unwrap_err().contains("source and target"));
+        let mut parts: Vec<_> = (0..4)
+            .map(|n| {
+                let mut p = part(&format!("p{n}"), 4.0 + 4.0 * f64::from(n));
+                p["width"] = json!(4);
+                p["depth"] = json!(4);
+                p
+            })
+            .collect();
+        assert_eq!(
+            check_plan(&composite(parts.clone())).unwrap().targets.len(),
+            256
+        );
+        let mut extra = part("extra", 4.0);
+        extra["y"] = json!(8);
+        parts.push(extra);
+        assert!(check_plan(&composite(parts)).unwrap_err().contains("256"));
+        let mut parts: Vec<_> = (0..8)
+            .map(|n| {
+                let mut p = part(&format!("p{n}"), 4.0 + 4.0 * f64::from(n % 2));
+                p["y"] = json!(4 + 4 * (n / 2 % 2));
+                p["z"] = json!(4 + 4 * (n / 4));
+                p
+            })
+            .collect();
+        assert_eq!(
+            target_bricks(&check_plan(&composite(parts.clone())).unwrap().targets)
+                .unwrap()
+                .len(),
+            8
+        );
+        parts[0]["width"] = json!(8.5);
+        assert!(
+            check_plan(&composite(parts))
+                .unwrap_err()
+                .contains("8 aligned bricks")
+        );
+    }
+    #[test]
+    fn composite_full_extent_is_compact_on_every_axis() {
+        for axis in ["x", "y", "z"] {
+            let first = part("a", 4.0);
+            let mut last = part("b", 4.0);
+            let size = if axis == "x" { 1.0 } else { 0.5 };
+            last[axis] = json!(4.0 + 16.0 - size);
+            assert!(check_plan(&composite(vec![first.clone(), last.clone()])).is_ok());
+            last[axis] = json!(4.0 + 16.0 - size + 0.5);
+            assert!(
+                check_plan(&composite(vec![first, last]))
+                    .unwrap_err()
+                    .contains("16 m")
+            );
+        }
+    }
+    #[test]
+    fn composite_rotations_and_omitted_openings_are_union_not_subtraction() {
+        for (yaw, want) in [
+            (0, vec![[8, 8, 8], [9, 8, 8]]),
+            (90, vec![[7, 8, 8], [7, 8, 9]]),
+            (180, vec![[7, 8, 7], [6, 8, 7]]),
+            (270, vec![[8, 8, 7], [8, 8, 6]]),
+        ] {
+            let mut p = part("a", 4.0);
+            p["yaw"] = json!(yaw);
+            assert_eq!(check_plan(&composite(vec![p])).unwrap().targets, want);
+        }
+        let mut p = part("a", 0.0);
+        p["yaw"] = json!(90);
+        assert!(check_plan(&composite(vec![p])).is_err());
+        let mut p = part("a", 4.0);
+        p["y"] = json!(crate::bounds::HEIGHT);
+        assert!(check_plan(&composite(vec![p])).is_err());
+        let door = json!({"id":"door","kind":"doorway","x":4,"y":4,"z":4,"width":1.5,"height":1,"depth":0.5,"door_offset":0.5,"door_width":0.5,"door_height":0.5});
+        let mut fill = part("fill", 4.5);
+        fill["width"] = json!(0.5);
+        let spec = check_plan(&composite(vec![door, fill])).unwrap();
+        assert_eq!(spec.targets.len(), 6);
+        assert!(spec.targets.contains(&[9, 8, 8]));
     }
 
     #[test]

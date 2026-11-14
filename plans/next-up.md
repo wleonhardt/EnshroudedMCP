@@ -2,6 +2,8 @@
 
 ## Queue
 
+- Validate larger measured compound modules and applied-compound persistence independently; the tiny union proof does not establish maximum-cap or functional workshop behavior.
+
 - Extend the passed small same-brick acceptance/layering proof to larger independently measured modules. Acceptance is not persistence proof.
 
 - Validate larger bounded plans and rotated wall/doorway modules independently. Require exact expected capture before multi-cell undo; stop on mismatches.
@@ -14,13 +16,14 @@
 
 ## Done
 
-- Server 0.11.0 provides twenty-one tools; bounded plan implementation and strict multi-cell undo admission have offline tests.
+- Server 0.12.0 provides twenty-one tools; bounded plan implementation and strict multi-cell undo admission have offline tests.
 - Single-cell isolated placement/read-back/undo passed exact capture checks, replay reconciliation and cold reload of all 512 baseline voxels.
-- Original research-ID 0.11.0 installation passed 18 fixed read-only probes. Neutral publication IDs remain untested live.
+- Original research-ID 0.12.0 installation passed 18 fixed read-only probes. Neutral publication IDs remain untested live.
 - A 16-cell floor passed exact read-back, replay, undo and post-undo reload; a separate applied-floor checkpoint preserved all 512 captured voxels after reload.
-- Offline checks passed: 125 Rust tests, 27 Python tests, Clippy, formatting and release build.
+- Offline checks passed: 131 Rust tests, 27 Python tests, Clippy, formatting and release build.
 - Version 0.11.0 staged five-cell frame plus one-cell filler passed six exact 512-cell phases, acceptance/replay guards, safe wrong-order refusal and reverse-order undo. Rendered gap closure/reopening/disappearance and post-undo cold reload passed. Larger layers and applied persistence for this fixture remain unverified.
 - Rendered 0.10 cell and separate gap/solid comparisons have narrow observations with exact baseline undo; no incremental fill or workshop acceptance is claimed.
+- One 0.12.0 six-cell compound union from eight raw part cells/two overlaps passed sixteen live proof checks and exact 512-cell post-undo cold reload, with canonical replay and stale identity/token guards.
 - Native companion provides bounded outer-screen, item, raw recipe and named-event observations without claiming passive selection.
 
 Overall acceptance remains incomplete. Keep isolated proofs quiescent, retain private backups and coordinate disconnected players before any restart.

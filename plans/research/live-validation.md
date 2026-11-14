@@ -2,7 +2,7 @@
 
 The dated [isolated evidence](2026-11-13-live-validation.md) records narrow semantic observations. It does not prove general mechanics, complete crafting eligibility or overall construction acceptance.
 
-The 0.11.0 publication snapshot passed 125 Rust tests, 27 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.11.0 deployment passed all 18 settled fixed read-only probes. Neutral publication module IDs have not been installed or tested live.
+The 0.12.0 publication snapshot passed 131 Rust tests, 27 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated 0.12.0 deployment passed all 18 settled fixed read-only probes. Neutral publication module IDs have not been installed or tested live.
 
 One quiet single-cell proof passed exact whole-capture placement/read-back/undo. Lost-response reconciliation and repeated operation identity did not duplicate transactions. After cold reload, all 512 baseline voxels matched; stale session tokens and old native receipts were refused. This establishes the reverted fixture, not persistence of an applied structure, full stateful restoration or general concurrency safety.
 
@@ -44,3 +44,11 @@ On 2026-11-14, an isolated five-cell frame and a separate one-cell gap filler pa
 A 31-file cold archive passed CRC/integrity and SHA-256 verification. After reload, all 512 baseline cells matched. Both old native IDs were not reconstructed; dry and gated stale accept/undo requests were refused. An old preview token could not reserve a fresh identity. Ledger hashes remained unchanged and the session flag was absent.
 
 This checkpoint proves the reverted small fixture and post-undo persistence, not persistence while these layers are applied, general concurrency safety, stateful recovery, the maximum plan limits or a functional workshop. The separate applied-floor persistence finding remains a different fixture. Neutral publication module IDs remain untested live, and the broader goal remains open. No raw images, private locations or source configuration are included.
+
+## Tiny compound checkpoint, 0.12.0
+
+On 2026-11-14, a small compound fixture passed sixteen isolated proof checks. Eight raw part cells formed six unique union cells with two overlaps. Independent inspection verified all 512 capture cells and the rendered fixture. A real reordered-part replay retained one native transaction; renaming a part was refused for the existing operation identity. Undo restored the exact baseline.
+
+A 36-file pre-install archive and a 37-file post-proof cold archive passed integrity and SHA-256 verification. Post-undo cold reload matched all 512 baseline cells. Stale accept/undo requests, old preview tokens and same-identity replay were refused; ledger hashes stayed unchanged. All 18 fixed read-only probes passed while their broader verdict remained incomplete. Neutral publication IDs remain untested live.
+
+Composition uses at most eight absolute-position primitive parts, a 16 m full admitted footprint per axis and 1024 total candidates before expansion. The union retains at most 256 unique cells, eight bricks and 64 cells per brick. Lexical part IDs determine canonical order and overlap ownership; omitted doorway cells are not subtraction. Pure `building_plan` behavior is unchanged. These limits and tests do not establish general atomicity, concurrent editing safety, applied-compound persistence, stateful recovery or workshop functionality.

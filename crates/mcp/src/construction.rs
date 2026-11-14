@@ -120,7 +120,7 @@ pub(crate) fn tools() -> Vec<Tool> {
         },
         Tool {
             name: "building_apply_plan",
-            description: "WRITE: Copy exact source building voxel into at most 256 planned floor/wall/doorway cells across at most 8 bricks, 64 cells per brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
+            description: "WRITE: Copy one exact source voxel into a floor/wall/doorway or union of up to 8 named primitive parts, within 16 m per axis. At most 256 unique cells across 8 bricks, 64 cells per brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
             schema: construction::plan_schema(),
         },
         Tool {
@@ -156,6 +156,7 @@ struct Placement {
     targets: Vec<[u32; 3]>,
     elements: Vec<(String, [u32; 3])>,
     geometry: Option<Value>,
+    composition: Option<Value>,
     request: Value,
 }
 impl Placement {
@@ -164,12 +165,14 @@ impl Placement {
             targets: vec![spec.target],
             elements: vec![("cell_0_0_0".into(), spec.target)],
             geometry: None,
+            composition: None,
             request: canonical(&spec),
             spec,
         }
     }
     fn plan(plan: PlanSpec) -> Result<Self, String> {
         let target = *plan.targets.first().ok_or("plan has no target cells")?;
+        let composition = plan.canonical_plan.get("parts").and_then(Value::as_array).map(|parts| json!({"part_count":parts.len(),"combination":"union","overlap_owner":"first lexical part ID","opening_behavior":"omitted cells are not subtraction; other parts may fill openings"}));
         let request = json!({"operation":plan.operation,"source":plan.source,"player":plan.player,"session":plan.session,"plan":plan.canonical_plan,"targets":plan.targets,"elements":plan.elements});
         Ok(Self {
             spec: PlaceSpec {
@@ -184,6 +187,7 @@ impl Placement {
             targets: plan.targets,
             elements: plan.elements,
             geometry: Some(plan.canonical_plan),
+            composition,
             request,
         })
     }
@@ -311,6 +315,7 @@ impl Construction {
             targets,
             elements,
             geometry,
+            composition,
             request,
         } = placement;
         self.gate(spec.dry, spec.confirm.as_deref())?;
@@ -413,7 +418,7 @@ impl Construction {
         let brick_summary:Vec<_>=bricks.iter().map(|b|json!({"min_cells":b.baseline.origin().to_array(),"size_cells":b.baseline.size(),"props_count":b.baseline.props().len(),"planned_cells":b.targets.len()})).collect();
         if spec.dry {
             return Ok(
-                json!({"state":"dry","session":session,"world_mutated":false,"event_counter":self.shared.events.load(Ordering::SeqCst),"whole_brick_captured":true,"journal_cycle_headroom_checked":true,"source_cells":spec.source,"target_cells":spec.target,"source":{"material":format!("{:?}",source.material()),"fill":source.fill()},"target_before":targets_before.iter().find(|cell| cell["cells"] == json!(spec.target)),"targets_before":targets_before,"targets_cells":targets,"geometry":geometry,"elements":elements,"planned_cells":targets.len(),"limits":{"max_plan_cells":construction::PLAN_MAX_CELLS,"max_capture_props_per_brick":construction::MAX_CAPTURE_PROPS,"max_bricks":construction::PLAN_MAX_BRICKS,"max_cells_per_brick":construction::PLAN_MAX_CELLS_PER_BRICK},"keyed_cells":elements.iter().map(|(key,cells)|json!({"key":key,"cells":cells})).collect::<Vec<_>>(),"region_min_m":min,"region_max_exclusive_m":max,"brick_min_cells":bricks[0].baseline.origin().to_array(),"brick_size_cells":bricks[0].baseline.size(),"props_count":bricks.iter().map(|b|b.baseline.props().len()).sum::<usize>(),"brick_count":bricks.len(),"bricks":brick_summary,"build_rights_checked":true,"target_persists_checked":true,"requires_quiescent_isolated_site":true,"placement_cas":false,"zero_events_is_not_absolute_proof":true}),
+                json!({"state":"dry","session":session,"world_mutated":false,"event_counter":self.shared.events.load(Ordering::SeqCst),"whole_brick_captured":true,"journal_cycle_headroom_checked":true,"source_cells":spec.source,"target_cells":spec.target,"source":{"material":format!("{:?}",source.material()),"fill":source.fill()},"target_before":targets_before.iter().find(|cell| cell["cells"] == json!(spec.target)),"targets_before":targets_before,"targets_cells":targets,"geometry":geometry,"composition":composition,"elements":elements,"planned_cells":targets.len(),"limits":{"max_plan_cells":construction::PLAN_MAX_CELLS,"max_capture_props_per_brick":construction::MAX_CAPTURE_PROPS,"max_bricks":construction::PLAN_MAX_BRICKS,"max_cells_per_brick":construction::PLAN_MAX_CELLS_PER_BRICK},"keyed_cells":elements.iter().map(|(key,cells)|json!({"key":key,"cells":cells})).collect::<Vec<_>>(),"region_min_m":min,"region_max_exclusive_m":max,"brick_min_cells":bricks[0].baseline.origin().to_array(),"brick_size_cells":bricks[0].baseline.size(),"props_count":bricks.iter().map(|b|b.baseline.props().len()).sum::<usize>(),"brick_count":bricks.len(),"bricks":brick_summary,"build_rights_checked":true,"target_persists_checked":true,"requires_quiescent_isolated_site":true,"placement_cas":false,"zero_events_is_not_absolute_proof":true}),
             );
         }
         let intent = json!({"kind":"construction_intent","operation":spec.operation,"request":request,"session":self.shared.boot,"epoch":epoch,"actor_account_key":actor.key.0,"brick_count":bricks.len()});
@@ -770,6 +775,7 @@ mod tests {
         assert_eq!(placement.targets.len(), 64);
         assert_eq!(placement.elements, elements);
         assert_eq!(placement.geometry, Some(geometry.clone()));
+        assert_eq!(placement.composition, None);
         assert_eq!(placement.request["plan"], geometry);
         assert_eq!(placement.request["session"], "preview-1");
         assert_eq!(
@@ -784,6 +790,45 @@ mod tests {
                 .collect::<Vec<_>>(),
             placement.targets
         );
+    }
+    #[test]
+    fn composite_conversion_keeps_one_write_per_cell_and_replay_identity() {
+        let args = json!({"operation":"union","source_x":0,"source_y":0,"source_z":0,"player":"Researcher","session":"preview-1","plan":{"kind":"composite","parts":[
+            {"id":"z","kind":"floor","x":4.5,"y":4,"z":4,"width":1,"height":0.5,"depth":0.5},
+            {"id":"a","kind":"floor","x":4,"y":4,"z":4,"width":1,"height":0.5,"depth":0.5}
+        ]}});
+        let plan = construction::check_plan(args.as_object().unwrap()).unwrap();
+        let canonical = plan.canonical_plan.clone();
+        let placement = Placement::plan(plan).unwrap();
+        assert_eq!(placement.targets, vec![[8, 8, 8], [9, 8, 8], [10, 8, 8]]);
+        assert_eq!(placement.elements.len(), placement.targets.len());
+        assert_eq!(
+            placement.elements[1],
+            ("part_a_cell_1_0_0".into(), [9, 8, 8])
+        );
+        assert_eq!(placement.geometry, Some(canonical.clone()));
+        assert_eq!(placement.request["plan"], canonical);
+        assert_eq!(
+            placement.composition,
+            Some(
+                json!({"part_count":2,"combination":"union","overlap_owner":"first lexical part ID","opening_behavior":"omitted cells are not subtraction; other parts may fill openings"})
+            )
+        );
+        assert!(placement.request.get("composition").is_none());
+        let mut reordered = args;
+        reordered["plan"]["parts"].as_array_mut().unwrap().reverse();
+        let replay =
+            Placement::plan(construction::check_plan(reordered.as_object().unwrap()).unwrap())
+                .unwrap();
+        assert_eq!(placement.targets, replay.targets);
+        assert_eq!(placement.elements, replay.elements);
+        assert_eq!(placement.composition, replay.composition);
+        construction::same_request(&placement.request, &replay.request).unwrap();
+        reordered["plan"]["parts"][0]["id"] = json!("changed");
+        let changed =
+            Placement::plan(construction::check_plan(reordered.as_object().unwrap()).unwrap())
+                .unwrap();
+        assert!(construction::same_request(&placement.request, &changed.request).is_err());
     }
     fn synthetic_capture(corner: [u32; 3], voxels: VoxelBox) -> Capture {
         serde_json::from_value(json!({"origin":VoxelPos::from(corner),"voxels":voxels,"props":[]}))

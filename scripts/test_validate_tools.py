@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.11.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.12.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in SERVER_TOOLS | {"future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -42,7 +42,7 @@ class Fixture:
             else:
                 value = "no connected player"
         elif name == "capabilities":
-            value = {"mod_version": "0.11.0", "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"mod_version": "0.12.0", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -163,7 +163,7 @@ class ValidationTests(unittest.TestCase):
 
         def reply(method, params=None):
             if method == "initialize":
-                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.11.0"}, "protocolVersion": "2025-06-18"}
+                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.12.0"}, "protocolVersion": "2025-06-18"}
             if method == "tools/list":
                 return {"tools": [{"name": name} for name in advertised]}
             return original(method, params)
