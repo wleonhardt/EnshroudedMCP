@@ -10,6 +10,6 @@ Vanilla registry lookup correlated known inventory item IDs with debug names. Re
 
 Native outer-screen observations matched Backpack and an altar interaction. Controlled top-menu changes and passive recipe highlights produced no corresponding recipe-selection event. Current selected tab and recipe remain unknown. Client/server event scope is separate.
 
-Cold file recovery matched archived file hashes and three voxel samples after reload. Full object contents, progression, stateful prop recovery, construction undo and advanced building persistence remain unverified.
+Cold file recovery matched archived file hashes and three voxel samples after reload. A later isolated single-cell construction proof passed exact capture/read-back/undo and cold reload equality for all 512 baseline voxels. Lost-response/status replay did not duplicate work. Full object contents, progression, stateful prop recovery and applied advanced-building persistence remain unverified. The 16-cell plan live proof is pending.
 
 No session entity identifiers, player names, account keys, private locations, host names or raw runtime reports are retained in this public summary.

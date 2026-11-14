@@ -8,6 +8,7 @@ pub mod building_survey;
 pub mod client;
 pub mod client_recipe;
 pub mod client_selection;
+pub mod construction;
 pub mod http;
 pub mod inspection;
 pub mod item_lookup;

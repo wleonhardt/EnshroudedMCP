@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.7.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.9.1"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"give_item", "future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -42,7 +42,7 @@ class Fixture:
             else:
                 value = "no connected player"
         elif name == "capabilities":
-            value = {"mod_version": "0.7.0", "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"mod_version": "0.9.1", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -54,6 +54,8 @@ class Fixture:
             value = {"mode": "report_only", "provenance": "caller_supplied_unverified", "feasible_under_supplied_assumptions": True,
                      "steps": [{"batches": 2, "produced": 4}], "planned_surplus": [{"item": "boards", "count": 1}],
                      "stock_reserved": [{"item": "wood", "count": 6}], "missing_raw_items": []}
+        elif name == "building_operation":
+            error, value = True, "unknown construction operation"
         elif name == "building_survey":
             error = True
             value = "unknown argument 'confirm'" if "confirm" in args else "'x' must be a 0.5 m grid value from 0 to 32768"
@@ -74,7 +76,7 @@ class Fixture:
 class ValidationTests(unittest.TestCase):
     def test_unrelated_errors_do_not_prove_specific_refusals(self):
         for label in ("invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
-                      "survey_off_grid_refused", "survey_write_argument_refused"):
+                      "survey_off_grid_refused", "survey_write_argument_refused", "unknown_construction_operation_refused"):
             client = Fixture()
             original = client.call
 
@@ -86,7 +88,8 @@ class ValidationTests(unittest.TestCase):
                               (label == "invalid_inventory_selector" and name == "inventory_read" and args.get("entity") == 0) or
                               (label == "invalid_lookup_id_refused" and name == "item_lookup" and args["ids"] == [0]) or
                               (label == "survey_off_grid_refused" and name == "building_survey" and args.get("x") == 100.25) or
-                              (label == "survey_write_argument_refused" and name == "building_survey" and "confirm" in args))
+                              (label == "survey_write_argument_refused" and name == "building_survey" and "confirm" in args) or
+                              (label == "unknown_construction_operation_refused" and name == "building_operation"))
                     if target:
                         return {"isError": True, "content": [{"type": "text", "text": "tool unavailable"}]}
                 return original(method, params)
@@ -99,12 +102,14 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 17)
+        self.assertEqual(len(report["checks"]), 18)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
         called = {params["name"] for method, params in client.calls if method == "tools/call"}
         self.assertEqual(called, READS)
+        self.assertTrue({"building_place_cell", "building_apply_plan", "building_undo_cell"}.isdisjoint(called))
+        self.assertTrue(any("do not establish live placement" in note for note in report["incomplete"]))
         self.assertFalse(any("dry" in params.get("arguments", {}) for method, params in client.calls if method == "tools/call"))
 
     def test_shape_arithmetic_provenance_and_geometry_mismatches_fail(self):
@@ -127,8 +132,9 @@ class ValidationTests(unittest.TestCase):
 
     def test_write_rejected_before_client_call(self):
         client = Fixture()
-        with self.assertRaises(ValueError):
-            Validation(client).probe("write", "give_item", {"dry": True})
+        for name in ("give_item", "building_place_cell", "building_apply_plan", "building_undo_cell"):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                Validation(client).probe("write", name, {"dry": True})
         self.assertEqual(client.calls, [])
 
 

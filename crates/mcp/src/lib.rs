@@ -4,6 +4,7 @@
 
 mod building_plan;
 mod building_survey;
+mod construction;
 mod item_lookup;
 mod knowledge;
 mod recipe_plan;
@@ -38,8 +39,11 @@ impl Mod for Mcp {
                     .ok(),
         };
         let components = tools::resolve_components(load);
+        let construction = construction::Construction::new(load)
+            .map_err(|error| enshwick::warn!("construction unavailable: {error}"))
+            .ok();
         Ok(Self {
-            tools: tools::GameTools::new(game, components, load.mod_dir().ok()),
+            tools: tools::GameTools::new(game, components, load.mod_dir().ok(), construction),
         })
     }
 

@@ -2,7 +2,7 @@
 
 An experimental [enshwick](https://github.com/enshwick/enshwick) mod that exposes a loopback MCP endpoint for inspecting Enshrouded. Server reads run on the game thread. Request admission, argument bounds and write gates are implemented in a game-free policy crate.
 
-This research prototype has read tools, pure planning tools and one gated gameplay write, `give_item`. Administrative construction is the next implementation priority; plan placement, idempotent jobs and building undo are not implemented. Recipe planning does not establish live crafting feasibility.
+Server version 0.9.1 exposes twenty tools: inspection, pure planning, gated `give_item`, and bounded administrative construction. Construction copies an observed building voxel rather than inventing material mappings. Recipe planning does not establish live crafting feasibility.
 
 The project is unofficial. Keen's Terms of Use forbid mods (3.3(f)); assess the terms before use. This project contains no game binaries, saves, generated catalogues or credentials and does not modify the Steam DRM stub.
 
@@ -19,6 +19,8 @@ The server endpoint is `POST http://127.0.0.1:8751/mcp`. Its mod ID is `enshroud
 | `recipe_plan` | Pure single-output recipe arithmetic over supplied recipes and stock |
 | `building_plan` | Floor, wall and doorway previews on a half-metre grid; no placement |
 | `building_survey` | At most 4096 complete half-metre cells with exact material/fill, persistence and optional connected-player build rights; no edits |
+| `building_place_cell`, `building_apply_plan` | Gated exact-voxel copy into one air cell or up to 64 floor/wall/doorway cells in one aligned 8-cube brick |
+| `building_operation`, `building_undo_cell` | Session-bound native transaction reconciliation and guarded undo for cells or plans |
 | `give_item` | One explicitly gated inventory transaction |
 
 The optional research companion uses `POST http://127.0.0.1:8754/mcp` and mod ID `enshrouded.mcp-client`. It exposes `client_capabilities`, `client_state`, `client_events`, `client_item`, `client_recipes` and `client_selection_events`. The framework requires side `both`: matching companion installations are needed on the isolated research server and its clients. The dedicated-server half is a no-op. The companion copies native UI snapshots and named client events; it provides no desktop automation or gameplay actions.
@@ -70,13 +72,21 @@ Entity IDs and slot references are session-scoped. Output caps do not necessaril
 
 Recipe outputs are conditional on supplied assumptions. Alternatives, catalysts, coproducts, real inventory reservation and survival-cost debits are unsupported. Building previews do not check material mapping, collision, traversal, build rights, appearance or persistence.
 
+Construction uses a dry preview session token, validated operation identity and stable logical cell keys. Durable intent is synced before commit; native transaction IDs remain typed in memory. Repeating the same canonical operation polls its receipt rather than committing again. A prior-process tombstone prevents replay but cannot reconstruct native IDs or provide stateful recovery. A lost undo response is reconciled without requeueing undo. Only one unsettled proof is allowed.
+
+Plan placement requires every target cell to be air, one connected actor, build rights and persistence across the full target bounds. Each native change writes exactly one requested cell. Keep the isolated site quiescent through placement and undo; do not run other writes during a proof. Native placement has no compare-and-swap and no atomicity guarantee. The framework can absorb a foreign voxel edit during multi-change application into its recorded postimage. Version 0.9.1 therefore refuses multi-cell undo unless the entire expected voxel postimage still matches; props, persistence and the native undo conflict check remain required. This guard is not a general concurrent-edit safety guarantee. No inventory debit, collision, traversal, stateful prop recovery or applied-structure persistence is established.
+
 ## Validation and roadmap
 
 Version 0.7.0 adds bounded read-only site surveys. Supply `x`, `y`, `z`, `width`, `height`, `depth` on the 0.5 m grid, with sides at most 8 m. Optional `player` selects one connected name/account key for rights. Voxel output uses x-fastest, then y, then z order. Unloaded reads return errors; unavailable persistence/rights stay unknown. Runtime voxel material IDs are not inventory item IDs or a validated palette. The zone check is not save/reload proof, and an allowed observation does not authorize a later write. Props, collision, traversal, survival costs and complete altar boundaries remain unchecked.
 
 The focused framework contribution is [enshwick PR #1079](https://github.com/enshwick/enshwick/pull/1079). It contains no MCP code and does not replace this snapshot's pinned compatibility patch automatically.
 
-The source has offline tests and limited isolated live evidence. Known inventory splits, one durability comparison, one enemy health decrease and cold file restoration have been observed. These findings do not establish general mechanics or complete object-state recovery. See [public evidence](plans/research/live-validation.md), [the construction roadmap](plans/goal.md) and [the queue](plans/next-up.md).
+The 0.9.1 source passed 119 Rust tests, 24 Python helper tests, Clippy with warnings denied, formatting and a release build. The original research-ID isolated installation passed all 18 fixed read-only probes. Neutral publication IDs have not been exercised live.
+
+A single-cell proof passed exact whole-capture placement/read-back/undo, idempotent receipt replay and cold reload with all 512 baseline voxels equal. The 16-cell plan live proof remains pending. Undo-then-reload baseline equality does not prove persistence of an applied structure.
+
+The source has limited isolated live evidence. Known inventory splits, one durability comparison, one enemy health decrease and cold file restoration have been observed. These findings do not establish general mechanics or complete object-state recovery. See [public evidence](plans/research/live-validation.md), [the construction roadmap](plans/goal.md) and [the queue](plans/next-up.md).
 
 `python -B scripts/smoke.py` checks baseline reads. `scripts/investigate.py`, `scripts/validate_tools.py` and `scripts/client_probe.py` perform fixed read-only probes and save private reports under ignored `gamedata/`. Passing transport probes does not satisfy fixture acceptance. Run `--help` for options.
 

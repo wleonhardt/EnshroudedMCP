@@ -12,7 +12,7 @@ Follow the user's request, this file, then settled choices in `plans/decisions/`
 - Every world read or write runs on the game thread through `Scheduler::next_tick`. Listener threads never access the world.
 - The companion copies native UI state on its owning callback and observes explicitly client-scoped events. It grants no server authority; client IDs are never server selectors.
 - Entity IDs last one session. Durable building identity requires tested labels or plan keys.
-- Writes require the existing fresh `ALLOW_WRITES` gate and explicit confirmation, meaningful dry runs, journaling and recovery. Future building writes must retain transaction IDs for undo and reconcile unknown outcomes before retry.
+- Writes require the existing fresh `ALLOW_WRITES` gate and explicit confirmation, meaningful dry runs, journaling and recovery. Building writes retain typed session transaction IDs for undo and reconcile unknown outcomes without replay. Keep proof sites quiescent; multi-cell undo requires the exact expected voxel image.
 - Do not commit credentials, private host details, player identities, generated game data, logs, saves or build output.
 - Use published framework APIs. Do not disassemble, dump or patch game code or touch the Steam DRM stub.
 - Coordinate disconnected players before restarting a shared server. An empty-player check alone is insufficient.

@@ -84,6 +84,7 @@ pub(crate) struct GameTools {
     components: Components,
     /// The mod's folder: the write flag and the journal live there.
     mod_dir: Option<std::path::PathBuf>,
+    construction: Option<crate::construction::Construction>,
     list: Vec<Tool>,
 }
 
@@ -92,6 +93,7 @@ impl GameTools {
         game: Game,
         components: Components,
         mod_dir: Option<std::path::PathBuf>,
+        construction: Option<crate::construction::Construction>,
     ) -> Self {
         let point = |extra: &str| {
             json!({"type": "object", "properties": {
@@ -188,10 +190,12 @@ impl GameTools {
             },
         ];
         list.extend(offline_tools());
+        list.extend(crate::construction::tools());
         Self {
             game,
             components,
             mod_dir,
+            construction,
             list,
         }
     }
@@ -217,6 +221,66 @@ impl Tools for GameTools {
             network_health,
         } = self.game;
         match name {
+            "building_apply_plan" => {
+                let spec = policy::construction::check_plan(a)?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("construction unavailable")?;
+                let admission_session = construction.session();
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    policy::construction::check_session(
+                        &admission_session,
+                        &construction.session(),
+                    )
+                    .map_err(|_| "world session changed while request was queued".to_owned())?;
+                    construction.apply_plan(game, spec)
+                })?
+            }
+            "building_place_cell" => {
+                let spec = policy::construction::check_place(a)?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("construction unavailable")?;
+                let admission_session = construction.session();
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    policy::construction::check_session(
+                        &admission_session,
+                        &construction.session(),
+                    )
+                    .map_err(|_| "world session changed while request was queued".to_owned())?;
+                    construction.place(game, spec)
+                })?
+            }
+            "building_operation" => {
+                let operation = policy::construction::check_status(a)?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("construction unavailable")?;
+                let game = self.game;
+                on_game_thread(scheduler, move || construction.status(game, operation))?
+            }
+            "building_undo_cell" => {
+                let spec = policy::construction::check_undo(a)?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("construction unavailable")?;
+                let admission_session = construction.session();
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    policy::construction::check_session(
+                        &admission_session,
+                        &construction.session(),
+                    )
+                    .map_err(|_| "world session changed while request was queued".to_owned())?;
+                    construction.undo(game, spec)
+                })?
+            }
             "building_survey" => {
                 let spec = policy::building_survey::check(a)?;
                 let game = self.game;
@@ -248,6 +312,7 @@ impl Tools for GameTools {
                 "item_info":inventories.is_some(),
                 "item_lookup":item_layout.is_some(),
                 "building_survey":true,
+                "construction_available":self.construction.is_some(),
                 "typed_network_health":network_health.is_some(),
                 "resolved_component_names":self.components.len(),
                 "limits":{"health_radius_m":inspection::HEALTH_RADIUS,"health_entities":inspection::HEALTH_LIMIT,"inventory_page_slots":inspection::SLOT_LIMIT,"inventory_offset":inspection::SLOT_OFFSET_MAX,"survey_cells":policy::building_survey::MAX_CELLS,"survey_side_m":policy::building_survey::MAX_SIDE_M,"wait_seconds":GAME_WAIT.as_secs()},

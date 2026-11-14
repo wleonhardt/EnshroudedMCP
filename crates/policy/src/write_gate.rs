@@ -12,6 +12,17 @@ pub const FLAG: &str = "ALLOW_WRITES";
 /// How long a flag file stays valid after it was last touched.
 pub const FLAG_MAX_AGE: Duration = Duration::from_secs(30 * 60);
 
+/// Returns the age of a regular flag file. Missing, unreadable and future-dated
+/// files fail closed. Freshness remains the responsibility of [`check`].
+#[must_use]
+pub fn flag_age(path: &std::path::Path) -> Option<Duration> {
+    let metadata = std::fs::metadata(path).ok()?;
+    if !metadata.is_file() {
+        return None;
+    }
+    metadata.modified().ok()?.elapsed().ok()
+}
+
 /// `Ok` when the call may change the world. `flag_age` is the flag file's age,
 /// `None` when it does not exist. `honours_dry` says the tool's dry run only
 /// reports; a tool that ignored `dry` would otherwise write with the gate shut.
@@ -47,6 +58,40 @@ pub fn check(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn flag_metadata_requires_regular_nonfuture_file_and_preserves_staleness() {
+        let directory = std::env::temp_dir().join(format!(
+            "mcp-policy-flag-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        let path = directory.join(FLAG);
+        assert_eq!(flag_age(&path), None);
+        assert_eq!(flag_age(&directory), None);
+        let file = std::fs::File::create(&path).unwrap();
+        assert!(check(false, true, flag_age(&path), Some(CONFIRM)).is_ok());
+        file.set_times(
+            std::fs::FileTimes::new()
+                .set_modified(std::time::SystemTime::now() + Duration::from_secs(3600)),
+        )
+        .unwrap();
+        assert_eq!(flag_age(&path), None);
+        file.set_times(
+            std::fs::FileTimes::new().set_modified(
+                std::time::SystemTime::now() - FLAG_MAX_AGE - Duration::from_secs(60),
+            ),
+        )
+        .unwrap();
+        assert!(check(false, true, flag_age(&path), Some(CONFIRM)).is_err());
+        drop(file);
+        std::fs::remove_file(&path).unwrap();
+        std::fs::remove_dir(&directory).unwrap();
+    }
 
     const FRESH: Option<Duration> = Some(Duration::from_secs(60));
 

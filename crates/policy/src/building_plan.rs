@@ -152,6 +152,48 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
     })
 }
 
+/// Local cell coordinates rotate around the origin vertex. The -1 adjusts
+/// the minimum corner of a rotated unit cell rather than rotating just a point.
+#[must_use]
+pub fn cell(spec: &Spec, x: i32, y: i32, z: i32) -> [i32; 3] {
+    let [u, w] = match spec.yaw {
+        0 => [x, z],
+        90 => [-z - 1, x],
+        180 => [-x - 1, -z - 1],
+        270 => [z, -x - 1],
+        _ => unreachable!("checked yaw"),
+    };
+    [spec.origin[0] + u, spec.origin[1] + y, spec.origin[2] + w]
+}
+
+/// Solid world-space cells in stable local order.
+#[must_use]
+pub fn cells(spec: &Spec) -> Vec<[i32; 3]> {
+    local_cells(spec)
+        .into_iter()
+        .map(|[x, y, z]| cell(spec, x, y, z))
+        .collect()
+}
+
+/// Solid cells in stable local y, z, x order, before translation or rotation.
+#[must_use]
+pub fn local_cells(spec: &Spec) -> Vec<[i32; 3]> {
+    let mut out = Vec::new();
+    for y in 0..spec.size[1] {
+        for z in 0..spec.size[2] {
+            for x in 0..spec.size[0] {
+                if spec.door.is_some_and(|[offset, width, height]| {
+                    x >= offset && x < offset + width && y < height
+                }) {
+                    continue;
+                }
+                out.push([x, y, z]);
+            }
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

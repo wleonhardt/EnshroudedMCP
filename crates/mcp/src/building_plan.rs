@@ -1,6 +1,8 @@
 //! Pure geometric intent, deliberately separate from game edits or feasibility.
 
-use policy::building_plan::{Shape, Spec};
+#[cfg(test)]
+use policy::building_plan::cell;
+use policy::building_plan::{Shape, cells};
 use policy::mcp::Tool;
 use serde_json::{Map, Value, json};
 
@@ -10,36 +12,6 @@ pub(crate) fn tool() -> Tool {
         description: "Preview a bounded floor, wall or framed doorway on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
         schema: policy::building_plan::schema(),
     }
-}
-
-/// Local cell coordinates rotate around the origin vertex. The -1 adjusts
-/// the minimum corner of a rotated unit cell rather than rotating just a point.
-fn cell(spec: &Spec, x: i32, y: i32, z: i32) -> [i32; 3] {
-    let [u, w] = match spec.yaw {
-        0 => [x, z],
-        90 => [-z - 1, x],
-        180 => [-x - 1, -z - 1],
-        270 => [z, -x - 1],
-        _ => unreachable!("checked yaw"),
-    };
-    [spec.origin[0] + u, spec.origin[1] + y, spec.origin[2] + w]
-}
-
-fn cells(spec: &Spec) -> Vec<[i32; 3]> {
-    let mut out = Vec::new();
-    for y in 0..spec.size[1] {
-        for z in 0..spec.size[2] {
-            for x in 0..spec.size[0] {
-                if spec.door.is_some_and(|[offset, width, height]| {
-                    x >= offset && x < offset + width && y < height
-                }) {
-                    continue;
-                }
-                out.push(cell(spec, x, y, z));
-            }
-        }
-    }
-    out
 }
 
 pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
