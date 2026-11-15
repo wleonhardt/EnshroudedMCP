@@ -5,21 +5,22 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> policy::mcp::Tool {
     policy::mcp::Tool {
         name: "player_interaction_target",
-        description: "Read one uniquely selected connected server player's native interaction-prompt target. Session-only server entity, optional position/template; unavailable differs from no target. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
+        description: "Read one uniquely selected connected server player's native interaction-prompt target. Session-only server entity, optional position/template and native UsedItem ID; unavailable differs from no target. Template uses file-order hex. Item ID is an observation, not a resolved effective definition. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
         schema: policy::interaction_target::schema(),
     }
 }
 
 pub(crate) fn observe(
     result: Result<Option<Entity>, String>,
-    mut metadata: impl FnMut(Entity) -> (Option<[f64; 3]>, Option<[u8; 16]>),
+    mut metadata: impl FnMut(Entity) -> (Option<[f64; 3]>, Option<[u8; 16]>, Option<u32>),
 ) -> Value {
     match result {
         Err(error) => json!({"state":"unknown","target":null,"error":error}),
         Ok(None) => json!({"state":"none","target":null}),
         Ok(Some(entity)) => {
-            let (position, template) = metadata(entity);
-            json!({"state":"observed","target":{"entity":entity.0,"position":position,
+            let (position, template, item) = metadata(entity);
+            json!({"state":"observed","target":{"entity":entity.0,"position":position,"item_id":item,
+                "template_guid_encoding":"lowercase hex; 16 GUID bytes in file order",
                 "template_guid":template.map(|bytes|bytes.iter().map(|byte|format!("{byte:02x}")).collect::<String>())}})
         }
     }
@@ -38,7 +39,7 @@ pub(crate) fn read(game: crate::tools::Game, selector: &str) -> Result<Value, St
         .and_then(|targets: Targets| targets.target(player.entity).map_err(|e| e.to_string()));
     Ok(
         json!({"world_key":game.world.key(),"player":{"key":player.key.0.to_string(),"entity":player.entity.0},
-        "observation":observe(result, |entity|(game.world.position(entity),game.world.template(entity))),
+        "observation":observe(result, |entity|(game.world.position(entity),game.world.template(entity),game.world.used_item(entity).map(|item|item.0))),
         "world_mutated":false,"scope":"server prompt target only; session entity ids; no terrain hit, rendered contact or interaction execution"}),
     )
 }
@@ -53,10 +54,17 @@ mod tests {
     impl Mod for Probe {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             let targets = load.interaction_targets()?;
+            let world = load.world()?;
             load.on_tick(Duration::from_millis(100), move |_| {
                 OBSERVATIONS.lock().unwrap().push(observe(
                     targets.target(Entity(40)).map_err(|e| e.to_string()),
-                    |_| (Some([1., 2., 3.]), Some([2; 16])),
+                    |entity| {
+                        (
+                            Some([1., 2., 3.]),
+                            Some([2; 16]),
+                            world.used_item(entity).map(|item| item.0),
+                        )
+                    },
                 ));
             })?;
             Ok(Self)
@@ -73,13 +81,17 @@ side = "server""#
         let fake = enshwick::test::FakeHost::new()
             .world()
             .interaction_targets();
+        let used_item = fake.hash(facts::USED_ITEM.id()).unwrap();
         let ty = fake.hash(facts::SELECTED_TARGETS.id()).unwrap();
         let size = fake.size(facts::SELECTED_TARGETS.id()).unwrap();
         let stride = fake.size(facts::TARGET_INFO.id()).unwrap();
         let offset = fake.offset(facts::TARGET_INFO_ENTITY.id()).unwrap();
         let mut bytes = vec![0; size];
         bytes[offset..offset + 4].copy_from_slice(&77u32.to_le_bytes());
-        let loader = fake.component(Entity(40), ty, &bytes).install();
+        let loader = fake
+            .component(Entity(40), ty, &bytes)
+            .component(Entity(512), used_item, &41u32.to_le_bytes())
+            .install();
         // SAFETY: these exports belong to this test module's Probe.
         assert_eq!(
             unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
@@ -90,9 +102,17 @@ side = "server""#
         bytes[at..at + 4].copy_from_slice(&512u32.to_le_bytes());
         assert!(loader.set_component(Entity(40), ty, &bytes));
         let _ = loader.tick(Duration::from_millis(100));
+        assert!(loader.set_component(Entity(512), used_item, &0u32.to_le_bytes()));
+        let _ = loader.tick(Duration::from_millis(100));
+        bytes[at..at + 4].copy_from_slice(&513u32.to_le_bytes());
+        assert!(loader.set_component(Entity(40), ty, &bytes));
+        let _ = loader.tick(Duration::from_millis(100));
         let seen = OBSERVATIONS.lock().unwrap();
         assert_eq!(seen[0]["state"], "none");
         assert_eq!(seen[1]["target"]["entity"], 512);
+        assert_eq!(seen[1]["target"]["item_id"], 41);
+        assert_eq!(seen[2]["target"]["item_id"], 0);
+        assert!(seen[3]["target"].get("item_id").is_some_and(Value::is_null));
         assert_eq!(seen[1]["target"]["position"], json!([1., 2., 3.]));
         assert_eq!(seen[1]["target"]["template_guid"], "02".repeat(16));
     }
@@ -109,12 +129,13 @@ side = "server""#
         let mut inspected = Vec::new();
         let result = observe(Ok(Some(Entity(7))), |entity| {
             inspected.push(entity.0);
-            (None, None)
+            (None, None, None)
         });
         assert_eq!(inspected, vec![7]);
         assert_eq!(result["state"], "observed");
         assert_eq!(result["target"]["entity"], 7);
         assert!(result["target"]["position"].is_null());
         assert!(result["target"]["template_guid"].is_null());
+        assert!(result["target"].get("item_id").is_some_and(Value::is_null));
     }
 }

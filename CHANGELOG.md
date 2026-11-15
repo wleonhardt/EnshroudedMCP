@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.1 (exact prompt-target item; live deployment pending)
+
+- Include nullable native `item_id` for the exact observed prompt target through the published UsedItem getter on the scheduled game thread. Preserve observed zero separately from unavailable metadata; no spatial query, archive interpretation or effective-definition claim is added. State the template GUID's file-order hexadecimal encoding explicitly.
+- A target-item expectation first failed, then passed. Fake native component fixtures cover positive, zero and absent item values while preserving prompt-versus-combat selection and no-target/unknown boundaries. Runtime remains server 0.24.0/companion 0.9.0; new field deployment and live identity-chain acceptance remain pending.
+
+
 ## Companion 0.9.0 (localized interaction verb; isolated English fixture verified)
 
 - Preserve the native prompt verb ID and add bounded localized verb text through the published client localization API on the frame callback. Missing localization stays null/unavailable; present empty text remains observed. Report truncation, requested language and the documented English fallback source.

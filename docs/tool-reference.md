@@ -188,3 +188,5 @@ Read-only arguments: `{ "player": "connected name or account key" }`. Name match
 ### Client interaction prompt text
 
 Companion 0.9.0 `client_state.observation.prompt` preserves `verb` and adds nullable `verb_text`, `verb_text_state` (`observed` or `unavailable`), `verb_text_truncated`, `language` and `verb_text_source`. Title and verb text are bounded to 256 UTF-8 bytes. The published localization reader uses the requested client language with English fallback; missing remains null and an observed empty string remains distinct. This is copied frame evidence, subject to the outer age/stale fields, and does not execute the interaction or prove rendered text.
+
+Server 0.24.1 adds `observation.target.item_id` to `player_interaction_target`. This is the exact target's native UsedItem value; null means absent/unavailable and zero remains a raw observation. A nonzero ID can be examined with `item_lookup`; collisions, effective definitions and placement eligibility remain unresolved by this field. `template_guid_encoding` identifies the existing file-order hexadecimal bytes, which differ from the companion SDK's formatted GUID string.
