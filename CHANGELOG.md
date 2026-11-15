@@ -1,9 +1,9 @@
 # Changelog
 
-## Companion 0.9.0 (localized interaction verb; live deployment pending)
+## Companion 0.9.0 (localized interaction verb; isolated English fixture verified)
 
 - Preserve the native prompt verb ID and add bounded localized verb text through the published client localization API on the frame callback. Missing localization stays null/unavailable; present empty text remains observed. Report truncation, requested language and the documented English fallback source.
-- A native-frame expectation first failed, then passed. Fake frames and bounded UTF-8/missing-text tests preserve explicit observation limits. Text observation adds no interaction, menu, movement or camera executor. Isolated runtime remains server 0.24.0/companion 0.8.0; live rendered verb comparison and public-namespace installation remain unverified.
+- A native-frame expectation first failed, then passed. Fake frames and bounded UTF-8/missing-text tests preserve explicit observation limits. Text observation adds no interaction, menu, movement or camera executor. Isolated runtime 0.24.0/0.9.0 matches one rendered English altar prompt across two fresh healthy-client observations. Complete preservation, clean logout and restored settings pass. Live alternate-language/fallback behavior, other prompt types and public-namespace installation remain unverified.
 
 
 ## 0.24.0 (server prompt target; isolated altar fixture verified)
