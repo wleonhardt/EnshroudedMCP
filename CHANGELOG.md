@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.5.2 (source validated; not deployed)
+
+- Report `cursor_gap` when a client selection-event cursor predates history cleared on observed session exit, including before new events arrive. Preserve monotonic sequences, session generation and overwrite-only `dropped_history`; a caught-up cursor remains gap-free. No native executor or gameplay write is added.
+- A regression first reproduced the missing gap, then passed. Live join/logout acceptance remains pending.
+
+
 ## 0.20.0 / companion 0.5.1
 
 - Add bounded prop template and nullable label-presence observations through published APIs, enriching only the returned 500 rows. Preserve session-only identity and unknown label text/other held state. This read increment is not live-installed and does not establish safe removal or undo.

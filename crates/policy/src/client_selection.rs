@@ -24,11 +24,13 @@ pub struct Evidence {
     sequence: u64,
     dropped: u64,
     session_generation: u64,
+    cleared_through: u64,
     events: VecDeque<Value>,
 }
 
 impl Evidence {
     pub fn end_session(&mut self) {
+        self.cleared_through = self.sequence;
         self.events.clear();
         self.session_generation = self.session_generation.saturating_add(1);
     }
@@ -71,7 +73,7 @@ impl Evidence {
             .events
             .front()
             .and_then(|event| event["sequence"].as_u64());
-        json!({"events":events,"next_after":next,"latest_sequence":self.sequence,"session_generation":self.session_generation,"dropped_history":self.dropped,"cursor_gap":first.is_some_and(|n|after<n.saturating_sub(1)),"loader_drop_counts":null,"loader_drop_status":"not exported; loader logs a bounded copy/scan warning","current_selected_tab":null,"current_selected_recipe":null,"state_status":"no verified selected-tab or passive-recipe state getter","evidence_scope":"observed client events, not confirmation that UI or production applied the request; not current selection","identity_scope":"client event observation only; cleared on observed session exit; never use these ids as server-world ids"})
+        json!({"events":events,"next_after":next,"latest_sequence":self.sequence,"session_generation":self.session_generation,"dropped_history":self.dropped,"cursor_gap":after<self.cleared_through || first.is_some_and(|n|after<n.saturating_sub(1)),"loader_drop_counts":null,"loader_drop_status":"not exported; loader logs a bounded copy/scan warning","current_selected_tab":null,"current_selected_recipe":null,"state_status":"no verified selected-tab or passive-recipe state getter","evidence_scope":"observed client events, not confirmation that UI or production applied the request; not current selection","identity_scope":"client event observation only; cleared on observed session exit; never use these ids as server-world ids"})
     }
 }
 
@@ -138,6 +140,30 @@ mod tests {
             screen: "PlayerCrafting".into(),
             host: 77,
         });
+        assert_eq!(evidence.report(1, 32)["events"][0]["sequence"], 2);
+    }
+
+    #[test]
+    fn session_clear_reports_unread_history_loss_even_before_new_events() {
+        let mut evidence = Evidence::default();
+        evidence.end_session();
+        assert_eq!(evidence.report(0, 32)["cursor_gap"], false);
+        evidence.record(UiEvent::OpenScreen {
+            screen: "Backpack".into(),
+            host: 77,
+        });
+        evidence.end_session();
+        assert_eq!(evidence.report(0, 32)["cursor_gap"], true);
+        assert_eq!(evidence.report(1, 32)["cursor_gap"], false);
+        evidence.end_session();
+        assert_eq!(evidence.report(0, 32)["cursor_gap"], true);
+        assert_eq!(evidence.report(1, 32)["cursor_gap"], false);
+        evidence.record(UiEvent::OpenScreen {
+            screen: "PlayerCrafting".into(),
+            host: 77,
+        });
+        assert_eq!(evidence.report(0, 32)["cursor_gap"], true);
+        assert_eq!(evidence.report(1, 32)["cursor_gap"], false);
         assert_eq!(evidence.report(1, 32)["events"][0]["sequence"], 2);
     }
 }

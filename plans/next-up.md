@@ -2,6 +2,8 @@
 
 ## Queue
 
+- Validate companion 0.5.2 selection-event cursor gaps across an isolated join/logout. The regression is covered offline; native lifecycle execution remains unavailable.
+
 - Follow phases.md. Native executors remain the priority dependency. Server 0.20.0 prop observations are tested offline, not live-installed; foundation rendering and functional workshop acceptance remain pending.
 
 - Validate a quiescent native host-template and named-event fixture after the official ABI 11.30 migration. Local held-input observations remain null; do not infer absent input or actuator support.
