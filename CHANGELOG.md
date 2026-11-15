@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.21.1 (queued grant fix; source verified, not deployed)
+
+- Fix `give_item` admission after queued lookup. Resolve the actor and dispatch on the same scheduled game-thread handler; recheck fresh flag/confirmation immediately before SDK submission. A revoked-flag regression first reproduced native dispatch and now refuses it. Pending handlers cancel after the five-second wait; started work reports an unknown outcome.
+- Sync bounded correlated intent before submission and record native outcomes from the callback even after the HTTP receiver times out. Journal failure before intent prevents dispatch; outcome failure reports possible commitment. Audit request IDs do not provide replay protection. Removing the flag does not cancel an already submitted SDK request, and a callback lost to mod shutdown can leave intent unresolved.
+- All 187 Rust/31 Python tests, Clippy, formatting and both release builds pass. Fake-host tests cover dry behavior, blocked intent journals, post-timeout callback journaling and cancellation before a late tick. No live grant or deployment occurred; installed server remains 0.21.0 with writes disabled. Native acceptance of this fix remains pending.
+
+
 ## Companion 0.7.0 (source verified; live deployment pending)
 
 - Add `requirement_observations` to returned recipe rows: ordered declared `required_prop_ids` and `requires_shelter`, through canonical reflected recipe/array/typedef metadata. At most 32 prop entries; spans, strides, counts and boolean bytes are admitted before reads. Empty lists, false flags, zeros and duplicate IDs are preserved. Prop type IDs are not item/entity selectors; full requirements and current eligibility stay unverified.

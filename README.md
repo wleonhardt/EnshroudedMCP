@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.20.0** and **optional companion 0.5.1**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.21.1** and **optional companion 0.7.0**.
 
 [Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -75,3 +75,5 @@ Server 0.21.0 adds `status.clock`: `state` (`observed`/`unavailable`), `source: 
 The isolated original research namespace now runs server 0.21.0/companion 0.6.1, official acd5550c/ABI 11.30. All nineteen server/nine companion fixed probes pass, including a real daytime clock read; complete world captures and archived ledgers match after a verified cold archive. Native client stays at Menu with zero players and writes disabled. Nonempty prop template/label rows, connected-client rendering and neutral-namespace live installation remain unverified.
 
 Companion source 0.7.0 adds bounded declared prop/shelter requirement observations. It passes offline checks but is not live-installed; current eligibility/full requirements remain unknown. See [tool reference](docs/tool-reference.md).
+
+Server source 0.21.1 fixes queued give admission and post-timeout callback journaling. This patch is not live-installed; audit IDs do not provide replay protection. See [grant contract](docs/tool-reference.md).

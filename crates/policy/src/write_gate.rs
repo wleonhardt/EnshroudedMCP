@@ -12,6 +12,48 @@ pub const FLAG: &str = "ALLOW_WRITES";
 /// How long a flag file stays valid after it was last touched.
 pub const FLAG_MAX_AGE: Duration = Duration::from_secs(30 * 60);
 
+/// A queued write can be cancelled only before its game-thread handler starts.
+#[derive(Debug, Default)]
+pub struct PendingWrite(std::sync::atomic::AtomicU8);
+
+impl PendingWrite {
+    pub fn begin(&self) -> bool {
+        self.0
+            .compare_exchange(
+                0,
+                1,
+                std::sync::atomic::Ordering::AcqRel,
+                std::sync::atomic::Ordering::Acquire,
+            )
+            .is_ok()
+    }
+
+    pub fn cancel(&self) -> bool {
+        self.0
+            .compare_exchange(
+                0,
+                2,
+                std::sync::atomic::Ordering::AcqRel,
+                std::sync::atomic::Ordering::Acquire,
+            )
+            .is_ok()
+    }
+}
+
+pub const JOURNAL_RECORD_BYTES: usize = 4096;
+
+pub fn journal_budget(current: u64, record: usize, reserve: usize) -> Result<(), String> {
+    if record > JOURNAL_RECORD_BYTES || reserve > JOURNAL_RECORD_BYTES {
+        return Err("write journal record or outcome headroom exceeds 4096 bytes".into());
+    }
+    crate::construction::check_journal_size(
+        current,
+        record
+            .checked_add(reserve)
+            .ok_or("write journal budget overflow")?,
+    )
+}
+
 /// Returns the age of a regular flag file. Missing, unreadable and future-dated
 /// files fail closed. Freshness remains the responsibility of [`check`].
 #[must_use]
@@ -58,6 +100,27 @@ pub fn check(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pending_write_cancellation_prevents_late_start_and_started_work_is_unknown() {
+        let pending = PendingWrite::default();
+        assert!(pending.cancel());
+        assert!(!pending.begin());
+        assert!(!pending.cancel());
+        let started = PendingWrite::default();
+        assert!(started.begin());
+        assert!(!started.cancel());
+        assert!(!started.begin());
+    }
+
+    #[test]
+    fn write_journal_budget_accounts_for_outcome_headroom() {
+        let maximum = crate::construction::JOURNAL_MAX_BYTES as u64;
+        assert!(journal_budget(maximum - 8192, 4096, 4096).is_ok());
+        assert!(journal_budget(maximum - 8191, 4096, 4096).is_err());
+        assert!(journal_budget(0, 4097, 0).is_err());
+        assert!(journal_budget(0, 1, 4097).is_err());
+    }
 
     #[test]
     fn flag_metadata_requires_regular_nonfuture_file_and_preserves_staleness() {

@@ -32,6 +32,15 @@ fn give_gate(
     write_gate::check(dry, true, age, confirm)
 }
 
+pub(crate) fn give_dispatch<T>(
+    dir: Option<&std::path::Path>,
+    confirm: Option<&str>,
+    dispatch: impl FnOnce() -> T,
+) -> Result<T, String> {
+    give_gate(false, dir, confirm)?;
+    Ok(dispatch())
+}
+
 /// The component types this build reflects, by the game's name, read from
 /// `components.txt` in the mod's folder (`scripts/component_names.py`).
 pub(crate) type Components = Arc<Vec<(String, ComponentType)>>;
@@ -195,7 +204,7 @@ impl GameTools {
             },
             Tool {
                 name: "give_item",
-                description: "WRITE. Gives a connected player `count` (default 1, at most 100) of a vanilla item by its debug name (such as Craftingstation_Workbench), through the game's inventory transaction. An unknown name answers with up to five similar names. `dry: true` only resolves the player and the item. A real give needs the ALLOW_WRITES flag file (under 30 min old) in the mod's folder and confirm: \"server-write\", and is journaled.",
+                description: "WRITE. Gives a connected player `count` (default 1, at most 100) of a vanilla item by debug name through the game's inventory transaction. Unknown names report up to five similar names. `dry: true` only resolves player/item. Real grants require a fresh ALLOW_WRITES flag and confirm: \"server-write\", rechecked on the game thread. Intent is synced before SDK submission; callback journals outcomes even after HTTP timeout. Pending handlers cancel on timeout; started outcomes may be unknown. Audit request IDs are not replay protection. Inspect inventory/journal before retrying; removing the flag does not cancel an already submitted SDK request.",
                 schema: json!({"type": "object", "properties": {
                     "player": {"type": "string"},
                     "item": {"type": "string"},
@@ -628,47 +637,7 @@ impl Tools for GameTools {
                     self.mod_dir.as_deref(),
                     a.get("confirm").and_then(Value::as_str),
                 )?;
-                let inventories =
-                    inventories.ok_or("this build lacks the inventory transactions")?;
-                let who = a["player"].as_str().unwrap_or("").to_owned();
-                let name = a["item"].as_str().unwrap_or("").to_owned();
-                let count = a.get("count").and_then(Value::as_u64).unwrap_or(1);
-                let count = u32::try_from(count)
-                    .ok()
-                    .filter(|c| *c >= 1)
-                    .ok_or("count must be 1 to 100")?;
-                let (entity, player, item, guid) = on_game_thread(scheduler, move || {
-                    // The item first, so a dry run finds names with no player on.
-                    let guid =
-                        enshwick::content::vanilla::item(&name).map_err(|e| e.to_string())?;
-                    let player = world
-                        .players()
-                        .into_iter()
-                        .find(|p| p.key.0.to_string() == who || p.is_named(&who))
-                        .ok_or_else(|| {
-                            format!("no connected player with the key or name {who:?}")
-                        })?;
-                    Ok::<_, String>((
-                        player.entity,
-                        player.name,
-                        enshwick::ItemId::from_guid(guid),
-                        guid.to_string(),
-                    ))
-                })??;
-                let plan = json!({"player": player, "item": name_of(a), "item_id": item.0, "guid": guid, "count": count});
-                if dry {
-                    return Ok(json!({"dry": true, "would_give": plan}));
-                }
-                let (tx, rx) = mpsc::sync_channel(1);
-                inventories.give(entity, item, count, move |outcome| {
-                    let _gone = tx.send((outcome.is_committed(), format!("{:?}", outcome.done))); // allow: the caller gave up waiting
-                });
-                let (committed, done) = rx.recv_timeout(GAME_WAIT).map_err(|_| {
-                    "the inventory transaction did not answer within 5 s".to_owned()
-                })?;
-                let result = json!({"given": committed, "outcome": done, "plan": plan});
-                self.journal("give_item", &result);
-                Ok(result)
+                crate::give_item::call(self.game, self.mod_dir.clone(), a)
             }
             _ => Err(format!("unknown tool: {name}")),
         }
@@ -676,31 +645,33 @@ impl Tools for GameTools {
 }
 
 impl GameTools {
-    /// Appends one line to `journal.jsonl` in the mod's folder; a failure is
-    /// logged, as the write itself already happened.
-    fn journal(&self, tool: &str, result: &Value) {
-        let Some(dir) = &self.mod_dir else {
-            enshwick::warn!("no mod folder: {tool} not journaled");
-            return;
-        };
+    /// Syncs one bounded audit record, admitting optional outcome headroom.
+    pub(crate) fn journal(
+        dir: Option<&std::path::Path>,
+        tool: &str,
+        result: &Value,
+        reserve: usize,
+    ) -> Result<(), String> {
+        let dir = dir.ok_or("no mod folder for write journal")?;
         let secs = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_secs())
             .unwrap_or_default();
         let line = json!({"unix": secs, "tool": tool, "result": result}).to_string() + "\n";
-        let written = std::fs::OpenOptions::new()
+        let mut file = std::fs::OpenOptions::new()
             .create(true)
             .append(true)
             .open(dir.join("journal.jsonl"))
-            .and_then(|mut f| std::io::Write::write_all(&mut f, line.as_bytes()));
-        if let Err(e) = written {
-            enshwick::warn!("{tool} not journaled: {e}");
+            .map_err(|error| error.to_string())?;
+        let metadata = file.metadata().map_err(|error| error.to_string())?;
+        if !metadata.is_file() {
+            return Err("write journal is not a regular file".into());
         }
+        write_gate::journal_budget(metadata.len(), line.len(), reserve)?;
+        std::io::Write::write_all(&mut file, line.as_bytes())
+            .and_then(|()| file.sync_all())
+            .map_err(|error| error.to_string())
     }
-}
-
-fn name_of(a: &Map<String, Value>) -> &str {
-    a.get("item").and_then(Value::as_str).unwrap_or("")
 }
 
 fn item_metadata(info: enshwick::inventory::ItemInfo) -> Value {
@@ -795,6 +766,11 @@ mod tests {
         assert!(give_gate(false, Some(&dir), Some("server-write")).is_ok());
         assert!(give_gate(false, Some(&dir), None).is_err());
         drop(file);
+        fs::remove_file(&flag).unwrap();
+        let dispatched = std::cell::Cell::new(false);
+        let result = give_dispatch(Some(&dir), Some("server-write"), || dispatched.set(true));
+        assert!(result.is_err(), "revoked flag admitted native dispatch");
+        assert!(!dispatched.get());
         fs::remove_dir_all(dir).unwrap();
     }
 

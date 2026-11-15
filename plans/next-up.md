@@ -2,6 +2,8 @@
 
 ## Queue
 
+- Deploy server 0.21.1 and validate grant admission/refusal on the isolated pair before valid-grant acceptance. Source/fake-host checks do not establish live behavior. Preserve disabled write flags and reconcile unknown outcomes without blind retry.
+
 - Deploy and validate companion 0.7.0 prop/shelter requirement observations on a controlled isolated fixture. Offline reflected/synthetic coverage is not live evidence. Do not infer full requirements or crafting eligibility from empty prop lists.
 
 - Compare native clock observations with rendered daylight during an authorized connected-client fixture; clock hours alone do not establish lighting, safety or placement readiness. Obtain a genuinely nonempty prop fixture before accepting template/label-row live behavior.

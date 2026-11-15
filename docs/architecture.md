@@ -48,3 +48,11 @@ The companion listener reads copied snapshots. Bounded archive requests run thro
 ## Recovery boundaries
 
 Capture records geometric voxels and props, not a full gameplay-state backup. Inventories, production, growth, fuel, text, survivor assignments and logic can prevent safe prop removal or be lost by destructive removal. Prop spawning and functional workshop recovery are not implemented. Native construction receipts are session-only. Use verified cold archives for disposable fixtures and preserve unrelated progress; never overwrite a progressed shared world merely to clean up research.
+
+## Queued inventory grant admission (source 0.21.1)
+
+`give_item` still requires explicit `dry: true` for preview. Real grants check the fresh flag/confirmation before queuing and again on the game thread. Actor resolution and native request submission share that handler. A request that has not started after five seconds is cancelled before a late tick can submit it. Started work may finish after the response timeout; observe inventory and journal before retrying.
+
+A synced `give_item_intent` audit record precedes SDK submission. The native callback syncs `give_item_outcome` independently of the HTTP receiver. Each record is capped at 4,096 bytes; intent admission checks an additional 4,096 bytes of outcome headroom against the shared journal limit. This is a capacity check, not reserved storage. A journal failure can leave a native result unknown; mod shutdown may prevent the callback entirely. Removing the flag does not revoke an already submitted SDK request. The returned `request` identifier correlates audit records only: it provides no replay protection or undo, and a new call can grant again.
+
+Source/public checks pass 187 Rust/31 Python tests, Clippy, formatting and both releases. The revoked-flag regression and fake-host late-callback/cancellation tests pass. This patch is not installed or live-tested. Isolated runtime stays server 0.21.0/companion 0.6.1 with writes disabled; companion source 0.7.0 is also awaiting controlled deployment. Connected-client and neutral-namespace acceptance remain pending.
