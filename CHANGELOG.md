@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.9.0 (localized interaction verb; live deployment pending)
+
+- Preserve the native prompt verb ID and add bounded localized verb text through the published client localization API on the frame callback. Missing localization stays null/unavailable; present empty text remains observed. Report truncation, requested language and the documented English fallback source.
+- A native-frame expectation first failed, then passed. Fake frames and bounded UTF-8/missing-text tests preserve explicit observation limits. Text observation adds no interaction, menu, movement or camera executor. Isolated runtime remains server 0.24.0/companion 0.8.0; live rendered verb comparison and public-namespace installation remain unverified.
+
+
 ## 0.24.0 (server prompt target; isolated altar fixture verified)
 
 - Add read-only `player_interaction_target` for exactly one connected player by SDK-compatible name or exact account key. Read the published native prompt target on the game thread; return session-only server entity and nullable position/template metadata. Missing reader/read failure remains unknown, separately from no target.

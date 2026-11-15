@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.8.0; no actions."""
+"""Fixed read-only probes for native client companion 0.9.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.8.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.9.0" and
             value.get("enshwick") == "1.0.0-alpha.15" and
             value.get("compiled_framework_revision") == "acd5550c607a38c983433f9807cc95564244fe0b" and
             value.get("compiled_framework_abi") == "11.30" and value.get("live_verified") is False and
@@ -48,6 +48,14 @@ def state(value):
     if observation is not None:
         require(isinstance(observation.get("screen"), str) and "host_template" in observation and
                 (observation["host_template"] is None or isinstance(observation["host_template"], str) and GUID.fullmatch(observation["host_template"])))
+        prompt = observation.get("prompt")
+        if prompt is not None:
+            require(isinstance(prompt, dict) and integer(prompt.get("verb")) and prompt["verb"] <= 0xFFFFFFFF and
+                    isinstance(prompt.get("language"), str) and type(prompt.get("verb_text_truncated")) is bool and
+                    prompt.get("verb_text_source") == "client_archive_localization_with_English_fallback")
+            text = prompt.get("verb_text")
+            require((prompt.get("verb_text_state") == "unavailable" and text is None and prompt["verb_text_truncated"] is False) or
+                    (prompt.get("verb_text_state") == "observed" and isinstance(text, str) and len(text.encode("utf-8")) <= 256))
     # Neither prompts, held inputs nor host/session identities enter the report.
     return {"stale": value["stale"], "age_ms": age, "observation_available": observation is not None,
             "host_template_available": observation is not None and observation["host_template"] is not None}
@@ -181,11 +189,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.8.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.9.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.8.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.9.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

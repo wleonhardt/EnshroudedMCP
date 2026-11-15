@@ -18,6 +18,14 @@ use serde_json::{Map, Value, json};
 
 const WAIT: Duration = Duration::from_secs(2);
 
+fn prompt_value(title: &str, verb: u32, language: &str, text: Option<&str>) -> Value {
+    json!({"title":policy::client::text(title),"title_truncated":title.len()>policy::client::TEXT,
+        "verb":verb,"verb_text":text.map(policy::client::text),
+        "verb_text_state":if text.is_some(){"observed"}else{"unavailable"},
+        "verb_text_truncated":text.is_some_and(|s|s.len()>policy::client::TEXT),
+        "language":language,"verb_text_source":"client_archive_localization_with_English_fallback"})
+}
+
 #[derive(Default, Debug)]
 struct Observation {
     at: Option<Instant>,
@@ -122,7 +130,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_state",
-                    description: "Latest native UI-frame snapshot: screen, interaction prompt, screen host/template and local held gameplay controls. A null template may mean no host, first-frame/unresolved metadata or unavailable reader. Stale/unavailable observations explicit; no world authority or current inner selection inferred.",
+                    description: "Latest native UI-frame snapshot: screen, interaction prompt with bounded localized verb text (English fallback; missing stays unavailable), screen host/template and local held gameplay controls. A null template may mean no host, first-frame/unresolved metadata or unavailable reader. Stale/unavailable observations explicit; no world authority or current inner selection inferred.",
                     schema: json!({"type":"object"}),
                 },
                 Tool {
@@ -328,7 +336,10 @@ impl Mod for ResearchClient {
         let host = load.host();
         let frames = shared.clone();
         load.on_frame(move |frame|{
-            let prompt=frame.prompt().map(|prompt|json!({"title":policy::client::text(&prompt.title),"title_truncated":prompt.title.len()>policy::client::TEXT,"verb":prompt.verb}));
+            let prompt=frame.prompt().map(|prompt| {
+                let language=host.language();
+                prompt_value(&prompt.title,prompt.verb,language.code(),host.game_text(prompt.verb,language))
+            });
             let held=input.and_then(|input|input.local_held()).map(|mask|mask.iter().map(|action|action.name()).collect::<Vec<_>>());
             let value=json!({"screen":format!("{:?}",frame.screen()),"hud_screen":frame.open_screen().map(|screen|screen.name()),"prompt":prompt,"host":frame.screen_host().map(|entity|entity.0),"host_position":frame.screen_host_position(),"host_template":frame.screen_host_template().map(|guid|guid.to_string()),"held_actions":held});
             let left_game=frames.observation.lock().map(|mut observation|observation.record(value)).unwrap_or(false);
@@ -381,6 +392,22 @@ enshwick::declare_mod!(ResearchClient);
 mod tests {
     use super::*;
 
+    #[test]
+    fn prompt_localization_preserves_missing_empty_and_bounded_utf8() {
+        let missing = prompt_value("", 7, "en-US", None);
+        assert_eq!(missing["verb"], 7);
+        assert!(missing["verb_text"].is_null());
+        assert_eq!(missing["verb_text_state"], "unavailable");
+        let empty = prompt_value("", 7, "en-US", Some(""));
+        assert_eq!(empty["verb_text"], "");
+        assert_eq!(empty["verb_text_state"], "observed");
+        let long = "界".repeat(100);
+        let bounded = prompt_value(&long, 8, "en-US", Some(&long));
+        assert_eq!(bounded["verb_text"].as_str().unwrap().len(), 255);
+        assert_eq!(bounded["verb_text_truncated"], true);
+        assert_eq!(bounded["title_truncated"], true);
+    }
+
     static FRAME_STATE: Mutex<Option<Arc<Shared>>> = Mutex::new(None);
     struct Recorder;
     impl Mod for Recorder {
@@ -400,7 +427,10 @@ side = "both""#
     fn native_client_frames_capture_screen_prompt_and_clear_host_on_close() {
         use enshwick::abi::{Side, Status};
         use enshwick::ui::HudScreenType;
-        let loader = enshwick::test::FakeHost::new().side(Side::CLIENT).install();
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .game_text(7, enshwick::i18n::Language::EN_US, "Open")
+            .install();
         // SAFETY: these are this test module's framework-generated exports.
         let status =
             unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) };
@@ -414,11 +444,24 @@ side = "both""#
         assert_eq!(state["observation"]["hud_screen"], "StorageChest");
         assert_eq!(state["observation"]["host"], 42);
         assert_eq!(state["observation"]["prompt"]["title"], "Test chest");
+        assert_eq!(state["observation"]["prompt"]["verb_text"], "Open");
+        assert_eq!(
+            state["observation"]["prompt"]["verb_text_state"],
+            "observed"
+        );
         assert!(
             state["observation"]
                 .get("host_template")
                 .is_some_and(Value::is_null)
         );
+        loader.show_prompt(Some(("Test chest", 8)));
+        let _ = loader.draw_frame();
+        let missing = shared.observation.lock().unwrap().snapshot();
+        assert_eq!(
+            missing["observation"]["prompt"]["verb_text_state"],
+            "unavailable"
+        );
+        assert!(missing["observation"]["prompt"]["verb_text"].is_null());
         let template = enshwick::content::Guid([17; 16]);
         loader.read_screen_host(template, [1.0, 2.0, 3.0]);
         let _ = loader.draw_frame();

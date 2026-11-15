@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.24.0** and **optional companion 0.8.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.24.0** and **optional companion 0.9.0**.
 
 [Setup](docs/setup.md) · [26 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -117,3 +117,5 @@ After logout and explicit research-setting restoration, complete prior captures,
 Server source 0.23.2 reports selected foundation stop material/fill without deriving rendered surface height. Isolated runtime 0.23.2/0.8.0 agrees with a complete partial-terrain capture and independent native sample; plan geometry is unchanged. Rendered surface contact remains unverified.
 
 Server source 0.24.0 adds a read-only native interaction-prompt target observation for one uniquely selected server player. This may help correlate interactive objects with rendered observations; it supplies neither a terrain hit nor an executor. An isolated nonempty Flame Altar fixture agrees with separately scoped client host position/template; complete preservation and clean logout pass. Other targets and public-namespace installation remain unverified.
+
+Companion source 0.9.0 reports bounded localized interaction verb text alongside the native verb ID, with explicit missing state and English fallback provenance. Runtime remains 0.24.0/0.8.0 pending cold deployment and rendered comparison. It adds no native interaction executor.

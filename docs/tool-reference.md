@@ -184,3 +184,7 @@ Read-only arguments: `{ "player": "connected name or account key" }`. Name match
 ### Prop discovery scope
 
 `props_in` reports item-placed props whose origins lie in the requested box. The published SDK deliberately excludes flame altars, item-placed creatures and survivors; entity queries can observe those separately. It also requires the placed-template mapping to match. An empty prop list cannot establish an empty rendered volume, absence of an altar, collision clearance or terrain contact. An isolated altar fixture agrees across prompt target, entity/used-item queries and item placed-template metadata while correctly yielding no props.
+
+### Client interaction prompt text
+
+Companion 0.9.0 `client_state.observation.prompt` preserves `verb` and adds nullable `verb_text`, `verb_text_state` (`observed` or `unavailable`), `verb_text_truncated`, `language` and `verb_text_source`. Title and verb text are bounded to 256 UTF-8 bytes. The published localization reader uses the requested client language with English fallback; missing remains null and an observed empty string remains distinct. This is copied frame evidence, subject to the outer age/stale fields, and does not execute the interaction or prove rendered text.

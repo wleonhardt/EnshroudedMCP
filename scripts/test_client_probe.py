@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from client_probe import Probe, READS
+from client_probe import Probe, READS, state
 
 
 class Fixture:
@@ -16,7 +16,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.8.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.9.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"client_map_markers", "client_press", "future_write", "give_item"}]}
         name, args = params["name"], params["arguments"]
@@ -26,7 +26,7 @@ class Fixture:
         elif name == "client_recipes" and args.get("limit") == 9:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
-            value = {"role": "optional_client_companion", "version": "0.8.0", "enshwick": "1.0.0-alpha.15",
+            value = {"role": "optional_client_companion", "version": "0.9.0", "enshwick": "1.0.0-alpha.15",
                      "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
                      "compiled_framework_revision": "acd5550c607a38c983433f9807cc95564244fe0b", "compiled_framework_abi": "11.30",
                      "screen_host_template_observation": True,
@@ -34,7 +34,10 @@ class Fixture:
                      "semantic_gameplay_actions": [], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers"]}
         elif name == "client_state":
             value = {"age_ms": 2000 if self.stale else 0, "stale": self.stale, "sequence": 1,
-                     "observation": {"screen": "private-screen", "prompt": {"title": "private-prompt"}, "host": "private-session", "host_template": "22222222-2222-2222-2222-222222222222"}}
+                     "observation": {"screen": "private-screen", "prompt": {"title": "private-prompt", "verb":7,
+                         "verb_text":"private-verb", "verb_text_state":"observed", "verb_text_truncated":False,
+                         "language":"en-US", "verb_text_source":"client_archive_localization_with_English_fallback"},
+                         "host": "private-session", "host_template": "22222222-2222-2222-2222-222222222222"}}
         elif name == "client_events":
             value = {"events": [{"sequence": 1, "host": "private-session", "screen": "private-screen"}],
                      "next_after": 1, "latest_sequence": 1, "dropped_total": 0, "cursor_gap": False}
@@ -90,6 +93,20 @@ class Fixture:
 
 
 class ClientProbeTests(unittest.TestCase):
+    def test_prompt_localization_is_bounded_explicit_and_not_persisted(self):
+        value = json.loads(Fixture().call("tools/call", {"name":"client_state", "arguments":{}})["content"][0]["text"])
+        prompt = value["observation"]["prompt"]
+        self.assertNotIn("private-", json.dumps(state(value)))
+        for status, text, truncated in [("observed",None,False), ("unavailable","Open",False),
+                                         ("observed","界"*86,False), ("unavailable",None,True)]:
+            prompt.update(verb_text_state=status, verb_text=text, verb_text_truncated=truncated)
+            with self.assertRaises(ValueError):
+                state(value)
+        prompt.update(verb_text_state="unavailable", verb_text=None, verb_text_truncated=False)
+        state(value)
+        prompt.update(verb_text_state="observed", verb_text="", verb_text_truncated=False)
+        state(value)
+
     def test_fixed_reads_only_and_no_sensitive_values_saved(self):
         client = Fixture()
         report = Probe(client, pause=lambda _: None).run()
