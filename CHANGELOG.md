@@ -1,9 +1,9 @@
 # Changelog
 
-## Companion 0.5.2 (source validated; not deployed)
+## Companion 0.5.2 (isolated read probes verified)
 
 - Report `cursor_gap` when a client selection-event cursor predates history cleared on observed session exit, including before new events arrive. Preserve monotonic sequences, session generation and overwrite-only `dropped_history`; a caught-up cursor remains gap-free. No native executor or gameplay write is added.
-- A regression first reproduced the missing gap, then passed. Live join/logout acceptance remains pending.
+- A regression first reproduced the missing gap, then passed. Isolated companion-only deployment passes nine companion and eighteen server read probes, fresh native Menu and exact 6,144-cell/ledger preservation after a verified cold archive. Live join/logout acceptance remains pending; the neutral publication namespace has not been live-installed.
 
 
 ## 0.20.0 / companion 0.5.1

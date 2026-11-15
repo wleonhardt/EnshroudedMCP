@@ -46,3 +46,9 @@ Overall acceptance remains incomplete. Keep isolated proofs quiescent, retain pr
 
 
 The isolated two-brick proof passed exact whole-capture placement/read-back/replay/undo; its final cold reload passed with all 1024 baseline cells equal. Applied voxel persistence has narrow separate floor evidence. Stateful recovery and the functional workshop remain open.
+
+## Companion 0.5.2 isolated deployment
+
+The original research namespace companion 0.5.2 is installed on the isolated pair after a verified 44-file cold archive and two hashed DLL rollback copies. Only companion DLLs changed; server 0.19.0, official framework acd5550c/ABI 11.30 and loader binaries are unchanged. Nine companion and eighteen version-matched server read probes pass. Native client state reports a fresh Menu. Both complete world captures (6,144 cells total), archived ledger membership/hashes, zero players and disabled writes are verified.
+
+An initial startup probe was unavailable; the same running client subsequently became ready without restart. The selection-history gap correction still has offline regression coverage only: no real join/logout was performed. Native lifecycle/menu/movement execution remains unavailable. Neutral publication-namespace binaries have not been independently live-installed.

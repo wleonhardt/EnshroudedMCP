@@ -79,4 +79,4 @@ Client IDs are never server selectors. Screen enum names need not expose tabs: a
 
 Companion `client_recipes` now preserves raw stacks and adds typed per-input item/category GUIDs, IDs and counts, decoded only for admitted returned matches through the canonical reflected type hash. Category membership, catalysts, unlocks, current UI selection and feasibility remain unknown.
 
-Companion source 0.5.2 fixes selection-event cursor gap reporting after session-clear. Cursors older than cleared observations report a gap before any new event. Overwrite counts retain their existing meaning. This patch is not live-installed.
+Companion source 0.5.2 fixes selection-event cursor gap reporting after session-clear. Cursors older than cleared observations report a gap before any new event. Overwrite counts retain their existing meaning. Isolated research-namespace installation passes fixed native probes; actual join/logout loss reporting remains unverified.
