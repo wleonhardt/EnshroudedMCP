@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.23.0** and **optional companion 0.8.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.23.1** and **optional companion 0.8.0**.
 
 [Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -103,3 +103,5 @@ The isolated research pair now runs server 0.23.0/companion 0.8.0. A verified 47
 Read-only building_access observed the native persistence rule true for a known fixture box and false for a distant box. Missing actor, unexpected write fields and reversed corners refused. A bounded joined fixture with native full health observed allowed build rights and persistence true for an explicit half-metre box. The separate construction dry preview could not load its source region, so exact preview comparison remains unverified. No construction write or reservation occurred.
 
 After logout and explicit restoration of the research setting, complete prior captures, operation ledgers and installed binary hashes remain exact. The prior server journal prefix has exactly four expected setting records; the companion journal is unchanged. Flags are absent and zero players remain. This validates limited native rule observations, not item footprints, collision/contact, complete base-boundary behavior, save/reload effects or public-namespace installation.
+
+Server source 0.23.1 aligns site-access name matching with the pinned SDK while preserving unique-actor admission. Deployment remains pending; isolated runtime stays 0.23.0/0.8.0.

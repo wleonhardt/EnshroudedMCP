@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.23.1 (site selector consistency; live deployment pending)
+
+- Match building_access player names with the pinned SDK's case-insensitive lowercase comparison, while keeping account-key matching exact. Preserve exact-one admission: case-variant duplicate names and name/account collisions refuse rather than selecting one actor.
+- A Unicode/case regression first failed, then passed with explicit ambiguous-roster and exact account-key checks. Runtime remains server 0.23.0/companion 0.8.0; this fix is source verified and not live-installed.
+
 ## 0.23.0 (site access observations; isolated fixture verified)
 
 - Add read-only `building_access` for explicit ordered boxes with each side greater than zero and at most 64 metres. Optional player name/account key must match exactly one connected actor. Native build-rights and persistence reads run on the scheduled game thread; omitted player leaves rights unrequested.

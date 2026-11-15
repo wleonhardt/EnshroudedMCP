@@ -9,6 +9,11 @@ pub struct Spec {
 }
 
 #[must_use]
+pub fn matches_player(selector: &str, name: &str, account: u64) -> bool {
+    name.to_lowercase() == selector.to_lowercase() || account.to_string() == selector
+}
+
+#[must_use]
 pub fn schema() -> Value {
     json!({"type":"object","additionalProperties":false,"properties":{
         "x1":{"type":"number"},"y1":{"type":"number"},"z1":{"type":"number"},
@@ -46,6 +51,30 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn native_name_case_matching_preserves_ambiguous_roster_refusal() {
+        assert!(matches_player("éMILE", "Émile", 7));
+        assert!(!matches_player("Emile", "Émile", 7));
+        let roster = [("Researcher", 7), ("RESEARCHER", 8)];
+        assert!(
+            crate::inspection::unique_player(
+                roster
+                    .into_iter()
+                    .filter(|(name, key)| matches_player("Researcher", name, *key))
+            )
+            .is_err()
+        );
+        let roster = [("8", 7), ("Other", 8)];
+        assert!(
+            crate::inspection::unique_player(
+                roster
+                    .into_iter()
+                    .filter(|(name, key)| matches_player("8", name, *key))
+            )
+            .is_err()
+        );
+        assert!(matches_player("7", "Unrelated", 7));
+    }
     fn box_args() -> Value {
         json!({"x1":1,"y1":2,"z1":3,"x2":65,"y2":3,"z2":4})
     }

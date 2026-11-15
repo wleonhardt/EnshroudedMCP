@@ -266,19 +266,18 @@ impl Tools for GameTools {
             "building_access" => {
                 let spec = policy::building_access::check(a)?;
                 on_game_thread(scheduler, move || {
-                    let actor =
-                        spec.player
-                            .as_deref()
-                            .map(|selector| {
-                                inspection::unique_player(world.players().into_iter().filter(|p| {
-                                    p.name == selector || p.key.0.to_string() == selector
-                                }))
-                                .map_err(|_| {
-                                    "player selector must match exactly one connected actor"
-                                        .to_owned()
-                                })
+                    let actor = spec
+                        .player
+                        .as_deref()
+                        .map(|selector| {
+                            inspection::unique_player(world.players().into_iter().filter(|p| {
+                                policy::building_access::matches_player(selector, &p.name, p.key.0)
+                            }))
+                            .map_err(|_| {
+                                "player selector must match exactly one connected actor".to_owned()
                             })
-                            .transpose()?;
+                        })
+                        .transpose()?;
                     let persistence = crate::building_access::persistence(
                         world
                             .persists(spec.min, spec.max)
