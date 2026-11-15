@@ -14,6 +14,7 @@ pub mod inspection;
 pub mod item_lookup;
 pub mod knowledge;
 pub mod mcp;
+pub mod pacification;
 pub mod recipe_plan;
 pub mod reposition;
 pub mod request;

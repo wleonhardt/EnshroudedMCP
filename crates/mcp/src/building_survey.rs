@@ -9,7 +9,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "building_survey",
-        description: "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build-right observations. May trigger chunk loading; retry an explicit not-loaded error later. No writes, prop/collision checks, crafting costs or complete altar boundary discovery.",
+        description: "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build rights. Optional foundation previews one bounded Air-only pier before occupied terrain; no rendered surface-height claim. May trigger chunk loading. No writes, prop/collision checks, crafting costs or complete altar boundary discovery.",
         schema: policy::building_survey::schema(),
     }
 }
@@ -32,6 +32,38 @@ fn encode(block: &VoxelBox) -> Value {
         "material_counts":{"air":counts[0],"terrain":counts[1],"building":counts[2],"unknown":counts[3]},
         "cells":cells
     })
+}
+
+fn foundation(block: &VoxelBox, request: &policy::building_survey::Foundation) -> Value {
+    use policy::building_survey::{ColumnCell, foundation_span};
+    let [x, upper, z] = request.upper;
+    let mut column: Vec<_> = block
+        .iter()
+        .filter_map(|(position, voxel)| {
+            let p = position.to_array();
+            (p[0] == x && p[2] == z && p[1] < upper).then(|| {
+                let cell = match voxel.material() {
+                    VoxelMaterial::Air => ColumnCell::Air,
+                    VoxelMaterial::Terrain(_) => ColumnCell::Terrain(voxel.fill()),
+                    _ => ColumnCell::Obstruction,
+                };
+                (p[1], cell)
+            })
+        })
+        .collect();
+    column.sort_unstable_by_key(|(y, _)| std::cmp::Reverse(*y));
+    let cells: Vec<_> = column.iter().map(|(_, cell)| *cell).collect();
+    match foundation_span(&cells, request.max_cells) {
+        Err(reason) => json!({"state":"refused","plan":null,"reason":reason}),
+        Ok(count) => {
+            let lower = upper - count as u32;
+            json!({"state":"preview_only","upper_boundary_cells":request.upper,
+                "terrain_stop_cell":[x,lower-1,z],"air_cell_count":count,
+                "plan":{"kind":"wall","x":f64::from(x)*0.5,"y":f64::from(lower)*0.5,"z":f64::from(z)*0.5,"width":0.5,"height":count as f64*0.5,"depth":0.5},
+                "terrain_overwrite":false,"rendered_contact_verified":false,
+                "limitations":["occupied terrain is a cell stop, not the rendered surface height","no collision, structural support or traversal proof","survey and proposed plan are not authorization; placement requires fresh gated validation"]})
+        }
+    }
 }
 
 fn rights(game: crate::tools::Game, spec: &Spec, min: [f64; 3], max: [f64; 3]) -> Value {
@@ -80,6 +112,7 @@ pub(crate) fn read(game: crate::tools::Game, spec: Spec) -> Result<Value, String
         "region":{"min_cells":spec.min,"size_cells":spec.size,"max_exclusive_cells":spec.max_exclusive,"min_m":min,"max_exclusive_m":max},
         "grid":{"cell_size_m":0.5,"bounds":"half-open complete cells","cell_order":"x fastest, then y, then z","index_formula":"x + size_x * (y + size_y * z), using local offsets"},
         "voxels":encode(&block),
+        "foundation":spec.foundation.as_ref().map(|request|foundation(&block,request)),
         "persistence":persistence,
         "build_rights":rights(game, &spec, min, max),
         "material_ids":"runtime voxel IDs; not inventory item IDs or a validated building palette",
@@ -93,6 +126,62 @@ pub(crate) fn read(game: crate::tools::Game, spec: Spec) -> Result<Value, String
 mod tests {
     use super::*;
     use enshwick::voxels::Voxel;
+
+    #[test]
+    fn foundation_preview_preserves_stop_and_emits_existing_primitive() {
+        let request = policy::building_survey::Foundation {
+            upper: [10, 24, 30],
+            max_cells: 2,
+        };
+        let block = VoxelBox::new(
+            VoxelPos::new(10, 20, 30),
+            [1, 4, 1],
+            vec![
+                Voxel::new(VoxelMaterial::Building(157), 7),
+                Voxel::new(VoxelMaterial::Terrain(4), 67),
+                Voxel::new(VoxelMaterial::Air, 255),
+                Voxel::new(VoxelMaterial::Air, 0),
+            ],
+        )
+        .unwrap();
+        let out = foundation(&block, &request);
+        assert_eq!(out["terrain_stop_cell"], json!([10, 21, 30]));
+        assert_eq!(out["air_cell_count"], 2);
+        assert_eq!(out["rendered_contact_verified"], false);
+        let args = json!({"operation":"foundation_fixture","source_x":0,"source_y":0,"source_z":0,"player":"fixture","plan":out["plan"]});
+        let compiled = policy::construction::check_plan(args.as_object().unwrap()).unwrap();
+        assert_eq!(compiled.targets, vec![[10, 22, 30], [10, 23, 30]]);
+        let mut plan = out["plan"].as_object().unwrap().clone();
+        plan.insert("material".into(), json!("unvalidated"));
+        let spec = policy::building_plan::check(&plan).unwrap();
+        assert_eq!(
+            policy::building_plan::cells(&spec),
+            vec![[10, 22, 30], [10, 23, 30]]
+        );
+    }
+
+    #[test]
+    fn foundation_obstruction_and_missing_stop_never_return_a_plan() {
+        let request = policy::building_survey::Foundation {
+            upper: [10, 22, 30],
+            max_cells: 1,
+        };
+        for bottom in [
+            VoxelMaterial::Building(157),
+            VoxelMaterial::Unknown(254),
+            VoxelMaterial::Air,
+        ] {
+            let block = VoxelBox::new(
+                VoxelPos::new(10, 20, 30),
+                [1, 2, 1],
+                vec![Voxel::new(bottom, 7), Voxel::new(VoxelMaterial::Air, 0)],
+            )
+            .unwrap();
+            let out = foundation(&block, &request);
+            assert_eq!(out["state"], "refused");
+            assert!(out["plan"].is_null());
+        }
+    }
 
     #[test]
     fn exact_cells_preserve_x_y_z_order_material_ids_and_fill() {

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.20.0 / companion 0.5.1
+
+- Add bounded prop template and nullable label-presence observations through published APIs, enriching only the returned 500 rows. Preserve session-only identity and unknown label text/other held state. This read increment is not live-installed and does not establish safe removal or undo.
+- Add optional bounded Air-only foundation preview to building_survey. The isolated 0.19.0 preview matches an independent two-cell oracle, refusing unknown nested fields and excessive depth. Terrain fill is not interpreted as rendered surface height; contact, collision and support remain unverified.
+- Add narrow gated enemy_pacification reads/changes, durable intent/outcome and explicit expected/session guards. Isolated boolean change/restoration and read-back pass; no invulnerability, automatic restart restoration or full preset-restoration claim.
+- Pin official acd5550c, ABI 11.30, containing the local held-input sampler fix; retain the SDK-only metadata extension. No native menu/movement executor is introduced.
+- Extend bounded native recipe reads with separate typed item/category branches; fix bare-name resolution using the canonical reflected type hash after retaining the failed isolated 0.5.0 probe. All nine companion probes pass with 0.5.1, but membership, eligibility and feasibility remain unknown.
+- Pass 173 Rust tests, thirty Python tests, Clippy, formatting and release builds. Latest isolated research pair is server 0.19.0/companion 0.5.1; public namespace live validation remains pending.
+
 ## 0.16.0
 
 - Add nullable native health, stamina and mana to existing player rows. Preserve raw SDK integer values, observed zero and independent unavailable pools; UI unit conversion remains unverified.
@@ -16,7 +25,7 @@
 
 ## 0.14.0 and companion 0.3.0
 
-- Pin official development revision `5f647f46d7f987e93d397e00596014b23f3c1112`, ABI 11.30, in a dedicated sibling checkout. Retire the private client-event ABI from the active build and retain only a three-file existing-field SDK metadata extension with no native ABI change.
+- Pin official development revision `acd5550c607a38c983433f9807cc95564244fe0b`, ABI 11.30, in a dedicated sibling checkout. Retire the private client-event ABI from the active build and retain only a three-file existing-field SDK metadata extension with no native ABI change.
 - Update two registry resource lookups to the current typed API. Report compiled framework revision/ABI separately from live acceptance and add nullable native screen-host template observations. Fake-host tests cover absent, present and cleared templates without inventing a screen-change event.
 - Pass 133 Rust tests, 30 Python tests, Clippy, formatting and both release builds. The SDK's prescribed nextest run passed 538 tests. Matched isolated installation followed a verified 38-file cold archive and rollback hashes for all eight replaced binaries.
 - Pass eighteen server and nine companion read probes with broader acceptance incomplete. Preserve the exact 4,096-cell shell baseline and stale old operation. Fresh Menu/InGame observations passed; null held input, a non-null live host template and named event delivery remain unverified. The interaction fixture was stopped after an enemy attack; logout completed and writes stayed disabled.

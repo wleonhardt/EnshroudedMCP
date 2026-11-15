@@ -7,7 +7,9 @@ mod building_survey;
 mod construction;
 mod item_lookup;
 mod knowledge;
+mod pacification;
 mod player_vitals;
+mod prop_observation;
 mod recipe_plan;
 mod reposition;
 mod server;
@@ -35,6 +37,7 @@ impl Mod for Mcp {
             .ok(),
             inventories: load.inventories().ok(),
             item_layout: enshwick::content::items::ItemLayout::resolve(load).ok(),
+            game_settings: load.game_settings().ok(),
             network_health:
                 enshwick::typed::ComponentType::<enshwick::typed::ecs::NetworkHealth>::resolve(load)
                     .map_err(|e| enshwick::warn!("typed NetworkHealth unavailable: {e}"))

@@ -1,6 +1,6 @@
 # Tool reference
 
-The server advertises 22 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
+The server advertises 23 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
 
 ## Server reads and pure planners
 
@@ -14,13 +14,13 @@ The server advertises 22 tools. Inspect `tools/list` for exact schemas on your i
 | `item_lookup` | `ids`: 1–8 unique nonzero IDs. Vanilla GUID/debug-name matches. Collisions and unmatched IDs remain explicit. |
 | `entity_health` | Point, optional `radius` (up to 16) and `limit` (up to 20). Typed health on nearby placed entities, with absent/error states. It is not a complete combat scan. |
 | `voxel_sample` | `x`, `y`, `z`. Exact material/fill at the containing half-metre cell. Building fill is not a validated UI shape parameter. |
-| `props_in` | Two box corners `x1/y1/z1`, `x2/y2/z2`; sides at most 64 m. Placed-item props with item and transform, at most 500 results. This is not complete collision discovery. |
+| `props_in` | Two box corners `x1/y1/z1`, `x2/y2/z2`; sides at most 64 m. Placed-item props with item, transform, nullable template GUID and nullable label presence, at most 500 results. GUIDs use lowercase file-order hex. Label absence is not a safe-undo claim; exact label text and other held state are unknown. This is not complete collision discovery. |
 | `entities_near` | Point, optional `radius` (up to 32), `kind`. At most 200 nearest results. `containers` selects placed containers, not every death-loot object. |
 | `entity_components` | Point, optional `radius` (up to 16) and `limit` (up to 20). Names of locally configured reflected components; no arbitrary component-value dump. |
 | `knowledge_search` | Optional `query`, `status`, `limit`. Curated evidence, provenance and missing checks. |
 | `recipe_plan` | Supplied recipe catalogue, stock, goals, stations and unlocks. Pure dependency arithmetic, not a live recipe or survival-feasibility claim. |
 | `building_plan` | Primitive `floor`, `wall` or `doorway`, dimensions, material label and optional quarter-turn `yaw`. At most 1024 candidate cells. Pure preview; material labels are unvalidated. |
-| `building_survey` | Grid-aligned box dimensions and optional `player`. Up to 4096 complete cells, exact voxels, persistence and optional build rights. Props, hazards and traversal remain unchecked. |
+| `building_survey` | Grid-aligned box dimensions and optional `player` and `foundation`. Foundation supplies grid-aligned `x`, `z`, exclusive `upper_y` in metres and integer `max_cells` from 1 to 15; the column must fit the survey. It previews only Air before occupied terrain, without a rendered surface-height claim or write authority. Up to 4096 complete cells, exact voxels, persistence and optional build rights. Props, hazards and traversal remain unchecked. |
 | `building_operation` | `operation`. Reconcile native construction status and exact complete-brick images. Stale/unknown receipts never reconstruct native IDs. |
 
 ## Synthetic preview example
@@ -72,3 +72,9 @@ These are on the separate client endpoint, outside the server's count of 22.
 | `client_recipes` | Bounded raw vanilla recipe observations. Effective settings and unresolved requirements remain unknown. |
 
 Client IDs are never server selectors. Screen enum names need not expose tabs: a crafting tab may still report its Backpack parent. No tool opens vanilla menus, synthesizes gameplay input, crafts an item or drives the camera.
+
+### Isolated research setting
+
+`enemy_pacification` with no arguments observes the published boolean. An `enabled` proposal defaults to dry. A real change additionally requires exact `expected`, current `session`, `dry: false`, the fresh write flag and `confirm: "server-write"`. It rechecks admission on the game thread, durably journals intent/outcome and changes only pacify_all_enemies. It is not invulnerability, has no native undo or durable once identity, and an unknown result requires fresh observation rather than blind retry. Configuration saves may persist the setting; explicitly restore and read back the prior boolean. The gameplay preset may become Custom; no complete preset-restoration claim is made.
+
+Companion `client_recipes` now preserves raw stacks and adds typed per-input item/category GUIDs, IDs and counts, decoded only for admitted returned matches through the canonical reflected type hash. Category membership, catalysts, unlocks, current UI selection and feasibility remain unknown.

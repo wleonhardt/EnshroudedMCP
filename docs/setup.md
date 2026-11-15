@@ -14,12 +14,12 @@ Use an isolated server and a disposable world for first installation. Stop proce
 From the project folder, use a new dedicated sibling checkout. Do not overwrite an existing dirty checkout.
 
 ```text
-git clone --no-checkout https://github.com/enshwick/enshwick ../enshwick-nightly
-git -C ../enshwick-nightly checkout --detach 5f647f46d7f987e93d397e00596014b23f3c1112
-git -C ../enshwick-nightly apply <project>/patches/enshwick-nightly-item-template.patch
+git clone --no-checkout https://github.com/enshwick/enshwick ../enshwick-native-control
+git -C ../enshwick-native-control checkout --detach acd5550c607a38c983433f9807cc95564244fe0b
+git -C ../enshwick-native-control apply <project>/patches/enshwick-nightly-item-template.patch
 ```
 
-Replace `<project>` with this checkout's path. Cargo's source override expects `../enshwick-nightly/crates/enshwick`. The active patch changes three SDK/test files and exposes an existing placed-template metadata field. It changes no native layout or ABI slot. Unknown item metadata and a known item without a placed template remain distinct.
+Replace `<project>` with this checkout's path. Cargo's source override expects `../enshwick-native-control/crates/enshwick`. The active patch changes three SDK/test files and exposes an existing placed-template metadata field. It changes no native layout or ABI slot. Unknown item metadata and a known item without a placed template remain distinct.
 
 The exact revision identifies **ABI 11.30**. Its package label is alpha.15; the alpha.15 release tag identifies ABI 11.28. Use the matching official artifact and verify the identity and checksums documented in [patches/README.md](../patches/README.md). Historical private alpha.14 consumers are incompatible. Rebuild consumers before switching SDK/loader lineages. Do not use `--with-loader` to substitute a release loader for the pinned development loader.
 
@@ -28,7 +28,7 @@ The exact revision identifies **ABI 11.30**. Its package label is alpha.15; the 
 Install the matching Cargo subcommand from the prepared source checkout if `cargo enshwick --version` is unavailable:
 
 ```text
-cargo install --locked --path ../enshwick-nightly/crates/cargo-enshwick
+cargo install --locked --path ../enshwick-native-control/crates/cargo-enshwick
 ```
 
 Run the [development checks](contributing.md), then build in release mode. With the selected official loader already installed:

@@ -4,9 +4,9 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.16.0** and **optional companion 0.3.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.20.0** and **optional companion 0.5.1**.
 
-[Setup](docs/setup.md) · [22 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
+[Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
 ## What it can do
 
@@ -26,7 +26,7 @@ A composed 164-cell shell has rendered placement and exact recovery evidence wit
 ## Get started
 
 1. Use a disposable isolated world and coordinate access with its players.
-2. Prepare the exact framework source and matching official loader using [setup](docs/setup.md). The pin is `5f647f46d7f987e93d397e00596014b23f3c1112`, package alpha.15, **ABI 11.30**. The alpha.15 release tag uses a different ABI.
+2. Prepare the exact framework source and matching official loader using [setup](docs/setup.md). The pin is `acd5550c607a38c983433f9807cc95564244fe0b`, package alpha.15, **ABI 11.30**. The alpha.15 release tag uses a different ABI.
 3. Apply the three-file [SDK metadata patch](patches/README.md), then build and test both consumers you intend to install.
 4. Install the server mod with writes disabled. Connect your MCP client to `http://127.0.0.1:8751/mcp` and begin with `capabilities`, `status` and `players`.
 
@@ -48,10 +48,12 @@ python -B -m unittest discover -s scripts -p "test_*.py"
 cargo build --release -p mcp -p mcp-client
 ```
 
-The development checkpoint passed **146 Rust tests and 30 Python tests**, plus Clippy, formatting and release builds. The pinned SDK passed 538 tests under its prescribed nextest harness. Fixed live read probes and small isolated write fixtures provide additional evidence; passing transport probes does not establish gameplay semantics or complete acceptance. See the [evidence boundaries](docs/research-status.md).
+The development checkpoint passed **173 Rust tests and 30 Python tests**, plus Clippy, formatting and release builds. The pinned SDK passed 592 tests under its prescribed nextest harness. Fixed live read probes and small isolated write fixtures provide additional evidence; passing transport probes does not establish gameplay semantics or complete acceptance. See the [evidence boundaries](docs/research-status.md).
 
 ## License and affiliation
 
 Project code and original geometric SVG artwork are MIT licensed; see [LICENSE](LICENSE). Retained enshwick material has its own [MIT attribution](patches/enshwick-LICENSE). The artwork is original and contains no game artwork.
 
 This project is not affiliated with Keen Games. Keen's Terms of Use prohibit mods in section 3.3(f); review the applicable terms before use. No game binaries, saves, credentials or generated game catalogues are included. The project relies on published framework APIs and does not modify the Steam DRM stub.
+
+Server 0.20.0 adds bounded prop template and nullable label-presence observations; this increment has offline tests but is not live-installed. Server 0.19.0 native Air-only pier preview and companion 0.5.1 typed recipe branches have limited isolated evidence. Neither proves rendered terrain contact, category membership, prop recovery or crafting feasibility. Enemy pacification is a guarded research setting, not invulnerability. Native vanilla menu/movement/quit execution remains unavailable; desktop fallbacks do not count as native acceptance. Follow [phased goals](plans/phases.md).

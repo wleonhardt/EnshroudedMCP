@@ -127,7 +127,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_recipes",
-                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw input/output stacks; incomplete requirement semantics. Not the selected UI recipe or proof of craftability. Whole archive allocation precedes parsing caps.",
+                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw input/output stacks plus typed item/category branches; incomplete requirement semantics. Not the selected UI recipe or proof of craftability. Whole archive allocation precedes parsing caps.",
                     schema: policy::client::item_schema(true),
                 },
             ],
@@ -186,7 +186,7 @@ impl Tools for ClientTools {
         policy::args::check(&tool.schema, args)?;
         match name {
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.15","compiled_framework_revision":"5f647f46d7f987e93d397e00596014b23f3c1112","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"pinned nightly SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.15","compiled_framework_revision":"acd5550c607a38c983433f9807cc95564244fe0b","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"pinned nightly SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -225,7 +225,12 @@ impl Tools for ClientTools {
     }
 }
 
-fn resolve(host: Host, layout: Option<RecipeLayout>, request: Request) -> Result<Value, String> {
+fn resolve(
+    host: Host,
+    layout: Option<RecipeLayout>,
+    input_type: Option<u32>,
+    request: Request,
+) -> Result<Value, String> {
     let name = match &request {
         Request::Item(name) | Request::Recipe(name, _) => name,
     };
@@ -246,7 +251,13 @@ fn resolve(host: Host, layout: Option<RecipeLayout>, request: Request) -> Result
             let bytes = host
                 .game_resource(key)
                 .ok_or("vanilla recipe registry unavailable")?;
-            recipes::parse(layout, &bytes, guid, limit)
+            recipes::parse(
+                layout,
+                &bytes,
+                guid,
+                limit,
+                input_type.ok_or("recipe input type unavailable")?,
+            )
         }
     }
 }
@@ -266,6 +277,10 @@ impl Mod for ResearchClient {
         let input = load.input().ok();
         let selection_sources = selection::register(load, &shared);
         let layout = RecipeLayout::resolve(load).ok();
+        let input_type =
+            enshwick::typed::ResourceType::<enshwick::typed::RecipeInputResource>::resolve(load)
+                .ok()
+                .map(|ty| ty.key(enshwick::content::Guid([0; 16])).type_hash);
         let host = load.host();
         let frames = shared.clone();
         load.on_frame(move |frame|{
@@ -276,10 +291,14 @@ impl Mod for ResearchClient {
             if left_game && let Ok(mut evidence)=frames.selection.lock(){evidence.end_session();}
             let job=frames.pending.lock().ok().and_then(|mut job|job.take());
             if let Some(job)=job && !job.cancel.load(Ordering::Acquire) {
-                let _=job.reply.send(resolve(host,layout,job.request));
+                let _=job.reply.send(resolve(host,layout,input_type,job.request));
             }
         })?;
-        let mut tools = ClientTools::new(shared, input.is_some(), layout.is_some());
+        let mut tools = ClientTools::new(
+            shared,
+            input.is_some(),
+            layout.is_some() && input_type.is_some(),
+        );
         tools.selection_sources = selection_sources;
         Ok(Self { tools })
     }
@@ -372,7 +391,7 @@ side = "both""#
         assert_eq!(value["enshwick"], "1.0.0-alpha.15");
         assert_eq!(
             value["compiled_framework_revision"],
-            "5f647f46d7f987e93d397e00596014b23f3c1112"
+            "acd5550c607a38c983433f9807cc95564244fe0b"
         );
         assert_eq!(value["compiled_framework_abi"], "11.30");
         assert_eq!(value["screen_host_template_observation"], true);

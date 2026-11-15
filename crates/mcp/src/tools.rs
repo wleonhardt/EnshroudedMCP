@@ -16,8 +16,6 @@ use serde_json::{Map, Value, json};
 const GAME_WAIT: Duration = Duration::from_secs(5);
 /// The longest side of a `props_in` box, in metres; enshwick calls the read slow.
 const PROPS_BOX: f64 = 64.0;
-/// The most props one answer lists.
-const PROPS_MAX: usize = 500;
 /// The largest `entities_near` radius, in metres.
 const NEAR_RADIUS: f64 = 32.0;
 /// The most entities one `entities_near` answer lists.
@@ -73,6 +71,7 @@ pub(crate) fn resolve_components(load: &enshwick::Load<'_>) -> Components {
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Game {
     pub(crate) world: World,
+    pub(crate) game_settings: Option<enshwick::game_settings::GameSettings>,
     pub(crate) voxels: Voxels,
     pub(crate) scheduler: Scheduler,
     /// `keen::ecs::UsedItem` and `keen::ecs::StaticUsedItem`; `None` on a
@@ -132,6 +131,11 @@ impl GameTools {
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
             crate::building_survey::tool(),
+            Tool {
+                name: "enemy_pacification",
+                description: "Read or explicitly set only server enemy pacification. Dry by default; real changes require expected current value, active session, fresh write flag and confirmation. Not invulnerability or combat safety. Configuration saves may persist changes; restore explicitly.",
+                schema: policy::pacification::schema(),
+            },
             crate::item_lookup::tool(),
             Tool {
                 name: "capabilities",
@@ -175,7 +179,7 @@ impl GameTools {
             },
             Tool {
                 name: "props_in",
-                description: "Placed props in a box (each side at most 64 m): entity (valid this session only), item id, position, orientation quaternion x,y,z,w. At most 500.",
+                description: "Placed props in a box (each side at most 64 m): session-only entity, item id, transform, observed template GUID in file-order hex and nullable label presence. At most 500; metadata reads only for returned rows. Label presence is not label text or proof of safe undo; other held state remains unknown.",
                 schema: box_schema,
             },
             Tool {
@@ -229,6 +233,7 @@ impl Tools for GameTools {
         }
         let Game {
             world,
+            game_settings,
             voxels,
             scheduler,
             used_item,
@@ -238,6 +243,22 @@ impl Tools for GameTools {
             network_health,
         } = self.game;
         match name {
+            "enemy_pacification" => {
+                let spec = policy::pacification::check(a)?;
+                crate::pacification::gate(&spec, self.mod_dir.as_deref())?;
+                let settings = game_settings.ok_or("game settings unavailable")?;
+                let construction = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = construction.active_session()?;
+                let dir = self.mod_dir.clone();
+                on_game_thread(scheduler, move || {
+                    let active = construction.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    crate::pacification::run(settings, spec, &active, dir.as_deref())
+                })?
+            }
             "player_reposition" => {
                 let spec = policy::reposition::check(a)?;
                 let reposition = self
@@ -500,12 +521,12 @@ impl Tools for GameTools {
                 on_game_thread(scheduler, move || match world.props_in(p1, p2) {
                     Ok(props) => {
                         let total = props.len();
-                        let listed: Vec<Value> = props
-                            .iter()
-                            .take(PROPS_MAX)
-                            .map(|p| json!({"entity": p.entity.0, "item": p.item.0, "position": p.transform.position, "orientation": p.transform.orientation}))
-                            .collect();
-                        Ok(json!({"total": total, "props": listed}))
+                        let listed = crate::prop_observation::rows(&props, |entity| {
+                            (world.template(entity), world.has_label(entity))
+                        });
+                        Ok(json!({"total": total, "props": listed,
+                            "truncated":total > policy::inspection::PROP_LIMIT,
+                            "recovery":"label presence only; label text and other held state are not observed; no safe-removal or undo claim"}))
                     }
                     Err(e) => Err(format!("prop read failed: {e}")),
                 })?

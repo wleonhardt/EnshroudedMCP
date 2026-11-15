@@ -5,6 +5,7 @@ use serde_json::{Map, Value};
 use crate::{args, bounds};
 
 pub const HEALTH_RADIUS: f64 = 16.0;
+pub const PROP_LIMIT: usize = 500;
 pub const HEALTH_LIMIT: usize = 20;
 pub const SLOT_LIMIT: usize = 128;
 pub const SLOT_OFFSET_MAX: usize = 65_536;

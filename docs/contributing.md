@@ -16,7 +16,7 @@ python -B -m unittest discover -s scripts -p "test_*.py"
 cargo build --release -p mcp -p mcp-client
 ```
 
-A running game is unnecessary for source tests. The current checkpoint has 146 Rust and 30 Python tests. For framework SDK changes, use its documented nextest harness and focused regression tests; do not alter the dependency cache. The active metadata patch was validated with:
+A running game is unnecessary for source tests. The current checkpoint has 173 Rust and 30 Python tests. For framework SDK changes, use its documented nextest harness and focused regression tests; do not alter the dependency cache. The active metadata patch was validated with:
 
 ```text
 cargo nextest run -p enshwick --features test,unstable --test main

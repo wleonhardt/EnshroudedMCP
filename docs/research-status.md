@@ -24,7 +24,7 @@ An isolated character died while idle during read-only observation. Normal clien
 
 The corrected server write gate was installed alone after a verified 40-file cold archive. Loader and companion hashes stayed unchanged. Directory and future-dated flag fixtures were refused using deliberately invalid player/item selectors; no inventory grant occurred. All 4096 preserved cells and complete pre-restart ledger bytes remained exact. An initial startup run passed 17 of 18 probes while construction was inactive; after observed readiness, all 18 passed, with broader acceptance still incomplete. These fixtures use the existing research installation; the neutral public mod namespace has not been independently live-installed.
 
-The framework maintainer [reported a suspected held-input defect and planned diagnostic support](https://github.com/enshwick/enshwick/issues/1107#issuecomment-6883127694). Native look/movement/menu work is being investigated upstream. These are maintainer plans, not released capabilities. A local alternative diagnostic patch remains held rather than being installed or submitted as duplicate work.
+The framework maintainer [reported a suspected held-input defect and planned diagnostic support](https://github.com/enshwick/enshwick/issues/1107#issuecomment-6883127694). Native look/movement/menu work is being investigated upstream. These are maintainer plans, not released capabilities. A focused cached-diagnostic draft has been shared upstream for review; it is not an input executor and its candidate loader remains uninstalled.
 
 ## Next acceptance milestones
 
@@ -38,3 +38,9 @@ The framework maintainer [reported a suspected held-input defect and planned dia
 The long-term benchmark is a usable multi-storey workshop with stairs, roof, doors, storage and workstations. It remains open. Survival debit/refund, progression feasibility, arbitrary stateful rollback and unattended operation remain outside current acceptance.
 
 Detailed sanitized checkpoints remain in [public evidence](../plans/research/live-validation.md). Private runtime identities, exact test locations, saves and screenshots are intentionally excluded.
+
+## Current source and isolated boundaries
+
+Server 0.20.0 and companion 0.5.1 pass 173 Rust tests and thirty Python tests, Clippy, formatting and release builds. The new prop template/label-presence output is not live-installed. The isolated research pair runs server 0.19.0/companion 0.5.1 on official acd5550c, ABI 11.30, and passes 27 fixed native probes. Native foundation preview agrees with an independent two-cell oracle; rendered contact is pending. Workbench item/category branch counts are observed, without category membership or feasibility. Explicit pacification false-to-true-to-false changes and boolean restoration passed independent read-back and journaling; full preset restoration and actual combat behavior remain unverified. No prop-placement lifecycle is claimed.
+
+The reviewed diagnostic draft is now shared upstream; it remains separate from the missing supported native menu/movement executor. Public namespace binaries have not been independently live-installed. Follow the [phase gates](../plans/phases.md); source tests and transport probes never replace rendered acceptance.

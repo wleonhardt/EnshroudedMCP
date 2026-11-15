@@ -11,3 +11,6 @@ Keep loopback admission, typed policy gates, game-thread world scheduling, ownin
 Input masks and control bindings are observations, not vanilla menu or movement executors. Current tab/passive recipe remain unknown. Existing source and live evidence are scoped to the tested isolated fixtures; a native host-template or event route is not promoted merely because it compiled.
 
 See `../../patches/README.md` for exact source and artifact reproduction. Shared deployments require separate authorization, matching builds, verified backups and coordinated disconnected players.
+
+
+Current source amendment: official acd5550c607a38c983433f9807cc95564244fe0b retains ABI 11.30 and contains the local held-input row fix. Use the documented enshwick-native-control source checkout and matching artifact instructions in patches/README.md. Current source versions are server 0.20.0 and companion 0.5.1; isolated research runs server 0.19.0 and companion 0.5.1. The unchanged SDK passed 592 nextest tests. The new prop observation increment remains offline-only.

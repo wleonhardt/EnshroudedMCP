@@ -13,6 +13,39 @@ pub struct Spec {
     pub max_exclusive: [u32; 3],
     pub cell_count: usize,
     pub player: Option<String>,
+    pub foundation: Option<Foundation>,
+}
+
+/// One finite column, with an exclusive upper boundary in half-metre cells.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Foundation {
+    pub upper: [u32; 3],
+    pub max_cells: usize,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ColumnCell {
+    Air,
+    Terrain(u8),
+    Obstruction,
+}
+
+/// Return only the Air span before the first occupied terrain cell.
+///
+/// # Errors
+/// Refuses missing terrain, empty spans, obstructions and excessive depth.
+pub fn foundation_span(column: &[ColumnCell], max_cells: usize) -> Result<usize, String> {
+    if !(1..=15).contains(&max_cells) {
+        return Err("foundation max_cells must be from 1 to 15".into());
+    }
+    for (depth, cell) in column.iter().take(max_cells + 1).enumerate() {
+        match cell {
+            ColumnCell::Terrain(fill) if *fill > 0 && depth > 0 => return Ok(depth),
+            ColumnCell::Air if depth < max_cells => (),
+            _ => return Err("foundation requires a bounded Air span ending before occupied terrain; obstruction, empty span or depth limit".into()),
+        }
+    }
+    Err("foundation terrain stop is absent from the captured column".into())
 }
 
 #[must_use]
@@ -26,7 +59,13 @@ pub fn schema() -> Value {
             "width":{"type":"number","minimum":0.5,"maximum":MAX_SIDE_M,"multipleOf":0.5},
             "height":{"type":"number","minimum":0.5,"maximum":MAX_SIDE_M,"multipleOf":0.5},
             "depth":{"type":"number","minimum":0.5,"maximum":MAX_SIDE_M,"multipleOf":0.5},
-            "player":{"type":"string","minLength":1,"maxLength":128,"description":"Optional connected-player name or account key; at most 128 UTF-8 bytes, no controls. Checks build rights only, not survival eligibility."}
+            "player":{"type":"string","minLength":1,"maxLength":128,"description":"Optional connected-player name or account key; at most 128 UTF-8 bytes, no controls. Checks build rights only, not survival eligibility."},
+            "foundation":{"type":"object","additionalProperties":false,"description":"Optional single Air-column pier preview, stopping before occupied terrain. Does not measure the rendered terrain surface or authorize edits.","properties":{
+                "x":{"type":"number","minimum":0,"maximum":crate::bounds::EDGE,"multipleOf":0.5},
+                "z":{"type":"number","minimum":0,"maximum":crate::bounds::EDGE,"multipleOf":0.5},
+                "upper_y":{"type":"number","minimum":0.5,"maximum":crate::bounds::HEIGHT,"multipleOf":0.5},
+                "max_cells":{"type":"integer","minimum":1,"maximum":15}
+            },"required":["x","z","upper_y","max_cells"]}
         },
         "required":["x","y","z","width","height","depth"]
     })
@@ -50,7 +89,8 @@ fn grid(args: &Map<String, Value>, key: &str, min: f64, max: f64) -> Result<u32,
 /// # Errors
 /// Refuses malformed selectors, unknown arguments and excessive/outside boxes.
 pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
-    crate::args::check(&schema(), args)?;
+    let schema = schema();
+    crate::args::check(&schema, args)?;
     let min = [
         grid(args, "x", 0.0, crate::bounds::EDGE)?,
         grid(args, "y", 0.0, crate::bounds::HEIGHT)?,
@@ -84,18 +124,84 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
                 })
         })
         .transpose()?;
+    let foundation = args
+        .get("foundation")
+        .map(|value| -> Result<Foundation, String> {
+            let values = value.as_object().ok_or("foundation must be an object")?;
+            crate::args::check(&schema["properties"]["foundation"], values)?;
+            let upper = [
+                grid(values, "x", 0.0, crate::bounds::EDGE)?,
+                grid(values, "upper_y", 0.5, crate::bounds::HEIGHT)?,
+                grid(values, "z", 0.0, crate::bounds::EDGE)?,
+            ];
+            if upper[0] < min[0]
+                || upper[0] >= max_exclusive[0]
+                || upper[2] < min[2]
+                || upper[2] >= max_exclusive[2]
+                || upper[1] <= min[1]
+                || upper[1] > max_exclusive[1]
+            {
+                return Err("foundation column and upper boundary must be inside survey".into());
+            }
+            let max_cells = values
+                .get("max_cells")
+                .and_then(Value::as_u64)
+                .filter(|n| (1..=15).contains(n))
+                .ok_or("foundation max_cells must be from 1 to 15")?
+                as usize;
+            Ok(Foundation { upper, max_cells })
+        })
+        .transpose()?;
     Ok(Spec {
         min,
         size,
         max_exclusive,
         cell_count,
         player,
+        foundation,
     })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn foundation_stops_before_occupied_terrain_without_using_fill_as_height() {
+        use ColumnCell::{Air, Obstruction, Terrain};
+        for fill in [1, 67, 255] {
+            assert_eq!(foundation_span(&[Air, Air, Terrain(fill)], 2).unwrap(), 2);
+        }
+        assert!(foundation_span(&[Terrain(67)], 2).is_err());
+        assert!(foundation_span(&[Air, Terrain(0)], 2).is_err());
+        assert!(foundation_span(&[Air, Obstruction, Terrain(67)], 2).is_err());
+        assert!(foundation_span(&[Air, Air], 2).is_err());
+        assert!(foundation_span(&[Air, Air, Air, Terrain(67)], 2).is_err());
+        assert!(foundation_span(&[Air, Terrain(67)], 0).is_err());
+    }
+
+    #[test]
+    fn foundation_request_must_fit_survey_and_refuse_unknown_nested_fields() {
+        let mut args = base();
+        args.insert(
+            "foundation".into(),
+            json!({"x":100,"z":100,"upper_y":11,"max_cells":2}),
+        );
+        let spec = check(&args).unwrap();
+        assert_eq!(spec.foundation.unwrap().upper, [200, 22, 200]);
+        for value in [
+            json!({"x":102,"z":100,"upper_y":11,"max_cells":2}),
+            json!({"x":100,"z":100,"upper_y":10,"max_cells":2}),
+            json!({"x":100,"z":100,"upper_y":11.5,"max_cells":2}),
+            json!({"x":100.25,"z":100,"upper_y":11,"max_cells":2}),
+            json!({"x":100,"z":100,"upper_y":11,"max_cells":0}),
+            json!({"x":100,"z":100,"upper_y":11,"max_cells":16}),
+            json!({"x":100,"z":100,"upper_y":11,"max_cells":2,"write":true}),
+        ] {
+            args.insert("foundation".into(), value);
+            assert!(check(&args).is_err(), "{args:?}");
+        }
+    }
 
     fn base() -> Map<String, Value> {
         json!({"x":100,"y":10,"z":100,"width":2,"height":1,"depth":0.5})

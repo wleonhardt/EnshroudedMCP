@@ -1,6 +1,8 @@
 //! Bounded vanilla archive observations; raw recipe fields are not eligibility.
 
 use enshwick::content::{Blob, Guid, recipes::RecipeLayout};
+use enshwick::resources::Registry;
+use enshwick::typed::{RecipeInputResource, Reflected};
 use policy::{client_recipe as gate, item_lookup::span};
 use serde_json::{Value, json};
 
@@ -54,11 +56,47 @@ fn values(stacks: &[(Guid, u32)]) -> Vec<Value> {
         .collect()
 }
 
+fn decode_input(
+    registry: &Registry<'_>,
+    input_type_hash: u32,
+    bytes: &[u8],
+) -> Result<Value, String> {
+    let name = registry
+        .hashed(input_type_hash)
+        .ok_or("recipe input reflected type unavailable")?
+        .qualified_name();
+    let value = registry.decode(name, bytes).map_err(|e| e.to_string())?;
+    let input = RecipeInputResource::from_value(&value).map_err(|e| e.to_string())?;
+    let category_id = input.input_item_category.category.value;
+    Ok(
+        json!({"state":"observed","source":"published_reflected_recipe_input_resource",
+        "item_guid":input.item_stack.item_ref.to_string(),"item_id":input.item_stack.item.value,"item_count":input.item_stack.count,
+        "category_guid":input.input_item_category.category_ref.to_string(),
+        "category_id":category_id,"category_count":input.input_item_category.count,
+        "branch_semantics_verified":false}),
+    )
+}
+
 pub(crate) fn parse(
     layout: RecipeLayout,
     bytes: &[u8],
     output: Guid,
     limit: usize,
+    input_type_hash: u32,
+) -> Result<Value, String> {
+    gate::request(bytes.len(), limit)?;
+    let registry = Registry::game().map_err(|e| e.to_string())?;
+    parse_with(layout, bytes, output, limit, |record| {
+        decode_input(registry, input_type_hash, record)
+    })
+}
+
+fn parse_with(
+    layout: RecipeLayout,
+    bytes: &[u8],
+    output: Guid,
+    limit: usize,
+    mut decode: impl FnMut(&[u8]) -> Result<Value, String>,
 ) -> Result<Value, String> {
     gate::request(bytes.len(), limit)?;
     for size in [layout.recipe, layout.input_size, layout.stack_size] {
@@ -110,10 +148,22 @@ pub(crate) fn parse(
         if outputs.iter().any(|(item, _)| *item == output) {
             total += 1;
             if results.len() < limit {
+                let (input_start, input_count) = array(
+                    &blob,
+                    at + layout.input,
+                    gate::MAX_INPUTS,
+                    layout.input_size,
+                )?;
+                let input_observations = (0..input_count)
+                    .map(|index| {
+                        let start = input_start + index * layout.input_size;
+                        decode(&bytes[start..start + layout.input_size])
+                    })
+                    .collect::<Result<Vec<_>, _>>()?;
                 results.push(
                     json!({"recipe_guid":guid(&blob,at+layout.guid)?.to_string(),"debug_name":name,
                     "workshop_guid":guid(&blob,at+layout.workshop_guid)?.to_string(),
-                    "inputs":values(&inputs),"outputs":values(&outputs),
+                    "inputs":values(&inputs),"input_observations":input_observations,"outputs":values(&outputs),
                     "ingredient_category_semantics":null,"catalyst_semantics":null,
                     "required_props":null,"unlock":null,"feasible":null}),
                 );
@@ -132,6 +182,17 @@ pub(crate) fn parse(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn parse(
+        layout: RecipeLayout,
+        bytes: &[u8],
+        output: Guid,
+        limit: usize,
+    ) -> Result<Value, String> {
+        super::parse_with(layout, bytes, output, limit, |_| {
+            Ok(json!({"state":"synthetic_unavailable"}))
+        })
+    }
 
     // Synthetic records, not offsets copied from a game build.
     fn layout() -> RecipeLayout {
@@ -243,5 +304,147 @@ mod tests {
         let mut bad = bytes;
         *bad.last_mut().unwrap() = 255;
         assert!(parse(layout(), &bad, selected, 1).is_err());
+    }
+    #[test]
+    fn category_only_input_is_preserved_without_claiming_free_crafting() {
+        let (bytes, selected) = registry(1);
+        let mut blob = Blob::new(&bytes);
+        let row = blob.append(&[0; 48], 8);
+        assert!(blob.set_array(8 + layout().input, row, 1));
+        assert!(blob.write(row + 24, &Guid([9; 16]).0));
+        assert!(blob.write(row + 44, &5u32.to_le_bytes()));
+        let mut layout = layout();
+        layout.input_size = 48;
+        let result = parse_with(layout, blob.bytes(), selected, 1, |bytes| {
+            assert_eq!(bytes.len(), 48);
+            assert_eq!(&bytes[24..40], &Guid([9; 16]).0);
+            Ok(json!({"state":"observed","category_guid":Guid([9;16]).to_string(),"category_id":7,"category_count":5}))
+        }).unwrap();
+        let recipe = &result["recipes"][0];
+        assert_eq!(recipe["inputs"][0]["count"], 0);
+        assert_eq!(recipe["input_observations"][0]["category_count"], 5);
+        assert!(recipe["ingredient_category_semantics"].is_null());
+        assert!(recipe["feasible"].is_null());
+    }
+
+    fn input_registry() -> Registry<'static> {
+        input_registry_named("RecipeInputResource")
+    }
+
+    fn input_registry_named(name: &'static str) -> Registry<'static> {
+        use enshwick::resources::{Field, Kind, Type};
+        Registry::new([
+            Type::new("u32", Kind::Uint32, 4, 4),
+            Type::new("HashKey32", Kind::Struct, 4, 4)
+                .with_fields(vec![Field::new("value", 0, "u32")]),
+            Type::new("Guid", Kind::Guid, 16, 4),
+            Type::new("RecipeItemStackResource", Kind::Struct, 24, 4).with_fields(vec![
+                Field::new("itemRef", 0, "Guid"),
+                Field::new("item", 16, "HashKey32"),
+                Field::new("count", 20, "u32"),
+            ]),
+            Type::new("RecipeInputCategoryResource", Kind::Struct, 24, 4).with_fields(vec![
+                Field::new("categoryRef", 0, "Guid"),
+                Field::new("category", 16, "HashKey32"),
+                Field::new("count", 20, "u32"),
+            ]),
+            Type::new(name, Kind::Struct, 48, 4).with_fields(vec![
+                Field::new("itemStack", 0, "RecipeItemStackResource"),
+                Field::new("inputItemCategory", 24, "RecipeInputCategoryResource"),
+            ]),
+        ])
+    }
+
+    #[test]
+    fn published_typed_decoder_preserves_item_category_and_mixed_branches() {
+        let registry = input_registry();
+        for (item, category) in [(3u32, 0u32), (0, 5), (3, 5)] {
+            let mut bytes = [0; 48];
+            bytes[..16].copy_from_slice(&Guid([if item == 0 { 0 } else { 2 }; 16]).0);
+            bytes[20..24].copy_from_slice(&item.to_le_bytes());
+            bytes[24..40].copy_from_slice(&Guid([if category == 0 { 0 } else { 9 }; 16]).0);
+            bytes[40..44].copy_from_slice(&7u32.to_le_bytes());
+            bytes[44..48].copy_from_slice(&category.to_le_bytes());
+            let value = decode_input(
+                &registry,
+                registry
+                    .named("RecipeInputResource")
+                    .unwrap()
+                    .qualified_hash(),
+                &bytes,
+            )
+            .unwrap();
+            assert_eq!(
+                value["item_guid"],
+                Guid([if item == 0 { 0 } else { 2 }; 16]).to_string()
+            );
+            assert_eq!(value["item_count"], item);
+            assert_eq!(
+                value["category_guid"],
+                Guid([if category == 0 { 0 } else { 9 }; 16]).to_string()
+            );
+            assert_eq!(value["category_id"], 7);
+            assert_eq!(value["category_count"], category);
+            assert_eq!(value["branch_semantics_verified"], false);
+        }
+        assert!(
+            decode_input(
+                &registry,
+                registry
+                    .named("RecipeInputResource")
+                    .unwrap()
+                    .qualified_hash(),
+                &[0; 47]
+            )
+            .is_err()
+        );
+        assert!(decode_input(&Registry::new([]), 7, &[0; 48]).is_err());
+    }
+
+    #[test]
+    fn decoding_only_returned_matches_and_refusing_oversized_inputs_before_decoder() {
+        let (bytes, selected) = registry(10);
+        let mut calls = 0;
+        parse_with(layout(), &bytes, selected, 2, |_| {
+            calls += 1;
+            Ok(Value::Null)
+        })
+        .unwrap();
+        assert_eq!(calls, 2);
+        parse_with(layout(), &bytes, Guid([8; 16]), 2, |_| {
+            panic!("unmatched recipe decoded")
+        })
+        .unwrap();
+        let mut bad = Blob::new(&bytes);
+        let (start, _) = bad.array(8 + layout().input).unwrap();
+        assert!(bad.set_array(8 + layout().input, start, (gate::MAX_INPUTS + 1) as u32));
+        assert!(
+            parse_with(layout(), bad.bytes(), selected, 1, |_| panic!(
+                "oversized input decoded"
+            ))
+            .is_err()
+        );
+        assert!(
+            parse_with(layout(), &bytes, selected, 1, |_| Err(
+                "typed input unavailable".into()
+            ))
+            .is_err()
+        );
+    }
+    #[test]
+    fn qualified_input_type_does_not_require_a_bare_type_name() {
+        let registry = input_registry_named("fixture::RecipeInputResource");
+        assert!(registry.named("RecipeInputResource").is_none());
+        assert!(
+            decode_input(
+                &registry,
+                registry
+                    .named("fixture::RecipeInputResource")
+                    .unwrap()
+                    .qualified_hash(),
+                &[0; 48]
+            )
+            .is_ok()
+        );
     }
 }
