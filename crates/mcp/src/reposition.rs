@@ -259,6 +259,7 @@ mod tests {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             let game = Game {
                 world: load.world()?,
+                clock: load.clock(),
                 game_settings: None,
                 voxels: load.voxels(),
                 scheduler: load.scheduler()?,

@@ -14,6 +14,7 @@ mod recipe_plan;
 mod reposition;
 mod server;
 mod tools;
+mod world_clock;
 
 use enshwick::{Load, Mod, Off};
 
@@ -27,6 +28,7 @@ impl Mod for Mcp {
     fn init(load: &mut Load<'_>) -> Result<Self, Off> {
         let game = tools::Game {
             world: load.world()?,
+            clock: load.clock(),
             voxels: load.voxels(),
             scheduler: load.scheduler()?,
             used_item: enshwick::ecs::ComponentType::resolve(load, "keen::ecs::UsedItem").ok(),

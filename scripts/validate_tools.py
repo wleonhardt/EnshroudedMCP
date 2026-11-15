@@ -1,8 +1,9 @@
-"""Read-only 0.20.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.21.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
 import time
@@ -10,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -37,6 +38,18 @@ def observed_template(value):
     return (placement.get("state") == "observed" and isinstance(template, str)
             and len(template) == 32 and set(template) <= set("0123456789abcdef")
             and template != "0" * 32)
+
+
+def clock_observation(value):
+    clock = value.get("clock")
+    if not isinstance(clock, dict) or clock.get("source") != "published_server_clock" or clock.get("rendered_lighting_verified") is not False:
+        return False
+    if clock.get("state") == "unavailable":
+        return "observation" in clock and clock["observation"] is None
+    now = clock.get("observation")
+    return (clock.get("state") == "observed" and isinstance(now, dict) and type(now.get("is_day")) is bool and
+            all(type(now.get(key)) in (int, float) and math.isfinite(now[key]) for key in
+                ("hours", "day_starts_hours", "night_starts_hours", "day_duration_seconds", "night_duration_seconds", "speed")))
 
 
 class Validation:
@@ -82,15 +95,16 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.20.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.21.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.20.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.21.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.20.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.21.0" and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "new_inspection_tools_live_verified")))
+        self.probe("world_clock_shape", "status", {}, clock_observation)
         self.probe("known_item_lookup", "item_lookup", {"ids": [213939880]}, lambda v:
                    v.get("source") == "vanilla_archive_item_registry" and v.get("effective_definition_verified") is False and
                    len(v["results"]) == 1 and v["results"][0]["item_id"] == 213939880 and

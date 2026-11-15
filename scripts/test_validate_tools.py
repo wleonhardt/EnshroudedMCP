@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation
 
 
 class Fixture:
@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.20.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.21.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in SERVER_TOOLS | {"future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -42,8 +42,13 @@ class Fixture:
                 value = "argument 'entity' must be at least 1"
             else:
                 value = "no connected player"
+        elif name == "status":
+            value = {"clock": {"state": "observed", "source": "published_server_clock", "rendered_lighting_verified": False,
+                               "observation": {"hours": 0.0, "is_day": False, "day_starts_hours": 6.0,
+                                               "night_starts_hours": 22.0, "day_duration_seconds": 1800.0,
+                                               "night_duration_seconds": 720.0, "speed": 1.0}}}
         elif name == "capabilities":
-            value = {"mod_version": "0.20.0", "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"mod_version": "0.21.0", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -75,6 +80,12 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_unavailable_clock_is_explicit_and_malformed_observations_fail(self):
+        clock = {"state": "unavailable", "source": "published_server_clock", "rendered_lighting_verified": False, "observation": None}
+        self.assertTrue(clock_observation({"clock": clock}))
+        self.assertFalse(clock_observation({}))
+        self.assertFalse(clock_observation({"clock": {**clock, "state": "observed"}}))
+        self.assertFalse(clock_observation({"clock": {**clock, "rendered_lighting_verified": True}}))
     def test_storage_mapping_must_be_observed_nonzero_file_order_hex(self):
         for state, template in [("unavailable", None), ("known_no_template", None),
                                 ("observed", None), ("observed", "0" * 32),
@@ -124,7 +135,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 18)
+        self.assertEqual(len(report["checks"]), 19)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -185,7 +196,7 @@ class ValidationTests(unittest.TestCase):
 
         def reply(method, params=None):
             if method == "initialize":
-                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.20.0"}, "protocolVersion": "2025-06-18"}
+                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.21.0"}, "protocolVersion": "2025-06-18"}
             if method == "tools/list":
                 return {"tools": [{"name": name} for name in advertised]}
             return original(method, params)

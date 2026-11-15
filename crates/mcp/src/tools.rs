@@ -71,6 +71,7 @@ pub(crate) fn resolve_components(load: &enshwick::Load<'_>) -> Components {
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Game {
     pub(crate) world: World,
+    pub(crate) clock: enshwick::daytime::Clock,
     pub(crate) game_settings: Option<enshwick::game_settings::GameSettings>,
     pub(crate) voxels: Voxels,
     pub(crate) scheduler: Scheduler,
@@ -164,7 +165,7 @@ impl GameTools {
             },
             Tool {
                 name: "status",
-                description: "Whether a world runs here, its key, its save, and how many players are in it.",
+                description: "Whether a world runs here, its key, save, player count and published server clock (hours, day/night, configured lengths and current speed). Unavailable differs from midnight; clock observations do not verify rendered lighting.",
                 schema: json!({"type": "object"}),
             },
             Tool {
@@ -233,6 +234,7 @@ impl Tools for GameTools {
         }
         let Game {
             world,
+            clock,
             game_settings,
             voxels,
             scheduler,
@@ -476,12 +478,12 @@ impl Tools for GameTools {
                 let hosting = enshwick::host().is_some_and(|h| h.hosting());
                 if !hosting {
                     return Ok(
-                        json!({"hosting": false, "note": "no world runs in this process; load or host a world"}),
+                        json!({"hosting": false, "clock":crate::world_clock::encode(None), "note": "no world runs in this process; load or host a world"}),
                     );
                 }
                 on_game_thread(scheduler, move || {
                     let save = world.save_info().map(|s| json!({"size": s.size, "saved_at_unix": s.saved_at.as_secs(), "backups": s.backups}));
-                    json!({"hosting": true, "world_key": world.key(), "save": save, "players": world.players().len()})
+                    json!({"hosting": true, "world_key": world.key(), "save": save, "players": world.players().len(), "clock":crate::world_clock::encode(clock.now())})
                 })
             }
             "players" => on_game_thread(scheduler, move || {

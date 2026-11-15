@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.0 (isolated native clock read verified)
+
+- Extend `status` with a published server-clock observation: hours, day/night, day/night boundary hours, configured durations in seconds and current speed. Unavailable clocks remain explicit and distinct from midnight. Reads run on the existing scheduled server game thread; rendered lighting is unverified.
+- All 180 Rust/31 Python tests, Clippy, formatting and both release builds pass. Isolated server-only deployment passes nineteen server/nine companion probes, a live daytime clock read and exact 6,144-cell/ledger preservation after a verified 44-file cold archive. Companion remains 0.6.1; official loader/framework unchanged. The carried-forward prop query returned empty as before, so nonempty template/label row output remains unverified. Neutral namespace binaries are not live-installed.
+
+
 ## Companion 0.6.1 (isolated category membership verified)
 
 - Extend `client_recipes` ingredient observations with ordered vanilla recipe-category members, item IDs, raw scaling values/bits, finite status, total count and explicit truncation. Resolve canonical reflected registry/field/array types, including typedef IDs. Admit at most 4,096 category rows and 1,024 members per row; decode only the first 32 members for each returned ingredient. Missing/zero categories remain explicit. Scaling interpretation, UI selection, effective costs and eligibility remain unverified.
