@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.27.0 (forward native clock requests; live acceptance pending)
+## 0.27.0 (forward native clock requests; bounded isolated fixture observed)
 
+- The isolated 0.27.0/0.11.0 pair now passes a bounded clock fixture after a verified cold archive and server-only replacement. One native request was accepted; immediate read-back retained the old hour and correctly stayed `readback_unverified`. A later independent observation reached the requested hour, without promoting the retained receipt. Dry preview, missing-gate and invalid-target refusals, same-request replay, altered-request refusal and operation status pass. A healthy connected client separately rendered daylight consistent with its native daytime observation; connected preview was refused. Clean logout, restored settings, complete voxel captures, archived ledgers and installed binary hashes pass. This does not verify a before/after lighting transition, elapsed world progression, unrelated gameplay effects or public-namespace installation.
 - Add `clock_advance` with a bounded integer minute-of-day target, dry preview, active-session and recent-clock checks, an empty SDK player-character roster and the existing explicit write gate. Targets must be one to twelve observed game hours forward at paused or normal speed. The roster is not a connection lock; operators must coordinate access.
 - Schedule the published native setter on the game thread. Cancel queued timeout work and recheck admission after durable intent. Exclusive bounded operation identities and synced intent/outcome journals prevent replay, including uncertain native results and journal failures.
 - Report near-target read-back separately from native acceptance. Missing, mismatched or other-session observations remain unverified. Forward progression has no undo; returning to an earlier hour advances another cycle. Clock speed remains read-only.

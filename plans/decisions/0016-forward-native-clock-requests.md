@@ -1,6 +1,6 @@
 # 0016: Deliberate forward native clock requests
 
-Date: 2026-11-15. Status: implemented; source checks in progress; no clock tool installed or exercised live.
+Date: 2026-11-15. Status: implemented and source verified; bounded isolated request acceptance and later observations recorded; immediate read-back remained unverified.
 
 The qualified ABI 12 SDK publishes Clock::set_hours. It moves the world forward to the next occurrence of an hour, as if the intervening hours passed. It is not a reversible lighting override. ClockSpeed factors compose across mods and have no published per-owner getter; do not add speed control or claim restoration from the observed aggregate speed.
 

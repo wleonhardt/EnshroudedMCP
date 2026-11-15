@@ -1,5 +1,10 @@
 # Evidence and remaining work
 
+## Forward clock fixture
+
+The isolated 0.27.0/0.11.0 pair now passes a bounded clock fixture after a verified cold archive and server-only replacement. One native request was accepted; immediate read-back retained the old hour and correctly stayed `readback_unverified`. A later independent observation reached the requested hour, without promoting the retained receipt. Dry preview, missing-gate and invalid-target refusals, same-request replay, altered-request refusal and operation status pass. A healthy connected client separately rendered daylight consistent with its native daytime observation; connected preview was refused. Clean logout, restored settings, complete voxel captures, archived ledgers and installed binary hashes pass. This does not verify a before/after lighting transition, elapsed world progression, unrelated gameplay effects or public-namespace installation.
+
+
 ## ABI 12 source candidate
 
 Server 0.26.0 / companion 0.11.0 qualify exact official alpha.16 revision 5436ffdd, ABI 12.0, in separate source checkouts. Product checks pass 215 Rust tests, 35 Python tests, Clippy, formatting and release builds. The patched SDK full check passes 4,050 main tests, both compile fixtures, full/stable doctests and Clippy, documentation/link checks and cargo-deny; nine main tests remain skipped by upstream. Generated Luau definitions match the metadata field. A reproduced shared-directory compile-fixture race is addressed by scoped nextest serialization, preserving separate processes and every assertion.

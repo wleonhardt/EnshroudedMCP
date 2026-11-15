@@ -199,7 +199,7 @@ Companion 0.10.0 `client_recipes` rows include `recipe_id`, the raw u32 game ID 
 
 ## Deliberate forward clock control
 
-Server 0.27.0 adds `clock_advance`; installed research runtime remains 0.26.0 until a separately archived deployment. Live clock acceptance is pending.
+Server 0.27.0 adds `clock_advance`. Immediate read-back may retain the old hour even after native acceptance. The retained receipt is not promoted by a later independent observation; read operation status and `status.clock` separately, without redispatching. A bounded isolated fixture observed this behavior.
 
 Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens) and `target_minute` (0..1439). Preview defaults to `dry: true`. A real request also requires `session`, recently observed `expected_hours`, `dry: false`, a fresh `ALLOW_WRITES` flag and `confirm: "server-write"`. Only an empty published SDK player-character roster, paused/normal speed and a target one to twelve game hours forward are admitted. The roster is not a connection lock; coordinate client access separately.
 

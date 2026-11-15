@@ -70,7 +70,9 @@ Original research-namespace companion 0.6.1 is installed isolated-only; server r
 
 ## Deliberate forward clock control
 
-Server 0.27.0 adds `clock_advance`; installed research runtime remains 0.26.0 until a separately archived deployment. Live clock acceptance is pending.
+The isolated 0.27.0/0.11.0 pair now passes a bounded clock fixture after a verified cold archive and server-only replacement. One native request was accepted; immediate read-back retained the old hour and correctly stayed `readback_unverified`. A later independent observation reached the requested hour, without promoting the retained receipt. Dry preview, missing-gate and invalid-target refusals, same-request replay, altered-request refusal and operation status pass. A healthy connected client separately rendered daylight consistent with its native daytime observation; connected preview was refused. Clean logout, restored settings, complete voxel captures, archived ledgers and installed binary hashes pass. This does not verify a before/after lighting transition, elapsed world progression, unrelated gameplay effects or public-namespace installation.
+
+Server 0.27.0 adds `clock_advance`. The isolated research pair now runs 0.27.0/0.11.0; bounded acceptance and later observation have separate evidence.
 
 Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens) and `target_minute` (0..1439). Preview defaults to `dry: true`. A real request also requires `session`, recently observed `expected_hours`, `dry: false`, a fresh `ALLOW_WRITES` flag and `confirm: "server-write"`. Only an empty published SDK player-character roster, paused/normal speed and a target one to twelve game hours forward are admitted. The roster is not a connection lock; coordinate client access separately.
 

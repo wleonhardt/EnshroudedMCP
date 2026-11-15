@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **bounded isolated clock fixture observed** Runtime 0.27.0/0.11.0 accepts one forward request, preserves an immediate `readback_unverified` receipt, and later independently reports the requested hour. Replay/refusal/status checks pass. Healthy connected daylight observation, connected roster refusal, clean logout, restored settings and complete preservation pass. Do not infer elapsed progression or a lighting transition. Next qualify delayed read-back behavior in native adapter tests and pursue supported native client execution dependencies.
+
+
 - **implemented; live acceptance pending** Server 0.27.0 adds deliberate forward `clock_advance` requests with bounded policy, durable once-only identities, scheduled execution, timeout cancellation and session-scoped read-back. Runtime remains 0.26.0/0.11.0. Before live writes, extend cold archives and preservation checks to the new clock namespace, deploy the server pair cold, and perform a bounded native/read-back/rendered fixture. No undo or clock-speed control is claimed. Native client execution remains a priority dependency.
 
 
