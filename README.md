@@ -155,3 +155,7 @@ The request runs on the game thread and queued pre-start timeouts cancel executi
 Server 0.28.1 optionally subscribes to published shutdown-start/save callbacks. A request reports `lifecycle_event_sources` for shutdown, save and world-generation hooks, and separate `lifecycle_observations`. At most one shutdown-start and one later save event are journaled for an attempted operation; early, duplicate and other-generation events are ignored. Journal failures stay explicit. The observer uses no World API and never retries shutdown.
 
 Four-record headroom is checked before intent. These passive observations do not promote the original request receipt: `process_exit_verified`, `final_save_verified` and causal completion remain unverified. Live event order and save/restart acceptance are pending. Installed research runtime remains 0.27.0/0.12.0; deployment and client acceptance are deferred.
+
+## Independent shutdown validation
+
+`scripts/process_exit.py` supplies read-only exact-process exit evidence outside MCP. It verifies a pinned PID/creation/executable identity before readiness, reports exit codes or a bounded timeout, and never promotes final-save or causal completion. Tests use disposable children only. See [the shutdown validation guide](docs/shutdown-validation.md) for sequencing and deferred live gates.

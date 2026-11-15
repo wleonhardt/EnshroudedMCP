@@ -1,5 +1,11 @@
 # Changelog
 
+## Development tooling (independent shutdown-exit evidence)
+
+- Correct the FakeHost marker acceptance test to reconcile a permitted started-timeout through retained status, native markers and exact journal data. Add deterministic reply-loss coverage without retrying or changing production deadlines.
+- Add a read-only Windows process observer with PID, creation-FILETIME and executable matching on a pinned handle. Report readiness, exit/code or bounded timeout without starting/stopping a target or claiming save/causal completion.
+- Test normal/nonzero/259 exits, timeout, identity mismatch and invalid arguments using disposable child processes only. Keep game-client access and live shutdown/restart acceptance deferred.
+
 ## 0.28.1 (bounded native shutdown/save observations; live acceptance pending)
 
 - Add optional published lifecycle callbacks with independent world-load generation binding. Audit at most one shutdown-start and one later save event for an attempted operation; ignore early, duplicate and stale-generation events.

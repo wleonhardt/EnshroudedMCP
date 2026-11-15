@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **source verified; independent shutdown-exit observer** A read-only Windows observer binds PID/creation/executable and a held process handle before readiness, then reports exit code or timeout without process mutation. Four tests use disposable children only, including exit code 259 and identity/bounds refusal. It does not verify game shutdown, final save or causal completion. Private and sanitized-public 246 Rust/39 Python tests, Clippy, formatting and both release builds pass. Exact 111-file publication privacy audits pass; keep all real-client and deployment gates deferred.
+
+
 - **source verified; server-only shutdown lifecycle evidence** Source 0.28.1 adds bounded published shutdown/save event auditing with independent world generation, explicit availability/failure and four-record journal preflight. No installed binaries or client state changed. Older uninstalled 0.28.0 candidate remains historical and must not be installed after source closure changes. Private and sanitized-public 245 Rust/35 Python tests, Clippy, formatting and both release builds pass; exact 108-file privacy audits pass. Live acceptance remains deferred; retain matched deployment, actual event order/process exit/final-save/restart and connected acceptance as deferred gates.
 
 
