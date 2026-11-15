@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.10.0 (native archive recipe IDs; live deployment pending)
+
+- Add `recipe_id` from the published RecipeLayout.id field for bounded selected archive recipe rows. Preserve raw zero and full u32 values, existing row limits and archive/effective-definition uncertainty. The value is read from the record rather than derived from its name or GUID.
+- A record-ID expectation first failed, then passed. Synthetic mismatched-GUID IDs, zero/max values, capped output and invalid field spans pass; fixed probes reject malformed IDs while retaining no raw recipe data. Runtime remains server 0.25.0/companion 0.9.0; matched deployment and direct recipe-to-knowledge comparison remain pending. No crafting executor or eligibility claim is added.
+
+
 ## 0.25.0 (native scoped knowledge reads; isolated player fixture verified)
 
 - Add read-only `knowledge_read` for one to eight unique nonzero native IDs. Omit player for world queries, or select exactly one connected player by SDK-compatible name/exact account key. All native reads run on the scheduled server game thread; responses preserve requested order, raw type/scope/value/expected flags, and explicit unknown/null observations.

@@ -172,7 +172,7 @@ fn parse_with_requirements(
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 results.push(
-                    json!({"recipe_guid":guid(&blob,at+layout.guid)?.to_string(),"debug_name":name,
+                    json!({"recipe_guid":guid(&blob,at+layout.guid)?.to_string(),"recipe_id":blob.read_u32(at+layout.id).ok_or("malformed recipe id")?,"debug_name":name,
                     "workshop_guid":guid(&blob,at+layout.workshop_guid)?.to_string(),
                     "inputs":values(&inputs),"input_observations":input_observations,"outputs":values(&outputs),
                     "ingredient_category_semantics":null,"catalyst_semantics":null,
@@ -262,6 +262,34 @@ mod tests {
             assert!(blob.set_array(at + 80, name, 14));
         }
         (blob.into_bytes(), selected)
+    }
+
+    #[test]
+    fn native_recipe_ids_preserve_record_values_not_guid_hashes() {
+        let (bytes, selected) = registry(3);
+        let mut blob = Blob::new(&bytes);
+        let (start, _) = blob.array(layout().recipes).unwrap();
+        for (index, id) in [0u32, 73, u32::MAX].into_iter().enumerate() {
+            assert!(blob.write(
+                start + index * layout().recipe + layout().id,
+                &id.to_le_bytes()
+            ));
+        }
+        let out = parse(layout(), blob.bytes(), selected, 3).unwrap();
+        let ids: Vec<_> = out["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|r| r["recipe_id"].clone())
+            .collect();
+        assert_eq!(ids, vec![json!(0), json!(73), json!(u32::MAX)]);
+        assert_ne!(73, Guid([1; 16]).fnv1a());
+        let limited = parse(layout(), blob.bytes(), selected, 1).unwrap();
+        assert_eq!(limited["recipes"].as_array().unwrap().len(), 1);
+        assert_eq!(limited["recipes"][0]["recipe_id"], 0);
+        let mut invalid = layout();
+        invalid.id = invalid.recipe - 3;
+        assert!(parse(invalid, blob.bytes(), selected, 3).is_err());
     }
 
     #[test]

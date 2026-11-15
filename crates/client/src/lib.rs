@@ -150,7 +150,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_recipes",
-                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw stacks, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
+                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw recipe IDs from archive records, stacks, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
                     schema: policy::client::item_schema(true),
                 },
             ],

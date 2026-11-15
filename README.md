@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.25.0** and **optional companion 0.9.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.25.0** and **optional companion 0.10.0**.
 
 [Setup](docs/setup.md) · [27 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -123,3 +123,5 @@ Companion source 0.9.0 reports bounded localized interaction verb text alongside
 Server source 0.24.1 adds the exact prompt target's nullable native UsedItem ID and explicit template GUID encoding, avoiding a separate spatial search to qualify item identity. Isolated runtime 0.24.1/0.9.0 agrees with separately requested entity/archive/item-template observations in one healthy altar fixture, with complete preservation and clean logout. Live zero/absent values and other targets remain unverified.
 
 Server source 0.25.0 adds bounded `knowledge_read` for native player/world observations. Missing remains unknown, while observed zero and raw scope/type/flags stay explicit. Knowledge is not crafting eligibility. Isolated runtime 0.25.0/0.9.0 distinguishes raw player Flags 1/0 from unknown/null and wrong-scope world queries, with full-health checks, complete preservation and clean logout. UI eligibility/flag semantics and observed world bool/counter values remain unverified.
+
+Companion source 0.10.0 reports raw native `recipe_id` from selected archive records, allowing explicit nonzero IDs to be examined with server `knowledge_read`. Runtime remains 0.25.0/0.9.0 pending matched deployment and comparison; flags do not establish crafting eligibility.
