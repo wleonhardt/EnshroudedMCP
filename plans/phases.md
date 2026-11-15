@@ -27,3 +27,7 @@ A two-cell pier passed exact 512-cell placement/read-back/undo and post-undo col
 
 
 A subsequent material-based candidate produced apparent rock overlap/occlusion during a reversible registration trial. Native Air and an empty placed-prop query did not establish render-space clearance. Prioritize supported scene-target/coordinate observations and a genuinely exposed site before another contact claim. The published SDK also supports mod-owned map markers through `Ui::set_markers`; a bounded client-map overlay is a queued native UI control, not a scene raycast or camera executor.
+
+## Native map control checkpoint
+
+Companion 0.8.0 implements bounded transient map-marker submission and explicit clearing. The isolated joined-client fixture accepted show/clear/show and automatic observed-leave cleanup, preserving empty submitted state after logout. Rendered visibility remains pending because fallback map shortcuts did not open the map. Prioritize supported native join/private entry, map/menu opening and logout executors; do not equate cached observations with control. See [tool reference](../docs/tool-reference.md).

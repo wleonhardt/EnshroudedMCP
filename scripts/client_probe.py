@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.7.0; no actions."""
+"""Fixed read-only probes for native client companion 0.8.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,11 +25,13 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.7.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.8.0" and
             value.get("enshwick") == "1.0.0-alpha.15" and
             value.get("compiled_framework_revision") == "acd5550c607a38c983433f9807cc95564244fe0b" and
             value.get("compiled_framework_abi") == "11.30" and value.get("live_verified") is False and
             value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == [] and
+            type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and
+            value.get("semantic_ui_actions") == (["client_map_markers"] if value["native_map_marker_ui"] else []) and
             all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "live_verified")))
     sources = value.get("client_event_sources")
     require(isinstance(sources, dict) and all(type(sources.get(key)) is bool for key in ("open_hud_screen", "station_recipe_selection")))
@@ -179,11 +181,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.7.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.8.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
-            require(READS.issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.7.0", "outcome": "pass"})
+            require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
+            self.checks.append({"name": "discovery_0.8.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

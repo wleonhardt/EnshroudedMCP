@@ -1,12 +1,13 @@
 //! Optional native client research endpoint. No OS control or gameplay writes.
 mod categories;
+mod markers;
 mod recipe_types;
 mod recipes;
 mod requirements;
 mod selection;
 
+use policy::write_gate::PendingWrite;
 use std::collections::VecDeque;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, mpsc};
 use std::time::{Duration, Instant};
 
@@ -72,11 +73,12 @@ impl Observation {
 enum Request {
     Item(String),
     Recipe(String, usize),
+    Markers(policy::client_markers::Spec),
 }
 
 struct Pending {
     request: Request,
-    cancel: Arc<AtomicBool>,
+    cancel: Arc<PendingWrite>,
     reply: mpsc::SyncSender<Result<Value, String>>,
 }
 
@@ -85,6 +87,7 @@ struct Shared {
     observation: Mutex<Observation>,
     pending: Mutex<Option<Pending>>,
     selection: Mutex<policy::client_selection::Evidence>,
+    markers: Mutex<markers::State>,
 }
 
 struct ClientTools {
@@ -93,6 +96,8 @@ struct ClientTools {
     input: bool,
     recipes: bool,
     selection_sources: [bool; 2],
+    mod_dir: Option<std::path::PathBuf>,
+    marker_ui: bool,
 }
 
 impl ClientTools {
@@ -102,7 +107,14 @@ impl ClientTools {
             input,
             recipes,
             selection_sources: [false; 2],
+            mod_dir: None,
+            marker_ui: false,
             list: vec![
+                Tool {
+                    name: "client_map_markers",
+                    description: "Transient mod-owned map annotation. No args reads submitted cache, not renderer state. Supply markers (at most one; empty clears), dry defaults true. Real requests require exact preview, companion-folder ALLOW_WRITES and confirm: server-write. Frame-queued only, fresh client epoch/revision; pending timeout cancels before start. SDK acceptance is not rendered proof. Leave cleanup removes only this mod's annotation without requiring a new flag; audit failures do not block cleanup. No saved marker edits, fast travel, scene raycast, world mutation or OS input.",
+                    schema: policy::client_markers::schema(),
+                },
                 Tool {
                     name: "client_capabilities",
                     description: "Optional native research companion. No screenshots, OS input, camera, gameplay mutations, selected recipe or local-player world inspection API.",
@@ -139,7 +151,7 @@ impl ClientTools {
 
     fn request(&self, request: Request) -> Result<Value, String> {
         let (tx, rx) = mpsc::sync_channel(1);
-        let cancel = Arc::new(AtomicBool::new(false));
+        let cancel = Arc::new(PendingWrite::default());
         {
             let mut pending = self
                 .shared
@@ -158,7 +170,7 @@ impl ClientTools {
         match rx.recv_timeout(WAIT) {
             Ok(value) => value,
             Err(_) => {
-                cancel.store(true, Ordering::Release);
+                let cancelled = cancel.cancel();
                 let mut pending = self
                     .shared
                     .pending
@@ -170,7 +182,11 @@ impl ClientTools {
                 {
                     *pending = None;
                 }
-                Err("client UI frame did not answer within 2 seconds; queued read cancelled; an already running read may finish".into())
+                Err(if cancelled {
+                    "client UI frame did not answer within 2 seconds; queued request cancelled before execution".into()
+                } else {
+                    "client UI request started but did not answer within 2 seconds; outcome unknown; inspect status/journal and do not blindly retry".into()
+                })
             }
         }
     }
@@ -188,8 +204,24 @@ impl Tools for ClientTools {
             .ok_or("unknown client tool")?;
         policy::args::check(&tool.schema, args)?;
         match name {
+            "client_map_markers" => {
+                let spec = policy::client_markers::check(args)?;
+                if spec.markers.is_none() {
+                    return Ok(self
+                        .shared
+                        .markers
+                        .lock()
+                        .map_err(|_| "marker state poisoned")?
+                        .report());
+                }
+                if !self.marker_ui {
+                    return Err("native client marker UI unavailable".into());
+                }
+                markers::admission(&spec, self.mod_dir.as_deref())?;
+                self.request(Request::Markers(spec))
+            }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.15","compiled_framework_revision":"acd5550c607a38c983433f9807cc95564244fe0b","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"pinned nightly SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.15","compiled_framework_revision":"acd5550c607a38c983433f9807cc95564244fe0b","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"pinned nightly SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":if self.marker_ui {vec!["client_map_markers"]}else{vec![]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -236,6 +268,9 @@ fn resolve(
 ) -> Result<Value, String> {
     let name = match &request {
         Request::Item(name) | Request::Recipe(name, _) => name,
+        Request::Markers(_) => {
+            return Err("marker request requires the client frame dispatcher".into());
+        }
     };
     let guid = vanilla::item(name).map_err(|error| error.to_string())?;
     match request {
@@ -263,6 +298,7 @@ fn resolve(
                 key.type_hash,
             )
         }
+        Request::Markers(_) => Err("marker request requires the client frame dispatcher".into()),
     }
 }
 
@@ -279,6 +315,10 @@ impl Mod for ResearchClient {
             });
         }
         let input = load.input().ok();
+        let marker_ui = load.ui().ok();
+        let marker_available = marker_ui.is_some();
+        let mod_dir = load.mod_dir().ok();
+        let frame_dir = mod_dir.clone();
         let selection_sources = selection::register(load, &shared);
         let layout = RecipeLayout::resolve(load).ok();
         let input_type =
@@ -293,9 +333,16 @@ impl Mod for ResearchClient {
             let value=json!({"screen":format!("{:?}",frame.screen()),"hud_screen":frame.open_screen().map(|screen|screen.name()),"prompt":prompt,"host":frame.screen_host().map(|entity|entity.0),"host_position":frame.screen_host_position(),"host_template":frame.screen_host_template().map(|guid|guid.to_string()),"held_actions":held});
             let left_game=frames.observation.lock().map(|mut observation|observation.record(value)).unwrap_or(false);
             if left_game && let Ok(mut evidence)=frames.selection.lock(){evidence.end_session();}
+            if let Ok(mut state)=frames.markers.lock() {
+                state.observe(frame.screen()==enshwick::ui::Screen::InGame,frame_dir.as_deref(),|list|markers::submit(marker_ui.as_ref(),list));
+            }
             let job=frames.pending.lock().ok().and_then(|mut job|job.take());
-            if let Some(job)=job && !job.cancel.load(Ordering::Acquire) {
-                let _=job.reply.send(resolve(host,layout,input_type,job.request));
+            if let Some(job)=job && job.cancel.begin() {
+                let result=match job.request {
+                    Request::Markers(spec)=>frames.markers.lock().map_err(|_|"marker state poisoned".to_owned()).and_then(|mut state|state.run(spec,frame_dir.as_deref(),|list|markers::submit(marker_ui.as_ref(),list))),
+                    request=>resolve(host,layout,input_type,request),
+                };
+                let _=job.reply.send(result);
             }
         })?;
         let mut tools = ClientTools::new(
@@ -304,6 +351,8 @@ impl Mod for ResearchClient {
             layout.is_some() && input_type.is_some(),
         );
         tools.selection_sources = selection_sources;
+        tools.mod_dir = mod_dir;
+        tools.marker_ui = marker_available;
         Ok(Self { tools })
     }
 
@@ -401,6 +450,8 @@ side = "both""#
         assert_eq!(value["screen_host_template_observation"], true);
         assert_eq!(value["live_verified"], false);
         assert_eq!(value["semantic_gameplay_actions"], json!([]));
+        assert_eq!(value["native_map_marker_ui"], false);
+        assert_eq!(value["semantic_ui_actions"], json!([]));
     }
 
     #[test]
@@ -432,9 +483,9 @@ side = "both""#
     }
 
     #[test]
-    fn no_action_tools_and_invalid_selectors_never_enqueue() {
+    fn unavailable_marker_control_and_invalid_selectors_never_enqueue() {
         let tools = ClientTools::new(Arc::default(), false, false);
-        assert_eq!(tools.list().len(), 6);
+        assert_eq!(tools.list().len(), 7);
         for (name, args) in [
             ("client_item", json!({"item":""})),
             ("client_recipes", json!({"item":"wood","limit":9})),

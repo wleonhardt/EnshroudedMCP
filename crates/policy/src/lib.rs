@@ -6,6 +6,7 @@ pub mod bounds;
 pub mod building_plan;
 pub mod building_survey;
 pub mod client;
+pub mod client_markers;
 pub mod client_recipe;
 pub mod client_selection;
 pub mod construction;

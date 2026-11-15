@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.8.0 (native map marker submission verified)
+
+- Add `client_map_markers`: one transient mod-owned yellow annotation through published `Ui::set_markers`, queued on the native frame callback. Empty markers clear; no arguments read the submitted cache. Personal/saved markers and server world state are outside its scope.
+- Strict bounded arguments, dry preview, observed UI context/revision, fresh companion-folder write flag, exact legacy confirmation and durable correlated intent/outcome guard real calls. Pending timeouts cancel before execution. Observed leave attempts empty-set cleanup once, even after flag removal; uncertain cleanup is never automatically retried.
+- All 201 Rust/32 Python tests, Clippy, formatting and release builds pass in the research source. Isolated companion 0.8.0 accepted show, clear, show again and frame-driven logout cleanup with eight audit records. Rendered visibility remains unverified: fallback map shortcuts did not open the map. Cached/native acceptance never claims rendered read-back. Public-namespace installation remains unverified.
+
 ## 0.22.0 (native health restoration; isolated fixture verified)
 
 - Add `player_restore_health`: dry-by-default administrative restoration of the sole matching living player to its observed maximum. Preview binds session, actor, lifecycle generation and health; real calls require the existing fresh flag/confirmation. No damage, revive, item consumption, invulnerability, undo or replay protection.

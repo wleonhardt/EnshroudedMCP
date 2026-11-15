@@ -16,9 +16,9 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.7.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.8.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
-            return {"tools": [{"name": name} for name in READS | {"client_press", "future_write", "give_item"}]}
+            return {"tools": [{"name": name} for name in READS | {"client_map_markers", "client_press", "future_write", "give_item"}]}
         name, args = params["name"], params["arguments"]
         error = False
         if "probe_unknown" in args:
@@ -26,12 +26,12 @@ class Fixture:
         elif name == "client_recipes" and args.get("limit") == 9:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
-            value = {"role": "optional_client_companion", "version": "0.7.0", "enshwick": "1.0.0-alpha.15",
+            value = {"role": "optional_client_companion", "version": "0.8.0", "enshwick": "1.0.0-alpha.15",
                      "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
                      "compiled_framework_revision": "acd5550c607a38c983433f9807cc95564244fe0b", "compiled_framework_abi": "11.30",
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
-                     "semantic_gameplay_actions": []}
+                     "semantic_gameplay_actions": [], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers"]}
         elif name == "client_state":
             value = {"age_ms": 2000 if self.stale else 0, "stale": self.stale, "sequence": 1,
                      "observation": {"screen": "private-screen", "prompt": {"title": "private-prompt"}, "host": "private-session", "host_template": "22222222-2222-2222-2222-222222222222"}}
@@ -139,7 +139,8 @@ class ClientProbeTests(unittest.TestCase):
             self.assertEqual(next(check for check in report["checks"] if check["name"] == label)["outcome"], "fail")
 
     def test_compiled_framework_provenance_cannot_substitute_for_live_verification(self):
-        for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True)):
+        for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True), ("native_map_marker_rendered_verified", True),
+                           ("semantic_ui_actions", ["client_press"]), ("native_map_marker_ui", False)):
             client = Fixture()
             original = client.call
             def reply(method, params=None):

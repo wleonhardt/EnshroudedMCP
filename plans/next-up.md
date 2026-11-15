@@ -62,3 +62,7 @@ The isolated two-brick proof passed exact whole-capture placement/read-back/repl
 The original research namespace companion 0.5.2 is installed on the isolated pair after a verified 44-file cold archive and two hashed DLL rollback copies. Only companion DLLs changed; server 0.19.0, official framework acd5550c/ABI 11.30 and loader binaries are unchanged. Nine companion and eighteen version-matched server read probes pass. Native client state reports a fresh Menu. Both complete world captures (6,144 cells total), archived ledger membership/hashes, zero players and disabled writes are verified.
 
 An initial startup probe was unavailable; the same running client subsequently became ready without restart. The selection-history gap correction still has offline regression coverage only: no real join/logout was performed. Native lifecycle/menu/movement execution remains unavailable. Neutral publication-namespace binaries have not been independently live-installed.
+
+## Native map control checkpoint
+
+Companion 0.8.0 implements bounded transient map-marker submission and explicit clearing. The isolated joined-client fixture accepted show/clear/show and automatic observed-leave cleanup, preserving empty submitted state after logout. Rendered visibility remains pending because fallback map shortcuts did not open the map. Prioritize supported native join/private entry, map/menu opening and logout executors; do not equate cached observations with control. See [tool reference](../docs/tool-reference.md).

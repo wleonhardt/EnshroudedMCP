@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.21.2** and **optional companion 0.7.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.22.0** and **optional companion 0.8.0**.
 
 [Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -83,3 +83,7 @@ Server source 0.21.2 additionally refuses ambiguous grant recipients; no roster-
 Server source 0.21.3 corrects compiled framework provenance in `capabilities`; fixed probes check the pinned revision, ABI and framework package version. Compiled metadata does not verify the installed loader.
 
 `player_restore_health` (server 0.22.0) accepts `player`, optional `dry` (default true), `preview` and `confirm`. Dry returns a preview bound to the sole living server actor and observed health. A real request requires that exact preview, `dry:false`, a fresh `ALLOW_WRITES` flag and `confirm:"server-write"`; it restores health to the observed maximum through the published SDK. Read-back, journaling and pending cancellation do not provide invulnerability, undo or replay protection. Inspect fresh `players.vitals` and journal after unknown outcomes; never blindly retry. One bounded isolated research-namespace fixture restored native health from 17/100 to 100/100 with independent read-back, a full rendered bar and clean logout. This does not establish general combat safety or public-namespace live installation.
+
+## Native map control checkpoint
+
+Companion 0.8.0 implements bounded transient map-marker submission and explicit clearing. The isolated joined-client fixture accepted show/clear/show and automatic observed-leave cleanup, preserving empty submitted state after logout. Rendered visibility remains pending because fallback map shortcuts did not open the map. Prioritize supported native join/private entry, map/menu opening and logout executors; do not equate cached observations with control. See [tool reference](docs/tool-reference.md).

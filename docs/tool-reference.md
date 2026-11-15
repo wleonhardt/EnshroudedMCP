@@ -58,7 +58,7 @@ Every real write requires the fresh flag and confirmation described in [architec
 
 Composite parts use absolute positions and quarter-turn yaw. Reordering parts normalizes to the same request; renaming a part changes identity. Overlaps are written once and owned by the first lexical part ID. Openings omit cells and can be filled by another part's contribution. No nested compositions or per-part material source is accepted.
 
-## Optional companion: six additional tools
+## Optional companion: seven additional tools
 
 These are on the separate client endpoint, outside the server's count of 22.
 
@@ -126,3 +126,13 @@ Intent and independent read-back outcome are synced to the journal. `restored_re
 
 
 Foundation previews stop at occupied terrain cells; they do not certify the rendered surface or physical clearance. A controlled two-cell Air fixture produced only a cap-like fragment against visible rock despite exact native read-back. Treat material IDs, Air spans and placed-prop queries as separate observations; scene registration and collision/support acceptance remain independent.
+
+## Native transient map annotation (companion 0.8.0)
+
+`client_map_markers {}` returns cached submitted state, not a native marker read-back. Supply `markers: [{x, y, z, label}]` for one yellow annotation, or `markers: []` to clear. Coordinates are finite metres within x/z 0..10240 and y 0..1024; labels contain 1..64 UTF-8 bytes, nonblank and no control characters. Unknown fields are refused.
+
+Dry is default. Real calls repeat the exact request with `dry: false`, the returned `preview`, `confirm: "server-write"` and a regular `ALLOW_WRITES` file less than 30 minutes old in the companion's own mod folder. The legacy confirmation grants no server authority. Nonempty annotations require fresh InGame UI; explicit clear also permits a fresh Menu. Preview binds boot, observed InGame epoch, revision and payload. UI transitions are observed context, not an authoritative network-session identity.
+
+Requests execute on the native frame callback. Admission is repeated before submission; synced bounded intent precedes native mutation and correlated outcome follows. Unstarted timeout cancels; started timeout requires inspecting status/journal before another request. Observed departure attempts empty-set cleanup once without requiring the old flag, including when audit storage fails. Failed/uncertain cleanup remains exposed; use a fresh explicitly gated clear rather than assuming an automatic retry.
+
+`native_request_accepted` means SDK submission succeeded. `native_state_readback_available` and `rendered_verified` remain false. The isolated show/clear/show/logout fixture verified submission and eight audit records, with empty cached state and successful cleanup after logout. Map shortcuts failed to open the map, so icon/label appearance and disappearance remain unverified. No fast travel, scene raycast, camera control, saved-marker editing or server-world mutation is provided.
