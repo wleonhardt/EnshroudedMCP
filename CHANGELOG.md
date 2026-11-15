@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.23.1 (site selector consistency; live deployment pending)
+## 0.23.1 (site selector consistency; isolated fixture verified)
 
 - Match building_access player names with the pinned SDK's case-insensitive lowercase comparison, while keeping account-key matching exact. Preserve exact-one admission: case-variant duplicate names and name/account collisions refuse rather than selecting one actor.
-- A Unicode/case regression first failed, then passed with explicit ambiguous-roster and exact account-key checks. Runtime remains server 0.23.0/companion 0.8.0; this fix is source verified and not live-installed.
+- A Unicode/case regression first failed, then passed with explicit ambiguous-roster and exact account-key checks. Isolated runtime is server 0.23.1/companion 0.8.0. Account key, exact name and changed-case name returned identical actor/rule observations in a healthy sole-player fixture. Live ambiguous/Unicode rosters and public-namespace installation remain unverified.
 
 ## 0.23.0 (site access observations; isolated fixture verified)
 

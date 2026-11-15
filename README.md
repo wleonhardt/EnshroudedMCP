@@ -105,3 +105,11 @@ Read-only building_access observed the native persistence rule true for a known 
 After logout and explicit restoration of the research setting, complete prior captures, operation ledgers and installed binary hashes remain exact. The prior server journal prefix has exactly four expected setting records; the companion journal is unchanged. Flags are absent and zero players remain. This validates limited native rule observations, not item footprints, collision/contact, complete base-boundary behavior, save/reload effects or public-namespace installation.
 
 Server source 0.23.1 aligns site-access name matching with the pinned SDK while preserving unique-actor admission. Deployment remains pending; isolated runtime stays 0.23.0/0.8.0.
+
+## Site selector live acceptance
+
+The isolated research pair now runs server 0.23.1/companion 0.8.0. A verified 47-file cold archive and two rollback copies preceded server-only replacement. Six companion/framework/loader binaries remained protected; nineteen server and nine companion fixed probes pass with their semantic verdict still incomplete.
+
+A bounded healthy sole-player fixture queried the same explicit box by account key, exact name and changed-case name. All three returned the identical actor, world key, allowed rights and native persistence observation. The read queries changed no journal or operation record. Live duplicate-name/Unicode/reduced-permission rosters were not exercised; offline ambiguity and Unicode regressions remain separate evidence.
+
+After logout and explicit research-setting restoration, complete prior captures, operation-ledger membership/hashes, companion journal and installed binaries remain exact. Only four expected server setting records follow the archive prefix. Flags are absent, pacification is false and zero players remain. Public-namespace installation, scene clearance/contact and functional workshop acceptance remain unverified.

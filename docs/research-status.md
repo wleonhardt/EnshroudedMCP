@@ -158,3 +158,11 @@ After logout and explicit restoration of the research setting, complete prior ca
 A separate healthy sole-player fixture refreshed source/target voxel reads before the construction dry preview. The preview's exact half-metre box matched building_access's allowed rights and native persistence result. Source material/fill and Air target agreed across the separate reads. No construction mutation, reservation or journal change occurred. Both paths use the same underlying published rules; this agreement is not an independent game-rule oracle or rendered contact proof. Logout and explicit setting restoration preserved all captures, operation ledgers, companion journal and installed binaries.
 
 Source 0.23.1 also corrects a name-selector inconsistency: building_access now uses the pinned SDK's case-insensitive name comparison, preserving exact account-key matching and refusal of multiple candidates. A regression first failed on the old exact-name behavior; case-variant duplicate names and name/account collisions are covered. This patch is not live-installed; runtime remains 0.23.0/0.8.0.
+
+## Site selector live acceptance
+
+The isolated research pair now runs server 0.23.1/companion 0.8.0. A verified 47-file cold archive and two rollback copies preceded server-only replacement. Six companion/framework/loader binaries remained protected; nineteen server and nine companion fixed probes pass with their semantic verdict still incomplete.
+
+A bounded healthy sole-player fixture queried the same explicit box by account key, exact name and changed-case name. All three returned the identical actor, world key, allowed rights and native persistence observation. The read queries changed no journal or operation record. Live duplicate-name/Unicode/reduced-permission rosters were not exercised; offline ambiguity and Unicode regressions remain separate evidence.
+
+After logout and explicit research-setting restoration, complete prior captures, operation-ledger membership/hashes, companion journal and installed binaries remain exact. Only four expected server setting records follow the archive prefix. Flags are absent, pacification is false and zero players remain. Public-namespace installation, scene clearance/contact and functional workshop acceptance remain unverified.
