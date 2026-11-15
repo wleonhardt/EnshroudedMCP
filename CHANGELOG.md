@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.24.1 (exact prompt-target item; live deployment pending)
+## 0.24.1 (exact prompt-target item; isolated identity fixture verified)
 
 - Include nullable native `item_id` for the exact observed prompt target through the published UsedItem getter on the scheduled game thread. Preserve observed zero separately from unavailable metadata; no spatial query, archive interpretation or effective-definition claim is added. State the template GUID's file-order hexadecimal encoding explicitly.
-- A target-item expectation first failed, then passed. Fake native component fixtures cover positive, zero and absent item values while preserving prompt-versus-combat selection and no-target/unknown boundaries. Runtime remains server 0.24.0/companion 0.9.0; new field deployment and live identity-chain acceptance remain pending.
+- A target-item expectation first failed, then passed. Fake native component fixtures cover positive, zero and absent item values while preserving prompt-versus-combat selection and no-target/unknown boundaries. Isolated runtime 0.24.1/0.9.0 agrees across direct target ID, independent entity query and archive/item placed-template observations. Full-health checks, clean logout and complete preservation pass. Live zero/absent item values, non-altar targets and public-namespace installation remain unverified.
 
 
 ## Companion 0.9.0 (localized interaction verb; isolated English fixture verified)
