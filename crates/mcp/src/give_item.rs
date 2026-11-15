@@ -21,21 +21,17 @@ pub(crate) fn call(
     dir: Option<PathBuf>,
     args: &Map<String, Value>,
 ) -> Result<Value, String> {
+    let policy::give_item::Spec {
+        player: who,
+        item: name,
+        count,
+        dry,
+        confirm,
+    } = policy::give_item::check(args)?;
+    crate::tools::give_gate(dry, dir.as_deref(), confirm.as_deref())?;
     let inventories = game
         .inventories
         .ok_or("this build lacks the inventory transactions")?;
-    let dry = args.get("dry").and_then(Value::as_bool).unwrap_or(false);
-    let who = args["player"].as_str().unwrap_or("").to_owned();
-    let name = args["item"].as_str().unwrap_or("").to_owned();
-    let confirm = args
-        .get("confirm")
-        .and_then(Value::as_str)
-        .map(str::to_owned);
-    let count = args.get("count").and_then(Value::as_u64).unwrap_or(1);
-    let count = u32::try_from(count)
-        .ok()
-        .filter(|count| (1..=100).contains(count))
-        .ok_or("count must be 1 to 100")?;
     let pending = Arc::new(PendingWrite::default());
     let queued = pending.clone();
     let (tx, rx) = mpsc::sync_channel(1);
@@ -189,6 +185,16 @@ side = "server""#
                 std::thread::sleep(Duration::from_millis(1));
             }
         };
+        let mut negative = args.clone();
+        negative["count"] = json!(-1);
+        negative["dry"] = json!(true);
+        let invalid = std::thread::spawn(move || call(game, None, negative.as_object().unwrap()));
+        drive(&invalid, false);
+        assert!(
+            invalid.join().unwrap().is_err(),
+            "negative count silently became a one-item grant preview"
+        );
+        assert!(loader.inventory_requests().is_empty() && !dir.join("journal.jsonl").exists());
         for selector in ["actor", "9"] {
             let mut ambiguous = args.clone();
             ambiguous["player"] = json!(selector);

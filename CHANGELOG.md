@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.32.1 (strict legacy grant admission)
+
+- Fix give_item treating a negative count as an omitted value and silently substituting one. Only an absent count defaults to one; supplied counts must be integers from 1 to 100.
+- Centralize grant admission in game-free policy, bound player/item selectors to 1..128 UTF-8 bytes without controls, and reject malformed fields before lookup or queueing. Advertise the same strict schema.
+- Preserve valid grants, legacy real-by-default behavior, fresh write gating, queued cancellation and callback auditing. Internal audit IDs still provide no caller replay protection; durable identity/session migration and live acceptance remain separate work.
+
 ## 0.32.0 (pure bounded compound geometry previews)
 
 - Extend building_plan with named primitive unions using the existing construction compiler, without live source/world context. Keep primitive inputs/responses unchanged and material labels unvalidated.

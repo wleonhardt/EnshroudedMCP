@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.32.0** and **optional companion 0.12.1** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.32.1** and **optional companion 0.12.1** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -193,3 +193,9 @@ The shared construction compiler preserves 1,024 candidates before omission, 16 
 For example, a 2 m square floor at (4,4,4), a 1 m wide/1 m high/2 m deep staircase at the same origin, and a 2 m wide/1 m high/1 m deep solid gable at (4,5,4) produce 32 unique cells from 48 candidates, 40 solid contributions, eight omissions and eight overlap contributions. These are geometric test dimensions, not a measured functional workshop.
 
 This path needs no game reads, player, source, write flag or session and always reports `executable: false` and `material_validated: false`. Its material label cannot authorize construction. Use the separate construction dry path with an observed source, current actor/session and all live gates before any write. Collision, rights, persistence, support, shelter, traversal, appearance, functional props and recovery remain unverified. Keep complete matched live acceptance deferred while the client is unavailable.
+
+## Strict legacy grant inputs
+
+Server 0.32.1 refuses supplied `give_item` counts unless they are integers from 1 to 100. Only an omitted count defaults to one; negative, zero, fractional, string, boolean, null and excessive counts never fall back to a one-item grant. Player and item selectors must contain 1..128 UTF-8 bytes, cannot be whitespace-only and cannot contain control characters. Admission runs before game-thread lookup or queueing, including direct tool-handler calls.
+
+Valid grant behavior remains unchanged. This legacy tool still defaults to a real request; use `dry: true` explicitly for report-only resolution. Real grants require the fresh server write flag and confirmation, with checks before queueing and again before intent/native submission. Pending timeout cancellation and durable callback auditing remain. Audit IDs generated internally are not caller-supplied idempotency keys: lost outcomes still require independent journal/inventory inspection without blind retry. Caller identity/session binding and native inventory read-back remain separate goals; this patch does not claim them or live acceptance.
