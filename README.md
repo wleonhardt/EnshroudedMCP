@@ -114,4 +114,4 @@ A bounded healthy sole-player fixture queried the same explicit box by account k
 
 After logout and explicit research-setting restoration, complete prior captures, operation-ledger membership/hashes, companion journal and installed binaries remain exact. Only four expected server setting records follow the archive prefix. Flags are absent, pacification is false and zero players remain. Public-namespace installation, scene clearance/contact and functional workshop acceptance remain unverified.
 
-Server source 0.23.2 reports selected foundation stop material/fill without deriving rendered surface height. Deployment is pending; isolated runtime remains 0.23.1/0.8.0.
+Server source 0.23.2 reports selected foundation stop material/fill without deriving rendered surface height. Isolated runtime 0.23.2/0.8.0 agrees with a complete partial-terrain capture and independent native sample; plan geometry is unchanged. Rendered surface contact remains unverified.
