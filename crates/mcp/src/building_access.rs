@@ -45,7 +45,7 @@ mod tests {
             false
         );
         assert_eq!(
-            rights(Some(Err(BuildRefusal::Unchecked(WorldError::Missing))))["state"],
+            rights(Some(Err(BuildRefusal::Unchecked(WorldError::Unavailable))))["state"],
             "unknown"
         );
         assert!(rights(None)["allowed"].is_null());

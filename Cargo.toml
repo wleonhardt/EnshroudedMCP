@@ -9,14 +9,14 @@ license = "MIT"
 
 [workspace.dependencies]
 # Pin the exact official development build whose loader is staged for validation.
-enshwick = { git = "https://github.com/enshwick/enshwick", rev = "acd5550c607a38c983433f9807cc95564244fe0b" }
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "5436ffddcc623439c339a283a4dc2b45f924fe5b" }
 policy = { path = "crates/policy" }
 mcp-transport = { path = "crates/transport" }
 serde_json = "1"
 
-# SDK-only existing-field exposure; native ABI is official 11.30. See decision 0010.
+# SDK-only existing-field exposure; native ABI is official 12.0. See decision 0015.
 [patch."https://github.com/enshwick/enshwick"]
-enshwick = { path = "../enshwick-native-control/crates/enshwick" }
+enshwick = { path = "../enshwick-abi12/crates/enshwick" }
 
 # The loader catches a panic in a mod and turns only that mod off; it needs unwinding.
 [profile.release]

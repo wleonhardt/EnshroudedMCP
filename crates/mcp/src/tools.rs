@@ -458,8 +458,8 @@ impl Tools for GameTools {
                 "native_interaction_target":interaction_targets.is_some(),
                 "native_reposition":self.reposition.is_some(),
                 "native_reposition_live_verified":false,
-                "enshwick":"1.0.0-alpha.15",
-                "compiled_framework_revision":"acd5550c607a38c983433f9807cc95564244fe0b",
+                "enshwick":"1.0.0-alpha.16",
+                "compiled_framework_revision":"5436ffddcc623439c339a283a4dc2b45f924fe5b",
                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
                 "game_build":null,
                 "game_build_status":"not_observed",
@@ -601,7 +601,10 @@ impl Tools for GameTools {
                     Ok(props) => {
                         let total = props.len();
                         let listed = crate::prop_observation::rows(&props, |entity| {
-                            (world.template(entity), world.has_label(entity))
+                            (
+                                world.template(entity).map(|guid| guid.0),
+                                world.has_label(entity),
+                            )
                         });
                         Ok(json!({"total": total, "props": listed,
                             "truncated":total > policy::inspection::PROP_LIMIT,
@@ -655,7 +658,7 @@ impl Tools for GameTools {
                                 "position": e.position,
                                 "distance": (e.distance(p) * 100.0).round() / 100.0,
                                 "item": world.used_item(e.entity).map(|i| i.0),
-                                "template": world.template(e.entity).map(hex),
+                                "template": world.template(e.entity).map(|guid| hex(guid.0)),
                                 "used_item": has(e.entity, used_item),
                                 "static_used_item": has(e.entity, static_used_item),
                             })
@@ -690,7 +693,7 @@ impl Tools for GameTools {
                                 "entity": e.entity.0,
                                 "position": e.position,
                                 "distance": (e.distance(p) * 100.0).round() / 100.0,
-                                "template": world.template(e.entity).map(hex),
+                                "template": world.template(e.entity).map(|guid| hex(guid.0)),
                                 "components": names,
                             })
                         })

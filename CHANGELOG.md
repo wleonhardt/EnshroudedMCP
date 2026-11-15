@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.26.0 / Companion 0.11.0 (ABI 12 source qualification; not live-installed)
+
+- Pin official alpha.16 revision 5436ffdd, ABI 12.0, in an isolated SDK checkout. Adapt published typed GUID boundaries while preserving MCP file-order hexadecimal identities, metre-valued marker behavior and explicit nanosecond clock tests. Update native test fixtures and compiled framework provenance.
+- Port the existing item placed-template metadata extension and retain absent/present identity, other metadata and PIDE independence checks. Keep generated Luau definitions consistent with the public SDK field. No native layout, function-table slot, game offset or semantic client executor is added.
+- Serialize the SDK's two shared-directory compile fixtures through a scoped nextest group after reproducing their race. Strengthen prompt-target metadata coverage with a mixed-byte native GUID fixture and exact file-order output.
+- Preserve the previously qualified ABI 11.30 runtime. Matching development artifact provenance is documented separately from its absent release signatures and pending cold/live migration. Native lifecycle/crash readiness remains a roadmap gap; an answering HTTP listener alone does not prove fresh UI frames.
+- Source qualification passes 215 Rust tests, 35 Python tests, Clippy, formatting and both release builds. The patched SDK full check passes 4,050 main tests, both serialized compile fixtures, full/stable doctests, documentation/link checks and cargo-deny; nine upstream main tests remain skipped. Cold deployment and all ABI 12 live acceptance remain pending.
+
 ## Companion 0.10.0 (native archive recipe IDs; isolated identity fixture verified)
 
 - Add `recipe_id` from the published RecipeLayout.id field for bounded selected archive recipe rows. Preserve raw zero and full u32 values, existing row limits and archive/effective-definition uncertainty. The value is read from the record rather than derived from its name or GUID.

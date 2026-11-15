@@ -444,7 +444,7 @@ side = "both""#
         let native = loader.markers();
         assert_eq!(native.len(), 1);
         assert_eq!(native[0].label, "Fixture");
-        assert_eq!(native[0].position, [12i64 << 32, 30i64 << 32, 40i64 << 32]);
+        assert_eq!(native[0].position, [12.0, 30.0, 40.0]);
         assert_eq!(native[0].marker_type, 0);
         assert_eq!(folder.records().len(), 2);
         assert!(drive(real).is_err());

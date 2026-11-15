@@ -14,21 +14,21 @@ Use an isolated server and a disposable world for first installation. Stop proce
 From the project folder, use a new dedicated sibling checkout. Do not overwrite an existing dirty checkout.
 
 ```text
-git clone --no-checkout https://github.com/enshwick/enshwick ../enshwick-native-control
-git -C ../enshwick-native-control checkout --detach acd5550c607a38c983433f9807cc95564244fe0b
-git -C ../enshwick-native-control apply <project>/patches/enshwick-nightly-item-template.patch
+git clone --no-checkout https://github.com/enshwick/enshwick ../enshwick-abi12
+git -C ../enshwick-abi12 checkout --detach 5436ffddcc623439c339a283a4dc2b45f924fe5b
+git -C ../enshwick-abi12 apply <project>/patches/enshwick-abi12-item-template.patch
 ```
 
-Replace `<project>` with this checkout's path. Cargo's source override expects `../enshwick-native-control/crates/enshwick`. The active patch changes three SDK/test files and exposes an existing placed-template metadata field. It changes no native layout or ABI slot. Unknown item metadata and a known item without a placed template remain distinct.
+Replace `<project>` with this checkout's path. Cargo's source override expects `../enshwick-abi12/crates/enshwick`. The patch exposes an existing placed-template metadata field, updates generated Luau definitions and serializes shared-directory compile fixtures. It changes no native layout or ABI slot. Unknown item metadata and a known item without a placed template remain distinct.
 
-The exact revision identifies **ABI 11.30**. Its package label is alpha.15; the alpha.15 release tag identifies ABI 11.28. Use the matching official artifact and verify the identity and checksums documented in [patches/README.md](../patches/README.md). Historical private alpha.14 consumers are incompatible. Rebuild consumers before switching SDK/loader lineages. Do not use `--with-loader` to substitute a release loader for the pinned development loader.
+The exact revision identifies **ABI 12.0**, package alpha.16. The previously qualified ABI 11.30 pair is incompatible. This source candidate has not been exercised live. Use the matching official artifact and verify the identity and checksums documented in [patches/README.md](../patches/README.md). Historical private alpha.14 consumers are incompatible. Rebuild consumers before switching SDK/loader lineages. Do not use `--with-loader` to substitute a release loader for the pinned development loader.
 
 ## Build and install
 
-Install the matching Cargo subcommand from the prepared source checkout if `cargo enshwick --version` is unavailable:
+Build the matching Cargo subcommand from the prepared source checkout. Its revision must match this pin; an available older command is insufficient:
 
 ```text
-cargo install --locked --path ../enshwick-native-control/crates/cargo-enshwick
+cargo install --locked --force --path ../enshwick-abi12/crates/cargo-enshwick
 ```
 
 Run the [development checks](contributing.md), then build in release mode. With the selected official loader already installed:

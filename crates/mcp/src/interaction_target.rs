@@ -39,7 +39,7 @@ pub(crate) fn read(game: crate::tools::Game, selector: &str) -> Result<Value, St
         .and_then(|targets: Targets| targets.target(player.entity).map_err(|e| e.to_string()));
     Ok(
         json!({"world_key":game.world.key(),"player":{"key":player.key.0.to_string(),"entity":player.entity.0},
-        "observation":observe(result, |entity|(game.world.position(entity),game.world.template(entity),game.world.used_item(entity).map(|item|item.0))),
+        "observation":observe(result, |entity|(game.world.position(entity),game.world.template(entity).map(|guid|guid.0),game.world.used_item(entity).map(|item|item.0))),
         "world_mutated":false,"scope":"server prompt target only; session entity ids; no terrain hit, rendered contact or interaction execution"}),
     )
 }
@@ -61,7 +61,7 @@ mod tests {
                     |entity| {
                         (
                             Some([1., 2., 3.]),
-                            Some([2; 16]),
+                            world.template(entity).map(|guid| guid.0),
                             world.used_item(entity).map(|item| item.0),
                         )
                     },
@@ -91,6 +91,10 @@ side = "server""#
         let loader = fake
             .component(Entity(40), ty, &bytes)
             .component(Entity(512), used_item, &41u32.to_le_bytes())
+            .template(
+                Entity(512),
+                enshwick::content::Guid(std::array::from_fn(|i| i as u8)),
+            )
             .install();
         // SAFETY: these exports belong to this test module's Probe.
         assert_eq!(
@@ -114,7 +118,10 @@ side = "server""#
         assert_eq!(seen[2]["target"]["item_id"], 0);
         assert!(seen[3]["target"].get("item_id").is_some_and(Value::is_null));
         assert_eq!(seen[1]["target"]["position"], json!([1., 2., 3.]));
-        assert_eq!(seen[1]["target"]["template_guid"], "02".repeat(16));
+        assert_eq!(
+            seen[1]["target"]["template_guid"],
+            "000102030405060708090a0b0c0d0e0f"
+        );
     }
     #[test]
     fn unknown_and_no_target_never_read_metadata_or_become_each_other() {

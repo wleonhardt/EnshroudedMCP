@@ -1,5 +1,13 @@
 # Evidence and remaining work
 
+## ABI 12 source candidate
+
+Server 0.26.0 / companion 0.11.0 qualify exact official alpha.16 revision 5436ffdd, ABI 12.0, in separate source checkouts. Product checks pass 215 Rust tests, 35 Python tests, Clippy, formatting and release builds. The patched SDK full check passes 4,050 main tests, both compile fixtures, full/stable doctests and Clippy, documentation/link checks and cargo-deny; nine main tests remain skipped by upstream. Generated Luau definitions match the metadata field. A reproduced shared-directory compile-fixture race is addressed by scoped nextest serialization, preserving separate processes and every assertion.
+
+The matching official development artifact's digest and ZIP integrity pass. It lacks release signatures; published loader code reports unsigned builds as E1011/unofficial while allowing them to run. No candidate binaries are installed. All ABI 12 live behavior, matching cold deployment and neutral-namespace installation remain unverified. Earlier ABI 11.30 observations retain their original scope. See [source and artifact reproduction](../patches/README.md).
+
+An existing client interruption left its HTTP listener answering with absent/stale UI frames. Authorized desktop fallback identified a crash/upload dialog and a later startup question reporting a prior GPU crash. Upload and dump collection were declined; no dump was inspected. One unchanged-pair relaunch recovered fresh native Menu, and complete preservation checks passed. The crash cause remains unknown. This motivates native lifecycle/crash readiness and explicit recovery controls, not an inference that an answering endpoint proves rendered-client health.
+
 ## Native zone-rule fixture
 
 Ninety-two read-only queries admitted one directly queried 39 m cube and refused six independent half-metre face expansions. Repeated local axis transition observations agree; no journal, operation, capture or binary changed. These are bounded native-rule observations, not general base dimensions, collision/contact or save proof. See [method and limits](zone-rule-fixture.md).

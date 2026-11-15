@@ -49,11 +49,11 @@ side = "server""#
         let hour = 3_600_000_000_000;
         loader.set_daytime(DaytimeInfo {
             header: Header::of::<DaytimeInfo>(),
-            time: 0,
-            day_start: 6 * hour,
-            day_end: 22 * hour,
-            day_length: 1_800_500_000_000,
-            night_length: 720_000_000_000,
+            time_ns: 0,
+            day_start_ns: 6 * hour,
+            day_end_ns: 22 * hour,
+            day_length_ns: 1_800_500_000_000,
+            night_length_ns: 720_000_000_000,
             speed: 2.0,
             flags: 0,
         });

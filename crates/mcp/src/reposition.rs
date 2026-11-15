@@ -380,11 +380,11 @@ side = "server""#
             .constant("attribute.experience", 50)
             .constant("attribute.experience_needed_slot", 2)
             .component(Entity(7), 1, &health)
-            .template(Entity(7), [7; 16]);
+            .template(Entity(7), enshwick::content::Guid([7; 16]));
         let transform = host
             .hash(enshwick::test::facts::CURRENT_TRANSFORM.id())
             .unwrap();
-        let mut name = [0; 64];
+        let mut name = [0; 128];
         name[..5].copy_from_slice(b"actor");
         let standing: Vec<u8> = [100i64 << 32, 20i64 << 32, 100i64 << 32]
             .into_iter()

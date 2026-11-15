@@ -30,7 +30,7 @@ Run the checks above. Update public documentation and changelog for behavior cha
 
 Rust 2024 workspace: `crates/policy` holds rules, `crates/mcp` the server adapter, `crates/transport` loopback HTTP/MCP, and `crates/client` the optional native research companion. `scripts` contains Python read-only probes and helper tests. `patches` contains the reproducible pinned framework extension. Read its instructions before building.
 
-The current SDK pin is official commit `acd5550c607a38c983433f9807cc95564244fe0b`, ABI 11.30, through sibling `enshwick-native-control`. Apply only the active metadata patch; the old private event patch is historical. Read `patches/README.md` before changing dependency or loader lineage.
+The current SDK pin is official commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, ABI 12.0, through sibling `enshwick-abi12`. Apply only the active metadata patch; the old private event patch is historical. Read `patches/README.md` before changing dependency or loader lineage.
 
 `player_reposition` is a once-command request, not a construction transaction or arrival receipt. Preserve exact actor/session previews, positive-health/sole-actor admission, fresh pre-dispatch gates, synced durable intent and cached outcomes. The requested-distance gate does not bound native spawn correction. Never redispatch a reserved identity or automate retries; a return is a new separately gated request, not undo. Keep both operation namespaces and journals private.
 

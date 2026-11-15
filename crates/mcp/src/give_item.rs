@@ -139,7 +139,7 @@ side = "server""#
         fs::create_dir(&dir).unwrap();
         fs::write(dir.join(write_gate::FLAG), []).unwrap();
         let player = |key, entity, label: &str| {
-            let mut name = [0; 64];
+            let mut name = [0; 128];
             name[..label.len()].copy_from_slice(label.as_bytes());
             PlayerInfo {
                 header: Header::of::<PlayerInfo>(),
@@ -147,7 +147,7 @@ side = "server""#
                 entity: enshwick::Entity(entity),
                 key: enshwick::PlayerKey::new(key),
                 permissions: 0,
-                name_len: u8::try_from(label.len()).unwrap(),
+                name_len: u32::try_from(label.len()).unwrap(),
                 name,
             }
         };

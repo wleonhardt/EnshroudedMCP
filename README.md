@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.25.0** and **optional companion 0.10.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch qualifies **server 0.26.0** and **optional companion 0.11.0** against ABI 12.0. Live acceptance remains on the earlier ABI 11.30 pair; the candidate has not been installed.
 
 [Setup](docs/setup.md) · [27 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -26,8 +26,8 @@ A composed 164-cell shell has rendered placement and exact recovery evidence wit
 ## Get started
 
 1. Use a disposable isolated world and coordinate access with its players.
-2. Prepare the exact framework source and matching official loader using [setup](docs/setup.md). The pin is `acd5550c607a38c983433f9807cc95564244fe0b`, package alpha.15, **ABI 11.30**. The alpha.15 release tag uses a different ABI.
-3. Apply the three-file [SDK metadata patch](patches/README.md), then build and test both consumers you intend to install.
+2. Prepare the exact framework source and matching official loader using [setup](docs/setup.md). The candidate pin is `5436ffddcc623439c339a283a4dc2b45f924fe5b`, package alpha.16, **ABI 12.0**. Keep the loader and all consumers matched.
+3. Apply the [SDK metadata patch](patches/README.md), then build and test both consumers you intend to install.
 4. Install the server mod with writes disabled. Connect your MCP client to `http://127.0.0.1:8751/mcp` and begin with `capabilities`, `status` and `players`.
 
 The endpoint always binds loopback. Remote use requires an authenticated tunnel. An optional bearer token adds request authentication; it does not replace the write gate. The client companion has a separate endpoint and token.

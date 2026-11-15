@@ -2,6 +2,9 @@
 
 ## Queue
 
+- Source qualification passed for server 0.26.0 / companion 0.11.0 on ABI 12. Next perform a separately backed-up matched cold deployment and live server/client acceptance. Preserve the previously qualified ABI 11.30 pair until those gates pass. Do not infer live acceptance from compiled provenance or source tests.
+- Prioritize supported native join/private input, menu/logout, bounded movement/look, interaction and session-bound rendered feedback. Include lifecycle/crash readiness and explicit recovery: absent UI frames remain unavailable even if the listener answers. External crash/upload/startup dialogs still require authorized desktop fallback; no dump inspection or upload is required for these controls.
+
 - Use server candidate 0.21.2 for the next controlled deployment. Verify normal recipient lookup and refusal before any real grant; duplicate/colliding recipient cases currently have fake-host evidence only. Preserve the pending manual handoff.
 
 - Deploy server 0.21.1 and validate grant admission/refusal on the isolated pair before valid-grant acceptance. Source/fake-host checks do not establish live behavior. Preserve disabled write flags and reconcile unknown outcomes without blind retry.
