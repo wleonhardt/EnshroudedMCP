@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **source verified; native dedicated shutdown live acceptance pending** Server 0.28.0 adds bounded dry/session/write-gated `server_shutdown`, durable identities, one native attempt per active session and queued cancellation through published World::stop. Native acceptance does not prove process exit/final save. Runtime remains 0.27.0/0.12.0. Private and sanitized-public checks pass 241 Rust/35 Python tests, Clippy, formatting and both release builds. The cold archive helper includes server-shutdown/ with exact synthetic coverage. Complete shutdown-aware preservation before a server-only deployment and one exact-process shutdown/restart/read-back fixture. Client join/logout/process control remains a separate priority gap.
+
+
 - **live verified; direct client recipe-ID lookup** Runtime 0.27.0/0.12.0 passes companion-only cold replacement with six loader/server binaries protected and a verified 48-file archive. Two direct ID rows equal complete prior output metadata at Menu and in a healthy connected session; zero/max queries and admission refusals pass. Clean logout, restored settings, complete captures/ledgers/eight hashes and absent flags pass. Actual UI eligibility, live collision/zero/max records and public-namespace installation remain unverified. Prioritize supported native client execution and a concrete functional-workshop discriminator next.
 
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.28.0 (native dedicated-server shutdown; live acceptance pending)
+
+- Add a dry-by-default, session-bound `server_shutdown` request through published `World::stop`, scheduled on the game thread. Recheck the empty SDK player-character roster, write gate and deadline after durable intent; a roster is not a connection lock.
+- Bound and sync exclusive operation identities and journal intent/outcome. Cancel pre-start queued timeouts, retain uncertain native outcomes and prevent replay or a second native attempt in the active session. No automatic restart, save hold, process-kill wrapper or client logout is added.
+- Keep native acceptance separate from process exit and final-save evidence. Game-free and FakeHost tests cover admission, cancellation, actual stop request, replay, session changes, durable identity, capacity and failure paths. Fixed read-only probes never invoke shutdown.
+
 ## Companion 0.12.0 (recipe lookup by archive ID; isolated comparison verified)
 
 - The isolated 0.27.0/0.12.0 pair passes a matched cold deployment and live comparison: two observed archive IDs return complete unchanged output-query metadata at Menu and during a healthy connected session. Zero/max-ID queries and invalid selectors are exercised. Clean logout, restored settings, complete captures, archived ledgers and eight installed binary hashes pass. Live duplicate/zero/max-ID records, actual selected-UI applicability and public-namespace installation remain unverified.

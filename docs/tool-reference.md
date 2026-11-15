@@ -1,6 +1,6 @@
 # Tool reference
 
-The server advertises 28 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
+The server advertises 29 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
 
 ## Server reads and pure planners
 
@@ -210,3 +210,11 @@ An operation-only request reads retained status. Never reuse an identity to retr
 Companion 0.12.0 extends `client_recipes` to accept exactly one `item` output debug name or `recipe_id` integer from 0 to 4294967295. Optional `limit` remains 1..8, default 4. Existing output-name responses are unchanged. ID responses contain `selected_recipe_id` and `id_ambiguous`; they preserve every bounded matching row, total match count and truncation instead of choosing an arbitrary collision.
 
 This connects an observed native recipe ID to raw vanilla archive metadata. It does not establish current UI selection, effective definitions, eligibility or crafting execution. Zero remains a valid observed ID. The isolated 0.27.0/0.12.0 pair passes a matched cold deployment and live comparison: two observed archive IDs return complete unchanged output-query metadata at Menu and during a healthy connected session. Zero/max-ID queries and invalid selectors are exercised. Clean logout, restored settings, complete captures, archived ledgers and eight installed binary hashes pass. Live duplicate/zero/max-ID records, actual selected-UI applicability and public-namespace installation remain unverified.
+
+## Native dedicated-server shutdown
+
+Server 0.28.0 adds `server_shutdown` through the published native stop request. Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens). New identities preview by default; real calls require `dry: false`, the preview `session`, a fresh server-folder `ALLOW_WRITES` flag and `confirm: "server-write"`. An empty SDK player-character roster is checked again after durable intent. It is not a connection lock and omits loading clients; coordinate access separately.
+
+The request runs on the game thread and queued pre-start timeouts cancel execution. Exclusive durable identities, synced intent/outcome journaling, at most 64 identities and one native attempt per active session prevent blind redispatch. A dry request for an existing identity returns retained status; after restart its durable identity stays unknown and cannot be reissued. Do not remove identities to retry. Native errors and lost replies also require reconciliation.
+
+`stop_request_accepted` reports native acceptance only. `process_exit_verified` and `final_save_verified` remain false: observe the exact process and verify save/restart/read-back separately. The published route is dedicated-server-only and may be unavailable; preview does not prove support. No automatic restart, countdown, save hold, process kill or client logout is exposed. Live shutdown acceptance is pending; installed research runtime remains 0.27.0/0.12.0.
