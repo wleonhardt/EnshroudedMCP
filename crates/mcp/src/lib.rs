@@ -11,6 +11,7 @@ mod health_recovery;
 mod interaction_target;
 mod item_lookup;
 mod knowledge;
+mod knowledge_read;
 mod pacification;
 mod player_vitals;
 mod prop_observation;
@@ -36,6 +37,7 @@ impl Mod for Mcp {
                 .map_err(|e| enshwick::warn!("interaction target reader unavailable: {e}"))
                 .ok(),
             world: load.world()?,
+            native_knowledge: load.knowledge(),
             clock: load.clock(),
             voxels: load.voxels(),
             scheduler: load.scheduler()?,

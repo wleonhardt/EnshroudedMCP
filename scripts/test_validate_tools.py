@@ -4,7 +4,7 @@ import json
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation
 
 
 class Fixture:
@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.24.1"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.25.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in SERVER_TOOLS | {"future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -42,6 +42,11 @@ class Fixture:
                 value = "argument 'entity' must be at least 1"
             else:
                 value = "no connected player"
+        elif name == "knowledge_read":
+            error = "confirm" in args
+            value = "unknown argument 'confirm'" if error else {
+                "query":"world", "player":None, "world_mutated":False, "crafting_eligibility_verified":False,
+                "knowledge":[{"id":0xFFFFFFFF,"state":"unknown","type":None,"scope":None,"value":None,"expected_flags":None}]}
         elif name == "status":
             value = {"clock": {"state": "observed", "source": "published_server_clock", "rendered_lighting_verified": False,
                                "observation": {"hours": 0.0, "is_day": False, "day_starts_hours": 6.0,
@@ -49,7 +54,7 @@ class Fixture:
                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
         elif name == "capabilities":
             value = {"enshwick": "1.0.0-alpha.15", "compiled_framework_revision": "acd5550c607a38c983433f9807cc95564244fe0b",
-                     "compiled_framework_abi": "11.30", "mod_version": "0.24.1", "inventory_read": True, "item_info": True, "item_lookup": True,
+                     "compiled_framework_abi": "11.30", "mod_version": "0.25.0", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "native_interaction_target": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -81,6 +86,19 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_knowledge_probe_preserves_observed_zero_and_unknown(self):
+        value = {"query":"world", "player":None, "world_mutated":False, "crafting_eligibility_verified":False,
+                 "knowledge":[{"id":0xFFFFFFFF,"state":"unknown","type":None,"scope":None,"value":None,"expected_flags":None}]}
+        self.assertTrue(knowledge_observation(value))
+        row=value["knowledge"][0]
+        row.update(state="observed", type="Bool", scope="World", value=0, expected_flags=0)
+        self.assertTrue(knowledge_observation(value))
+        for updates in [{"scope":"Player"},{"value":None},{"value":False},{"state":"unknown"}]:
+            original=dict(row)
+            row.update(updates)
+            self.assertFalse(knowledge_observation(value))
+            row.clear();row.update(original)
+
     def test_capabilities_refuse_wrong_framework_provenance(self):
         for key, wrong in (("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14")):
@@ -128,7 +146,7 @@ class ValidationTests(unittest.TestCase):
 
     def test_unrelated_errors_do_not_prove_specific_refusals(self):
         for label in ("invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
-                      "survey_off_grid_refused", "survey_write_argument_refused", "unknown_construction_operation_refused"):
+                      "survey_off_grid_refused", "survey_write_argument_refused", "knowledge_write_argument_refused", "unknown_construction_operation_refused"):
             client = Fixture()
             original = client.call
 
@@ -141,6 +159,7 @@ class ValidationTests(unittest.TestCase):
                               (label == "invalid_lookup_id_refused" and name == "item_lookup" and args["ids"] == [0]) or
                               (label == "survey_off_grid_refused" and name == "building_survey" and args.get("x") == 100.25) or
                               (label == "survey_write_argument_refused" and name == "building_survey" and "confirm" in args) or
+                              (label == "knowledge_write_argument_refused" and name == "knowledge_read" and "confirm" in args) or
                               (label == "unknown_construction_operation_refused" and name == "building_operation"))
                     if target:
                         return {"isError": True, "content": [{"type": "text", "text": "tool unavailable"}]}
@@ -154,7 +173,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 19)
+        self.assertEqual(len(report["checks"]), 21)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -215,7 +234,7 @@ class ValidationTests(unittest.TestCase):
 
         def reply(method, params=None):
             if method == "initialize":
-                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.24.1"}, "protocolVersion": "2025-06-18"}
+                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.25.0"}, "protocolVersion": "2025-06-18"}
             if method == "tools/list":
                 return {"tools": [{"name": name} for name in advertised]}
             return original(method, params)
@@ -224,7 +243,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 26)
+        self.assertEqual(len(SERVER_TOOLS), 27)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

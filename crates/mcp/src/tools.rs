@@ -81,6 +81,7 @@ pub(crate) fn resolve_components(load: &enshwick::Load<'_>) -> Components {
 pub(crate) struct Game {
     pub(crate) interaction_targets: Option<enshwick::interactions::Targets>,
     pub(crate) world: World,
+    pub(crate) native_knowledge: enshwick::knowledge::Knowledge,
     pub(crate) clock: enshwick::daytime::Clock,
     pub(crate) game_settings: Option<enshwick::game_settings::GameSettings>,
     pub(crate) voxels: Voxels,
@@ -143,6 +144,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::knowledge_read::tool(),
             crate::interaction_target::tool(),
             crate::building_access::tool(),
             Tool {
@@ -264,8 +266,14 @@ impl Tools for GameTools {
             item_layout,
             network_health,
             interaction_targets,
+            native_knowledge: _,
         } = self.game;
         match name {
+            "knowledge_read" => {
+                let spec = policy::knowledge_read::check(a)?;
+                let game = self.game;
+                on_game_thread(scheduler, move || crate::knowledge_read::read(game, spec))?
+            }
             "player_interaction_target" => {
                 let selector = policy::interaction_target::check(a)?;
                 let game = self.game;

@@ -100,6 +100,7 @@ mod tests {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             *GAME.lock().unwrap() = Some(Game {
                 world: load.world()?,
+                native_knowledge: load.knowledge(),
                 clock: load.clock(),
                 game_settings: None,
                 voxels: load.voxels(),

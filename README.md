@@ -4,9 +4,9 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.24.1** and **optional companion 0.9.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.25.0** and **optional companion 0.9.0**.
 
-[Setup](docs/setup.md) · [26 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
+[Setup](docs/setup.md) · [27 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
 ## What it can do
 
@@ -121,3 +121,5 @@ Server source 0.24.0 adds a read-only native interaction-prompt target observati
 Companion source 0.9.0 reports bounded localized interaction verb text alongside the native verb ID, with explicit missing state and English fallback provenance. Isolated runtime 0.24.0/0.9.0 matches one rendered English altar prompt with fresh full-health observations, clean logout and complete preservation. Alternate-language/fallback behavior remains unverified. It adds no native interaction executor.
 
 Server source 0.24.1 adds the exact prompt target's nullable native UsedItem ID and explicit template GUID encoding, avoiding a separate spatial search to qualify item identity. Isolated runtime 0.24.1/0.9.0 agrees with separately requested entity/archive/item-template observations in one healthy altar fixture, with complete preservation and clean logout. Live zero/absent values and other targets remain unverified.
+
+Server source 0.25.0 adds bounded `knowledge_read` for native player/world observations. Missing remains unknown, while observed zero and raw scope/type/flags stay explicit. Knowledge is not crafting eligibility. Runtime remains 0.24.1/0.9.0 pending cold deployment and live comparison.

@@ -1,4 +1,4 @@
-"""Read-only 0.24.1 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.25.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("status", "capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -38,6 +38,19 @@ def observed_template(value):
     return (placement.get("state") == "observed" and isinstance(template, str)
             and len(template) == 32 and set(template) <= set("0123456789abcdef")
             and template != "0" * 32)
+
+
+def knowledge_observation(value):
+    if value.get("query") != "world" or value.get("player") is not None or value.get("world_mutated") is not False or value.get("crafting_eligibility_verified") is not False:
+        return False
+    entries = value.get("knowledge")
+    if not isinstance(entries, list) or len(entries) != 1 or entries[0].get("id") != 0xFFFFFFFF:
+        return False
+    row = entries[0]
+    if row.get("state") == "unknown":
+        return all(key in row and row[key] is None for key in ("type", "scope", "value", "expected_flags"))
+    return (row.get("state") == "observed" and isinstance(row.get("type"), str) and row["scope"] == "World" and
+            all(type(row.get(key)) is int and 0 <= row[key] <= 0xFFFFFFFF for key in ("value", "expected_flags")))
 
 
 def clock_observation(value):
@@ -95,18 +108,20 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.24.1"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.25.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.24.1", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.25.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.24.1" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.25.0" and
                    v.get("compiled_framework_revision") == "acd5550c607a38c983433f9807cc95564244fe0b" and
                    v.get("compiled_framework_abi") == "11.30" and v.get("enshwick") == "1.0.0-alpha.15" and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "native_interaction_target", "new_inspection_tools_live_verified")))
         self.probe("world_clock_shape", "status", {}, clock_observation)
+        self.probe("native_world_knowledge_shape", "knowledge_read", {"ids": [0xFFFFFFFF]}, knowledge_observation)
+        self.probe("knowledge_write_argument_refused", "knowledge_read", {"ids": [1], "confirm": "server-write"}, refusal="unknown argument 'confirm'")
         self.probe("known_item_lookup", "item_lookup", {"ids": [213939880]}, lambda v:
                    v.get("source") == "vanilla_archive_item_registry" and v.get("effective_definition_verified") is False and
                    len(v["results"]) == 1 and v["results"][0]["item_id"] == 213939880 and

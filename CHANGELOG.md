@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.25.0 (native scoped knowledge reads; live deployment pending)
+
+- Add read-only `knowledge_read` for one to eight unique nonzero native IDs. Omit player for world queries, or select exactly one connected player by SDK-compatible name/exact account key. All native reads run on the scheduled server game thread; responses preserve requested order, raw type/scope/value/expected flags, and explicit unknown/null observations.
+- Observed zero differs from unavailable; player queries can report shared world values. No grants, revocations, quest completion, progression mutation or crafting eligibility claim is added. Fake native fixtures verify scope and zero/flags/counter boundaries without grants; strict admission and fixed read probes cover shape/refusals. Runtime remains 0.24.1/0.9.0; deployment and independent live semantic comparison remain pending.
+
+
 ## 0.24.1 (exact prompt-target item; isolated identity fixture verified)
 
 - Include nullable native `item_id` for the exact observed prompt target through the published UsedItem getter on the scheduled game thread. Preserve observed zero separately from unavailable metadata; no spatial query, archive interpretation or effective-definition claim is added. State the template GUID's file-order hexadecimal encoding explicitly.
