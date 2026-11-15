@@ -204,3 +204,9 @@ Server 0.27.0 adds `clock_advance`. Immediate read-back may retain the old hour 
 Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens) and `target_minute` (0..1439). Preview defaults to `dry: true`. A real request also requires `session`, recently observed `expected_hours`, `dry: false`, a fresh `ALLOW_WRITES` flag and `confirm: "server-write"`. Only an empty published SDK player-character roster, paused/normal speed and a target one to twelve game hours forward are admitted. The roster is not a connection lock; coordinate client access separately.
 
 An operation-only request reads retained status. Never reuse an identity to retry an uncertain outcome: same-request replay does not dispatch, changed requests are refused, and durable identities remain blocked across restarts. At most 128 identities are admitted. Native acceptance and near-target read-back do not prove elapsed progression or rendered lighting. Returning to an earlier hour advances another cycle and is not undo. No speed control is exposed.
+
+## Recipe lookup by archive ID
+
+Companion 0.12.0 extends `client_recipes` to accept exactly one `item` output debug name or `recipe_id` integer from 0 to 4294967295. Optional `limit` remains 1..8, default 4. Existing output-name responses are unchanged. ID responses contain `selected_recipe_id` and `id_ambiguous`; they preserve every bounded matching row, total match count and truncation instead of choosing an arbitrary collision.
+
+This connects an observed native recipe ID to raw vanilla archive metadata. It does not establish current UI selection, effective definitions, eligibility or crafting execution. Zero remains a valid observed ID. Source checks pass; matching companion deployment and live ID-to-output comparison are pending. Installed research companion remains 0.11.0.

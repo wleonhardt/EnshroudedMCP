@@ -6,6 +6,12 @@ use enshwick::typed::{RecipeInputResource, Reflected};
 use policy::{client_recipe as gate, item_lookup::span};
 use serde_json::{Value, json};
 
+#[derive(Clone, Copy)]
+pub(crate) enum Selection {
+    Output(Guid),
+    Id(u32),
+}
+
 fn array(
     blob: &Blob,
     field: usize,
@@ -80,7 +86,7 @@ fn decode_input(
 pub(crate) fn parse(
     layout: RecipeLayout,
     bytes: &[u8],
-    output: Guid,
+    selection: Selection,
     limit: usize,
     input_type_hash: u32,
     registry_type_hash: u32,
@@ -92,7 +98,7 @@ pub(crate) fn parse(
     let mut result = parse_with_requirements(
         layout,
         bytes,
-        output,
+        selection,
         limit,
         |record| decode_input(registry, input_type_hash, record),
         |at| requirements.read(bytes, at),
@@ -104,7 +110,7 @@ pub(crate) fn parse(
 fn parse_with_requirements(
     layout: RecipeLayout,
     bytes: &[u8],
-    output: Guid,
+    selection: Selection,
     limit: usize,
     mut decode: impl FnMut(&[u8]) -> Result<Value, String>,
     mut requirements: impl FnMut(usize) -> Result<Value, String>,
@@ -156,7 +162,12 @@ fn parse_with_requirements(
             layout.stack_size,
             layout.stack_count,
         )?;
-        if outputs.iter().any(|(item, _)| *item == output) {
+        let recipe_id = blob.read_u32(at + layout.id).ok_or("malformed recipe id")?;
+        let matches = match selection {
+            Selection::Output(output) => outputs.iter().any(|(item, _)| *item == output),
+            Selection::Id(id) => recipe_id == id,
+        };
+        if matches {
             total += 1;
             if results.len() < limit {
                 let (input_start, input_count) = array(
@@ -172,7 +183,7 @@ fn parse_with_requirements(
                     })
                     .collect::<Result<Vec<_>, _>>()?;
                 results.push(
-                    json!({"recipe_guid":guid(&blob,at+layout.guid)?.to_string(),"recipe_id":blob.read_u32(at+layout.id).ok_or("malformed recipe id")?,"debug_name":name,
+                    json!({"recipe_guid":guid(&blob,at+layout.guid)?.to_string(),"recipe_id":recipe_id,"debug_name":name,
                     "workshop_guid":guid(&blob,at+layout.workshop_guid)?.to_string(),
                     "inputs":values(&inputs),"input_observations":input_observations,"outputs":values(&outputs),
                     "ingredient_category_semantics":null,"catalyst_semantics":null,
@@ -182,13 +193,19 @@ fn parse_with_requirements(
             }
         }
     }
-    Ok(
-        json!({"mode":"report_only","source":"vanilla_archive_recipe_registry","effective_definition_verified":false,
-        "selected_output_guid":output.to_string(),"registry_entries":count,"total_matches":total,
+    let mut result = json!({"mode":"report_only","source":"vanilla_archive_recipe_registry","effective_definition_verified":false,
+        "registry_entries":count,"total_matches":total,
         "truncated":total>results.len(),"recipes":results,
         "unverified":["ingredient category and catalyst semantics","required props and full unlock conditions","station availability and player eligibility","effective mod and settings changes","crafting feasibility and survival costs"],
-        "limitations":["whole upstream registry allocation precedes parser byte admission","all matching output positions are considered; raw inputs/outputs do not establish recipe semantics"]}),
-    )
+        "limitations":["whole upstream registry allocation precedes parser byte admission","all matching output positions are considered; raw inputs/outputs do not establish recipe semantics"]});
+    match selection {
+        Selection::Output(output) => result["selected_output_guid"] = json!(output.to_string()),
+        Selection::Id(id) => {
+            result["selected_recipe_id"] = json!(id);
+            result["id_ambiguous"] = json!(total > 1);
+        }
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -199,7 +216,14 @@ fn parse_with(
     limit: usize,
     decode: impl FnMut(&[u8]) -> Result<Value, String>,
 ) -> Result<Value, String> {
-    parse_with_requirements(layout, bytes, output, limit, decode, |_| Ok(Value::Null))
+    parse_with_requirements(
+        layout,
+        bytes,
+        Selection::Output(output),
+        limit,
+        decode,
+        |_| Ok(Value::Null),
+    )
 }
 
 #[cfg(test)]
@@ -262,6 +286,52 @@ mod tests {
             assert!(blob.set_array(at + 80, name, 14));
         }
         (blob.into_bytes(), selected)
+    }
+
+    #[test]
+    fn id_lookup_preserves_duplicates_zero_max_and_complete_output_rows() {
+        let (bytes, output) = registry(3);
+        let mut blob = Blob::new(&bytes);
+        let (start, _) = blob.array(layout().recipes).unwrap();
+        for (index, id) in [0u32, u32::MAX, u32::MAX].into_iter().enumerate() {
+            assert!(blob.write(
+                start + index * layout().recipe + layout().id,
+                &id.to_le_bytes()
+            ));
+        }
+        let by_output = parse(layout(), blob.bytes(), output, 8).unwrap();
+        for (id, expected) in [(0, vec![0]), (u32::MAX, vec![1, 2]), (73, vec![])] {
+            let result = super::parse_with_requirements(
+                layout(),
+                blob.bytes(),
+                Selection::Id(id),
+                8,
+                |_| Ok(json!({"state":"synthetic_unavailable"})),
+                |_| Ok(Value::Null),
+            )
+            .unwrap();
+            let rows: Vec<_> = expected
+                .iter()
+                .map(|&i| by_output["recipes"][i].clone())
+                .collect();
+            assert_eq!(result["recipes"], json!(rows));
+            assert_eq!(result["selected_recipe_id"], id);
+            assert_eq!(result["id_ambiguous"], expected.len() > 1);
+            assert!(result.get("selected_output_guid").is_none());
+        }
+        let limited = super::parse_with_requirements(
+            layout(),
+            blob.bytes(),
+            Selection::Id(u32::MAX),
+            1,
+            |_| Ok(Value::Null),
+            |_| Ok(Value::Null),
+        )
+        .unwrap();
+        assert_eq!(limited["total_matches"], 2);
+        assert_eq!(limited["recipes"].as_array().unwrap().len(), 1);
+        assert_eq!(limited["truncated"], true);
+        assert_eq!(limited["id_ambiguous"], true);
     }
 
     #[test]
@@ -506,7 +576,7 @@ mod tests {
         let result = parse_with_requirements(
             layout(),
             &bytes,
-            selected,
+            Selection::Output(selected),
             2,
             |_| Ok(Value::Null),
             |_| {
@@ -523,7 +593,7 @@ mod tests {
         parse_with_requirements(
             layout(),
             &bytes,
-            Guid([8; 16]),
+            Selection::Output(Guid([8; 16])),
             2,
             |_| panic!("unmatched input decoded"),
             |_| panic!("unmatched requirements decoded"),
@@ -533,7 +603,7 @@ mod tests {
             parse_with_requirements(
                 layout(),
                 &bytes,
-                selected,
+                Selection::Output(selected),
                 2,
                 |_| Ok(Value::Null),
                 |_| Err("malformed requirements".into())

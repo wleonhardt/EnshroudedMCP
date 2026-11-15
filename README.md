@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.27.0** and **optional companion 0.11.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.27.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [28 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -135,3 +135,9 @@ Server source 0.24.1 adds the exact prompt target's nullable native UsedItem ID 
 Server source 0.25.0 adds bounded `knowledge_read` for native player/world observations. Missing remains unknown, while observed zero and raw scope/type/flags stay explicit. Knowledge is not crafting eligibility. Isolated runtime 0.25.0/0.9.0 distinguishes raw player Flags 1/0 from unknown/null and wrong-scope world queries, with full-health checks, complete preservation and clean logout. UI eligibility/flag semantics and observed world bool/counter values remain unverified.
 
 Companion source 0.10.0 reports raw native `recipe_id` from selected archive records, allowing explicit nonzero IDs to be examined with server `knowledge_read`. Isolated runtime 0.25.0/0.10.0 preserves complete prior recipe observations and feeds direct record IDs to scoped live knowledge reads, with full-health checks, clean logout and complete preservation. Flags do not establish crafting eligibility.
+
+## Recipe lookup by archive ID
+
+Companion 0.12.0 extends `client_recipes` to accept exactly one `item` output debug name or `recipe_id` integer from 0 to 4294967295. Optional `limit` remains 1..8, default 4. Existing output-name responses are unchanged. ID responses contain `selected_recipe_id` and `id_ambiguous`; they preserve every bounded matching row, total match count and truncation instead of choosing an arbitrary collision.
+
+This connects an observed native recipe ID to raw vanilla archive metadata. It does not establish current UI selection, effective definitions, eligibility or crafting execution. Zero remains a valid observed ID. Source checks pass; matching companion deployment and live ID-to-output comparison are pending. Installed research companion remains 0.11.0.

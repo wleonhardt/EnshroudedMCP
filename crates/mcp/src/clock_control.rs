@@ -693,6 +693,69 @@ mod tests {
         }
     }
 
+    #[test]
+    fn delayed_application_status_observes_clock_without_promoting_or_reissuing_receipt() {
+        let f = Fixture::new();
+        f.enable();
+        let mut ops = BTreeMap::new();
+        let request = spec();
+        let hours = Cell::new(8.0);
+        let queued_target = Cell::new(None);
+        let calls = Cell::new(0);
+        let receipt = run_with(
+            &f.0,
+            &mut ops,
+            &request,
+            "active",
+            || Ok(context(hours.get())),
+            |target| {
+                calls.set(calls.get() + 1);
+                queued_target.set(Some(target));
+                Ok(())
+            },
+            || Duration::ZERO,
+        )
+        .unwrap();
+        assert_eq!(receipt["state"], "readback_unverified");
+        assert_eq!(receipt["observed_after_hours"], 8.0);
+        assert_eq!(receipt["native_request_accepted"], true);
+        hours.set(f64::from(queued_target.take().unwrap()));
+        assert_eq!(
+            run_with(
+                &f.0,
+                &mut ops,
+                &request,
+                "active",
+                || panic!("replay must not read or dispatch"),
+                |_| panic!(),
+                || Duration::ZERO,
+            )
+            .unwrap(),
+            receipt
+        );
+        fs::remove_file(f.0.join(policy::write_gate::FLAG)).unwrap();
+        let status =
+            policy::clock_control::check(json!({"operation":"fixture"}).as_object().unwrap())
+                .unwrap();
+        let observed = run_with(
+            &f.0,
+            &mut ops,
+            &status,
+            "active",
+            || Ok(context(hours.get())),
+            |_| panic!(),
+            || Duration::ZERO,
+        )
+        .unwrap();
+        assert_eq!(observed["clock_now"]["hours"], 12.0);
+        assert_eq!(observed["state"], "readback_unverified");
+        assert_eq!(observed["observed_after_hours"], 8.0);
+        assert_eq!(observed["world_mutated"], Value::Null);
+        assert_eq!(ops["fixture"].outcome, receipt);
+        assert_eq!(calls.get(), 1);
+        assert_eq!(f.records(), 2);
+    }
+
     static ADAPTER: Mutex<Option<(ClockControl, Game)>> = Mutex::new(None);
     struct Probe;
     impl enshwick::Mod for Probe {

@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.12.0 (recipe lookup by observed archive ID; live comparison pending)
+
+- Extend `client_recipes` with exactly one output item name or bounded integer archive recipe ID. Preserve zero/max IDs, all raw metadata, duplicate matches and truncation. Report ID ambiguity explicitly; existing output-item responses remain unchanged.
+- Keep archive reads on the existing bounded frame queue. Argument and parser tests first fail, then pass; observed IDs do not establish current UI selection, effective definitions, eligibility or a crafting executor.
+- Cover delayed native clock application: later status can observe the target while the original receipt remains uncertain, with no redispatch or extra journal record.
+
 ## 0.27.0 (forward native clock requests; bounded isolated fixture observed)
 
 - The isolated 0.27.0/0.11.0 pair now passes a bounded clock fixture after a verified cold archive and server-only replacement. One native request was accepted; immediate read-back retained the old hour and correctly stayed `readback_unverified`. A later independent observation reached the requested hour, without promoting the retained receipt. Dry preview, missing-gate and invalid-target refusals, same-request replay, altered-request refusal and operation status pass. A healthy connected client separately rendered daylight consistent with its native daytime observation; connected preview was refused. Clean logout, restored settings, complete voxel captures, archived ledgers and installed binary hashes pass. This does not verify a before/after lighting transition, elapsed world progression, unrelated gameplay effects or public-namespace installation.

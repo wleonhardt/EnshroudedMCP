@@ -80,7 +80,7 @@ impl Observation {
 #[derive(Debug)]
 enum Request {
     Item(String),
-    Recipe(String, usize),
+    Recipe(policy::client::RecipeSelector, usize),
     Markers(policy::client_markers::Spec),
 }
 
@@ -150,8 +150,8 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_recipes",
-                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw recipe IDs from archive records, stacks, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
-                    schema: policy::client::item_schema(true),
+                    description: "Vanilla recipe metadata for exactly one output item debug name or raw recipe_id (0..4294967295), at most 8 recipes. ID lookup counts all matching records; collisions/truncation are explicit and never imply a unique UI selection. Raw recipe IDs from archive records, stacks, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
+                    schema: policy::client::recipe_schema(),
                 },
             ],
         }
@@ -260,7 +260,7 @@ impl Tools for ClientTools {
                 self.request(Request::Item(item))
             }
             "client_recipes" => {
-                let (item, limit) = policy::client::item(args, true)?;
+                let (item, limit) = policy::client::recipe(args)?;
                 self.request(Request::Recipe(item, limit))
             }
             _ => Err("unknown client tool".into()),
@@ -274,22 +274,22 @@ fn resolve(
     input_type: Option<u32>,
     request: Request,
 ) -> Result<Value, String> {
-    let name = match &request {
-        Request::Item(name) | Request::Recipe(name, _) => name,
-        Request::Markers(_) => {
-            return Err("marker request requires the client frame dispatcher".into());
-        }
-    };
-    let guid = vanilla::item(name).map_err(|error| error.to_string())?;
     match request {
         Request::Item(name) => {
+            let guid = vanilla::item(&name).map_err(|error| error.to_string())?;
             let language = host.language();
             let text = items::vanilla_name(guid, language);
             Ok(
                 json!({"debug_name":name,"guid":guid.to_string(),"item_id":enshwick::ItemId::from_guid(guid).0,"language":language.code(),"localized_name":text.map(policy::client::text),"localized_name_truncated":text.is_some_and(|s|s.len()>policy::client::TEXT),"source":"vanilla_archive_and_client_localization","effective_definition_verified":false}),
             )
         }
-        Request::Recipe(_, limit) => {
+        Request::Recipe(selector, limit) => {
+            let selection = match selector {
+                policy::client::RecipeSelector::Output(name) => recipes::Selection::Output(
+                    vanilla::item(&name).map_err(|error| error.to_string())?,
+                ),
+                policy::client::RecipeSelector::Id(id) => recipes::Selection::Id(id),
+            };
             let layout = layout.ok_or("recipe layout unavailable")?;
             let key = types::RECIPE_REGISTRY_RESOURCE
                 .key(enshwick::content::recipes::RECIPE_REGISTRY)
@@ -300,7 +300,7 @@ fn resolve(
             recipes::parse(
                 layout,
                 &bytes,
-                guid,
+                selection,
                 limit,
                 input_type.ok_or("recipe input type unavailable")?,
                 key.type_hash,
@@ -532,6 +532,8 @@ side = "both""#
         for (name, args) in [
             ("client_item", json!({"item":""})),
             ("client_recipes", json!({"item":"wood","limit":9})),
+            ("client_recipes", json!({"item":"wood","recipe_id":0})),
+            ("client_recipes", json!({"recipe_id":4294967296u64})),
             ("client_state", json!({"key":"Escape"})),
             ("client_events", json!({"limit":0})),
         ] {

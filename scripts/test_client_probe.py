@@ -177,7 +177,7 @@ class ClientProbeTests(unittest.TestCase):
         for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True), ("native_map_marker_rendered_verified", True),
                            ("semantic_ui_actions", ["client_press"]), ("native_map_marker_ui", False),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
-                           ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0")):
+                           ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0"), ("version", "0.11.0")):
             client = Fixture()
             original = client.call
             def reply(method, params=None):

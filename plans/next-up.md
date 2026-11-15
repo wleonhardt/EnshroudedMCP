@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **source verified; direct client recipe-ID lookup** Companion 0.12.0 accepts exactly one output name or raw archive recipe ID, preserving zero, collisions, bounded results and complete raw metadata. Delayed clock application/status coverage also passes without receipt promotion. Private 234 Rust/35 Python tests, Clippy, formatting and release builds pass. Runtime stays 0.27.0/0.11.0. Next publish audited source, cold-replace only the two companion copies with six binaries protected, then compare a live observed ID against the complete existing output query. UI selection/eligibility and native execution remain unverified.
+
+
 - **bounded isolated clock fixture observed** Runtime 0.27.0/0.11.0 accepts one forward request, preserves an immediate `readback_unverified` receipt, and later independently reports the requested hour. Replay/refusal/status checks pass. Healthy connected daylight observation, connected roster refusal, clean logout, restored settings and complete preservation pass. Do not infer elapsed progression or a lighting transition. Next qualify delayed read-back behavior in native adapter tests and pursue supported native client execution dependencies.
 
 

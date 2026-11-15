@@ -23,6 +23,36 @@ pub fn item(args: &Map<String, Value>, recipe: bool) -> Result<(String, usize), 
     Ok((name.to_owned(), limit))
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum RecipeSelector {
+    Output(String),
+    Id(u32),
+}
+
+pub fn recipe_schema() -> Value {
+    let mut schema = item_schema(true);
+    schema.as_object_mut().unwrap().remove("required");
+    schema["properties"]["recipe_id"] = json!({"type":"integer","minimum":0,"maximum":u32::MAX});
+    schema["oneOf"] = json!([{"required":["item"]},{"required":["recipe_id"]}]);
+    schema
+}
+
+pub fn recipe(args: &Map<String, Value>) -> Result<(RecipeSelector, usize), String> {
+    crate::args::check(&recipe_schema(), args)?;
+    match (args.contains_key("item"), args.get("recipe_id")) {
+        (true, None) => item(args, true).map(|(name, limit)| (RecipeSelector::Output(name), limit)),
+        (false, Some(value)) => {
+            let id = value
+                .as_u64()
+                .and_then(|id| u32::try_from(id).ok())
+                .ok_or("recipe_id must be an integer from 0 to 4294967295")?;
+            let limit = args.get("limit").and_then(Value::as_u64).unwrap_or(4) as usize;
+            Ok((RecipeSelector::Id(id), limit))
+        }
+        _ => Err("provide exactly one item or recipe_id".into()),
+    }
+}
+
 pub fn events_schema() -> Value {
     json!({"type":"object","properties":{"after":{"type":"integer","minimum":0},"limit":{"type":"integer","minimum":1,"maximum":32}}})
 }
@@ -81,5 +111,31 @@ mod tests {
         let value = text(&"界".repeat(100));
         assert!(value.len() <= TEXT);
         assert_eq!(value.chars().count(), 85);
+    }
+
+    #[test]
+    fn recipe_selector_requires_exactly_one_bounded_native_identity_or_output() {
+        for id in [0u32, 73, u32::MAX] {
+            assert_eq!(
+                recipe(json!({"recipe_id":id}).as_object().unwrap()).unwrap(),
+                (RecipeSelector::Id(id), 4)
+            );
+        }
+        assert_eq!(
+            recipe(json!({"item":"wood","limit":8}).as_object().unwrap()).unwrap(),
+            (RecipeSelector::Output("wood".into()), 8)
+        );
+        for value in [
+            json!({}),
+            json!({"item":"wood","recipe_id":1}),
+            json!({"recipe_id":-1}),
+            json!({"recipe_id":4294967296u64}),
+            json!({"recipe_id":1.5}),
+            json!({"recipe_id":"1"}),
+            json!({"recipe_id":1,"limit":9}),
+            json!({"recipe_id":1,"extra":true}),
+        ] {
+            assert!(recipe(value.as_object().unwrap()).is_err());
+        }
     }
 }
