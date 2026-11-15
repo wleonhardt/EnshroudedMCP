@@ -1,6 +1,6 @@
 # Pinned official framework and SDK metadata patch
 
-This branch qualifies server 0.26.0 / companion 0.11.0 against official enshwick commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, package alpha.16, ABI 12.0. The candidate is not live-installed. Earlier ABI 11.30 acceptance does not qualify this new major ABI; preserve that matched installation and rollback material until separate cold/live migration gates pass.
+This branch targets server 0.26.0 / companion 0.11.0 against official enshwick commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, package alpha.16, ABI 12.0. The matching research namespace pair passes cold readiness and preservation; connected gameplay and public-namespace installation remain unverified. Preserve the earlier ABI 11.30 source and binary rollback pair.
 
 ## Reproduce the SDK source
 
@@ -30,7 +30,7 @@ The development archive contains the framework DLL and loader stub but no releas
 
 The published loader source runs unsigned builds while marking them unofficial and logging E1011. That source behavior has not yet been observed live for this candidate; qualification requires no signature bypass.
 
-Rebuild server and companion against the prepared SDK. Stop both game processes, coordinate disconnected players and prevent reconnection, preserve a verified cold save/ledger archive, and record rollback hashes before replacing any loaded file. Install matching framework, loader and consumers together. Never combine ABI 12 loader files with ABI 11 consumers. Do not use `--with-loader` to substitute an unrelated release loader. No candidate binaries have been installed during source qualification.
+Rebuild server and companion against the prepared SDK. Stop both game processes, coordinate disconnected players and prevent reconnection, preserve a verified cold save/ledger archive, and record rollback hashes before replacing any loaded file. Install matching framework, loader and consumers together. Never combine ABI 12 loader files with ABI 11 consumers. Do not use `--with-loader` to substitute an unrelated release loader. The research migration preserved a verified 47-file cold archive and all eight rollback binaries before replacement; eight installed hashes, complete prior captures/ledgers, fresh native Menu, zero players and disabled writes pass after restart.
 
 ## Historical inactive patches
 

@@ -1,6 +1,6 @@
 # 0015: Qualify the official ABI 12 pair separately
 
-Date: 2026-11-15. Status: source qualified; not installed.
+Date: 2026-11-15. Status: source qualified; research cold readiness/preservation passed; connected gameplay acceptance pending.
 
 Pin official enshwick commit 5436ffddcc623439c339a283a4dc2b45f924fe5b, package alpha.16, ABI 12.0, in a separate sibling `enshwick-abi12` checkout. Preserve the existing ABI 11.30 installation and its source/rollback material until a complete matched migration passes its cold deployment and live gates.
 

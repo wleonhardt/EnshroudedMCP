@@ -16,7 +16,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.10.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.11.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"client_map_markers", "client_press", "future_write", "give_item"}]}
         name, args = params["name"], params["arguments"]
@@ -26,9 +26,9 @@ class Fixture:
         elif name == "client_recipes" and args.get("limit") == 9:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
-            value = {"role": "optional_client_companion", "version": "0.10.0", "enshwick": "1.0.0-alpha.15",
+            value = {"role": "optional_client_companion", "version": "0.11.0", "enshwick": "1.0.0-alpha.16",
                      "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
-                     "compiled_framework_revision": "acd5550c607a38c983433f9807cc95564244fe0b", "compiled_framework_abi": "11.30",
+                     "compiled_framework_revision": "5436ffddcc623439c339a283a4dc2b45f924fe5b", "compiled_framework_abi": "12.0",
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
                      "semantic_gameplay_actions": [], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers"]}
@@ -167,7 +167,9 @@ class ClientProbeTests(unittest.TestCase):
 
     def test_compiled_framework_provenance_cannot_substitute_for_live_verification(self):
         for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True), ("native_map_marker_rendered_verified", True),
-                           ("semantic_ui_actions", ["client_press"]), ("native_map_marker_ui", False)):
+                           ("semantic_ui_actions", ["client_press"]), ("native_map_marker_ui", False),
+                           ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
+                           ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0")):
             client = Fixture()
             original = client.call
             def reply(method, params=None):

@@ -21,7 +21,7 @@ git -C ../enshwick-abi12 apply <project>/patches/enshwick-abi12-item-template.pa
 
 Replace `<project>` with this checkout's path. Cargo's source override expects `../enshwick-abi12/crates/enshwick`. The patch exposes an existing placed-template metadata field, updates generated Luau definitions and serializes shared-directory compile fixtures. It changes no native layout or ABI slot. Unknown item metadata and a known item without a placed template remain distinct.
 
-The exact revision identifies **ABI 12.0**, package alpha.16. The previously qualified ABI 11.30 pair is incompatible. This source candidate has not been exercised live. Use the matching official artifact and verify the identity and checksums documented in [patches/README.md](../patches/README.md). Historical private alpha.14 consumers are incompatible. Rebuild consumers before switching SDK/loader lineages. Do not use `--with-loader` to substitute a release loader for the pinned development loader.
+The exact revision identifies **ABI 12.0**, package alpha.16. The previously qualified ABI 11.30 pair is incompatible. Cold research readiness and preservation pass; connected gameplay and public-namespace installation remain unverified. Use the matching official artifact and verify the identity and checksums documented in [patches/README.md](../patches/README.md). Historical private alpha.14 consumers are incompatible. Rebuild consumers before switching SDK/loader lineages. Do not use `--with-loader` to substitute a release loader for the pinned development loader.
 
 ## Build and install
 
