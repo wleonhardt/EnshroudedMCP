@@ -109,6 +109,7 @@ mod tests {
                 inventories: Some(load.inventories()?),
                 item_layout: None,
                 network_health: None,
+                interaction_targets: None,
             });
             Ok(Self)
         }

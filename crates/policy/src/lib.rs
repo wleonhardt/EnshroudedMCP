@@ -14,6 +14,7 @@ pub mod construction;
 pub mod health_recovery;
 pub mod http;
 pub mod inspection;
+pub mod interaction_target;
 pub mod item_lookup;
 pub mod knowledge;
 pub mod mcp;

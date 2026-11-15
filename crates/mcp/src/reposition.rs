@@ -268,6 +268,7 @@ mod tests {
                 inventories: None,
                 item_layout: None,
                 network_health: None,
+                interaction_targets: None,
             };
             let construction = Construction::new(load)?;
             *ADAPTER.lock().unwrap() = Some((Reposition::new(load, construction)?, game));

@@ -4,9 +4,9 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.23.2** and **optional companion 0.8.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.24.0** and **optional companion 0.8.0**.
 
-[Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
+[Setup](docs/setup.md) · [26 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
 ## What it can do
 
@@ -115,3 +115,5 @@ A bounded healthy sole-player fixture queried the same explicit box by account k
 After logout and explicit research-setting restoration, complete prior captures, operation-ledger membership/hashes, companion journal and installed binaries remain exact. Only four expected server setting records follow the archive prefix. Flags are absent, pacification is false and zero players remain. Public-namespace installation, scene clearance/contact and functional workshop acceptance remain unverified.
 
 Server source 0.23.2 reports selected foundation stop material/fill without deriving rendered surface height. Isolated runtime 0.23.2/0.8.0 agrees with a complete partial-terrain capture and independent native sample; plan geometry is unchanged. Rendered surface contact remains unverified.
+
+Server source 0.24.0 adds a read-only native interaction-prompt target observation for one uniquely selected server player. This may help correlate interactive objects with rendered observations; it supplies neither a terrain hit nor an executor. Deployment and nonempty rendered correspondence remain pending.

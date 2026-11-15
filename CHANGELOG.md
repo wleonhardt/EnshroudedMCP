@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.0 (server prompt target; live deployment pending)
+
+- Add read-only `player_interaction_target` for exactly one connected player by SDK-compatible name or exact account key. Read the published native prompt target on the game thread; return session-only server entity and nullable position/template metadata. Missing reader/read failure remains unknown, separately from no target.
+- No terrain hit, camera raycast, collision/contact proof, client entity mapping or action executor is claimed. Strict arguments reject write fields and arbitrary entity selectors. Source tests distinguish combat and prompt slots and preserve unavailable metadata. Isolated runtime remains 0.23.2/0.8.0; nonempty target and rendered correspondence remain unverified.
+
+
 ## 0.23.2 (foundation stop metadata; isolated fixture verified)
 
 - Include `terrain_stop.material` and `terrain_stop.fill` in admitted foundation previews, selected from the same copied capture as the existing stop-cell coordinate. Preserve partial fill, existing Air-only plan geometry and false rendered-contact/terrain-overwrite flags. No surface-height estimator or relaxed write admission.

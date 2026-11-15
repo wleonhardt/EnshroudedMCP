@@ -79,6 +79,7 @@ pub(crate) fn resolve_components(load: &enshwick::Load<'_>) -> Components {
 /// The game handles; all are plain copies, safe to move between threads.
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Game {
+    pub(crate) interaction_targets: Option<enshwick::interactions::Targets>,
     pub(crate) world: World,
     pub(crate) clock: enshwick::daytime::Clock,
     pub(crate) game_settings: Option<enshwick::game_settings::GameSettings>,
@@ -142,6 +143,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::interaction_target::tool(),
             crate::building_access::tool(),
             Tool {
                 name: "player_restore_health",
@@ -261,8 +263,16 @@ impl Tools for GameTools {
             inventories,
             item_layout,
             network_health,
+            interaction_targets,
         } = self.game;
         match name {
+            "player_interaction_target" => {
+                let selector = policy::interaction_target::check(a)?;
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    crate::interaction_target::read(game, &selector)
+                })?
+            }
             "building_access" => {
                 let spec = policy::building_access::check(a)?;
                 on_game_thread(scheduler, move || {
@@ -437,6 +447,7 @@ impl Tools for GameTools {
             }
             "capabilities" => Ok(json!({
                 "mod_version":env!("CARGO_PKG_VERSION"),
+                "native_interaction_target":interaction_targets.is_some(),
                 "native_reposition":self.reposition.is_some(),
                 "native_reposition_live_verified":false,
                 "enshwick":"1.0.0-alpha.15",

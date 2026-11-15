@@ -8,6 +8,7 @@ mod building_survey;
 mod construction;
 mod give_item;
 mod health_recovery;
+mod interaction_target;
 mod item_lookup;
 mod knowledge;
 mod pacification;
@@ -30,6 +31,10 @@ pub struct Mcp {
 impl Mod for Mcp {
     fn init(load: &mut Load<'_>) -> Result<Self, Off> {
         let game = tools::Game {
+            interaction_targets: load
+                .interaction_targets()
+                .map_err(|e| enshwick::warn!("interaction target reader unavailable: {e}"))
+                .ok(),
             world: load.world()?,
             clock: load.clock(),
             voxels: load.voxels(),
