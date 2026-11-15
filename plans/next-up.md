@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **implemented; live acceptance pending** Server 0.27.0 adds deliberate forward `clock_advance` requests with bounded policy, durable once-only identities, scheduled execution, timeout cancellation and session-scoped read-back. Runtime remains 0.26.0/0.11.0. Before live writes, extend cold archives and preservation checks to the new clock namespace, deploy the server pair cold, and perform a bounded native/read-back/rendered fixture. No undo or clock-speed control is claimed. Native client execution remains a priority dependency.
+
+
 - ABI 12 research cold deployment and bounded healthy connected read/pacification fixture pass for 0.26.0/0.11.0. Recipe/knowledge/target/prompt observations and complete preservation pass after clean logout. Screen-host template/position remain unavailable; broader writes and public-namespace installation remain unverified. Keep the ABI 11.30 rollback pair.
 - Assess published `Clock::set_hours` and `ClockSpeed::set` as the next server-control increment for deliberate lighting fixtures. `set_hours` advances the world to the next occurrence; returning to an earlier hour is not undo. Speed factors compose across mods. Define bounded typed admission, dry reports, journaling/read-back and explicit recovery limits before implementation or live writes. Keep native client execution routes the priority dependency.
 - Prioritize supported native join/private input, menu/logout, bounded movement/look, interaction and session-bound rendered feedback. Include lifecycle/crash readiness and explicit recovery: absent UI frames remain unavailable even if the listener answers. External crash/upload/startup dialogs still require authorized desktop fallback; no dump inspection or upload is required for these controls.

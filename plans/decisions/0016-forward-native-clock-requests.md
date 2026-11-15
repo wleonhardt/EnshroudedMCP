@@ -1,0 +1,15 @@
+# 0016: Deliberate forward native clock requests
+
+Date: 2026-11-15. Status: implemented; source checks in progress; no clock tool installed or exercised live.
+
+The qualified ABI 12 SDK publishes Clock::set_hours. It moves the world forward to the next occurrence of an hour, as if the intervening hours passed. It is not a reversible lighting override. ClockSpeed factors compose across mods and have no published per-owner getter; do not add speed control or claim restoration from the observed aggregate speed.
+
+Add a narrow clock_advance tool with an operation identity and integer target minute of day. A target request defaults to dry reporting; a request containing only the operation reads retained status. Do not change the existing status clock observation. Target requests require an active world and an empty published SDK player-character roster, including immediately before dispatch. World::players lists connected players with characters; this is not a connection-admission lock and does not prove no client is loading. The operator must coordinate access. This permits deliberate server preparation followed by a separately controlled client observation.
+
+Admit targets one to twelve game hours forward from the latest clock observation, at paused or normal observed speed. Real requests require the active session and previously observed hours within one game minute, plus the existing fresh flag and exact confirmation. These bounds describe admission observations, not an atomic native elapsed-time guarantee. Clients receive the native jump after the next step; other game progression and rendered lighting are not verified by an SDK acceptance or near-target clock read-back.
+
+Execute only through Scheduler::next_tick. Cancel queued work before it starts when the caller times out, and recheck the deadline, session, empty roster and write gate after durable intent work. Preserve bounded exclusive clock-operations identities and the shared journal before dispatch. Same-identity replay never dispatches again; altered requests and prior-session durable identities are refused. Partial reservations, native errors, lost replies and outcome-journal failures do not authorize retries or removal of the identity. Retained status and a fresh clock observation are separate from causal completion.
+
+Do not create generic jobs or automatic clock chains. Returning to an earlier hour advances another cycle and is not undo. Live acceptance needs a verified cold archive containing the new operation namespace, disabled writes outside the bounded fixture, exact capture/ledger preservation and separate native/rendered client observations. Broader gameplay effects remain unverified. Preserve the existing client-control gaps; Windows input is not a native executor.
+
+Upstream main 6b2cc495 was reviewed against the qualified 5436ffdd pin: its changes are test-tooling only and add no runtime client executor. Keep the qualified runtime pin while implementing this published server route.

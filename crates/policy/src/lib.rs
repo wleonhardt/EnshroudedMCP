@@ -10,6 +10,7 @@ pub mod client;
 pub mod client_markers;
 pub mod client_recipe;
 pub mod client_selection;
+pub mod clock_control;
 pub mod construction;
 pub mod health_recovery;
 pub mod http;

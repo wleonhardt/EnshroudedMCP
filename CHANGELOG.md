@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.27.0 (forward native clock requests; live acceptance pending)
+
+- Add `clock_advance` with a bounded integer minute-of-day target, dry preview, active-session and recent-clock checks, an empty SDK player-character roster and the existing explicit write gate. Targets must be one to twelve observed game hours forward at paused or normal speed. The roster is not a connection lock; operators must coordinate access.
+- Schedule the published native setter on the game thread. Cancel queued timeout work and recheck admission after durable intent. Exclusive bounded operation identities and synced intent/outcome journals prevent replay, including uncertain native results and journal failures.
+- Report near-target read-back separately from native acceptance. Missing, mismatched or other-session observations remain unverified. Forward progression has no undo; returning to an earlier hour advances another cycle. Clock speed remains read-only.
+- Derive probe test versions from package manifests, while keeping production compatibility pins explicit. Clock writes are excluded from fixed read-only probes. Source verification does not establish live gameplay or rendered lighting.
+
 ## 0.26.0 / Companion 0.11.0 (ABI 12 qualified; research cold readiness verified)
 
 - Pin official alpha.16 revision 5436ffdd, ABI 12.0, in an isolated SDK checkout. Adapt published typed GUID boundaries while preserving MCP file-order hexadecimal identities, metre-valued marker behavior and explicit nanosecond clock tests. Update native test fixtures and compiled framework provenance.

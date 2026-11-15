@@ -5,6 +5,7 @@
 mod building_access;
 mod building_plan;
 mod building_survey;
+mod clock_control;
 mod construction;
 mod give_item;
 mod health_recovery;

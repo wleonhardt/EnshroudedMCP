@@ -1,10 +1,18 @@
 """Fixed-probe behavior tests without game access."""
 
 import json
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
 from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation
+
+
+VERSION = next(
+    line.split('"')[1]
+    for line in (Path(__file__).resolve().parents[1] / "crates/mcp/Cargo.toml").read_text().splitlines()
+    if line.startswith("version = ")
+)
 
 
 class Fixture:
@@ -15,7 +23,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.26.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": VERSION}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in SERVER_TOOLS | {"future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -54,8 +62,8 @@ class Fixture:
                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
         elif name == "capabilities":
             value = {"enshwick": "1.0.0-alpha.16", "compiled_framework_revision": "5436ffddcc623439c339a283a4dc2b45f924fe5b",
-                     "compiled_framework_abi": "12.0", "mod_version": "0.26.0", "inventory_read": True, "item_info": True, "item_lookup": True,
-                     "typed_network_health": True, "native_interaction_target": True, "new_inspection_tools_live_verified": False}
+                     "compiled_framework_abi": "12.0", "mod_version": VERSION, "inventory_read": True, "item_info": True, "item_lookup": True,
+                     "typed_network_health": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
         elif name == "knowledge_search":
@@ -103,7 +111,8 @@ class ValidationTests(unittest.TestCase):
         for key, wrong in (("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14"),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
-                           ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0")):
+                           ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
+                           ("mod_version", "0.26.0"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
             client = Fixture()
             original = client.call
 
@@ -230,13 +239,13 @@ class ValidationTests(unittest.TestCase):
     def test_advertised_writes_never_authorize_a_write_probe(self):
         client = Fixture()
         original = client.call
-        advertised = READS | {"player_interaction_target", "building_access", "status", "players", "voxel_sample", "props_in", "entities_near",
+        advertised = READS | {"clock_advance", "player_interaction_target", "building_access", "status", "players", "voxel_sample", "props_in", "entities_near",
                               "entity_components", "give_item", "building_place_cell", "building_apply_plan",
                               "building_accept", "building_undo_cell", "player_reposition", "player_restore_health", "enemy_pacification", "future_write"}
 
         def reply(method, params=None):
             if method == "initialize":
-                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.26.0"}, "protocolVersion": "2025-06-18"}
+                return {"serverInfo": {"name": "enshrouded-mcp", "version": VERSION}, "protocolVersion": "2025-06-18"}
             if method == "tools/list":
                 return {"tools": [{"name": name} for name in advertised]}
             return original(method, params)
@@ -245,12 +254,13 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 27)
+        self.assertEqual(len(SERVER_TOOLS), 28)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)
         self.assertNotIn("player_restore_health", READS)
         self.assertNotIn("enemy_pacification", READS)
+        self.assertNotIn("clock_advance", READS)
         self.assertTrue(all(check["outcome"] == "pass" for check in report["checks"]))
 
     def test_missing_accept_discovery_fails_without_invoking_any_tool(self):

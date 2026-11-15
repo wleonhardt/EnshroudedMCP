@@ -1,4 +1,4 @@
-"""Read-only 0.26.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.27.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -14,7 +14,7 @@ from investigate import Client, InvalidReply
 READS = frozenset(("knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
-SERVER_TOOLS = READS | frozenset(("player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
+SERVER_TOOLS = READS | frozenset(("clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
                                   "entity_components", "give_item", "building_place_cell", "building_apply_plan",
                                   "building_accept", "building_undo_cell", "player_reposition"))
 RECIPE = {"catalog_label": "synthetic-validation", "goals": [{"item": "boards", "count": 3}],
@@ -108,17 +108,18 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.26.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.27.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.26.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.27.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.26.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.27.0" and
                    v.get("compiled_framework_revision") == "5436ffddcc623439c339a283a4dc2b45f924fe5b" and
                    v.get("compiled_framework_abi") == "12.0" and v.get("enshwick") == "1.0.0-alpha.16" and
-                   all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "native_interaction_target", "new_inspection_tools_live_verified")))
+                   v.get("native_clock_advance_live_verified") is False and
+                   all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
         self.probe("world_clock_shape", "status", {}, clock_observation)
         self.probe("native_world_knowledge_shape", "knowledge_read", {"ids": [0xFFFFFFFF]}, knowledge_observation)
         self.probe("knowledge_write_argument_refused", "knowledge_read", {"ids": [1], "confirm": "server-write"}, refusal="unknown argument 'confirm'")

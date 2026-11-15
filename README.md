@@ -4,9 +4,9 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.26.0** and **optional companion 0.11.0** against ABI 12.0. The matching research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.27.0** and **optional companion 0.11.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
-[Setup](docs/setup.md) · [27 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
+[Setup](docs/setup.md) · [28 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
 ## What it can do
 
@@ -67,6 +67,14 @@ Companion source 0.5.2 fixes selection-event cursor gap reporting after session-
 The parser admits a 16 MiB registry, at most 4,096 category rows, 1,024 member records per category and reflected strides from 1 to 4,096 bytes. Every category header/member span is admitted before indexing; duplicate category IDs refuse. Only the first 32 members of categories referenced by returned recipe inputs are decoded. Whole upstream registry allocation still precedes admission. All array/field offsets derive from published reflection, including typedef resolution; no game offsets or new hooks are used.
 
 Original research-namespace companion 0.6.1 is installed isolated-only; server remains 0.19.0 and official framework acd5550c/ABI 11.30 is unchanged. Nine companion and eighteen installed-version server probes pass. A Workbench category returns six members whose item IDs independently resolve through the server vanilla item registry. This is limited static membership evidence; scaling interpretation, displayed choices and full crafting feasibility remain unverified. Both complete world captures and archived ledgers match; native client stays at Menu, zero players and writes disabled. Public namespace binaries are not live-installed.
+
+## Deliberate forward clock control
+
+Server 0.27.0 adds `clock_advance`; installed research runtime remains 0.26.0 until a separately archived deployment. Live clock acceptance is pending.
+
+Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens) and `target_minute` (0..1439). Preview defaults to `dry: true`. A real request also requires `session`, recently observed `expected_hours`, `dry: false`, a fresh `ALLOW_WRITES` flag and `confirm: "server-write"`. Only an empty published SDK player-character roster, paused/normal speed and a target one to twelve game hours forward are admitted. The roster is not a connection lock; coordinate client access separately.
+
+An operation-only request reads retained status. Never reuse an identity to retry an uncertain outcome: same-request replay does not dispatch, changed requests are refused, and durable identities remain blocked across restarts. At most 128 identities are admitted. Native acceptance and near-target read-back do not prove elapsed progression or rendered lighting. Returning to an earlier hour advances another cycle and is not undo. No speed control is exposed.
 
 ## Native world clock
 

@@ -1,10 +1,18 @@
 """Companion probe behavior without sockets or game data."""
 
 import json
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
 from client_probe import Probe, READS, state, recipes
+
+
+VERSION = next(
+    line.split('"')[1]
+    for line in (Path(__file__).resolve().parents[1] / "crates/client/Cargo.toml").read_text().splitlines()
+    if line.startswith("version = ")
+)
 
 
 class Fixture:
@@ -16,7 +24,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.11.0"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": VERSION}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"client_map_markers", "client_press", "future_write", "give_item"}]}
         name, args = params["name"], params["arguments"]
@@ -26,7 +34,7 @@ class Fixture:
         elif name == "client_recipes" and args.get("limit") == 9:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
-            value = {"role": "optional_client_companion", "version": "0.11.0", "enshwick": "1.0.0-alpha.16",
+            value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.16",
                      "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
                      "compiled_framework_revision": "5436ffddcc623439c339a283a4dc2b45f924fe5b", "compiled_framework_abi": "12.0",
                      "screen_host_template_observation": True,

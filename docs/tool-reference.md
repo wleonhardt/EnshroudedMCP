@@ -1,6 +1,6 @@
 # Tool reference
 
-The server advertises 23 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
+The server advertises 28 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
 
 ## Server reads and pure planners
 
@@ -196,3 +196,11 @@ Server 0.24.1 adds `observation.target.item_id` to `player_interaction_target`. 
 Read-only arguments: `{ "ids": [1, 2], "player": "optional connected name or account key" }`. Supply one to eight unique nonzero u32 IDs. Omit player for world queries; supplied player must match exactly one connected actor. Responses preserve order and report `query`, selected actor, and rows with native `type`, `scope`, `value`, `expected_flags` and observed/unknown state. Unknown rows have null metadata; unknown can mean an unavailable read, unknown ID or wrong scope. Observed zero is retained. Player queries can return shared world values; inspect row scope. Native IDs need an independently qualified source. No grants/revokes, completion changes, recipe eligibility or effective-mod-definition claim is made.
 
 Companion 0.10.0 `client_recipes` rows include `recipe_id`, the raw u32 game ID from the published archive record field. Zero remains an observed record value; it is not an admissible `knowledge_read` ID. The value is not calculated from its GUID/name. A qualified nonzero ID can be queried through server `knowledge_read` for a uniquely selected actor, preserving type/scope and unknown state. Archive identity, seen/crafted flags, current recipe selection and crafting eligibility remain separate observations; effective modified definitions are unverified.
+
+## Deliberate forward clock control
+
+Server 0.27.0 adds `clock_advance`; installed research runtime remains 0.26.0 until a separately archived deployment. Live clock acceptance is pending.
+
+Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens) and `target_minute` (0..1439). Preview defaults to `dry: true`. A real request also requires `session`, recently observed `expected_hours`, `dry: false`, a fresh `ALLOW_WRITES` flag and `confirm: "server-write"`. Only an empty published SDK player-character roster, paused/normal speed and a target one to twelve game hours forward are admitted. The roster is not a connection lock; coordinate client access separately.
+
+An operation-only request reads retained status. Never reuse an identity to retry an uncertain outcome: same-request replay does not dispatch, changed requests are refused, and durable identities remain blocked across restarts. At most 128 identities are admitted. Native acceptance and near-target read-back do not prove elapsed progression or rendered lighting. Returning to an earlier hour advances another cycle and is not undo. No speed control is exposed.

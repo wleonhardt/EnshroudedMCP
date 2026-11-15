@@ -107,6 +107,7 @@ pub(crate) struct GameTools {
     construction: Option<crate::construction::Construction>,
     reposition: Option<crate::reposition::Reposition>,
     recovery: Option<crate::health_recovery::Recovery>,
+    clock_control: Option<crate::clock_control::ClockControl>,
     list: Vec<Tool>,
 }
 
@@ -233,6 +234,11 @@ impl GameTools {
             description: "ADMIN WRITE, dry by default. Submit one bounded server teleport request for the sole connected living player, using engine free-spot search. Requested target must be within 16 m of observed position. Exact actor/session preview, fresh write flag and confirmation required. Durable same-ID replay never dispatches again. Submission is not arrival; spawn adjustment is unbounded by this interface. No walking, camera, menu, native undo or automatic retry. Observe players separately; return requires a new gated request.",
             schema: policy::reposition::schema(),
         });
+        list.push(crate::clock_control::tool());
+        let clock_control = mod_dir
+            .clone()
+            .zip(construction.clone())
+            .map(|(dir, lifecycle)| crate::clock_control::ClockControl::new(dir, lifecycle));
         Self {
             game,
             components,
@@ -240,6 +246,7 @@ impl GameTools {
             construction,
             reposition,
             recovery,
+            clock_control,
             list,
         }
     }
@@ -336,6 +343,13 @@ impl Tools for GameTools {
                     policy::construction::check_session(&admitted, &active)?;
                     crate::pacification::run(settings, spec, &active, dir.as_deref())
                 })?
+            }
+            "clock_advance" => {
+                let spec = policy::clock_control::check(a)?;
+                self.clock_control
+                    .as_ref()
+                    .ok_or("clock control lifecycle unavailable")?
+                    .call(self.game, spec)
             }
             "player_reposition" => {
                 let spec = policy::reposition::check(a)?;
@@ -457,6 +471,8 @@ impl Tools for GameTools {
                 "mod_version":env!("CARGO_PKG_VERSION"),
                 "native_interaction_target":interaction_targets.is_some(),
                 "native_reposition":self.reposition.is_some(),
+                "native_clock_advance":self.clock_control.is_some(),
+                "native_clock_advance_live_verified":false,
                 "native_reposition_live_verified":false,
                 "enshwick":"1.0.0-alpha.16",
                 "compiled_framework_revision":"5436ffddcc623439c339a283a4dc2b45f924fe5b",
