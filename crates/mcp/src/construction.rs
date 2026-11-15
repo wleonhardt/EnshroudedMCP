@@ -120,7 +120,7 @@ pub(crate) fn tools() -> Vec<Tool> {
         },
         Tool {
             name: "building_apply_plan",
-            description: "WRITE: Copy one exact source voxel into a floor/wall/doorway/staircase or union of up to 8 named primitive parts, within 16 m per axis. At most 256 unique cells across 8 bricks, 64 cells per brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
+            description: "WRITE: Copy one exact source voxel into a floor/wall/doorway/staircase/gable_roof or union of up to 8 named primitive parts, within 16 m per axis. At most 256 unique cells across 8 bricks, 64 cells per brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
             schema: construction::plan_schema(),
         },
         Tool {
@@ -1024,6 +1024,21 @@ mod tests {
         assert_eq!(
             region(&placement.targets).unwrap(),
             ([4.0, 4.0, 4.0], [5.0, 5.5, 7.0])
+        );
+    }
+    #[test]
+    fn gable_roof_conversion_preserves_checked_geometry_and_source_authority() {
+        let args = json!({"operation":"roof","source_x":0,"source_y":0,"source_z":0,"player":"Researcher","session":"preview-1","plan":{"kind":"gable_roof","x":4,"y":4,"z":4,"width":3,"height":1.5,"depth":1}});
+        let checked = construction::check_plan(args.as_object().unwrap()).unwrap();
+        let placement = Placement::plan(checked).unwrap();
+        assert_eq!(placement.targets.len(), 24);
+        assert_eq!(placement.elements.len(), 24);
+        assert_eq!(placement.request["plan"]["kind"], "gable_roof");
+        assert_eq!(placement.request["session"], "preview-1");
+        assert_eq!(placement.spec.source, [0, 0, 0]);
+        assert_eq!(
+            region(&placement.targets).unwrap(),
+            ([4.0, 4.0, 4.0], [7.0, 5.5, 5.0])
         );
     }
 }

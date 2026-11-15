@@ -2,7 +2,7 @@
 
 use serde_json::{Map, Value, json};
 
-/// Maximum candidate cells, before doorway or above-step cells are omitted.
+/// Maximum candidate cells, before doorway, above-step or outside-gable cells are omitted.
 pub const MAX_CELLS: i32 = 1024;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -11,6 +11,7 @@ pub enum Shape {
     Wall,
     Doorway,
     Staircase,
+    GableRoof,
 }
 
 /// A checked half-metre grid specification. Cell bounds are half-open.
@@ -33,7 +34,7 @@ pub fn schema() -> Value {
     json!({
         "type":"object", "additionalProperties":false,
         "properties": {
-            "kind":{"type":"string","enum":["floor","wall","doorway","staircase"]},
+            "kind":{"type":"string","enum":["floor","wall","doorway","staircase","gable_roof"]},
             "x":{"type":"number","minimum":0,"maximum":crate::bounds::EDGE,"multipleOf":0.5},
             "y":{"type":"number","minimum":0,"maximum":crate::bounds::HEIGHT,"multipleOf":0.5},
             "z":{"type":"number","minimum":0,"maximum":crate::bounds::EDGE,"multipleOf":0.5},
@@ -74,6 +75,7 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
         Some("wall") => Shape::Wall,
         Some("doorway") => Shape::Doorway,
         Some("staircase") => Shape::Staircase,
+        Some("gable_roof") => Shape::GableRoof,
         _ => return Err("unknown building kind".into()),
     };
     let origin = [
@@ -100,6 +102,11 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
             "staircase depth must be at least height and a whole multiple of height on the grid"
                 .into(),
         );
+    }
+    if shape == Shape::GableRoof
+        && (size[1] < 2 || size[0] < 2 * size[1] || size[0] % (2 * size[1]) != 0)
+    {
+        return Err("gable_roof height must be at least 1 m and width a whole multiple of twice height on the grid".into());
     }
     let material = args
         .get("material")
@@ -191,6 +198,11 @@ pub fn local_cells(spec: &Spec) -> Vec<[i32; 3]> {
         for z in 0..spec.size[2] {
             for x in 0..spec.size[0] {
                 if spec.shape == Shape::Staircase && y > z / (spec.size[2] / spec.size[1]) {
+                    continue;
+                }
+                if spec.shape == Shape::GableRoof
+                    && y > x.min(spec.size[0] - 1 - x) / (spec.size[0] / (2 * spec.size[1]))
+                {
                     continue;
                 }
                 if spec.door.is_some_and(|[offset, width, height]| {
@@ -336,6 +348,83 @@ mod tests {
         bad["width"] = json!(16);
         bad["height"] = json!(4);
         bad["depth"] = json!(4);
+        assert!(check(&bad).unwrap_err().contains("candidate"));
+        for yaw in [0, 90, 180, 270] {
+            let mut rotated = args.clone();
+            rotated.insert("yaw".into(), json!(yaw));
+            let spec = check(&rotated).unwrap();
+            let points = cells(&spec);
+            assert_eq!(points.len(), 24);
+            for axis in 0..3 {
+                assert_eq!(
+                    points.iter().map(|p| p[axis]).min().unwrap(),
+                    spec.min[axis]
+                );
+                assert_eq!(
+                    points.iter().map(|p| p[axis] + 1).max().unwrap(),
+                    spec.max_exclusive[axis]
+                );
+            }
+        }
+        args["x"] = json!(0);
+        args.insert("yaw".into(), json!(90));
+        assert!(check(&args).is_err());
+    }
+    #[test]
+    fn gable_roof_matches_independent_paired_column_oracle() {
+        for height in 2..=8 {
+            for tread in 1..=2 {
+                for depth in 1..=4 {
+                    let mut args = base();
+                    args["kind"] = json!("gable_roof");
+                    args["width"] = json!((2 * height * tread) as f64 * 0.5);
+                    args["height"] = json!(height as f64 * 0.5);
+                    args["depth"] = json!(depth as f64 * 0.5);
+                    let spec = check(&args).unwrap();
+                    let actual: std::collections::BTreeSet<_> =
+                        local_cells(&spec).into_iter().collect();
+                    let mut expected = std::collections::BTreeSet::new();
+                    for level in 1..=height {
+                        for offset in 0..tread {
+                            let left = (level - 1) * tread + offset;
+                            let right = 2 * height * tread - 1 - left;
+                            for x in [left, right] {
+                                for y in 0..level {
+                                    for z in 0..depth {
+                                        expected.insert([x, y, z]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    assert_eq!(actual, expected);
+                    assert_eq!(
+                        actual.len(),
+                        (tread * depth * height * (height + 1)) as usize
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn gable_roof_refuses_invalid_slopes_door_fields_workloads_and_world_edges() {
+        let mut args = base();
+        args["kind"] = json!("gable_roof");
+        args["width"] = json!(3);
+        args["height"] = json!(1.5);
+        args["depth"] = json!(1);
+        for (key, value) in [("width", 2.5), ("width", 3.5), ("height", 0.5)] {
+            let mut bad = args.clone();
+            bad.insert(key.into(), json!(value));
+            assert!(check(&bad).is_err());
+        }
+        let mut bad = args.clone();
+        bad.insert("door_width".into(), json!(0.5));
+        assert!(check(&bad).is_err());
+        let mut bad = args.clone();
+        bad["width"] = json!(16);
+        bad["height"] = json!(8);
+        bad["depth"] = json!(2);
         assert!(check(&bad).unwrap_err().contains("candidate"));
         for yaw in [0, 90, 180, 270] {
             let mut rotated = args.clone();

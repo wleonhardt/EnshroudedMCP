@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.30.0 (bounded solid gable-roof geometry; live acceptance deferred)
+
+- Add symmetric solid gable roofs to the existing pure preview and primitive/composite compiler. Equal paired half-metre column runs ascend toward a flat central ridge along local z; the attic volume is explicitly filled.
+- Preserve candidate/world/unique-cell/brick/composite limits, source-voxel authority, canonical identity and all write/recovery gates. Report outside-gable omissions separately; omission never erases occupants.
+- Independent paired-column/count, rotation, invalid-slope, preview and construction-admission checks cover source behavior. No game-native roof, shelter, support, rendering or workshop-usability claim; live placement/undo/reload remain deferred.
+
 ## 0.29.0 (bounded solid staircase geometry; live acceptance deferred)
 
 - Add staircase geometry to the existing pure preview and primitive/composite construction compiler. Fixed half-metre rises and equal positive treads ascend local +z, using existing quarter-turn rotation and source-voxel authority.

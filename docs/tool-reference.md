@@ -19,7 +19,7 @@ The server advertises 29 tools. Inspect `tools/list` for exact schemas on your i
 | `entity_components` | Point, optional `radius` (up to 16) and `limit` (up to 20). Names of locally configured reflected components; no arbitrary component-value dump. |
 | `knowledge_search` | Optional `query`, `status`, `limit`. Curated evidence, provenance and missing checks. |
 | `recipe_plan` | Supplied recipe catalogue, stock, goals, stations and unlocks. Pure dependency arithmetic, not a live recipe or survival-feasibility claim. |
-| `building_plan` | Primitive `floor`, `wall`, `doorway` or `staircase`, dimensions, material label and optional quarter-turn `yaw`. At most 1024 candidate cells. Pure preview; material labels are unvalidated. |
+| `building_plan` | Primitive `floor`, `wall`, `doorway`, `staircase` or `gable_roof`, dimensions, material label and optional quarter-turn `yaw`. At most 1024 candidate cells. Pure preview; material labels are unvalidated. |
 | `building_survey` | Grid-aligned box dimensions and optional `player` and `foundation`. Foundation supplies grid-aligned `x`, `z`, exclusive `upper_y` in metres and integer `max_cells` from 1 to 15; the column must fit the survey. It previews only Air before occupied terrain, without a rendered surface-height claim or write authority. Up to 4096 complete cells, exact voxels, persistence and optional build rights. Props, hazards and traversal remain unchecked. |
 | `building_operation` | `operation`. Reconcile native construction status and exact complete-brick images. Stale/unknown receipts never reconstruct native IDs. |
 
@@ -232,3 +232,11 @@ Server 0.29.0 adds `kind: "staircase"` to `building_plan` and existing `building
 Pure previews report step/rise/tread metadata, `walkability_verified: false` and `omitted_above_steps_cells`; those voids are not doorway openings. Omission never erases existing occupants. Existing floor/wall/doorway responses are unchanged. This is solid voxel geometry, not a native stair blueprint or a climbability claim.
 
 All limits remain: 1,024 candidates before omission, 256 unique write cells, eight bricks, 64 cells per brick, eight composite parts and 16 m compact extent per axis. Material/fill still comes only from the observed source voxel. Every write/session/actor/rights/persistence/capture/read-back/undo gate remains in force. Independent offline column/count/rotation and construction-admission tests pass; live rendering, traversal, placement, undo/reload and workshop usability remain deferred while the client is unavailable.
+
+## Solid gable-roof geometry
+
+Server 0.30.0 adds `kind: "gable_roof"` to pure `building_plan` and existing `building_apply_plan` primitive/composite compilation. The ridge runs along local z before the existing origin-vertex quarter turn. Height must be at least 1 m; width must be a whole multiple of twice height on the half-metre grid. Equal paired column runs rise from one cell at either eave to the full height at the central two runs. Depth extrudes this symmetric profile. The gable is solid and fills its attic volume; it is not a hollow or game-native roof blueprint.
+
+For width 3 m, height 1.5 m and depth 1 m, occupied column heights are 0.5, 1, 1.5, 1.5, 1 and 0.5 m. This gives 24 solid cells in 36 candidates and a 1 m flat ridge. Preview metadata exposes `attic_filled: true`, `shelter_verified: false`, the half-metre rise/run, local ridge axis and `omitted_outside_gable_cells`. Those omissions are separate from doorway openings and never erase existing occupants.
+
+All candidate/write/brick/composite/source and recovery limits remain unchanged. Material comes from the observed source voxel; existing write gates and native transaction handling apply. Independent offline cell/count/rotation/admission tests do not prove shelter, support, appearance or workshop usability. Deployment, placement, rendered slope/ridge/clearance, undo and cold-reload acceptance remain deferred while the client is unavailable.

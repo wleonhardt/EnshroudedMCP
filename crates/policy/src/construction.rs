@@ -170,7 +170,7 @@ fn primitive_elements(spec: &crate::building_plan::Spec) -> Result<Elements, Str
     Ok(elements)
 }
 fn canonical_primitive(spec: &crate::building_plan::Spec) -> Value {
-    let mut canonical_plan = json!({"kind":match spec.shape { crate::building_plan::Shape::Floor => "floor", crate::building_plan::Shape::Wall => "wall", crate::building_plan::Shape::Doorway => "doorway", crate::building_plan::Shape::Staircase => "staircase" },
+    let mut canonical_plan = json!({"kind":match spec.shape { crate::building_plan::Shape::Floor => "floor", crate::building_plan::Shape::Wall => "wall", crate::building_plan::Shape::Doorway => "doorway", crate::building_plan::Shape::Staircase => "staircase", crate::building_plan::Shape::GableRoof => "gable_roof" },
         "x":f64::from(spec.origin[0])*0.5,"y":f64::from(spec.origin[1])*0.5,"z":f64::from(spec.origin[2])*0.5,
         "width":f64::from(spec.size[0])*0.5,"height":f64::from(spec.size[1])*0.5,"depth":f64::from(spec.size[2])*0.5,"yaw":spec.yaw});
     if let Some([offset, width, height]) = spec.door {
@@ -1423,6 +1423,55 @@ mod tests {
         assert!(check_plan(&excessive).unwrap_err().contains("256 solid"));
         excessive["plan"]["height"] = json!(2);
         excessive["plan"]["depth"] = json!(2);
+        assert!(check_plan(&excessive).unwrap_err().contains("per brick"));
+    }
+    #[test]
+    fn gable_roof_preserves_primitive_union_identity_source_and_write_limits() {
+        let roof = json!({"kind":"gable_roof","x":4,"y":4,"z":4,"width":3,"height":1.5,"depth":1});
+        let mut args = plan_request();
+        args.insert("plan".into(), roof.clone());
+        let checked = check_plan(&args).unwrap();
+        let mut expected = std::collections::BTreeSet::new();
+        for (x, height) in [(0, 1), (1, 2), (2, 3), (3, 3), (4, 2), (5, 1)] {
+            for y in 0..height {
+                for z in 0..2 {
+                    expected.insert([8 + x, 8 + y, 8 + z]);
+                }
+            }
+        }
+        assert_eq!(
+            checked
+                .targets
+                .iter()
+                .copied()
+                .collect::<std::collections::BTreeSet<_>>(),
+            expected
+        );
+        assert_eq!(checked.canonical_plan["kind"], "gable_roof");
+        assert!(checked.dry);
+        let mut named = roof;
+        named["id"] = json!("roof");
+        let ridge =
+            json!({"id":"ridge","kind":"floor","x":5,"y":5,"z":4,"width":1,"height":0.5,"depth":1});
+        let union = check_plan(&composite(vec![named.clone(), ridge.clone()])).unwrap();
+        assert_eq!(union.targets.len(), 24);
+        assert_eq!(union, check_plan(&composite(vec![ridge, named])).unwrap());
+        let mut overlap = args.clone();
+        for key in ["source_x", "source_y", "source_z"] {
+            overlap.insert(key.into(), json!(4));
+        }
+        assert!(
+            check_plan(&overlap)
+                .unwrap_err()
+                .contains("source and target")
+        );
+        let mut excessive = args.clone();
+        excessive["plan"]["width"] = json!(8);
+        excessive["plan"]["height"] = json!(4);
+        excessive["plan"]["depth"] = json!(2);
+        assert!(check_plan(&excessive).unwrap_err().contains("256 solid"));
+        excessive["plan"]["width"] = json!(4);
+        excessive["plan"]["height"] = json!(2);
         assert!(check_plan(&excessive).unwrap_err().contains("per brick"));
     }
 }

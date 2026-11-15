@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.29.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.30.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [29 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -167,3 +167,11 @@ Server 0.29.0 adds `kind: "staircase"` to `building_plan` and existing `building
 Pure previews report step/rise/tread metadata, `walkability_verified: false` and `omitted_above_steps_cells`; those voids are not doorway openings. Omission never erases existing occupants. Existing floor/wall/doorway responses are unchanged. This is solid voxel geometry, not a native stair blueprint or a climbability claim.
 
 All limits remain: 1,024 candidates before omission, 256 unique write cells, eight bricks, 64 cells per brick, eight composite parts and 16 m compact extent per axis. Material/fill still comes only from the observed source voxel. Every write/session/actor/rights/persistence/capture/read-back/undo gate remains in force. Independent offline column/count/rotation and construction-admission tests pass; live rendering, traversal, placement, undo/reload and workshop usability remain deferred while the client is unavailable.
+
+## Solid gable-roof geometry
+
+Server 0.30.0 adds `kind: "gable_roof"` to pure `building_plan` and existing `building_apply_plan` primitive/composite compilation. The ridge runs along local z before the existing origin-vertex quarter turn. Height must be at least 1 m; width must be a whole multiple of twice height on the half-metre grid. Equal paired column runs rise from one cell at either eave to the full height at the central two runs. Depth extrudes this symmetric profile. The gable is solid and fills its attic volume; it is not a hollow or game-native roof blueprint.
+
+For width 3 m, height 1.5 m and depth 1 m, occupied column heights are 0.5, 1, 1.5, 1.5, 1 and 0.5 m. This gives 24 solid cells in 36 candidates and a 1 m flat ridge. Preview metadata exposes `attic_filled: true`, `shelter_verified: false`, the half-metre rise/run, local ridge axis and `omitted_outside_gable_cells`. Those omissions are separate from doorway openings and never erase existing occupants.
+
+All candidate/write/brick/composite/source and recovery limits remain unchanged. Material comes from the observed source voxel; existing write gates and native transaction handling apply. Independent offline cell/count/rotation/admission tests do not prove shelter, support, appearance or workshop usability. Deployment, placement, rendered slope/ridge/clearance, undo and cold-reload acceptance remain deferred while the client is unavailable.

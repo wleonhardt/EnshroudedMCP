@@ -9,7 +9,7 @@ use serde_json::{Map, Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "building_plan",
-        description: "Preview a bounded floor, wall, framed doorway or solid staircase on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
+        description: "Preview a bounded floor, wall, framed doorway, solid staircase or solid gable roof on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
         schema: policy::building_plan::schema(),
     }
 }
@@ -24,6 +24,7 @@ pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
         Shape::Wall => "wall",
         Shape::Doorway => "doorway",
         Shape::Staircase => "staircase",
+        Shape::GableRoof => "gable_roof",
     };
     let mut result = json!({
         "status":"geometry_preview_only",
@@ -34,7 +35,7 @@ pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
         "grid":{"cell_size_m":0.5,"coordinates":"integer minimum corners; each cell occupies [n,n+1) in grid units","origin_m":spec.origin.map(|n|f64::from(n)*0.5),"yaw_degrees":spec.yaw,"rotation_convention":"0: local x to +x, local z to +z; 90: local x to +z, local z to -x; about origin vertex, not game prop orientation"},
         "footprint_m":{"min":spec.min.map(|n|f64::from(n)*0.5),"max_exclusive":spec.max_exclusive.map(|n|f64::from(n)*0.5)},
         "local_dimensions_m":spec.size.map(|n|f64::from(n)*0.5),
-        "geometry":{"solid_cell_count":count,"candidate_cell_count":candidate,"omitted_opening_cells":if spec.shape==Shape::Staircase {0}else{candidate as usize-count},"nominal_solid_volume_m3":count as f64*0.125,"material_cell_counts":[{"material_reference":spec.material,"cells":count}],"crafting_cost":null},
+        "geometry":{"solid_cell_count":count,"candidate_cell_count":candidate,"omitted_opening_cells":if matches!(spec.shape,Shape::Staircase|Shape::GableRoof) {0}else{candidate as usize-count},"nominal_solid_volume_m3":count as f64*0.125,"material_cell_counts":[{"material_reference":spec.material,"cells":count}],"crafting_cost":null},
         "cell_minima":cells,
         "opening_behavior":"Opening cells are omitted, not erased. Existing terrain or objects in an opening remain.",
         "unchecked":["material reference and voxel kind mapping","loaded world and current occupants","collision and traversal clearance","altar zones and permissions","inventory, crafting cost and unlocks","appearance and neighboring material transitions","persistence and recovery"],
@@ -46,6 +47,13 @@ pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
         result["geometry"]["omitted_above_steps_cells"] = json!(candidate as usize - count);
         result["opening_behavior"] = json!(
             "Cells above treads are omitted, not erased. Existing occupants remain; headroom and climbability are unverified."
+        );
+    }
+    if spec.shape == Shape::GableRoof {
+        result["gable_roof"] = json!({"rise_m":0.5,"slope_run_m":f64::from(spec.size[0]/(2*spec.size[1]))*0.5,"ridge_local_axis":"z","attic_filled":true,"shelter_verified":false});
+        result["geometry"]["omitted_outside_gable_cells"] = json!(candidate as usize - count);
+        result["opening_behavior"] = json!(
+            "Cells outside the solid gable are omitted, not erased. The gable volume is filled; this is not a hollow attic or verified shelter."
         );
     }
     Ok(result)
@@ -131,6 +139,21 @@ mod tests {
         assert_eq!(
             result["staircase"],
             json!({"steps":3,"rise_m":0.5,"tread_depth_m":1.0,"ascends_local":"+z","walkability_verified":false})
+        );
+        assert_eq!(result["executable"], false);
+        assert_eq!(result["material_validated"], false);
+    }
+    #[test]
+    fn gable_roof_preview_reports_solid_volume_and_unverified_shelter() {
+        let args = json!({"kind":"gable_roof","x":4,"y":4,"z":4,"width":3,"height":1.5,"depth":1,"material":"stone"});
+        let result = call(args.as_object().unwrap()).unwrap();
+        assert_eq!(result["geometry"]["solid_cell_count"], 24);
+        assert_eq!(result["geometry"]["candidate_cell_count"], 36);
+        assert_eq!(result["geometry"]["omitted_opening_cells"], 0);
+        assert_eq!(result["geometry"]["omitted_outside_gable_cells"], 12);
+        assert_eq!(
+            result["gable_roof"],
+            json!({"rise_m":0.5,"slope_run_m":0.5,"ridge_local_axis":"z","attic_filled":true,"shelter_verified":false})
         );
         assert_eq!(result["executable"], false);
         assert_eq!(result["material_validated"], false);
