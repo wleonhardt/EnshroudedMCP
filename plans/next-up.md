@@ -72,3 +72,9 @@ Companion 0.8.0 implements bounded transient map-marker submission and explicit 
 A separate isolated fixture opened World/map through the authorized desktop fallback. Native marker show and clear were accepted, but no distinct annotation label/icon was observed at the near-player offset, including after reopening the map. Existing world/player icons remained visible. The small offset may overlap existing icons at this scale; the cause is unresolved. Next use a clearly separated bounded annotation and observed hover before diagnosing the native render path. No fast travel or saved-marker editing was exercised.
 
 Explicit clear preceded logout; research settings were restored and flags removed. Complete baseline captures, operation-ledger membership/hashes and installed binaries remained exact. This adds four companion audit records and four server research-setting records. SDK submission remains verified separately from rendered visibility, which is still unaccepted. Supported native map opening and rendered feedback remain roadmap priorities.
+
+### Separated annotation result
+
+A distinct bounded annotation farther from the player also failed to establish a visible label/icon. Existing altar hover responded; fresh companion state remained InGame/submitted, ruling out observed-leave cleanup during this view. The cause remains unresolved. Stop equivalent visibility retries pending a supported per-frame publication diagnostic or another concrete discriminator. Copied-set acceptance is still not rendered proof.
+
+Explicit clear and logout passed. Research settings were restored, flags removed, complete baseline captures and operation ledgers remained exact, and installed binaries were unchanged. No native rendering fix or workshop-prop acceptance is claimed. General safe prop recovery still needs supported complete placement-footprint and exact prior-label observations.
