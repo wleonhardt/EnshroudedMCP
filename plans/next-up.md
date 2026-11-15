@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **source verified; server-only shutdown lifecycle evidence** Source 0.28.1 adds bounded published shutdown/save event auditing with independent world generation, explicit availability/failure and four-record journal preflight. No installed binaries or client state changed. Older uninstalled 0.28.0 candidate remains historical and must not be installed after source closure changes. Private and sanitized-public 245 Rust/35 Python tests, Clippy, formatting and both release builds pass; exact 108-file privacy audits pass. Live acceptance remains deferred; retain matched deployment, actual event order/process exit/final-save/restart and connected acceptance as deferred gates.
+
+
 - **source verified; native dedicated shutdown live acceptance pending** Server 0.28.0 adds bounded dry/session/write-gated `server_shutdown`, durable identities, one native attempt per active session and queued cancellation through published World::stop. Native acceptance does not prove process exit/final save. Runtime remains 0.27.0/0.12.0. Private and sanitized-public checks pass 241 Rust/35 Python tests, Clippy, formatting and both release builds. The cold archive helper includes server-shutdown/ with exact synthetic coverage. Complete shutdown-aware preservation before a server-only deployment and one exact-process shutdown/restart/read-back fixture. Client join/logout/process control remains a separate priority gap.
 
 

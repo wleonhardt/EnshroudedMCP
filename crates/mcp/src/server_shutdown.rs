@@ -19,6 +19,12 @@ use std::{
 struct State {
     operations: BTreeMap<String, (String, Value)>,
     attempted_session: Option<String>,
+    pending_operation: Option<String>,
+    lifecycle: shutdown::Lifecycle,
+    event_sources: [bool; 2],
+    generation_source: bool,
+    observation_epoch: u64,
+    attempted_observation_epoch: Option<u64>,
 }
 #[derive(Clone, Debug)]
 pub(crate) struct Shutdown {
@@ -82,12 +88,78 @@ fn outcome(dir: &Path, operation: &str, value: &mut Value) {
         value["journal_error"] = json!(error);
     }
 }
+fn observe(dir: &Path, state: &mut State, generation: u64, event: shutdown::LifecycleEvent) {
+    if !shutdown::observes(generation, state.attempted_observation_epoch) {
+        return;
+    }
+    let Some(operation) = state.pending_operation.clone() else {
+        return;
+    };
+    let Some(kind) = state.lifecycle.record(event) else {
+        return;
+    };
+    let Some((session, value)) = state.operations.get_mut(&operation) else {
+        return;
+    };
+    value["lifecycle_observations"] = json!({"shutdown_started":state.lifecycle.shutdown_started,"world_saved_after_shutdown":state.lifecycle.world_saved_after_shutdown,"source":"published_sdk_events","causal_completion_verified":false});
+    if let Err(error) = GameTools::journal(
+        Some(dir),
+        "server_shutdown",
+        &json!({"kind":"server_shutdown_lifecycle","operation":operation,"session":session,"event":kind,"source":"published_sdk_events","causal_completion_verified":false}),
+        0,
+    ) {
+        value["lifecycle_journal_error"] = json!(error);
+    }
+}
+
 impl Shutdown {
     pub(crate) fn new(dir: PathBuf, lifecycle: Construction) -> Self {
         Self {
             dir,
             lifecycle,
             state: Arc::default(),
+        }
+    }
+    pub(crate) fn register_events(&self, load: &mut enshwick::Load<'_>) {
+        let started = self.clone();
+        let shutdown = load.on::<enshwick::events::ShutdownStarted>(move |()| {
+            started.record_event(shutdown::LifecycleEvent::ShutdownStarted)
+        });
+        if let Err(error) = &shutdown {
+            enshwick::warn!("shutdown lifecycle event unavailable: {error}");
+        }
+        let saved = self.clone();
+        let save = load.on::<enshwick::events::WorldSaved>(move |()| {
+            saved.record_event(shutdown::LifecycleEvent::WorldSaved)
+        });
+        if let Err(error) = &save {
+            enshwick::warn!("shutdown save event unavailable: {error}");
+        }
+        let loaded = self.clone();
+        let generation = load.on::<enshwick::events::WorldLoaded>(move |()| {
+            if let Ok(mut state) = loaded.state.lock() {
+                state.observation_epoch = state.observation_epoch.saturating_add(1);
+            }
+        });
+        if let Err(error) = &generation {
+            enshwick::warn!("shutdown lifecycle generation unavailable: {error}");
+        }
+        if let Ok(mut state) = self.state.lock() {
+            state.event_sources = [shutdown.is_ok(), save.is_ok()];
+            state.generation_source = generation.is_ok();
+        }
+    }
+    fn record_event(&self, event: shutdown::LifecycleEvent) {
+        // This generation stays stable through stop; WorldLoaded advances it.
+        if let Ok(mut state) = self.state.lock() {
+            let enabled = match event {
+                shutdown::LifecycleEvent::ShutdownStarted => state.event_sources[0],
+                shutdown::LifecycleEvent::WorldSaved => state.event_sources[1],
+            };
+            if state.generation_source && enabled {
+                let epoch = state.observation_epoch;
+                observe(&self.dir, &mut state, epoch, event);
+            }
         }
     }
     pub(crate) fn call(
@@ -158,7 +230,7 @@ fn run_with(
     let (current, players) = read()?;
     policy::construction::check_session(session, &current)?;
     shutdown::admit(spec, &current, players)?;
-    let mut value = json!({"operation":spec.operation,"session":session,"state":"dry","observed_player_characters":players,"stop_request_accepted":false,"stop_dispatched":false,"process_exit_verified":false,"final_save_verified":false,"automatic_retry":false,"automatic_restart":false,"native_undo":false,"scope":"dedicated-server request; empty character roster is not a connection lock; native availability and final save are not proven by preview"});
+    let mut value = json!({"operation":spec.operation,"session":session,"state":"dry","lifecycle_event_sources":{"shutdown_started":state.event_sources[0],"world_saved":state.event_sources[1],"world_generation":state.generation_source},"lifecycle_observations":{"shutdown_started":false,"world_saved_after_shutdown":false,"source":"published_sdk_events","causal_completion_verified":false},"observed_player_characters":players,"stop_request_accepted":false,"stop_dispatched":false,"process_exit_verified":false,"final_save_verified":false,"automatic_retry":false,"automatic_restart":false,"native_undo":false,"scope":"dedicated-server request; empty character roster is not a connection lock; native availability and final save are not proven by preview"});
     if spec.dry {
         return Ok(value);
     }
@@ -169,6 +241,13 @@ fn run_with(
         .operations
         .insert(spec.operation.clone(), (session.into(), value));
     if let Err(error) = reserve(dir, &spec.operation, &intent).and_then(|()| {
+        let size = match fs::metadata(dir.join("journal.jsonl")) {
+            Ok(meta) if meta.is_file() => meta.len(),
+            Ok(_) => return Err("shutdown journal must be a regular file".into()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => 0,
+            Err(error) => return Err(error.to_string()),
+        };
+        shutdown::journal_headroom(size)?;
         GameTools::journal(
             Some(dir),
             "server_shutdown",
@@ -197,6 +276,9 @@ fn run_with(
         );
     }
     state.attempted_session = Some(session.into());
+    state.pending_operation = Some(spec.operation.clone());
+    state.attempted_observation_epoch = Some(state.observation_epoch);
+    state.lifecycle = shutdown::Lifecycle::default();
     value["state"] = json!("issued_unknown");
     value["stop_dispatched"] = json!(true);
     match stop() {
@@ -533,16 +615,129 @@ mod tests {
         );
         assert!(!f.0.join("journal.jsonl").exists());
     }
+
+    #[test]
+    fn lifecycle_audit_is_ordered_session_bound_and_never_promotes_receipt() {
+        let f = Fixture::new();
+        f.enable();
+        let mut state = State::default();
+        observe(
+            &f.0,
+            &mut state,
+            0,
+            shutdown::LifecycleEvent::ShutdownStarted,
+        );
+        assert!(!f.0.join("journal.jsonl").exists());
+        let receipt = run_with(
+            &f.0,
+            &mut state,
+            &spec(),
+            "active",
+            read,
+            || Ok(()),
+            || Duration::ZERO,
+        )
+        .unwrap();
+        fs::remove_file(f.0.join(write_gate::FLAG)).unwrap();
+        observe(
+            &f.0,
+            &mut state,
+            1,
+            shutdown::LifecycleEvent::ShutdownStarted,
+        );
+        observe(&f.0, &mut state, 0, shutdown::LifecycleEvent::WorldSaved);
+        assert_eq!(f.records(), 2);
+        observe(
+            &f.0,
+            &mut state,
+            0,
+            shutdown::LifecycleEvent::ShutdownStarted,
+        );
+        observe(
+            &f.0,
+            &mut state,
+            0,
+            shutdown::LifecycleEvent::ShutdownStarted,
+        );
+        observe(&f.0, &mut state, 0, shutdown::LifecycleEvent::WorldSaved);
+        observe(&f.0, &mut state, 0, shutdown::LifecycleEvent::WorldSaved);
+        assert_eq!(f.records(), 4);
+        let value = &state.operations["con"].1;
+        assert_eq!(value["state"], receipt["state"]);
+        assert_eq!(value["process_exit_verified"], false);
+        assert_eq!(value["final_save_verified"], false);
+        assert_eq!(value["lifecycle_observations"]["shutdown_started"], true);
+        assert_eq!(
+            value["lifecycle_observations"]["world_saved_after_shutdown"],
+            true
+        );
+    }
+    #[test]
+    fn lifecycle_journal_failure_stays_explicit_and_does_not_repeat() {
+        let f = Fixture::new();
+        f.enable();
+        let mut state = State::default();
+        run_with(
+            &f.0,
+            &mut state,
+            &spec(),
+            "active",
+            read,
+            || Ok(()),
+            || Duration::ZERO,
+        )
+        .unwrap();
+        fs::remove_file(f.0.join("journal.jsonl")).unwrap();
+        fs::create_dir(f.0.join("journal.jsonl")).unwrap();
+        observe(
+            &f.0,
+            &mut state,
+            0,
+            shutdown::LifecycleEvent::ShutdownStarted,
+        );
+        let result = state.operations["con"].1.clone();
+        assert!(result.get("lifecycle_journal_error").is_some());
+        observe(
+            &f.0,
+            &mut state,
+            0,
+            shutdown::LifecycleEvent::ShutdownStarted,
+        );
+        assert_eq!(state.operations["con"].1, result);
+    }
+
+    #[test]
+    fn audit_headroom_is_required_before_native_dispatch() {
+        let f = Fixture::new();
+        f.enable();
+        let size =
+            (policy::construction::JOURNAL_MAX_BYTES - 2 * write_gate::JOURNAL_RECORD_BYTES) as u64;
+        let file = fs::File::create(f.0.join("journal.jsonl")).unwrap();
+        file.set_len(size).unwrap();
+        drop(file);
+        assert!(
+            run_with(
+                &f.0,
+                &mut State::default(),
+                &spec(),
+                "active",
+                read,
+                || panic!(),
+                || Duration::ZERO
+            )
+            .is_err()
+        );
+        assert_eq!(fs::metadata(f.0.join("journal.jsonl")).unwrap().len(), size);
+        assert!(f.0.join("server-shutdown/stop-con.json").is_file());
+    }
     static ADAPTER: Mutex<Option<(Shutdown, World, Scheduler)>> = Mutex::new(None);
     struct Probe;
     impl enshwick::Mod for Probe {
         fn init(load: &mut enshwick::Load<'_>) -> Result<Self, enshwick::Off> {
             let lifecycle = Construction::new(load)?;
-            *ADAPTER.lock().unwrap() = Some((
-                Shutdown::new(load.mod_dir()?, lifecycle),
-                load.world()?,
-                load.scheduler()?,
-            ));
+            let control = Shutdown::new(load.mod_dir()?, lifecycle);
+            control.register_events(load);
+            *ADAPTER.lock().unwrap() = Some((control, load.world()?, load.scheduler()?));
             Ok(Self)
         }
     }
@@ -581,6 +776,10 @@ side = "server""#
         request.dry = true;
         request.session = None;
         let preview = drive(request.clone()).unwrap();
+        assert_eq!(
+            preview["lifecycle_event_sources"],
+            json!({"shutdown_started":true,"world_saved":true,"world_generation":true})
+        );
         request.dry = false;
         request.session = Some(preview["session"].as_str().unwrap().into());
         let adapter = control.clone();
@@ -602,7 +801,25 @@ side = "server""#
         assert_eq!(receipt["final_save_verified"], false);
         assert_eq!(drive(request).unwrap(), receipt);
         assert_eq!(f.records(), 2);
+        fs::remove_file(f.0.join(write_gate::FLAG)).unwrap();
+        assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
+        assert_eq!(f.records(), 2);
+        assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+        assert_eq!(f.records(), 3);
+        assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
+        assert_eq!(f.records(), 4);
+        assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
+        assert_eq!(f.records(), 4);
+        let state = control.state.lock().unwrap();
+        assert_eq!(
+            state.operations["con"].1["lifecycle_observations"]["world_saved_after_shutdown"],
+            true
+        );
+        assert_eq!(state.operations["con"].1["final_save_verified"], false);
+        drop(state);
         assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+        assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
+        assert_eq!(f.records(), 4);
         let status = shutdown::check(json!({"operation":"con"}).as_object().unwrap()).unwrap();
         assert!(drive(status).is_err());
     }

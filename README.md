@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.28.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.28.1** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [29 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -149,3 +149,9 @@ Server 0.28.0 adds `server_shutdown` through the published native stop request. 
 The request runs on the game thread and queued pre-start timeouts cancel execution. Exclusive durable identities, synced intent/outcome journaling, at most 64 identities and one native attempt per active session prevent blind redispatch. A dry request for an existing identity returns retained status; after restart its durable identity stays unknown and cannot be reissued. Do not remove identities to retry. Native errors and lost replies also require reconciliation.
 
 `stop_request_accepted` reports native acceptance only. `process_exit_verified` and `final_save_verified` remain false: observe the exact process and verify save/restart/read-back separately. The published route is dedicated-server-only and may be unavailable; preview does not prove support. No automatic restart, countdown, save hold, process kill or client logout is exposed. Live shutdown acceptance is pending; installed research runtime remains 0.27.0/0.12.0.
+
+## Shutdown lifecycle observations
+
+Server 0.28.1 optionally subscribes to published shutdown-start/save callbacks. A request reports `lifecycle_event_sources` for shutdown, save and world-generation hooks, and separate `lifecycle_observations`. At most one shutdown-start and one later save event are journaled for an attempted operation; early, duplicate and other-generation events are ignored. Journal failures stay explicit. The observer uses no World API and never retries shutdown.
+
+Four-record headroom is checked before intent. These passive observations do not promote the original request receipt: `process_exit_verified`, `final_save_verified` and causal completion remain unverified. Live event order and save/restart acceptance are pending. Installed research runtime remains 0.27.0/0.12.0; deployment and client acceptance are deferred.

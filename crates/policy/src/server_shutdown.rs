@@ -86,6 +86,43 @@ pub fn attempt(session: &str, attempted: Option<&str>) -> Result<(), String> {
     }
 }
 
+/// Before intent, admit room for intent, outcome and at most two lifecycle records.
+pub fn journal_headroom(current: u64) -> Result<(), String> {
+    crate::construction::check_journal_size(current, 4 * crate::write_gate::JOURNAL_RECORD_BYTES)
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum LifecycleEvent {
+    ShutdownStarted,
+    WorldSaved,
+}
+
+#[derive(Default, Debug)]
+pub struct Lifecycle {
+    pub shutdown_started: bool,
+    pub world_saved_after_shutdown: bool,
+}
+impl Lifecycle {
+    pub fn record(&mut self, event: LifecycleEvent) -> Option<&'static str> {
+        match event {
+            LifecycleEvent::ShutdownStarted if !self.shutdown_started => {
+                self.shutdown_started = true;
+                Some("shutdown_started")
+            }
+            LifecycleEvent::WorldSaved
+                if self.shutdown_started && !self.world_saved_after_shutdown =>
+            {
+                self.world_saved_after_shutdown = true;
+                Some("world_saved_after_shutdown")
+            }
+            _ => None,
+        }
+    }
+}
+pub fn observes(generation: u64, attempted: Option<u64>) -> bool {
+    attempted == Some(generation)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,5 +153,28 @@ mod tests {
         assert!(capacity(64).is_err());
         assert!(elapsed(std::time::Duration::from_secs(4)).is_ok());
         assert!(elapsed(WAIT).is_err());
+    }
+    #[test]
+    fn lifecycle_events_require_order_and_are_bounded_to_one_each() {
+        let mut evidence = Lifecycle::default();
+        assert_eq!(evidence.record(LifecycleEvent::WorldSaved), None);
+        assert_eq!(
+            evidence.record(LifecycleEvent::ShutdownStarted),
+            Some("shutdown_started")
+        );
+        assert_eq!(evidence.record(LifecycleEvent::ShutdownStarted), None);
+        assert_eq!(
+            evidence.record(LifecycleEvent::WorldSaved),
+            Some("world_saved_after_shutdown")
+        );
+        assert_eq!(evidence.record(LifecycleEvent::WorldSaved), None);
+        assert!(evidence.shutdown_started && evidence.world_saved_after_shutdown);
+        let boundary = (crate::construction::JOURNAL_MAX_BYTES
+            - 4 * crate::write_gate::JOURNAL_RECORD_BYTES) as u64;
+        assert!(journal_headroom(boundary).is_ok());
+        assert!(journal_headroom(boundary + 1).is_err());
+        assert!(observes(1, Some(1)));
+        assert!(!observes(1, Some(2)));
+        assert!(!observes(1, None));
     }
 }

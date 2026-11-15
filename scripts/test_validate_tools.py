@@ -112,7 +112,7 @@ class ValidationTests(unittest.TestCase):
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14"),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
                            ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
-                           ("mod_version", "0.26.0"), ("mod_version", "0.27.0"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
+                           ("mod_version", "0.26.0"), ("mod_version", "0.27.0"), ("mod_version", "0.28.0"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
             client = Fixture()
             original = client.call
 

@@ -113,6 +113,12 @@ pub(crate) struct GameTools {
 }
 
 impl GameTools {
+    pub(crate) fn register_shutdown_events(&self, load: &mut enshwick::Load<'_>) {
+        if let Some(shutdown) = &self.shutdown {
+            shutdown.register_events(load);
+        }
+    }
+
     pub(crate) fn new(
         game: Game,
         components: Components,

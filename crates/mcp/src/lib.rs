@@ -70,16 +70,16 @@ impl Mod for Mcp {
                 .map_err(|error| enshwick::warn!("health recovery unavailable: {error}"))
                 .ok()
         });
-        Ok(Self {
-            tools: tools::GameTools::new(
-                game,
-                components,
-                load.mod_dir().ok(),
-                construction,
-                reposition,
-                recovery,
-            ),
-        })
+        let tools = tools::GameTools::new(
+            game,
+            components,
+            load.mod_dir().ok(),
+            construction,
+            reposition,
+            recovery,
+        );
+        tools.register_shutdown_events(load);
+        Ok(Self { tools })
     }
 
     fn ready(&'static self, _host: enshwick::Host) {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.28.1 (bounded native shutdown/save observations; live acceptance pending)
+
+- Add optional published lifecycle callbacks with independent world-load generation binding. Audit at most one shutdown-start and one later save event for an attempted operation; ignore early, duplicate and stale-generation events.
+- Preserve the original native request outcome and explicit process/final-save/causal verification limits. Callback availability and journal failures stay visible. Passive audit callbacks do not touch the World or retry shutdown.
+- Require room for intent, outcome and two possible event records before dispatch, retaining the existing shared per-record journal limit. Offline policy/native tests cover ordering, lifecycle invalidation, deduplication, audit failure and insufficient headroom.
+
 ## 0.28.0 (native dedicated-server shutdown; live acceptance pending)
 
 - Add a dry-by-default, session-bound `server_shutdown` request through published `World::stop`, scheduled on the game thread. Recheck the empty SDK player-character roster, write gate and deadline after durable intent; a roster is not a connection lock.
