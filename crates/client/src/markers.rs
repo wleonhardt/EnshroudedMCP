@@ -208,15 +208,21 @@ mod tests {
     struct Folder(PathBuf);
     impl Folder {
         fn new() -> Self {
+            Self::with_timestamp(
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos(),
+            )
+        }
+        fn with_timestamp(timestamp: u128) -> Self {
+            static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+            let sequence = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             let path = Path::new(env!("CARGO_MANIFEST_DIR"))
                 .join("../../target")
                 .join(format!(
-                    "marker-test-{}-{}",
-                    std::process::id(),
-                    std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .unwrap()
-                        .as_nanos()
+                    "marker-test-{}-{timestamp}-{sequence}",
+                    std::process::id()
                 ));
             fs::create_dir(&path).unwrap();
             fs::write(path.join(write_gate::FLAG), []).unwrap();
@@ -234,6 +240,14 @@ mod tests {
         fn drop(&mut self) {
             fs::remove_dir_all(&self.0).unwrap();
         }
+    }
+    #[test]
+    fn fixture_folders_are_distinct_when_clock_readings_repeat() {
+        let first = Folder::with_timestamp(42);
+        let second = Folder::with_timestamp(42);
+        assert_ne!(first.0, second.0);
+        assert!(first.0.join(write_gate::FLAG).is_file());
+        assert!(second.0.join(write_gate::FLAG).is_file());
     }
     fn spec() -> Spec {
         gate::check(
@@ -490,7 +504,29 @@ side = "both""#
         );
         let (tools, ui) = TOOLS.lock().unwrap().as_ref().unwrap().clone();
         let _ = loader.draw_frame();
-        let request = real(&mut tools.shared.markers.lock().unwrap(), &folder);
+        // An old copied frame cannot authorize the next request; preview must use its own frame.
+        tools.shared.markers.lock().unwrap().at = Some(Instant::now() - Duration::from_secs(2));
+        assert_eq!(tools.shared.markers.lock().unwrap().report()["stale"], true);
+        let preview_tools = tools.clone();
+        let preview = std::thread::spawn(move || {
+            preview_tools.call(
+                "client_map_markers",
+                json!({"markers":[{"x":12,"y":30,"z":40,"label":"Fixture"}]})
+                    .as_object()
+                    .unwrap(),
+            )
+        });
+        let deadline = Instant::now() + Duration::from_secs(1);
+        while tools.shared.pending.lock().unwrap().is_none() {
+            assert!(Instant::now() < deadline);
+            std::thread::sleep(Duration::from_millis(1));
+        }
+        let _ = loader.draw_frame();
+        let preview = preview.join().unwrap().unwrap();
+        let mut request = spec();
+        request.dry = false;
+        request.confirm = Some("server-write".into());
+        request.preview = Some(preview["preview"].as_str().unwrap().into());
         let (reply, receiver) = std::sync::mpsc::sync_channel(1);
         drop(receiver); // A lost caller cannot receive the successful submission.
         *tools.shared.pending.lock().unwrap() = Some(crate::Pending {

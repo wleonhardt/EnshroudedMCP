@@ -85,9 +85,9 @@ pub fn check(
             "writes are off: create {FLAG} in the mod's folder (and remove it when done)"
         ));
     };
-    if age > FLAG_MAX_AGE {
+    if age >= FLAG_MAX_AGE {
         return Err(format!(
-            "the write flag is older than {} min: touch {FLAG} again",
+            "the write flag is at least {} min old: touch {FLAG} again",
             FLAG_MAX_AGE.as_secs() / 60
         ));
     }
@@ -175,8 +175,19 @@ mod tests {
         assert!(
             check(false, true, old, Some(CONFIRM))
                 .unwrap_err()
-                .contains("older than 30 min")
+                .contains("at least 30 min old")
         );
+    }
+
+    #[test]
+    fn flag_freshness_is_strictly_less_than_thirty_minutes() {
+        let before = FLAG_MAX_AGE - Duration::from_nanos(1);
+        assert!(check(false, true, Some(before), Some(CONFIRM)).is_ok());
+        for expired in [FLAG_MAX_AGE, FLAG_MAX_AGE + Duration::from_nanos(1)] {
+            assert!(check(false, true, Some(expired), Some(CONFIRM)).is_err());
+            assert!(check(true, false, Some(expired), Some(CONFIRM)).is_err());
+            assert!(check(true, true, Some(expired), None).is_ok());
+        }
     }
 
     #[test]

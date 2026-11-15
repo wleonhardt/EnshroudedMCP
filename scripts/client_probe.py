@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.12.0; no actions."""
+"""Fixed read-only probes for native client companion 0.12.1; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.12.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.12.1" and
             value.get("enshwick") == "1.0.0-alpha.16" and
             value.get("compiled_framework_revision") == "5436ffddcc623439c339a283a4dc2b45f924fe5b" and
             value.get("compiled_framework_abi") == "12.0" and value.get("live_verified") is False and
@@ -190,11 +190,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.12.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.12.1"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.12.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.12.1", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

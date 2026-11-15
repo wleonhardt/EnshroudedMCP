@@ -1,5 +1,12 @@
 # Changelog
 
+## Server 0.31.1 / companion 0.12.1 (strict write-flag expiry)
+
+- Refuse shared write authorization when the flag is exactly 30 minutes old, matching the documented less-than-30-minute requirement. The previous comparison incorrectly admitted the exact boundary.
+- Cover one nanosecond before expiry, exact expiry and one nanosecond after, including real writes, non-reporting dry requests and safe report-only dry calls. Keep flag metadata, confirmation and all other gates unchanged.
+- Correct the marker reply-loss test to acquire its preview through a fresh production frame after an explicitly stale cached frame; keep production freshness and timeout limits unchanged. Give marker test folders a counter suffix so equal clock readings cannot collide.
+- Pin fixed read-only probes to the new server/companion source versions and explicitly refuse prior capability versions. No installed runtime or client use changed; connected/live acceptance remains deferred.
+
 ## 0.31.0 (deliberate native save requests; live acceptance deferred)
 
 - Add dry-by-default server_save through published World::save on the game thread, with exact preview session, empty character roster, fresh write gate and confirmation. Recheck admission after synced durable intent.
