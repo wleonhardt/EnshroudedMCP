@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.28.1** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.29.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [29 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -159,3 +159,11 @@ Four-record headroom is checked before intent. These passive observations do not
 ## Independent shutdown validation
 
 `scripts/process_exit.py` supplies read-only exact-process exit evidence outside MCP. It verifies a pinned PID/creation/executable identity before readiness, reports exit codes or a bounded timeout, and never promotes final-save or causal completion. Tests use disposable children only. See [the shutdown validation guide](docs/shutdown-validation.md) for sequencing and deferred live gates.
+
+## Solid staircase geometry
+
+Server 0.29.0 adds `kind: "staircase"` to `building_plan` and existing `building_apply_plan` primitive/composite geometry. Width stays constant; steps ascend local +z and rotate through the existing origin-vertex quarter turns. Each rise is one 0.5 m cell. Step count is height divided by 0.5 m; depth must be at least height and a whole multiple of height, producing equal positive grid-aligned treads. For example, width 1 m, height 1.5 m and depth 3 m yields three rises, 1 m treads and 24 solid cells.
+
+Pure previews report step/rise/tread metadata, `walkability_verified: false` and `omitted_above_steps_cells`; those voids are not doorway openings. Omission never erases existing occupants. Existing floor/wall/doorway responses are unchanged. This is solid voxel geometry, not a native stair blueprint or a climbability claim.
+
+All limits remain: 1,024 candidates before omission, 256 unique write cells, eight bricks, 64 cells per brick, eight composite parts and 16 m compact extent per axis. Material/fill still comes only from the observed source voxel. Every write/session/actor/rights/persistence/capture/read-back/undo gate remains in force. Independent offline column/count/rotation and construction-admission tests pass; live rendering, traversal, placement, undo/reload and workshop usability remain deferred while the client is unavailable.

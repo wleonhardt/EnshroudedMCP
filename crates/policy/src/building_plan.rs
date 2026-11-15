@@ -2,7 +2,7 @@
 
 use serde_json::{Map, Value, json};
 
-/// Maximum candidate cells, before any doorway cells are omitted.
+/// Maximum candidate cells, before doorway or above-step cells are omitted.
 pub const MAX_CELLS: i32 = 1024;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,6 +10,7 @@ pub enum Shape {
     Floor,
     Wall,
     Doorway,
+    Staircase,
 }
 
 /// A checked half-metre grid specification. Cell bounds are half-open.
@@ -32,7 +33,7 @@ pub fn schema() -> Value {
     json!({
         "type":"object", "additionalProperties":false,
         "properties": {
-            "kind":{"type":"string","enum":["floor","wall","doorway"]},
+            "kind":{"type":"string","enum":["floor","wall","doorway","staircase"]},
             "x":{"type":"number","minimum":0,"maximum":crate::bounds::EDGE,"multipleOf":0.5},
             "y":{"type":"number","minimum":0,"maximum":crate::bounds::HEIGHT,"multipleOf":0.5},
             "z":{"type":"number","minimum":0,"maximum":crate::bounds::EDGE,"multipleOf":0.5},
@@ -72,6 +73,7 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
         Some("floor") => Shape::Floor,
         Some("wall") => Shape::Wall,
         Some("doorway") => Shape::Doorway,
+        Some("staircase") => Shape::Staircase,
         _ => return Err("unknown building kind".into()),
     };
     let origin = [
@@ -90,8 +92,14 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
     if shape == Shape::Floor && size[1] != 1 {
         return Err("floor height must be 0.5 m".into());
     }
-    if shape != Shape::Floor && size[2] != 1 {
+    if matches!(shape, Shape::Wall | Shape::Doorway) && size[2] != 1 {
         return Err("wall and doorway depth must be 0.5 m".into());
+    }
+    if shape == Shape::Staircase && (size[2] < size[1] || size[2] % size[1] != 0) {
+        return Err(
+            "staircase depth must be at least height and a whole multiple of height on the grid"
+                .into(),
+        );
     }
     let material = args
         .get("material")
@@ -182,6 +190,9 @@ pub fn local_cells(spec: &Spec) -> Vec<[i32; 3]> {
     for y in 0..spec.size[1] {
         for z in 0..spec.size[2] {
             for x in 0..spec.size[0] {
+                if spec.shape == Shape::Staircase && y > z / (spec.size[2] / spec.size[1]) {
+                    continue;
+                }
                 if spec.door.is_some_and(|[offset, width, height]| {
                     x >= offset && x < offset + width && y < height
                 }) {
@@ -272,5 +283,79 @@ mod tests {
         assert!(check(&a).is_err());
         a.insert("kind".into(), json!("wall"));
         assert!(check(&a).is_err());
+    }
+    #[test]
+    fn staircase_columns_match_independent_step_oracle() {
+        for height in 1..=8 {
+            for tread in 1..=4 {
+                for width in 1..=4 {
+                    let mut args = base();
+                    args["kind"] = json!("staircase");
+                    args["width"] = json!(width as f64 * 0.5);
+                    args["height"] = json!(height as f64 * 0.5);
+                    args["depth"] = json!((height * tread) as f64 * 0.5);
+                    let spec = check(&args).unwrap();
+                    let actual: std::collections::BTreeSet<_> =
+                        local_cells(&spec).into_iter().collect();
+                    let mut expected = std::collections::BTreeSet::new();
+                    for step in 1..=height {
+                        for z in (step - 1) * tread..step * tread {
+                            for x in 0..width {
+                                for y in 0..step {
+                                    expected.insert([x, y, z]);
+                                }
+                            }
+                        }
+                    }
+                    assert_eq!(actual, expected);
+                    assert_eq!(
+                        actual.len(),
+                        (width * tread * height * (height + 1) / 2) as usize
+                    );
+                }
+            }
+        }
+    }
+    #[test]
+    fn staircase_ratios_door_fields_workload_and_rotated_edges_are_refused() {
+        let mut args = base();
+        args["kind"] = json!("staircase");
+        args["width"] = json!(1);
+        args["height"] = json!(1.5);
+        args["depth"] = json!(3);
+        assert!(check(&args).is_ok());
+        for depth in [0.5, 1.0, 2.0, 2.5] {
+            let mut bad = args.clone();
+            bad["depth"] = json!(depth);
+            assert!(check(&bad).is_err());
+        }
+        let mut bad = args.clone();
+        bad.insert("door_offset".into(), json!(0.5));
+        assert!(check(&bad).is_err());
+        let mut bad = args.clone();
+        bad["width"] = json!(16);
+        bad["height"] = json!(4);
+        bad["depth"] = json!(4);
+        assert!(check(&bad).unwrap_err().contains("candidate"));
+        for yaw in [0, 90, 180, 270] {
+            let mut rotated = args.clone();
+            rotated.insert("yaw".into(), json!(yaw));
+            let spec = check(&rotated).unwrap();
+            let points = cells(&spec);
+            assert_eq!(points.len(), 24);
+            for axis in 0..3 {
+                assert_eq!(
+                    points.iter().map(|p| p[axis]).min().unwrap(),
+                    spec.min[axis]
+                );
+                assert_eq!(
+                    points.iter().map(|p| p[axis] + 1).max().unwrap(),
+                    spec.max_exclusive[axis]
+                );
+            }
+        }
+        args["x"] = json!(0);
+        args.insert("yaw".into(), json!(90));
+        assert!(check(&args).is_err());
     }
 }

@@ -19,7 +19,7 @@ The server advertises 29 tools. Inspect `tools/list` for exact schemas on your i
 | `entity_components` | Point, optional `radius` (up to 16) and `limit` (up to 20). Names of locally configured reflected components; no arbitrary component-value dump. |
 | `knowledge_search` | Optional `query`, `status`, `limit`. Curated evidence, provenance and missing checks. |
 | `recipe_plan` | Supplied recipe catalogue, stock, goals, stations and unlocks. Pure dependency arithmetic, not a live recipe or survival-feasibility claim. |
-| `building_plan` | Primitive `floor`, `wall` or `doorway`, dimensions, material label and optional quarter-turn `yaw`. At most 1024 candidate cells. Pure preview; material labels are unvalidated. |
+| `building_plan` | Primitive `floor`, `wall`, `doorway` or `staircase`, dimensions, material label and optional quarter-turn `yaw`. At most 1024 candidate cells. Pure preview; material labels are unvalidated. |
 | `building_survey` | Grid-aligned box dimensions and optional `player` and `foundation`. Foundation supplies grid-aligned `x`, `z`, exclusive `upper_y` in metres and integer `max_cells` from 1 to 15; the column must fit the survey. It previews only Air before occupied terrain, without a rendered surface-height claim or write authority. Up to 4096 complete cells, exact voxels, persistence and optional build rights. Props, hazards and traversal remain unchecked. |
 | `building_operation` | `operation`. Reconcile native construction status and exact complete-brick images. Stale/unknown receipts never reconstruct native IDs. |
 
@@ -224,3 +224,11 @@ The request runs on the game thread and queued pre-start timeouts cancel executi
 Server 0.28.1 optionally subscribes to published shutdown-start/save callbacks. A request reports `lifecycle_event_sources` for shutdown, save and world-generation hooks, and separate `lifecycle_observations`. At most one shutdown-start and one later save event are journaled for an attempted operation; early, duplicate and other-generation events are ignored. Journal failures stay explicit. The observer uses no World API and never retries shutdown.
 
 Four-record headroom is checked before intent. These passive observations do not promote the original request receipt: `process_exit_verified`, `final_save_verified` and causal completion remain unverified. Live event order and save/restart acceptance are pending. Installed research runtime remains 0.27.0/0.12.0; deployment and client acceptance are deferred.
+
+## Solid staircase geometry
+
+Server 0.29.0 adds `kind: "staircase"` to `building_plan` and existing `building_apply_plan` primitive/composite geometry. Width stays constant; steps ascend local +z and rotate through the existing origin-vertex quarter turns. Each rise is one 0.5 m cell. Step count is height divided by 0.5 m; depth must be at least height and a whole multiple of height, producing equal positive grid-aligned treads. For example, width 1 m, height 1.5 m and depth 3 m yields three rises, 1 m treads and 24 solid cells.
+
+Pure previews report step/rise/tread metadata, `walkability_verified: false` and `omitted_above_steps_cells`; those voids are not doorway openings. Omission never erases existing occupants. Existing floor/wall/doorway responses are unchanged. This is solid voxel geometry, not a native stair blueprint or a climbability claim.
+
+All limits remain: 1,024 candidates before omission, 256 unique write cells, eight bricks, 64 cells per brick, eight composite parts and 16 m compact extent per axis. Material/fill still comes only from the observed source voxel. Every write/session/actor/rights/persistence/capture/read-back/undo gate remains in force. Independent offline column/count/rotation and construction-admission tests pass; live rendering, traversal, placement, undo/reload and workshop usability remain deferred while the client is unavailable.

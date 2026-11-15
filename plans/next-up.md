@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **source verified; bounded staircase geometry** Server 0.29.0 adds fixed half-metre rises/equal treads to existing preview and primitive/composite compilation. Independent column/count, rotation, source, identity and write-limit checks pass with 251 Rust/39 Python tests, Clippy, formatting and release builds. Independent sanitized-public checks and exact 112-file publication privacy audits pass. No installed files or client state changed; live placement/rendering/traversal/undo/reload remain deferred. Roof geometry and the full functional workshop remain open.
+
+
 - **source verified; independent shutdown-exit observer** A read-only Windows observer binds PID/creation/executable and a held process handle before readiness, then reports exit code or timeout without process mutation. Four tests use disposable children only, including exit code 259 and identity/bounds refusal. It does not verify game shutdown, final save or causal completion. Private and sanitized-public 246 Rust/39 Python tests, Clippy, formatting and both release builds pass. Exact 111-file publication privacy audits pass; keep all real-client and deployment gates deferred.
 
 

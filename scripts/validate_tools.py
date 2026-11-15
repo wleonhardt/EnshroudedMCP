@@ -1,4 +1,4 @@
-"""Read-only 0.28.1 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.29.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -108,14 +108,14 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.28.1"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.29.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.28.1", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.29.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.28.1" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.29.0" and
                    v.get("compiled_framework_revision") == "5436ffddcc623439c339a283a4dc2b45f924fe5b" and
                    v.get("compiled_framework_abi") == "12.0" and v.get("enshwick") == "1.0.0-alpha.16" and
                    v.get("native_clock_advance_live_verified") is False and

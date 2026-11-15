@@ -9,7 +9,7 @@ use serde_json::{Map, Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "building_plan",
-        description: "Preview a bounded floor, wall or framed doorway on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
+        description: "Preview a bounded floor, wall, framed doorway or solid staircase on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
         schema: policy::building_plan::schema(),
     }
 }
@@ -23,8 +23,9 @@ pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
         Shape::Floor => "floor",
         Shape::Wall => "wall",
         Shape::Doorway => "doorway",
+        Shape::Staircase => "staircase",
     };
-    Ok(json!({
+    let mut result = json!({
         "status":"geometry_preview_only",
         "executable":false,
         "kind":kind,
@@ -33,13 +34,21 @@ pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
         "grid":{"cell_size_m":0.5,"coordinates":"integer minimum corners; each cell occupies [n,n+1) in grid units","origin_m":spec.origin.map(|n|f64::from(n)*0.5),"yaw_degrees":spec.yaw,"rotation_convention":"0: local x to +x, local z to +z; 90: local x to +z, local z to -x; about origin vertex, not game prop orientation"},
         "footprint_m":{"min":spec.min.map(|n|f64::from(n)*0.5),"max_exclusive":spec.max_exclusive.map(|n|f64::from(n)*0.5)},
         "local_dimensions_m":spec.size.map(|n|f64::from(n)*0.5),
-        "geometry":{"solid_cell_count":count,"candidate_cell_count":candidate,"omitted_opening_cells":candidate as usize-count,"nominal_solid_volume_m3":count as f64*0.125,"material_cell_counts":[{"material_reference":spec.material,"cells":count}],"crafting_cost":null},
+        "geometry":{"solid_cell_count":count,"candidate_cell_count":candidate,"omitted_opening_cells":if spec.shape==Shape::Staircase {0}else{candidate as usize-count},"nominal_solid_volume_m3":count as f64*0.125,"material_cell_counts":[{"material_reference":spec.material,"cells":count}],"crafting_cost":null},
         "cell_minima":cells,
         "opening_behavior":"Opening cells are omitted, not erased. Existing terrain or objects in an opening remain.",
         "unchecked":["material reference and voxel kind mapping","loaded world and current occupants","collision and traversal clearance","altar zones and permissions","inventory, crafting cost and unlocks","appearance and neighboring material transitions","persistence and recovery"],
         "next_checks":["Survey the complete footprint and opening in the target world.","Resolve the material on the current build and inspect placement rules.","Confirm clearances, base rights and costs using a disposable fixture.","Use a separate gated operation with current preconditions and read-back for any future write."],
         "provenance":{"geometry_basis":"enshwick v1.0.0-alpha.14 book/src/terrain.md, half-metre voxels","source":"https://github.com/enshwick/enshwick/blob/v1.0.0-alpha.14/book/src/terrain.md","verification":"offline arithmetic tests; not live placement"}
-    }))
+    });
+    if spec.shape == Shape::Staircase {
+        result["staircase"] = json!({"steps":spec.size[1],"rise_m":0.5,"tread_depth_m":f64::from(spec.size[2]/spec.size[1])*0.5,"ascends_local":"+z","walkability_verified":false});
+        result["geometry"]["omitted_above_steps_cells"] = json!(candidate as usize - count);
+        result["opening_behavior"] = json!(
+            "Cells above treads are omitted, not erased. Existing occupants remain; headroom and climbability are unverified."
+        );
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -109,6 +118,21 @@ mod tests {
         let result = call(&a).unwrap();
         assert_eq!(result["geometry"]["solid_cell_count"], 48);
         assert_eq!(result["geometry"]["nominal_solid_volume_m3"], 6.0);
+        assert_eq!(result["material_validated"], false);
+    }
+    #[test]
+    fn staircase_preview_distinguishes_step_voids_from_doorway_openings() {
+        let args = json!({"kind":"staircase","x":4,"y":4,"z":4,"width":1,"height":1.5,"depth":3,"material":"stone"});
+        let result = call(args.as_object().unwrap()).unwrap();
+        assert_eq!(result["geometry"]["solid_cell_count"], 24);
+        assert_eq!(result["geometry"]["candidate_cell_count"], 36);
+        assert_eq!(result["geometry"]["omitted_opening_cells"], 0);
+        assert_eq!(result["geometry"]["omitted_above_steps_cells"], 12);
+        assert_eq!(
+            result["staircase"],
+            json!({"steps":3,"rise_m":0.5,"tread_depth_m":1.0,"ascends_local":"+z","walkability_verified":false})
+        );
+        assert_eq!(result["executable"], false);
         assert_eq!(result["material_validated"], false);
     }
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.29.0 (bounded solid staircase geometry; live acceptance deferred)
+
+- Add staircase geometry to the existing pure preview and primitive/composite construction compiler. Fixed half-metre rises and equal positive treads ascend local +z, using existing quarter-turn rotation and source-voxel authority.
+- Preserve pre-omission candidate limits, world bounds, compact composite extents, stable keys/canonical identity, source-overlap refusal and every write/brick/recovery gate. Distinguish above-step voids from doorway openings; no omission erases occupants.
+- Independent stepped-column/count tests, rotations, invalid ratios, preview metadata and primitive/composite conversion checks pass. Geometry is not a native stair blueprint or verified traversal. Placement/rendering/undo/reload and workshop usability remain deferred.
+
 ## Development tooling (independent shutdown-exit evidence)
 
 - Correct the FakeHost marker acceptance test to reconcile a permitted started-timeout through retained status, native markers and exact journal data. Add deterministic reply-loss coverage without retrying or changing production deadlines.

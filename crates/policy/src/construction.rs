@@ -170,7 +170,7 @@ fn primitive_elements(spec: &crate::building_plan::Spec) -> Result<Elements, Str
     Ok(elements)
 }
 fn canonical_primitive(spec: &crate::building_plan::Spec) -> Value {
-    let mut canonical_plan = json!({"kind":match spec.shape { crate::building_plan::Shape::Floor => "floor", crate::building_plan::Shape::Wall => "wall", crate::building_plan::Shape::Doorway => "doorway" },
+    let mut canonical_plan = json!({"kind":match spec.shape { crate::building_plan::Shape::Floor => "floor", crate::building_plan::Shape::Wall => "wall", crate::building_plan::Shape::Doorway => "doorway", crate::building_plan::Shape::Staircase => "staircase" },
         "x":f64::from(spec.origin[0])*0.5,"y":f64::from(spec.origin[1])*0.5,"z":f64::from(spec.origin[2])*0.5,
         "width":f64::from(spec.size[0])*0.5,"height":f64::from(spec.size[1])*0.5,"depth":f64::from(spec.size[2])*0.5,"yaw":spec.yaw});
     if let Some([offset, width, height]) = spec.door {
@@ -1375,5 +1375,54 @@ mod tests {
                 .is_err()
             );
         }
+    }
+    #[test]
+    fn staircase_primitive_and_union_keep_identity_source_and_write_limits() {
+        let stair = json!({"kind":"staircase","x":4,"y":4,"z":4,"width":1,"height":1.5,"depth":3});
+        let mut args = plan_request();
+        args.insert("plan".into(), stair.clone());
+        let checked = check_plan(&args).unwrap();
+        assert_eq!(checked.targets.len(), 24);
+        assert_eq!(checked.canonical_plan["kind"], "staircase");
+        assert!(checked.dry);
+        let expected: std::collections::BTreeSet<_> = (1..=3)
+            .flat_map(|step| {
+                (0..step).flat_map(move |y| {
+                    ((step - 1) * 2..step * 2)
+                        .flat_map(move |z| (0..2).map(move |x| [8 + x, 8 + y, 8 + z]))
+                })
+            })
+            .collect();
+        assert_eq!(
+            checked
+                .targets
+                .iter()
+                .copied()
+                .collect::<std::collections::BTreeSet<_>>(),
+            expected
+        );
+        let mut named = stair;
+        named["id"] = json!("stairs");
+        let landing = json!({"id":"landing","kind":"floor","x":4,"y":5,"z":6.5,"width":1,"height":0.5,"depth":0.5});
+        let union = check_plan(&composite(vec![named.clone(), landing.clone()])).unwrap();
+        assert_eq!(union.targets.len(), 24);
+        assert_eq!(union, check_plan(&composite(vec![landing, named])).unwrap());
+        let mut overlap = args.clone();
+        for key in ["source_x", "source_y", "source_z"] {
+            overlap.insert(key.into(), json!(4));
+        }
+        assert!(
+            check_plan(&overlap)
+                .unwrap_err()
+                .contains("source and target")
+        );
+        let mut excessive = args.clone();
+        excessive["plan"]["width"] = json!(4);
+        excessive["plan"]["height"] = json!(4);
+        excessive["plan"]["depth"] = json!(4);
+        assert!(check_plan(&excessive).unwrap_err().contains("256 solid"));
+        excessive["plan"]["height"] = json!(2);
+        excessive["plan"]["depth"] = json!(2);
+        assert!(check_plan(&excessive).unwrap_err().contains("per brick"));
     }
 }
