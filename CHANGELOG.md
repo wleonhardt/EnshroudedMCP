@@ -1,10 +1,10 @@
 # Changelog
 
-## 0.23.0 (site access observations; live acceptance pending)
+## 0.23.0 (site access observations; isolated fixture verified)
 
 - Add read-only `building_access` for explicit ordered boxes with each side greater than zero and at most 64 metres. Optional player name/account key must match exactly one connected actor. Native build-rights and persistence reads run on the scheduled game thread; omitted player leaves rights unrequested.
 - Preserve unavailable/unchecked results as unknown, independently from observed refusal or false persistence. This is the native rule for the caller's box, not an item's full footprint, collision/contact test, save/reload proof or write authorization. No world mutation or new write gate is introduced.
-- Argument and result behavior tests pass. Isolated runtime remains server 0.22.0/companion 0.8.0; this server increment requires controlled deployment and live acceptance.
+- Argument/result tests and bounded isolated persistence/actor-rights fixtures pass on server 0.23.0/companion 0.8.0. Missing actor and invalid-box/write-field refusals pass. Construction dry-preview comparison refused an unloaded source region and remains unverified. Full captures, operation ledgers and installed hashes remain preserved after logout; public-namespace installation is unverified.
 
 ## Companion 0.8.0 (native map marker submission verified)
 

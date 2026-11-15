@@ -140,3 +140,11 @@ Explicit clear preceded logout; research settings were restored and flags remove
 A distinct bounded annotation farther from the player also failed to establish a visible label/icon. Existing altar hover responded; fresh companion state remained InGame/submitted, ruling out observed-leave cleanup during this view. The cause remains unresolved. Stop equivalent visibility retries pending a supported per-frame publication diagnostic or another concrete discriminator. Copied-set acceptance is still not rendered proof.
 
 Explicit clear and logout passed. Research settings were restored, flags removed, complete baseline captures and operation ledgers remained exact, and installed binaries were unchanged. No native rendering fix or workshop-prop acceptance is claimed. General safe prop recovery still needs supported complete placement-footprint and exact prior-label observations.
+
+## Site access live checkpoint
+
+The isolated research pair now runs server 0.23.0/companion 0.8.0. A verified 47-file cold archive and two rollback copies preceded server-only replacement; six companion/framework/loader hashes remained unchanged. Nineteen server and nine companion fixed probes pass, with incomplete verdicts preserving their semantic limits.
+
+Read-only building_access observed the native persistence rule true for a known fixture box and false for a distant box. Missing actor, unexpected write fields and reversed corners refused. A bounded joined fixture with native full health observed allowed build rights and persistence true for an explicit half-metre box. The separate construction dry preview could not load its source region, so exact preview comparison remains unverified. No construction write or reservation occurred.
+
+After logout and explicit restoration of the research setting, complete prior captures, operation ledgers and installed binary hashes remain exact. The prior server journal prefix has exactly four expected setting records; the companion journal is unchanged. Flags are absent and zero players remain. This validates limited native rule observations, not item footprints, collision/contact, complete base-boundary behavior, save/reload effects or public-namespace installation.
