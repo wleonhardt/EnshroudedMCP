@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.32.0 (pure bounded compound geometry previews)
+
+- Extend building_plan with named primitive unions using the existing construction compiler, without live source/world context. Keep primitive inputs/responses unchanged and material labels unvalidated.
+- Report canonical geometry, complete footprint, unique cells and separate candidate/contribution/omission/overlap counts. Preserve all candidate, part, extent, unique-cell and brick limits, strict branch admission and deterministic lexical ownership.
+- Pure layouts grant no execution or source authority. Live material, rights, persistence, rendering, traversal, props, workshop usability and recovery remain separate deferred checks.
+
 ## Server 0.31.1 / companion 0.12.1 (strict write-flag expiry)
 
 - Refuse shared write authorization when the flag is exactly 30 minutes old, matching the documented less-than-30-minute requirement. The previous comparison incorrectly admitted the exact boundary.

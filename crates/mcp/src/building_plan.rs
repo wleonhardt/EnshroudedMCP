@@ -9,12 +9,29 @@ use serde_json::{Map, Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "building_plan",
-        description: "Preview a bounded floor, wall, framed doorway, solid staircase or solid gable roof on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
-        schema: policy::building_plan::schema(),
+        description: "Preview a bounded floor, wall, framed doorway, solid staircase or solid gable roof or union of up to 8 named primitives on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
+        schema: policy::building_plan::preview_schema(),
     }
 }
 
 pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
+    if args.get("kind").and_then(Value::as_str) == Some("composite") {
+        let (spec, material) = policy::building_plan::check_composite(args)?;
+        let count = spec.elements.len();
+        let cells: Vec<_> = spec.elements.iter().map(|(_, cell)| cell).collect();
+        return Ok(json!({
+            "status":"geometry_preview_only","executable":false,"kind":"composite",
+            "material_reference":material,"material_validated":false,"canonical_plan":spec.canonical_plan,
+            "grid":{"cell_size_m":0.5,"coordinates":"integer minimum corners; each cell occupies [n,n+1) in grid units","rotation_convention":"each part uses absolute origin-vertex quarter turns"},
+            "footprint_m":{"min":spec.min.map(|n|f64::from(n)*0.5),"max_exclusive":spec.max_exclusive.map(|n|f64::from(n)*0.5)},
+            "geometry":{"solid_cell_count":count,"candidate_cell_count":spec.candidates,"contributed_solid_cell_count":spec.contributed_solids,"omitted_cells":spec.candidates as usize-spec.contributed_solids,"overlap_cells":spec.contributed_solids-count,"nominal_solid_volume_m3":count as f64*0.125,"material_cell_counts":[{"material_reference":material,"cells":count}],"crafting_cost":null},
+            "cell_minima":cells,
+            "opening_behavior":"Primitive voids omit cells, never subtract other parts or erase occupants. Overlapping solid contributions are counted once; lexical part IDs own stable cells.",
+            "unchecked":["source voxel and live material mapping","current world/session and occupants","rights and complete footprint persistence","collision, support, shelter and traversal","inventory, costs and unlocks","appearance, functional props, workshop usability and recovery"],
+            "next_checks":["Survey the full footprint and resolve a source voxel on the current build.","Use the separate construction dry path and fresh actor/session/write gates before any mutation.","Independently verify full captures, rendered geometry, usability and guarded undo/reload."],
+            "provenance":{"geometry_basis":"shared bounded construction compiler","verification":"offline geometry only; not live placement or write authorization"}
+        }));
+    }
     let spec = policy::building_plan::check(args)?;
     let cells = cells(&spec);
     let count = cells.len();
@@ -157,5 +174,55 @@ mod tests {
         );
         assert_eq!(result["executable"], false);
         assert_eq!(result["material_validated"], false);
+    }
+    #[test]
+    fn compound_preview_matches_independent_union_without_live_context() {
+        let args = json!({"kind":"composite","material":"stone","parts":[
+            {"id":"floor","kind":"floor","x":4,"y":4,"z":4,"width":2,"height":0.5,"depth":2},
+            {"id":"stairs","kind":"staircase","x":4,"y":4,"z":4,"width":1,"height":1,"depth":2},
+            {"id":"roof","kind":"gable_roof","x":4,"y":5,"z":4,"width":2,"height":1,"depth":1}
+        ]});
+        let out = call(args.as_object().unwrap()).unwrap();
+        let mut expected = std::collections::BTreeSet::new();
+        for x in 8..12 {
+            for z in 8..12 {
+                expected.insert([x, 8, z]);
+            }
+        }
+        for x in 8..10 {
+            for z in 10..12 {
+                expected.insert([x, 9, z]);
+            }
+        }
+        for (x, height) in [(8, 1), (9, 2), (10, 2), (11, 1)] {
+            for y in 10..10 + height {
+                for z in 8..10 {
+                    expected.insert([x, y, z]);
+                }
+            }
+        }
+        let actual: Vec<[i32; 3]> = serde_json::from_value(out["cell_minima"].clone()).unwrap();
+        assert_eq!(
+            actual
+                .iter()
+                .copied()
+                .collect::<std::collections::BTreeSet<_>>(),
+            expected
+        );
+        assert_eq!(actual.len(), 32);
+        assert_eq!(out["geometry"]["candidate_cell_count"], 48);
+        assert_eq!(out["geometry"]["contributed_solid_cell_count"], 40);
+        assert_eq!(out["geometry"]["omitted_cells"], 8);
+        assert_eq!(out["geometry"]["overlap_cells"], 8);
+        assert_eq!(
+            out["footprint_m"],
+            json!({"min":[4.0,4.0,4.0],"max_exclusive":[6.0,6.0,6.0]})
+        );
+        assert_eq!(out["executable"], false);
+        assert_eq!(out["material_validated"], false);
+        let mut reordered = args.clone();
+        reordered["parts"].as_array_mut().unwrap().reverse();
+        assert_eq!(call(reordered.as_object().unwrap()).unwrap(), out);
+        assert!(policy::args::check(&tool().schema, args.as_object().unwrap()).is_ok());
     }
 }

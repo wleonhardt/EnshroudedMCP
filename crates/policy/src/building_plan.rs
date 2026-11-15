@@ -51,6 +51,56 @@ pub fn schema() -> Value {
     })
 }
 
+/// Schema for existing primitive previews and bounded compound previews.
+#[must_use]
+pub fn preview_schema() -> Value {
+    let primitive = schema();
+    let composite = composite_preview_schema();
+    let mut combined = primitive.clone();
+    combined["properties"]["kind"]["enum"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!("composite"));
+    combined["properties"]["parts"] = composite["properties"]["parts"].clone();
+    combined["required"] = json!(["kind", "material"]);
+    combined["oneOf"] = json!([primitive, composite]);
+    combined
+}
+fn composite_preview_schema() -> Value {
+    let mut schema = crate::construction::composite_schema();
+    schema["properties"]["material"] = self::schema()["properties"]["material"].clone();
+    schema["required"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!("material"));
+    schema
+}
+/// Pure compound preview admission; material remains an unvalidated label.
+pub fn check_composite(
+    args: &Map<String, Value>,
+) -> Result<(crate::construction::Composite, String), String> {
+    crate::args::check(&composite_preview_schema(), args)?;
+    let material = material(args)?;
+    let mut plan = args.clone();
+    plan.remove("material");
+    Ok((crate::construction::preview_composite(&plan)?, material))
+}
+fn material(args: &Map<String, Value>) -> Result<String, String> {
+    let material = args
+        .get("material")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    if material.is_empty()
+        || material.len() > 128
+        || !material
+            .bytes()
+            .all(|c| c.is_ascii_alphanumeric() || b"_.:-".contains(&c))
+    {
+        return Err("material must be 1..128 ASCII letters, digits or _ . : -".into());
+    }
+    Ok(material.to_owned())
+}
+
 fn grid(args: &Map<String, Value>, key: &str, min: f64, max: f64) -> Result<i32, String> {
     let n = args
         .get(key)
@@ -108,18 +158,7 @@ pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
     {
         return Err("gable_roof height must be at least 1 m and width a whole multiple of twice height on the grid".into());
     }
-    let material = args
-        .get("material")
-        .and_then(Value::as_str)
-        .unwrap_or_default();
-    if material.is_empty()
-        || material.len() > 128
-        || !material
-            .bytes()
-            .all(|c| c.is_ascii_alphanumeric() || b"_.:-".contains(&c))
-    {
-        return Err("material must be 1..128 ASCII letters, digits or _ . : -".into());
-    }
+    let material = material(args)?;
     let door = if shape == Shape::Doorway {
         let offset = grid(args, "door_offset", 0.5, 15.0)?;
         let width = grid(args, "door_width", 0.5, 15.0)?;
@@ -446,5 +485,77 @@ mod tests {
         args["x"] = json!(0);
         args.insert("yaw".into(), json!(90));
         assert!(check(&args).is_err());
+    }
+    #[test]
+    fn compound_preview_keeps_branch_admission_and_construction_limits() {
+        let part =
+            json!({"id":"floor","kind":"floor","x":4,"y":4,"z":4,"width":1,"height":0.5,"depth":1});
+        let args = json!({"kind":"composite","material":"stone","parts":[part.clone()]});
+        let (preview, material) = check_composite(args.as_object().unwrap()).unwrap();
+        assert_eq!(material, "stone");
+        assert_eq!(preview.elements.len(), 4);
+        for (key, value) in [
+            ("confirm", json!("server-write")),
+            ("x", json!(4)),
+            ("operation", json!("write")),
+            ("unknown", json!(0)),
+        ] {
+            let mut bad = args.clone();
+            bad[key] = value;
+            assert!(check_composite(bad.as_object().unwrap()).is_err());
+        }
+        for material in ["", "bad material"] {
+            let mut bad = args.clone();
+            bad["material"] = json!(material);
+            assert!(check_composite(bad.as_object().unwrap()).is_err());
+        }
+        for (key, value) in [
+            ("material", json!("stone")),
+            ("unknown", json!(1)),
+            ("kind", json!("composite")),
+        ] {
+            let mut bad = args.clone();
+            bad["parts"][0][key] = value;
+            assert!(check_composite(bad.as_object().unwrap()).is_err());
+        }
+        let mut duplicate = args.clone();
+        duplicate["parts"] = json!([part.clone(), part.clone()]);
+        assert!(
+            check_composite(duplicate.as_object().unwrap())
+                .unwrap_err()
+                .contains("unique")
+        );
+        let mut excessive = args.clone();
+        excessive["parts"][0]["width"] = json!(4);
+        excessive["parts"][0]["depth"] = json!(4);
+        assert_eq!(
+            check_composite(excessive.as_object().unwrap())
+                .unwrap()
+                .0
+                .elements
+                .len(),
+            64
+        );
+        excessive["parts"][0]["kind"] = json!("gable_roof");
+        excessive["parts"][0]["height"] = json!(2);
+        excessive["parts"][0]["depth"] = json!(2);
+        assert!(
+            check_composite(excessive.as_object().unwrap())
+                .unwrap_err()
+                .contains("per brick")
+        );
+        let mut far = part.clone();
+        far["id"] = json!("far");
+        far["x"] = json!(24);
+        let mut bad = args.clone();
+        bad["parts"] = json!([part, far]);
+        assert!(
+            check_composite(bad.as_object().unwrap())
+                .unwrap_err()
+                .contains("16 m")
+        );
+        let mut primitive = base();
+        primitive.insert("parts".into(), json!([]));
+        assert!(check(&primitive).is_err());
     }
 }

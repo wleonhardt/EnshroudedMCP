@@ -76,7 +76,7 @@ fn primitive_schema() -> Value {
         .retain(|key| key != "material");
     plan
 }
-fn composite_schema() -> Value {
+pub fn composite_schema() -> Value {
     let mut part = primitive_schema();
     part["properties"]["id"] =
         json!({"type":"string","minLength":1,"maxLength":32,"pattern":"^[A-Za-z0-9_-]+$"});
@@ -114,7 +114,8 @@ pub fn check_plan(args: &Map<String, Value>) -> Result<PlanSpec, String> {
         .ok_or("missing plan object")?;
     let (elements, canonical_plan) =
         if plan.get("kind").and_then(Value::as_str) == Some("composite") {
-            compile_composite(plan)?
+            let compiled = compile_composite(plan)?;
+            (compiled.elements, compiled.canonical_plan)
         } else {
             let spec = primitive(plan)?;
             (primitive_elements(&spec)?, canonical_primitive(&spec))
@@ -180,7 +181,29 @@ fn canonical_primitive(spec: &crate::building_plan::Spec) -> Value {
     }
     canonical_plan
 }
-fn compile_composite(plan: &Map<String, Value>) -> Result<(Elements, Value), String> {
+/// Pure compound geometry shared with offline previews. No write authority.
+#[derive(Debug)]
+pub struct Composite {
+    pub elements: Vec<(String, [u32; 3])>,
+    pub canonical_plan: Value,
+    pub candidates: i32,
+    pub contributed_solids: usize,
+    pub min: [i32; 3],
+    pub max_exclusive: [i32; 3],
+}
+/// Validate the same compound geometry and brick limits as construction, without source or world reads.
+pub fn preview_composite(plan: &Map<String, Value>) -> Result<Composite, String> {
+    let compiled = compile_composite(plan)?;
+    target_bricks(
+        &compiled
+            .elements
+            .iter()
+            .map(|(_, cell)| *cell)
+            .collect::<Vec<_>>(),
+    )?;
+    Ok(compiled)
+}
+fn compile_composite(plan: &Map<String, Value>) -> Result<Composite, String> {
     use std::collections::{BTreeMap, BTreeSet};
     crate::args::check(&composite_schema(), plan)?;
     let parts = plan["parts"].as_array().ok_or("parts must be an array")?;
@@ -216,32 +239,42 @@ fn compile_composite(plan: &Map<String, Value>) -> Result<(Elements, Value), Str
     }
     // Bound the full compound footprint before expanding any solid cells.
     // Door openings are omissions and do not shrink a part's admitted extent.
-    for axis in 0..3 {
-        let min = checked.values().map(|s| s.min[axis]).min().unwrap();
-        let max = checked
+    let min = std::array::from_fn(|axis| checked.values().map(|s| s.min[axis]).min().unwrap());
+    let max_exclusive = std::array::from_fn(|axis| {
+        checked
             .values()
             .map(|s| s.max_exclusive[axis])
             .max()
-            .unwrap();
-        if max - min > 32 {
-            return Err("composite full extent must not exceed 16 m on any axis".into());
-        }
+            .unwrap()
+    });
+    if (0..3).any(|axis| max_exclusive[axis] - min[axis] > 32) {
+        return Err("composite full extent must not exceed 16 m on any axis".into());
     }
     let mut seen = BTreeSet::new();
     let mut elements = Vec::new();
     let mut canonical = Vec::new();
+    let mut contributed_solids = 0;
     for (id, spec) in checked {
         let mut part = canonical_primitive(&spec);
         part["id"] = json!(id);
         canonical.push(part);
-        for (key, cell) in primitive_elements(&spec)? {
+        let part_elements = primitive_elements(&spec)?;
+        contributed_solids += part_elements.len();
+        for (key, cell) in part_elements {
             // Lexical part order assigns overlapping cells one stable owner.
             if seen.insert(cell) {
                 elements.push((format!("part_{id}_{key}"), cell));
             }
         }
     }
-    Ok((elements, json!({"kind":"composite","parts":canonical})))
+    Ok(Composite {
+        elements,
+        canonical_plan: json!({"kind":"composite","parts":canonical}),
+        candidates,
+        contributed_solids,
+        min,
+        max_exclusive,
+    })
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

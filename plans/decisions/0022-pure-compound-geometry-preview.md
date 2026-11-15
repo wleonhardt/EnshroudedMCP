@@ -1,0 +1,13 @@
+# 0022: Pure bounded compound geometry previews
+
+Date: 2026-11-15. Status: implemented; private and sanitized-public source verified; live acceptance deferred.
+
+The explicit workshop goal needs combined layout review while client use is deferred. Existing building_apply_plan compound dry mode needs live source/world context; it cannot serve as a pure offline planner. Extend existing building_plan with kind composite, one unvalidated top-level material label and one to eight named absolute primitive parts. Preserve the existing primitive interface and response. No new executor or tool is introduced.
+
+Reuse construction's existing compound compiler, canonical lexical part ownership and geometry bounds. Expose copied compound metadata and a pure preview wrapper that applies the same unique-cell/brick limits. Keep primitive-only building_plan policy schema separate from the advertised preview union so construction parts cannot recursively become composites. The advertised object names every supported field and includes both formal branch schemas; tool-specific policy strictly validates the selected branch. Unknown and mixed-branch fields are refused without changing the generic argument validator.
+
+Preserve total candidate count before omission (1,024), compact full extent (16 m), eight parts, 256 unique cells, eight bricks and 64 cells per brick. Require unique bounded part IDs; prohibit nested composites, per-part material and write fields. Top-level material is an unvalidated label only. Native material/fill still comes exclusively from a live observed source in the separate construction route.
+
+Preview reports full admitted footprint, unique cell minima, canonical geometry, total candidates, pre-dedup solid contributions, omitted cells and overlap contributions separately. Omitted cells never subtract other parts or erase occupants. A cell with three contributing parts has two overlap contributions. Reorder is canonical and deterministic. The output remains executable false and carries no actor, session, source, authorization or recovery receipt.
+
+Verify an independent floor/stair/roof union, exact counts and complete footprint, reorder stability, strict branch/material/ID/nesting admission and unchanged construction limits. Existing construction tests must continue to prove exact targets/canonical identity/source authority. A pure preview proves no live material, rights, persistence, collision, support, shelter, traversal, appearance, functional prop or workshop usability. Deployment and complete rendered/read-back/undo/reload acceptance remain deferred under the client-use hold.
