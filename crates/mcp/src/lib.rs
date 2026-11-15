@@ -96,3 +96,5 @@ impl Mod for Mcp {
 enshwick::declare_mod!(Mcp);
 
 mod server_shutdown;
+
+mod server_save;

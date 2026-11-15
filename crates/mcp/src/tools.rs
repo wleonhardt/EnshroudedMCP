@@ -109,6 +109,7 @@ pub(crate) struct GameTools {
     recovery: Option<crate::health_recovery::Recovery>,
     clock_control: Option<crate::clock_control::ClockControl>,
     shutdown: Option<crate::server_shutdown::Shutdown>,
+    save: Option<crate::server_save::SaveControl>,
     list: Vec<Tool>,
 }
 
@@ -243,6 +244,11 @@ impl GameTools {
         });
         list.push(crate::clock_control::tool());
         list.push(crate::server_shutdown::tool());
+        list.push(crate::server_save::tool());
+        let save = mod_dir
+            .clone()
+            .zip(construction.clone())
+            .map(|(dir, lifecycle)| crate::server_save::SaveControl::new(dir, lifecycle));
         let shutdown = mod_dir
             .clone()
             .zip(construction.clone())
@@ -260,6 +266,7 @@ impl GameTools {
             recovery,
             clock_control,
             shutdown,
+            save,
             list,
         }
     }
@@ -356,6 +363,13 @@ impl Tools for GameTools {
                     policy::construction::check_session(&admitted, &active)?;
                     crate::pacification::run(settings, spec, &active, dir.as_deref())
                 })?
+            }
+            "server_save" => {
+                let spec = policy::server_save::check(a)?;
+                self.save
+                    .as_ref()
+                    .ok_or("save lifecycle unavailable")?
+                    .call(self.game.world, scheduler, spec)
             }
             "server_shutdown" => {
                 let spec = policy::server_shutdown::check(a)?;

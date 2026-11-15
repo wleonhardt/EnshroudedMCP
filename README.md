@@ -4,9 +4,9 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.30.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.31.0** and **optional companion 0.12.0** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
-[Setup](docs/setup.md) · [29 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
+[Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
 ## What it can do
 
@@ -175,3 +175,11 @@ Server 0.30.0 adds `kind: "gable_roof"` to pure `building_plan` and existing `bu
 For width 3 m, height 1.5 m and depth 1 m, occupied column heights are 0.5, 1, 1.5, 1.5, 1 and 0.5 m. This gives 24 solid cells in 36 candidates and a 1 m flat ridge. Preview metadata exposes `attic_filled: true`, `shelter_verified: false`, the half-metre rise/run, local ridge axis and `omitted_outside_gable_cells`. Those omissions are separate from doorway openings and never erase existing occupants.
 
 All candidate/write/brick/composite/source and recovery limits remain unchanged. Material comes from the observed source voxel; existing write gates and native transaction handling apply. Independent offline cell/count/rotation/admission tests do not prove shelter, support, appearance or workshop usability. Deployment, placement, rendered slope/ridge/clearance, undo and cold-reload acceptance remain deferred while the client is unavailable.
+
+## Native server save requests
+
+Server 0.31.0 adds `server_save` through published `World::save`, independently of shutdown. Supply `operation` (1..64 lowercase ASCII letters, digits, underscores or hyphens). New identities preview by default. Real calls require `dry: false`, the exact preview `session`, a fresh server-folder `ALLOW_WRITES` flag and `confirm: "server-write"`. The empty SDK player-character roster is rechecked after durable intent. This omits loading peers and is not a connection lock; coordinate access separately.
+
+Requests run on the game thread. A five-second queued timeout cancels before execution; a started timeout is unknown and must be reconciled using the same identity without automatic retry. Exclusive synced `server-save/save-{operation}.json` files retain at most 64 identities, with bounded intent/outcome journal headroom. Existing in-memory identities return retained same-session status. After reopening, a durable identity reports unknown on dry lookup and cannot dispatch again. Stale sessions, changed gates and audit failures refuse dispatch; native errors never authorize retry. A distinct identity is a separately deliberate request, not proof that a prior save completed. Preserve the namespace in cold archives and never remove identities to bypass capacity.
+
+`save_dispatched` and `save_request_accepted` describe the native request only. `save_completed_verified` and `causal_completion_verified` remain false; the API treats an already-running save as asked, and holds may refuse it. A timestamp or uncorrelated `WorldSaved` event does not prove the exact requested world state reached disk. No backup, save hold, forced save, native undo, shutdown or client control is added. Use dry lookup for retained status; real replay still requires the write gate. Live save/restart/full-content acceptance remains deferred while client use is reserved.

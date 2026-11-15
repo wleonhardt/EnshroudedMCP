@@ -112,7 +112,7 @@ class ValidationTests(unittest.TestCase):
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14"),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
                            ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
-                           ("mod_version", "0.26.0"), ("mod_version", "0.27.0"), ("mod_version", "0.28.0"), ("mod_version", "0.28.1"), ("mod_version", "0.29.0"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
+                           ("mod_version", "0.26.0"), ("mod_version", "0.27.0"), ("mod_version", "0.28.0"), ("mod_version", "0.28.1"), ("mod_version", "0.29.0"), ("mod_version", "0.30.0"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
             client = Fixture()
             original = client.call
 
@@ -239,7 +239,7 @@ class ValidationTests(unittest.TestCase):
     def test_advertised_writes_never_authorize_a_write_probe(self):
         client = Fixture()
         original = client.call
-        advertised = READS | {"server_shutdown", "clock_advance", "player_interaction_target", "building_access", "status", "players", "voxel_sample", "props_in", "entities_near",
+        advertised = READS | {"server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "status", "players", "voxel_sample", "props_in", "entities_near",
                               "entity_components", "give_item", "building_place_cell", "building_apply_plan",
                               "building_accept", "building_undo_cell", "player_reposition", "player_restore_health", "enemy_pacification", "future_write"}
 
@@ -254,33 +254,36 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 29)
+        self.assertEqual(len(SERVER_TOOLS), 30)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)
         self.assertNotIn("player_restore_health", READS)
         self.assertNotIn("enemy_pacification", READS)
         self.assertNotIn("clock_advance", READS)
+        self.assertIn("server_save", SERVER_TOOLS)
+        self.assertNotIn("server_save", READS)
         self.assertNotIn("server_shutdown", READS)
         self.assertTrue(all(check["outcome"] == "pass" for check in report["checks"]))
 
-    def test_missing_accept_discovery_fails_without_invoking_any_tool(self):
-        client = Fixture()
-        original = client.call
+    def test_missing_control_discovery_fails_without_invoking_any_tool(self):
+        for missing in ("building_accept", "server_save"):
+            client = Fixture()
+            original = client.call
 
-        def reply(method, params=None):
-            if method == "tools/list":
-                return {"tools": [{"name": name} for name in SERVER_TOOLS - {"building_accept"}]}
-            return original(method, params)
+            def reply(method, params=None):
+                if method == "tools/list":
+                    return {"tools": [{"name": name} for name in SERVER_TOOLS - {missing}]}
+                return original(method, params)
 
-        with patch.object(client, "call", side_effect=reply):
-            report = Validation(client, pause=lambda _: None).run()
-        self.assertEqual(report["verdict"], "failed")
-        self.assertFalse(any(method == "tools/call" for method, _ in client.calls))
+            with self.subTest(missing=missing), patch.object(client, "call", side_effect=reply):
+                report = Validation(client, pause=lambda _: None).run()
+                self.assertEqual(report["verdict"], "failed")
+                self.assertFalse(any(method == "tools/call" for method, _ in client.calls))
 
     def test_write_rejected_before_client_call(self):
         client = Fixture()
-        for name in ("give_item", "building_place_cell", "building_apply_plan", "building_accept", "building_undo_cell"):
+        for name in ("server_save", "give_item", "building_place_cell", "building_apply_plan", "building_accept", "building_undo_cell"):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 Validation(client).probe("write", name, {"dry": True})
         self.assertEqual(client.calls, [])

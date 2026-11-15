@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.31.0 (deliberate native save requests; live acceptance deferred)
+
+- Add dry-by-default server_save through published World::save on the game thread, with exact preview session, empty character roster, fresh write gate and confirmation. Recheck admission after synced durable intent.
+- Bound identities to 64 exclusive save-prefixed files, retain same-session replay without redispatch, refuse reopened/stale identities and audit failures, and cancel queued timeouts. Keep native errors and lost outcomes explicit; never automatically retry or remove identities.
+- Separate native request acceptance from completed disk save and causal content proof. No backup, force, save holds, native undo, shutdown or client control; live save/restart/full-content acceptance remains deferred.
+
 ## 0.30.0 (bounded solid gable-roof geometry; live acceptance deferred)
 
 - Add symmetric solid gable roofs to the existing pure preview and primitive/composite compiler. Equal paired half-metre column runs ascend toward a flat central ridge along local z; the attic volume is explicitly filled.
