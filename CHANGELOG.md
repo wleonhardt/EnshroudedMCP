@@ -1,9 +1,9 @@
 # Changelog
 
-## Companion 0.10.0 (native archive recipe IDs; live deployment pending)
+## Companion 0.10.0 (native archive recipe IDs; isolated identity fixture verified)
 
 - Add `recipe_id` from the published RecipeLayout.id field for bounded selected archive recipe rows. Preserve raw zero and full u32 values, existing row limits and archive/effective-definition uncertainty. The value is read from the record rather than derived from its name or GUID.
-- A record-ID expectation first failed, then passed. Synthetic mismatched-GUID IDs, zero/max values, capped output and invalid field spans pass; fixed probes reject malformed IDs while retaining no raw recipe data. Runtime remains server 0.25.0/companion 0.9.0; matched deployment and direct recipe-to-knowledge comparison remain pending. No crafting executor or eligibility claim is added.
+- A record-ID expectation first failed, then passed. Synthetic mismatched-GUID IDs, zero/max values, capped output and invalid field spans pass; fixed probes reject malformed IDs while retaining no raw recipe data. Isolated runtime 0.25.0/0.10.0 returns two direct record IDs that preserve the complete prior archive response and feed scoped live knowledge observations. Full-health checks, clean logout and complete preservation pass. UI selection/eligibility, modified definitions, live zero/max IDs and public-namespace installation remain unverified. No crafting executor or eligibility claim is added.
 
 
 ## 0.25.0 (native scoped knowledge reads; isolated player fixture verified)
