@@ -12,3 +12,10 @@ Keep the full administrative workshop objective in goal.md. Native client contro
 | 6 | Reusable advanced modules and bounded resumable jobs | Advanced workshop spawns, survives restart and demonstrates partial-failure recovery |
 
 Every experiment requires an independent oracle, relevant tests, isolated-site review, existing write gates and durable journals, rendered and exact read-back evidence, applicable undo/reload checks, explicit research-setting restoration and logout before unrelated development. Unknown outcomes must be reconciled rather than resent. Desktop control is last resort and each use records a prioritized native gap. No phase is accepted by transport probes or source tests alone.
+
+
+## Client control priorities
+
+Windows MCP fallback is authorized for missing native actions. Native replacements are prioritized as follows: server selection/join and private shared-password input; menu selection/cancel/logout; bounded movement/look/jump; inventory navigation and supported item use for health recovery; fresh rendered capture; station/crafting selection and interaction. Each fallback records its target, observed result and missing native capability.
+
+Executors require published framework support, bounded lifetime/cancellation, session/context admission and observed completion. Cached getters are not executors. Unknown outcomes must not be retried automatically. Never present an OS-input wrapper as native control. Credential values must stay out of tool arguments, logs and published evidence.

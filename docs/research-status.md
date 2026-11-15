@@ -86,3 +86,12 @@ Source/public checks pass 187 Rust/31 Python tests, Clippy, formatting and both 
 `give_item` requires exactly one connected player matching its existing account-key/name rules. Duplicate names and a numeric name colliding with another player's account key refuse before intent journaling or native submission. Roster order never breaks ties; an account selector is not automatically preferred over a matching name. Some ambiguous rosters therefore have no usable selector for a particular player, and the grant stays unavailable rather than choosing a recipient.
 
 The first-match regression and fake-host collision cases pass, together with the prior queued admission, cancellation and callback audit checks. Source/public validation passes 188 Rust/31 Python tests, Clippy, formatting and releases. Server 0.21.2 is not installed or tested with live recipients. Installed runtime remains 0.21.0/0.6.1 with writes disabled; manual connected-client handoff and native lifecycle/input support remain pending.
+
+
+## Matched isolated deployment: server 0.21.2 / companion 0.7.0
+
+The original research namespace now runs the matched pair on official acd5550c/ABI 11.30. A verified 44-file cold archive and four hashed rollback DLL copies preceded replacement. Framework and loader hashes stayed unchanged. All nineteen server and nine companion fixed probes pass after readiness; the first server startup probe failed its unknown-operation check. Reports retain incomplete semantic acceptance.
+
+A bounded desktop fallback joined the intended isolated server using redacted source-reference password input. The server observed one connected player and a rendered in-game menu was visible. The character showed a red health indication, so the session ended immediately. The attempted native health lookup used an unsupported tool name; no native health value was established. Fresh native Menu, zero players, both complete world captures and unchanged ledger membership/hashes were verified afterward. Writes remained disabled; no administrative grants, construction or research-setting changes occurred. Neutral publication-namespace binaries remain untested live.
+
+The installed companion successfully decoded the Workbench recipe requirement fields in its fixed archive probe. UI eligibility, complete requirements, positive grant execution and connected selection events remain unverified. Desktop join/logout evidence does not establish a native lifecycle executor.
