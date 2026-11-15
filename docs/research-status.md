@@ -115,3 +115,12 @@ Grass obscured portions of the base seam. These views establish rendered placeme
 A verified 44-file cold archive preceded the experiment. After undo and logout, the original pacification false value was explicitly restored and read back. A verified 45-file post-undo archive preceded restart. Cold reload preserved the exact 512-cell fixture and both larger world baselines, archived ledger membership/hashes and installed binaries. The old native receipt was not reconstructed; stale apply/accept/undo were refused and an old preview was rejected for session mismatch without a new reservation or journal change. The prior journal prefix remained exact plus six construction records and four setting records. Writes ended disabled with zero players. This proves baseline recovery, not persistence while placed or general terrain contact.
 
 The next fixture must expose the terrain/building seam without changing vegetation or unrelated world data. Native support/clearance/oracle checks and healthy, quiet rendered observations remain prerequisites.
+
+
+## Native Air versus rendered clearance
+
+A second isolated candidate selected a different terrain material after complete native capture and independent two-cell oracle agreement. A night attempt stopped before placement; the client logged out and the setting was restored while a bounded native clock watcher waited for day. The later fixture required observed day, full health and pacification, with a separate rendered review.
+
+The candidate did not provide an exposed seam. A small reversible registration trial changed exactly its two native Air cells as intended, but rendered only a cap-like fragment against an existing rock from two views. The fragment disappeared after exact undo. This is evidence of apparent visual overlap/occlusion; the rock's representation and the underlying cause are unresolved. Neither native Air, a terrain material ID nor an empty placed-prop query proves render-space or collision clearance. Complete contact acceptance remains open.
+
+Verified 45/46-file cold archives bracketed the attempts. After logout and explicit setting restoration, complete candidate/global captures remained exact; old ledgers and the prior journal prefix were preserved plus the expected six construction and eight setting records. Cold reload retained all archived ledgers and binaries; stale requests and the old-session preview refused without new reservations. No vegetation removal, terrain replacement, clock mutation or administrative healing occurred.

@@ -24,3 +24,6 @@ Executors require published framework support, bounded lifetime/cancellation, se
 ## Foundation checkpoint
 
 A two-cell pier passed exact 512-cell placement/read-back/undo and post-undo cold recovery, with visible placement from two positions and disappearance after undo. Grass obscured portions of the base seam, so Phase 2 contact acceptance remains open. Next select a naturally exposed terrain seam, keep the small fixture and independent oracle, and repeat rendered/read-back/recovery checks. Health restoration and pacification are separate controls, not guarantees of quiet or safety.
+
+
+A subsequent material-based candidate produced apparent rock overlap/occlusion during a reversible registration trial. Native Air and an empty placed-prop query did not establish render-space clearance. Prioritize supported scene-target/coordinate observations and a genuinely exposed site before another contact claim. The published SDK also supports mod-owned map markers through `Ui::set_markers`; a bounded client-map overlay is a queued native UI control, not a scene raycast or camera executor.
