@@ -142,6 +142,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::building_access::tool(),
             Tool {
                 name: "player_restore_health",
                 description: "ADMIN WRITE, dry by default. Restore the sole connected living player's health to its observed maximum. Exact actor/session/generation/health preview, fresh write flag and confirmation required. Queued work cancels on timeout before execution. Synced intent and read-back outcome; unknown outcomes require observation, not automatic retry. No damage, revive, item use, invulnerability, undo or replay protection.",
@@ -262,6 +263,40 @@ impl Tools for GameTools {
             network_health,
         } = self.game;
         match name {
+            "building_access" => {
+                let spec = policy::building_access::check(a)?;
+                on_game_thread(scheduler, move || {
+                    let actor =
+                        spec.player
+                            .as_deref()
+                            .map(|selector| {
+                                inspection::unique_player(world.players().into_iter().filter(|p| {
+                                    p.name == selector || p.key.0.to_string() == selector
+                                }))
+                                .map_err(|_| {
+                                    "player selector must match exactly one connected actor"
+                                        .to_owned()
+                                })
+                            })
+                            .transpose()?;
+                    let persistence = crate::building_access::persistence(
+                        world
+                            .persists(spec.min, spec.max)
+                            .map_err(|e| e.to_string()),
+                    );
+                    let rights = crate::building_access::rights(
+                        actor
+                            .as_ref()
+                            .map(|p| world.can_build(p, spec.min, spec.max)),
+                    );
+                    Ok::<_, String>(
+                        json!({"world_key":world.key(),"min":spec.min,"max":spec.max,
+                        "player":actor.as_ref().map(|p|json!({"key":p.key.0.to_string(),"entity":p.entity.0})),
+                        "persistence":persistence,"build_rights":rights,"world_mutated":false,
+                        "scope":"explicit caller box only; not an item footprint, collision/contact query, save/reload proof or authorization"}),
+                    )
+                })?
+            }
             "player_restore_health" => {
                 let spec = policy::health_recovery::check(a)?;
                 self.recovery

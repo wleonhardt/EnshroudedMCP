@@ -3,6 +3,7 @@
 
 pub mod args;
 pub mod bounds;
+pub mod building_access;
 pub mod building_plan;
 pub mod building_survey;
 pub mod client;

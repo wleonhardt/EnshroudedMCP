@@ -2,6 +2,7 @@
 //! The listener runs on a thread of its own; every game read is handed to the
 //! game thread through the scheduler (`tools.rs`).
 
+mod building_access;
 mod building_plan;
 mod building_survey;
 mod construction;
