@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.2 (unique grant recipient fix; source verified, not deployed)
+
+- Refuse `give_item` selectors matching multiple connected players instead of selecting the first roster entry. Existing name/account-key matching remains; duplicate names and a player's name matching another account key are ambiguous. Refusal precedes grant intent and native submission. Numeric account selectors are accepted only when uniquely matching.
+- A game-free first-match regression first failed, then passed with exact-one admission. Fake-host checks cover duplicate names, name/key collisions, uniquely selected accounts and existing timeout/journal behavior. All 188 Rust/31 Python tests, Clippy, formatting and both releases pass. Runtime remains server 0.21.0/companion 0.6.1 with writes disabled; source 0.21.2 is not installed or live-verified.
+
+
 ## 0.21.1 (queued grant fix; source verified, not deployed)
 
 - Fix `give_item` admission after queued lookup. Resolve the actor and dispatch on the same scheduled game-thread handler; recheck fresh flag/confirmation immediately before SDK submission. A revoked-flag regression first reproduced native dispatch and now refuses it. Pending handlers cancel after the five-second wait; started work reports an unknown outcome.

@@ -204,7 +204,7 @@ impl GameTools {
             },
             Tool {
                 name: "give_item",
-                description: "WRITE. Gives a connected player `count` (default 1, at most 100) of a vanilla item by debug name through the game's inventory transaction. Unknown names report up to five similar names. `dry: true` only resolves player/item. Real grants require a fresh ALLOW_WRITES flag and confirm: \"server-write\", rechecked on the game thread. Intent is synced before SDK submission; callback journals outcomes even after HTTP timeout. Pending handlers cancel on timeout; started outcomes may be unknown. Audit request IDs are not replay protection. Inspect inventory/journal before retrying; removing the flag does not cancel an already submitted SDK request.",
+                description: "WRITE. Gives one uniquely matching connected player `count` (default 1, at most 100) of a vanilla item by debug name. Duplicate names or name/account-key collisions refuse. Unknown item names report up to five similar names. `dry: true` only resolves player/item. Real grants require a fresh ALLOW_WRITES flag and confirm: \"server-write\", rechecked on the game thread. Intent is synced before SDK submission; callback journals outcomes even after HTTP timeout. Pending handlers cancel on timeout; started outcomes may be unknown. Audit request IDs are not replay protection. Inspect inventory/journal before retrying; removing the flag does not cancel an already submitted SDK request.",
                 schema: json!({"type": "object", "properties": {
                     "player": {"type": "string"},
                     "item": {"type": "string"},

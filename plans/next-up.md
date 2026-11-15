@@ -2,6 +2,8 @@
 
 ## Queue
 
+- Use server candidate 0.21.2 for the next controlled deployment. Verify normal recipient lookup and refusal before any real grant; duplicate/colliding recipient cases currently have fake-host evidence only. Preserve the pending manual handoff.
+
 - Deploy server 0.21.1 and validate grant admission/refusal on the isolated pair before valid-grant acceptance. Source/fake-host checks do not establish live behavior. Preserve disabled write flags and reconcile unknown outcomes without blind retry.
 
 - Deploy and validate companion 0.7.0 prop/shelter requirement observations on a controlled isolated fixture. Offline reflected/synthetic coverage is not live evidence. Do not infer full requirements or crafting eligibility from empty prop lists.

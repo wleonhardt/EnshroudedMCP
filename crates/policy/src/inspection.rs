@@ -6,6 +6,16 @@ use crate::{args, bounds};
 
 pub const HEALTH_RADIUS: f64 = 16.0;
 pub const PROP_LIMIT: usize = 500;
+
+pub fn unique_player<T>(mut matches: impl Iterator<Item = T>) -> Result<T, String> {
+    let player = matches
+        .next()
+        .ok_or_else(|| "no connected player matches this selector".to_owned())?;
+    if matches.next().is_some() {
+        return Err("player selector is ambiguous; grant refused".into());
+    }
+    Ok(player)
+}
 pub const HEALTH_LIMIT: usize = 20;
 pub const SLOT_LIMIT: usize = 128;
 pub const SLOT_OFFSET_MAX: usize = 65_536;
@@ -89,6 +99,18 @@ fn integer(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn player_selection_requires_one_match_independent_of_roster_order() {
+        assert_eq!(unique_player([7].into_iter()).unwrap(), 7);
+        assert!(unique_player(std::iter::empty::<u32>()).is_err());
+        for roster in [[7, 8], [8, 7], [7, 7]] {
+            assert!(
+                unique_player(roster.into_iter()).is_err(),
+                "ambiguous recipient selected from roster"
+            );
+        }
+    }
     use serde_json::json;
 
     fn obj(v: Value) -> Map<String, Value> {

@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.21.1** and **optional companion 0.7.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.21.2** and **optional companion 0.7.0**.
 
 [Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -77,3 +77,5 @@ The isolated original research namespace now runs server 0.21.0/companion 0.6.1,
 Companion source 0.7.0 adds bounded declared prop/shelter requirement observations. It passes offline checks but is not live-installed; current eligibility/full requirements remain unknown. See [tool reference](docs/tool-reference.md).
 
 Server source 0.21.1 fixes queued give admission and post-timeout callback journaling. This patch is not live-installed; audit IDs do not provide replay protection. See [grant contract](docs/tool-reference.md).
+
+Server source 0.21.2 additionally refuses ambiguous grant recipients; no roster-order tie breaking. This source patch is not live-installed.
