@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.33.0 (replay-safe caller-identified inventory grants)
+
+- Require give_item operation identity, default dry and exact current actor/item/session preview for real calls. Legacy identity-free requests fail closed; preserve strict counts/selectors and unique actor resolution.
+- Sync bounded exclusive grant identities and intent/outcome audit headroom before once-only native dispatch. Reconcile retained same-payload status without another grant; refuse conflicts, stale sessions/previews and reopened durable IDs.
+- Return submission status and retain native callback outcomes independently of HTTP replies, flag removal or later world generations. Keep audit failure explicit and inventory_readback_verified false. No automatic retry, native undo or live acceptance claim.
+
 ## 0.32.1 (strict legacy grant admission)
 
 - Fix give_item treating a negative count as an omitted value and silently substituting one. Only an absent count defaults to one; supplied counts must be integers from 1 to 100.

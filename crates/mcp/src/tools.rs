@@ -110,6 +110,7 @@ pub(crate) struct GameTools {
     clock_control: Option<crate::clock_control::ClockControl>,
     shutdown: Option<crate::server_shutdown::Shutdown>,
     save: Option<crate::server_save::SaveControl>,
+    grants: Option<crate::give_item::Grants>,
     list: Vec<Tool>,
 }
 
@@ -225,7 +226,7 @@ impl GameTools {
             },
             Tool {
                 name: "give_item",
-                description: "WRITE. Gives one uniquely matching connected player `count` (default 1, at most 100) of a vanilla item by debug name. Selectors must contain 1..128 UTF-8 bytes without control characters; malformed quantities refuse rather than default. Duplicate names or name/account-key collisions refuse. Unknown item names report up to five similar names. `dry: true` only resolves player/item. Real grants require a fresh ALLOW_WRITES flag and confirm: \"server-write\", rechecked on the game thread. Intent is synced before SDK submission; callback journals outcomes even after HTTP timeout. Pending handlers cancel on timeout; started outcomes may be unknown. Audit request IDs are not replay protection. Inspect inventory/journal before retrying; removing the flag does not cancel an already submitted SDK request.",
+                description: "ADMIN WRITE: caller-identified inventory grant, dry by default. Required operation/player/item; count 1..100. Real calls require exact current actor/item/session preview, fresh flag and confirm server-write. Repeat the original payload dry to inspect retained status without redispatch. Payload conflicts, stale sessions and reopened durable IDs refuse writes. At most 64 identities. Native callback commit is not inventory read-back; no automatic retry or undo. Removing a flag cannot cancel a submitted SDK request.",
                 schema: policy::give_item::schema(),
             },
         ];
@@ -239,6 +240,10 @@ impl GameTools {
         list.push(crate::clock_control::tool());
         list.push(crate::server_shutdown::tool());
         list.push(crate::server_save::tool());
+        let grants = mod_dir
+            .clone()
+            .zip(construction.clone())
+            .map(|(dir, lifecycle)| crate::give_item::Grants::new(dir, lifecycle));
         let save = mod_dir
             .clone()
             .zip(construction.clone())
@@ -261,6 +266,7 @@ impl GameTools {
             clock_control,
             shutdown,
             save,
+            grants,
             list,
         }
     }
@@ -745,7 +751,11 @@ impl Tools for GameTools {
                     json!({"total": found.len(), "known_types": components.len(), "entities": described})
                 })
             }
-            "give_item" => crate::give_item::call(self.game, self.mod_dir.clone(), a),
+            "give_item" => self
+                .grants
+                .as_ref()
+                .ok_or("grant lifecycle unavailable")?
+                .call(self.game, a),
             _ => Err(format!("unknown tool: {name}")),
         }
     }

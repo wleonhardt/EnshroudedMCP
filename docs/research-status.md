@@ -100,7 +100,9 @@ Only returned recipe matches read these fields. Legacy `required_props`, `unlock
 
 Source and publication checks pass 184 Rust/31 Python tests, Clippy, formatting and both release builds. Companion 0.7.0 is not installed or live-verified. Isolated runtime remains server 0.21.0/companion 0.6.1; connected-client and neutral-namespace acceptance remain pending. Native lifecycle/input execution remains a supported-API gap.
 
-## Queued inventory grant admission (source 0.21.1)
+## Historical queued inventory grant admission (source 0.21.1)
+
+This historical contract applied through 0.32.1. Server 0.33.0 requires caller identities and defaults to dry; use the replay-safe grant contract for current requests.
 
 `give_item` still requires explicit `dry: true` for preview. Real grants check the fresh flag/confirmation before queuing and again on the game thread. Actor resolution and native request submission share that handler. A request that has not started after five seconds is cancelled before a late tick can submit it. Started work may finish after the response timeout; observe inventory and journal before retrying.
 

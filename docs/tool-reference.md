@@ -49,7 +49,7 @@ Every real write requires the fresh flag and confirmation described in [architec
 
 | Tool | Contract |
 | --- | --- |
-| `give_item` | Player, vanilla item debug name, count up to 100. Inventory transaction, journaled. **Dry is opt-in:** explicitly use `dry: true` to preview. It is not a construction cost/refund system or a once-only construction operation. |
+| `give_item` | Required caller `operation`, `player`, `item`; optional count 1..100. Dry by default; real call needs exact preview and write gate. Same-payload dry lookup reconciles pending/native callback status without redispatch. Native commit is not inventory read-back; no undo. |
 | `building_place_cell` | Operation, source point, target point and player. Copies one exact observed building voxel into Air. Dry by default; real placement requires its preview `session`. |
 | `building_apply_plan` | Operation, player, source point and `plan`. Primitive or composite union of 1–8 uniquely named primitive parts. At most 256 unique cells, eight bricks, 64 cells per brick, 16 m per axis and 1024 total candidate cells. Source voxel supplies all material/fill. Dry by default. |
 | `building_accept` | Operation. Dry by default. Syncs acceptance after exact applied verification, permits another bounded operation and retains guarded session-only native undo. Does not prove persistence. |
@@ -104,7 +104,9 @@ Only returned recipe matches read these fields. Legacy `required_props`, `unlock
 
 Source and publication checks pass 184 Rust/31 Python tests, Clippy, formatting and both release builds. Companion 0.7.0 is not installed or live-verified. Isolated runtime remains server 0.21.0/companion 0.6.1; connected-client and neutral-namespace acceptance remain pending. Native lifecycle/input execution remains a supported-API gap.
 
-## Queued inventory grant admission (source 0.21.1)
+## Historical queued inventory grant admission (source 0.21.1)
+
+This historical contract applied through 0.32.1. Server 0.33.0 requires caller identities and defaults to dry; use the replay-safe grant contract for current requests.
 
 `give_item` still requires explicit `dry: true` for preview. Real grants check the fresh flag/confirmation before queuing and again on the game thread. Actor resolution and native request submission share that handler. A request that has not started after five seconds is cancelled before a late tick can submit it. Started work may finish after the response timeout; observe inventory and journal before retrying.
 
@@ -264,4 +266,14 @@ This path needs no game reads, player, source, write flag or session and always 
 
 Server 0.32.1 refuses supplied `give_item` counts unless they are integers from 1 to 100. Only an omitted count defaults to one; negative, zero, fractional, string, boolean, null and excessive counts never fall back to a one-item grant. Player and item selectors must contain 1..128 UTF-8 bytes, cannot be whitespace-only and cannot contain control characters. Admission runs before game-thread lookup or queueing, including direct tool-handler calls.
 
-Valid grant behavior remains unchanged. This legacy tool still defaults to a real request; use `dry: true` explicitly for report-only resolution. Real grants require the fresh server write flag and confirmation, with checks before queueing and again before intent/native submission. Pending timeout cancellation and durable callback auditing remain. Audit IDs generated internally are not caller-supplied idempotency keys: lost outcomes still require independent journal/inventory inspection without blind retry. Caller identity/session binding and native inventory read-back remain separate goals; this patch does not claim them or live acceptance.
+In 0.32.1, valid grant behavior and the legacy real-by-default contract were preserved. Server 0.33.0 replaces that contract with required caller identity, dry default and preview binding as described below. Real grants require the fresh server write flag and confirmation, with checks before queueing and again before intent/native submission. Pending timeout cancellation and durable callback auditing remain. Audit IDs generated internally are not caller-supplied idempotency keys: lost outcomes still require independent journal/inventory inspection without blind retry. The replay-safe migration below adds caller identity/session binding; independent native inventory read-back and live acceptance remain unverified.
+
+## Replay-safe inventory grants
+
+Server 0.33.0 intentionally changes `give_item`: `operation`, `player` and `item` are required, `count` is optional/default one (1..100), and `dry` now defaults true. Legacy calls without an identity fail closed. Operation IDs use 1..64 lowercase ASCII letters, digits, underscores or hyphens. A new dry request returns `preview` and `would_give`, binding the active world session and observed actor/item to the requested identity/payload. Preview resolves identity only; it does not prove inventory space, effective modded definitions or native acceptance. Real calls require `dry: false`, that exact current `preview`, fresh server `ALLOW_WRITES` and `confirm: "server-write"`.
+
+The request queues on the game thread, syncs exclusive `give-operations/grant-{operation}.json` intent, rechecks actor/item/session and final flag/deadline, then submits once to the native inventory API. At most 64 identities and bounded intent/outcome journal headroom are admitted. A queued five-second timeout cancels; a started timeout remains unknown. Return state may be `submitted_outcome_pending`, with `given: null`; the native callback separately retains and journals completion after HTTP reply loss or flag removal.
+
+Repeat the original operation/player/item/count with `dry: true` to inspect retained same-session status. It never redispatches. Changed payload conflicts. Real replay still requires write admission and preview syntax; it only returns retained status. Reopened durable identities are unknown and cannot dispatch; old in-memory sessions refuse. Keep this namespace in cold archives and never remove identities to bypass capacity. A new ID is a new deliberate grant, not reconciliation or a hidden retry.
+
+`native_outcome_reported` and `given` report native commit/rollback, not independent inventory contents. `inventory_readback_verified` remains false. Late callbacks remain scoped to their original session; audit failures stay explicit in cache. There is no native undo, inventory-loss cleanup, automatic retry or survival accounting. Live inventory baseline/read-back, matched deployment and connected acceptance remain deferred while the client is unavailable.

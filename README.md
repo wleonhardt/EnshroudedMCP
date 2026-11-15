@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.32.1** and **optional companion 0.12.1** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.33.0** and **optional companion 0.12.1** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -36,7 +36,7 @@ The endpoint always binds loopback. Remote use requires an authenticated tunnel.
 
 Real writes require a fresh `ALLOW_WRITES` file in the mod folder and `confirm: "server-write"`. Remove the flag when the controlled session ends. Construction also binds a preview to the active world session, checks the sole actor's rights and persistence, and records intent before native commit. Reusing an operation identity reconciles its outcome; it does not silently place again. Native receipts expire with the session.
 
-Most administrative tools default to dry preview. **`give_item` does not; pass `dry: true` explicitly.** Keep agents read-only until you understand each tool's contract. Empty-player checks alone do not prevent reconnection during maintenance.
+Administrative tools, including `give_item` from server 0.33.0, default to dry preview. Real grants need caller identity and the exact current preview. Keep agents read-only until you understand each tool's contract. Empty-player checks alone do not prevent reconnection during maintenance.
 
 ## Development and evidence
 
@@ -86,7 +86,7 @@ The isolated original research namespace now runs server 0.21.0/companion 0.6.1,
 
 Companion source 0.7.0 adds bounded declared prop/shelter requirement observations. It passes offline checks but is not live-installed; current eligibility/full requirements remain unknown. See [tool reference](docs/tool-reference.md).
 
-Server source 0.21.1 fixes queued give admission and post-timeout callback journaling. This patch is not live-installed; audit IDs do not provide replay protection. See [grant contract](docs/tool-reference.md).
+Historical source 0.21.1 added queued grant admission and callback auditing without replay protection. Server 0.33.0 now adds caller identities and dry-default preview binding; its live acceptance remains deferred. See [grant contract](docs/tool-reference.md).
 
 Server source 0.21.2 additionally refuses ambiguous grant recipients; no roster-order tie breaking. This source patch is not live-installed.
 
@@ -198,4 +198,14 @@ This path needs no game reads, player, source, write flag or session and always 
 
 Server 0.32.1 refuses supplied `give_item` counts unless they are integers from 1 to 100. Only an omitted count defaults to one; negative, zero, fractional, string, boolean, null and excessive counts never fall back to a one-item grant. Player and item selectors must contain 1..128 UTF-8 bytes, cannot be whitespace-only and cannot contain control characters. Admission runs before game-thread lookup or queueing, including direct tool-handler calls.
 
-Valid grant behavior remains unchanged. This legacy tool still defaults to a real request; use `dry: true` explicitly for report-only resolution. Real grants require the fresh server write flag and confirmation, with checks before queueing and again before intent/native submission. Pending timeout cancellation and durable callback auditing remain. Audit IDs generated internally are not caller-supplied idempotency keys: lost outcomes still require independent journal/inventory inspection without blind retry. Caller identity/session binding and native inventory read-back remain separate goals; this patch does not claim them or live acceptance.
+In 0.32.1, valid grant behavior and the legacy real-by-default contract were preserved. Server 0.33.0 replaces that contract with required caller identity, dry default and preview binding as described below. Real grants require the fresh server write flag and confirmation, with checks before queueing and again before intent/native submission. Pending timeout cancellation and durable callback auditing remain. Audit IDs generated internally are not caller-supplied idempotency keys: lost outcomes still require independent journal/inventory inspection without blind retry. The replay-safe migration below adds caller identity/session binding; independent native inventory read-back and live acceptance remain unverified.
+
+## Replay-safe inventory grants
+
+Server 0.33.0 intentionally changes `give_item`: `operation`, `player` and `item` are required, `count` is optional/default one (1..100), and `dry` now defaults true. Legacy calls without an identity fail closed. Operation IDs use 1..64 lowercase ASCII letters, digits, underscores or hyphens. A new dry request returns `preview` and `would_give`, binding the active world session and observed actor/item to the requested identity/payload. Preview resolves identity only; it does not prove inventory space, effective modded definitions or native acceptance. Real calls require `dry: false`, that exact current `preview`, fresh server `ALLOW_WRITES` and `confirm: "server-write"`.
+
+The request queues on the game thread, syncs exclusive `give-operations/grant-{operation}.json` intent, rechecks actor/item/session and final flag/deadline, then submits once to the native inventory API. At most 64 identities and bounded intent/outcome journal headroom are admitted. A queued five-second timeout cancels; a started timeout remains unknown. Return state may be `submitted_outcome_pending`, with `given: null`; the native callback separately retains and journals completion after HTTP reply loss or flag removal.
+
+Repeat the original operation/player/item/count with `dry: true` to inspect retained same-session status. It never redispatches. Changed payload conflicts. Real replay still requires write admission and preview syntax; it only returns retained status. Reopened durable identities are unknown and cannot dispatch; old in-memory sessions refuse. Keep this namespace in cold archives and never remove identities to bypass capacity. A new ID is a new deliberate grant, not reconciliation or a hidden retry.
+
+`native_outcome_reported` and `given` report native commit/rollback, not independent inventory contents. `inventory_readback_verified` remains false. Late callbacks remain scoped to their original session; audit failures stay explicit in cache. There is no native undo, inventory-loss cleanup, automatic retry or survival accounting. Live inventory baseline/read-back, matched deployment and connected acceptance remain deferred while the client is unavailable.
