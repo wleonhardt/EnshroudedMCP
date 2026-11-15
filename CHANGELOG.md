@@ -1,7 +1,8 @@
 # Changelog
 
-## Companion 0.12.0 (recipe lookup by observed archive ID; live comparison pending)
+## Companion 0.12.0 (recipe lookup by archive ID; isolated comparison verified)
 
+- The isolated 0.27.0/0.12.0 pair passes a matched cold deployment and live comparison: two observed archive IDs return complete unchanged output-query metadata at Menu and during a healthy connected session. Zero/max-ID queries and invalid selectors are exercised. Clean logout, restored settings, complete captures, archived ledgers and eight installed binary hashes pass. Live duplicate/zero/max-ID records, actual selected-UI applicability and public-namespace installation remain unverified.
 - Extend `client_recipes` with exactly one output item name or bounded integer archive recipe ID. Preserve zero/max IDs, all raw metadata, duplicate matches and truncation. Report ID ambiguity explicitly; existing output-item responses remain unchanged.
 - Keep archive reads on the existing bounded frame queue. Argument and parser tests first fail, then pass; observed IDs do not establish current UI selection, effective definitions, eligibility or a crafting executor.
 - Cover delayed native clock application: later status can observe the target while the original receipt remains uncertain, with no redispatch or extra journal record.

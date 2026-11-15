@@ -1,6 +1,6 @@
 # 0017: Resolve client recipe observations by archive ID
 
-Date: 2026-11-15. Status: source verified; not deployed.
+Date: 2026-11-15. Status: source verified and isolated 0.12.0 deployed; bounded Menu/InGame archive comparison verified.
 
 The companion already observes published station recipe-selection events and returns raw archive recipe IDs. Its recipe reader only accepts an output item name, leaving an observed recipe ID without a direct metadata lookup. Extend `client_recipes` to accept exactly one output `item` or integer `recipe_id` in 0..4294967295, retaining the existing optional 1..8 result limit. Zero remains an observed ID, not missing.
 

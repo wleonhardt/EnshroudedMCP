@@ -1,5 +1,9 @@
 # Evidence and remaining work
 
+## Direct recipe-ID comparison
+
+The isolated 0.27.0/0.12.0 pair passes a matched cold deployment and live comparison: two observed archive IDs return complete unchanged output-query metadata at Menu and during a healthy connected session. Zero/max-ID queries and invalid selectors are exercised. Clean logout, restored settings, complete captures, archived ledgers and eight installed binary hashes pass. Live duplicate/zero/max-ID records, actual selected-UI applicability and public-namespace installation remain unverified.
+
 ## Forward clock fixture
 
 The isolated 0.27.0/0.11.0 pair now passes a bounded clock fixture after a verified cold archive and server-only replacement. One native request was accepted; immediate read-back retained the old hour and correctly stayed `readback_unverified`. A later independent observation reached the requested hour, without promoting the retained receipt. Dry preview, missing-gate and invalid-target refusals, same-request replay, altered-request refusal and operation status pass. A healthy connected client separately rendered daylight consistent with its native daytime observation; connected preview was refused. Clean logout, restored settings, complete voxel captures, archived ledgers and installed binary hashes pass. This does not verify a before/after lighting transition, elapsed world progression, unrelated gameplay effects or public-namespace installation.

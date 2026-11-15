@@ -2,6 +2,9 @@
 
 ## Queue
 
+- **live verified; direct client recipe-ID lookup** Runtime 0.27.0/0.12.0 passes companion-only cold replacement with six loader/server binaries protected and a verified 48-file archive. Two direct ID rows equal complete prior output metadata at Menu and in a healthy connected session; zero/max queries and admission refusals pass. Clean logout, restored settings, complete captures/ledgers/eight hashes and absent flags pass. Actual UI eligibility, live collision/zero/max records and public-namespace installation remain unverified. Prioritize supported native client execution and a concrete functional-workshop discriminator next.
+
+
 - **source verified; direct client recipe-ID lookup** Companion 0.12.0 accepts exactly one output name or raw archive recipe ID, preserving zero, collisions, bounded results and complete raw metadata. Delayed clock application/status coverage also passes without receipt promotion. Private 234 Rust/35 Python tests, Clippy, formatting and release builds pass. Runtime stays 0.27.0/0.11.0. Next publish audited source, cold-replace only the two companion copies with six binaries protected, then compare a live observed ID against the complete existing output query. UI selection/eligibility and native execution remain unverified.
 
 
