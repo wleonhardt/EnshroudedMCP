@@ -391,7 +391,7 @@ impl Tools for GameTools {
                 "native_reposition":self.reposition.is_some(),
                 "native_reposition_live_verified":false,
                 "enshwick":"1.0.0-alpha.15",
-                "compiled_framework_revision":"5f647f46d7f987e93d397e00596014b23f3c1112",
+                "compiled_framework_revision":"acd5550c607a38c983433f9807cc95564244fe0b",
                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
                 "game_build":null,
                 "game_build_status":"not_observed",

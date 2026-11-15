@@ -79,3 +79,5 @@ Companion source 0.7.0 adds bounded declared prop/shelter requirement observatio
 Server source 0.21.1 fixes queued give admission and post-timeout callback journaling. This patch is not live-installed; audit IDs do not provide replay protection. See [grant contract](docs/tool-reference.md).
 
 Server source 0.21.2 additionally refuses ambiguous grant recipients; no roster-order tie breaking. This source patch is not live-installed.
+
+Server source 0.21.3 corrects compiled framework provenance in `capabilities`; fixed probes check the pinned revision, ABI and framework package version. Compiled metadata does not verify the installed loader.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.3
+
+- Correct server `capabilities.compiled_framework_revision` to the pinned official `acd5550c607a38c983433f9807cc95564244fe0b`. The previous response incorrectly retained an earlier revision. Compiled provenance is not live loader verification.
+- Fixed read probes now require the expected framework revision, ABI and package version. Mutation regressions reject incorrect values; the stricter probe reproduced the installed 0.21.2 mismatch.
+
+
 ## 0.21.2 (unique grant recipient fix; source verified, not deployed)
 
 - Refuse `give_item` selectors matching multiple connected players instead of selecting the first roster entry. Existing name/account-key matching remains; duplicate names and a player's name matching another account key are ambiguous. Refusal precedes grant intent and native submission. Numeric account selectors are accepted only when uniquely matching.

@@ -15,7 +15,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.21.2"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.21.3"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in SERVER_TOOLS | {"future_write"}]}
         name, args = params["name"], params["arguments"]
@@ -48,7 +48,8 @@ class Fixture:
                                                "night_starts_hours": 22.0, "day_duration_seconds": 1800.0,
                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
         elif name == "capabilities":
-            value = {"mod_version": "0.21.2", "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"enshwick": "1.0.0-alpha.15", "compiled_framework_revision": "acd5550c607a38c983433f9807cc95564244fe0b",
+                     "compiled_framework_abi": "11.30", "mod_version": "0.21.3", "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -80,6 +81,24 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_capabilities_refuse_wrong_framework_provenance(self):
+        for key, wrong in (("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
+                           ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14")):
+            client = Fixture()
+            original = client.call
+
+            def reply(method, params=None):
+                result = original(method, params)
+                if method == "tools/call" and params["name"] == "capabilities":
+                    value = json.loads(result["content"][0]["text"])
+                    value[key] = wrong
+                    result["content"][0]["text"] = json.dumps(value)
+                return result
+
+            with self.subTest(key=key), patch.object(client, "call", side_effect=reply):
+                report = Validation(client, pause=lambda _: None).run()
+                self.assertEqual(next(c for c in report["checks"] if c["name"] == "capability_shapes")["outcome"], "fail")
+
     def test_unavailable_clock_is_explicit_and_malformed_observations_fail(self):
         clock = {"state": "unavailable", "source": "published_server_clock", "rendered_lighting_verified": False, "observation": None}
         self.assertTrue(clock_observation({"clock": clock}))
@@ -196,7 +215,7 @@ class ValidationTests(unittest.TestCase):
 
         def reply(method, params=None):
             if method == "initialize":
-                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.21.2"}, "protocolVersion": "2025-06-18"}
+                return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.21.3"}, "protocolVersion": "2025-06-18"}
             if method == "tools/list":
                 return {"tools": [{"name": name} for name in advertised]}
             return original(method, params)
