@@ -1,5 +1,9 @@
 # Evidence and remaining work
 
+## Native zone-rule fixture
+
+Ninety-two read-only queries admitted one directly queried 39 m cube and refused six independent half-metre face expansions. Repeated local axis transition observations agree; no journal, operation, capture or binary changed. These are bounded native-rule observations, not general base dimensions, collision/contact or save proof. See [method and limits](zone-rule-fixture.md).
+
 This is a research prototype with bounded administrative capabilities. Evidence is separated into source tests, fixed transport probes and controlled game fixtures. It does not establish general automation or a functional workshop.
 
 ## Reproducible source checks
