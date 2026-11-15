@@ -116,3 +116,10 @@ Source/public checks pass 187 Rust/31 Python tests, Clippy, formatting and both 
 `give_item` requires exactly one connected player matching its existing account-key/name rules. Duplicate names and a numeric name colliding with another player's account key refuse before intent journaling or native submission. Roster order never breaks ties; an account selector is not automatically preferred over a matching name. Some ambiguous rosters therefore have no usable selector for a particular player, and the grant stays unavailable rather than choosing a recipient.
 
 The first-match regression and fake-host collision cases pass, together with the prior queued admission, cancellation and callback audit checks. Source/public validation passes 188 Rust/31 Python tests, Clippy, formatting and releases. Server 0.21.2 is not installed or tested with live recipients. Installed runtime remains 0.21.0/0.6.1 with writes disabled; manual connected-client handoff and native lifecycle/input support remain pending.
+
+
+## Administrative health restoration
+
+`player_restore_health` accepts `player`, optional `dry` (default true), `preview` and `confirm`. Dry observes the sole matching living server actor and returns a preview bound to its session, entity/account, lifecycle generation and current/maximum health. Real restoration uses `dry:false`, that exact preview, a fresh write flag and `confirm:"server-write"`. It restores only to the observed maximum through the published SDK. Full health is a gated no-op; invalid/dead/unavailable actors refuse. Pending timeout cancels only unstarted work.
+
+Intent and independent read-back outcome are synced to the journal. `restored_readback` requires the intended maximum and unchanged actor context; `command_error_unknown` and `readback_unverified` retain uncertainty. Inspect `players.vitals` and journal before any new request after an unknown outcome. No replay protection, damage, revive, native undo, item use or invulnerability is supplied.

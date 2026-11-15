@@ -9,6 +9,7 @@ pub mod client;
 pub mod client_recipe;
 pub mod client_selection;
 pub mod construction;
+pub mod health_recovery;
 pub mod http;
 pub mod inspection;
 pub mod item_lookup;

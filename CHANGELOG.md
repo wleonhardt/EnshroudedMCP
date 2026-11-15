@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.22.0 (native health restoration; isolated fixture verified)
+
+- Add `player_restore_health`: dry-by-default administrative restoration of the sole matching living player to its observed maximum. Preview binds session, actor, lifecycle generation and health; real calls require the existing fresh flag/confirmation. No damage, revive, item consumption, invulnerability, undo or replay protection.
+- Sync correlated bounded intent before mutation and outcome after independent native read-back. Recheck actor context and gate immediately before SDK submission. Queued timeout cancels before execution; started outcomes require observation before another request.
+- The isolated research pair runs server 0.22.0/companion 0.7.0. A bounded living-player fixture restored native health from 17/100 to 100/100, observed a full rendered bar, appended exactly two correlated records and removed the flag. Full world baselines and prior operation ledgers remained exact after logout. Broader gameplay safety and public-namespace installation remain unverified.
+
+
 ## 0.21.3
 
 - Correct server `capabilities.compiled_framework_revision` to the pinned official `acd5550c607a38c983433f9807cc95564244fe0b`. The previous response incorrectly retained an earlier revision. Compiled provenance is not live loader verification.

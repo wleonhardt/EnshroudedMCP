@@ -23,7 +23,7 @@ const NEAR_MAX: usize = 200;
 /// The most entities one `entity_components` answer describes.
 const DESCRIBE_MAX: usize = 20;
 
-fn give_gate(
+pub(crate) fn give_gate(
     dry: bool,
     dir: Option<&std::path::Path>,
     confirm: Option<&str>,
@@ -104,6 +104,7 @@ pub(crate) struct GameTools {
     mod_dir: Option<std::path::PathBuf>,
     construction: Option<crate::construction::Construction>,
     reposition: Option<crate::reposition::Reposition>,
+    recovery: Option<crate::health_recovery::Recovery>,
     list: Vec<Tool>,
 }
 
@@ -114,6 +115,7 @@ impl GameTools {
         mod_dir: Option<std::path::PathBuf>,
         construction: Option<crate::construction::Construction>,
         reposition: Option<crate::reposition::Reposition>,
+        recovery: Option<crate::health_recovery::Recovery>,
     ) -> Self {
         let point = |extra: &str| {
             json!({"type": "object", "properties": {
@@ -140,6 +142,11 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            Tool {
+                name: "player_restore_health",
+                description: "ADMIN WRITE, dry by default. Restore the sole connected living player's health to its observed maximum. Exact actor/session/generation/health preview, fresh write flag and confirmation required. Queued work cancels on timeout before execution. Synced intent and read-back outcome; unknown outcomes require observation, not automatic retry. No damage, revive, item use, invulnerability, undo or replay protection.",
+                schema: policy::health_recovery::schema(),
+            },
             crate::building_survey::tool(),
             Tool {
                 name: "enemy_pacification",
@@ -227,6 +234,7 @@ impl GameTools {
             mod_dir,
             construction,
             reposition,
+            recovery,
             list,
         }
     }
@@ -254,6 +262,13 @@ impl Tools for GameTools {
             network_health,
         } = self.game;
         match name {
+            "player_restore_health" => {
+                let spec = policy::health_recovery::check(a)?;
+                self.recovery
+                    .as_ref()
+                    .ok_or("native health recovery unavailable")?
+                    .call(self.game, spec)
+            }
             "enemy_pacification" => {
                 let spec = policy::pacification::check(a)?;
                 crate::pacification::gate(&spec, self.mod_dir.as_deref())?;

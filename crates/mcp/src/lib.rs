@@ -6,6 +6,7 @@ mod building_plan;
 mod building_survey;
 mod construction;
 mod give_item;
+mod health_recovery;
 mod item_lookup;
 mod knowledge;
 mod pacification;
@@ -55,6 +56,11 @@ impl Mod for Mcp {
                 .map_err(|error| enshwick::warn!("reposition unavailable: {error}"))
                 .ok()
         });
+        let recovery = construction.clone().and_then(|construction| {
+            health_recovery::Recovery::new(load, construction)
+                .map_err(|error| enshwick::warn!("health recovery unavailable: {error}"))
+                .ok()
+        });
         Ok(Self {
             tools: tools::GameTools::new(
                 game,
@@ -62,6 +68,7 @@ impl Mod for Mcp {
                 load.mod_dir().ok(),
                 construction,
                 reposition,
+                recovery,
             ),
         })
     }
