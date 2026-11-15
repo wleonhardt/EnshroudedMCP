@@ -87,19 +87,27 @@ pub(crate) fn parse(
 ) -> Result<Value, String> {
     gate::request(bytes.len(), limit)?;
     let registry = Registry::game().map_err(|e| e.to_string())?;
-    let mut result = parse_with(layout, bytes, output, limit, |record| {
-        decode_input(registry, input_type_hash, record)
-    })?;
+    let requirements =
+        crate::requirements::Reader::resolve(registry, registry_type_hash, layout.recipe)?;
+    let mut result = parse_with_requirements(
+        layout,
+        bytes,
+        output,
+        limit,
+        |record| decode_input(registry, input_type_hash, record),
+        |at| requirements.read(bytes, at),
+    )?;
     crate::categories::enrich(registry, registry_type_hash, bytes, &mut result)?;
     Ok(result)
 }
 
-fn parse_with(
+fn parse_with_requirements(
     layout: RecipeLayout,
     bytes: &[u8],
     output: Guid,
     limit: usize,
     mut decode: impl FnMut(&[u8]) -> Result<Value, String>,
+    mut requirements: impl FnMut(usize) -> Result<Value, String>,
 ) -> Result<Value, String> {
     gate::request(bytes.len(), limit)?;
     for size in [layout.recipe, layout.input_size, layout.stack_size] {
@@ -168,7 +176,8 @@ fn parse_with(
                     "workshop_guid":guid(&blob,at+layout.workshop_guid)?.to_string(),
                     "inputs":values(&inputs),"input_observations":input_observations,"outputs":values(&outputs),
                     "ingredient_category_semantics":null,"catalyst_semantics":null,
-                    "required_props":null,"unlock":null,"feasible":null}),
+                    "required_props":null,"unlock":null,"feasible":null,
+                    "requirement_observations":requirements(at)?}),
                 );
             }
         }
@@ -180,6 +189,17 @@ fn parse_with(
         "unverified":["ingredient category and catalyst semantics","required props and full unlock conditions","station availability and player eligibility","effective mod and settings changes","crafting feasibility and survival costs"],
         "limitations":["whole upstream registry allocation precedes parser byte admission","all matching output positions are considered; raw inputs/outputs do not establish recipe semantics"]}),
     )
+}
+
+#[cfg(test)]
+fn parse_with(
+    layout: RecipeLayout,
+    bytes: &[u8],
+    output: Guid,
+    limit: usize,
+    decode: impl FnMut(&[u8]) -> Result<Value, String>,
+) -> Result<Value, String> {
+    parse_with_requirements(layout, bytes, output, limit, decode, |_| Ok(Value::Null))
 }
 
 #[cfg(test)]
@@ -448,6 +468,49 @@ mod tests {
                 &[0; 48]
             )
             .is_ok()
+        );
+    }
+
+    #[test]
+    fn requirement_reads_are_limited_to_returned_matches_and_propagate_failures() {
+        let (bytes, selected) = registry(10);
+        let mut calls = 0;
+        let result = parse_with_requirements(
+            layout(),
+            &bytes,
+            selected,
+            2,
+            |_| Ok(Value::Null),
+            |_| {
+                calls += 1;
+                Ok(json!({"state":"observed"}))
+            },
+        )
+        .unwrap();
+        assert_eq!(calls, 2);
+        assert_eq!(
+            result["recipes"][1]["requirement_observations"]["state"],
+            "observed"
+        );
+        parse_with_requirements(
+            layout(),
+            &bytes,
+            Guid([8; 16]),
+            2,
+            |_| panic!("unmatched input decoded"),
+            |_| panic!("unmatched requirements decoded"),
+        )
+        .unwrap();
+        assert!(
+            parse_with_requirements(
+                layout(),
+                &bytes,
+                selected,
+                2,
+                |_| Ok(Value::Null),
+                |_| Err("malformed requirements".into())
+            )
+            .is_err()
         );
     }
 }

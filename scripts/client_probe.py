@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.6.1; no actions."""
+"""Fixed read-only probes for native client companion 0.7.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.6.1" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.7.0" and
             value.get("enshwick") == "1.0.0-alpha.15" and
             value.get("compiled_framework_revision") == "acd5550c607a38c983433f9807cc95564244fe0b" and
             value.get("compiled_framework_abi") == "11.30" and value.get("live_verified") is False and
@@ -116,6 +116,12 @@ def recipes(value):
                 isinstance(stack.get("item_guid"), str) and GUID.fullmatch(stack["item_guid"]) and
                 integer(stack.get("count")) for stack in stacks))
         require(any(stack["item_guid"] == value["selected_output_guid"] for stack in entry["outputs"]))
+        requirements = entry.get("requirement_observations")
+        require(isinstance(requirements, dict) and requirements.get("state") == "observed" and
+                requirements.get("source") == "vanilla_archive_recipe_requirements" and
+                requirements.get("full_requirements_verified") is False and requirements.get("eligibility_verified") is False and
+                type(requirements.get("requires_shelter")) is bool and isinstance(requirements.get("required_prop_ids"), list) and
+                len(requirements["required_prop_ids"]) <= 32 and all(integer(item) and item <= 0xFFFFFFFF for item in requirements["required_prop_ids"]))
         observations = entry.get("input_observations")
         require(isinstance(observations, list) and len(observations) == len(entry["inputs"]))
         for observation in observations:
@@ -173,11 +179,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.6.1"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.7.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(READS.issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.6.1", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.7.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

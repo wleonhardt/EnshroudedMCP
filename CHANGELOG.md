@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.7.0 (source verified; live deployment pending)
+
+- Add `requirement_observations` to returned recipe rows: ordered declared `required_prop_ids` and `requires_shelter`, through canonical reflected recipe/array/typedef metadata. At most 32 prop entries; spans, strides, counts and boolean bytes are admitted before reads. Empty lists, false flags, zeros and duplicate IDs are preserved. Prop type IDs are not item/entity selectors; full requirements and current eligibility stay unverified.
+- Share the existing recipe reflection helpers between category and requirement readers. Read requirements only for returned matches. All 184 Rust/31 Python tests, Clippy, formatting and both release builds pass. Installed isolated pair stays server 0.21.0/companion 0.6.1. This source increment is not deployed or live-verified; neutral namespace binaries remain untested live.
+
+
 ## 0.21.0 (isolated native clock read verified)
 
 - Extend `status` with a published server-clock observation: hours, day/night, day/night boundary hours, configured durations in seconds and current speed. Unavailable clocks remain explicit and distinct from midnight. Reads run on the existing scheduled server game thread; rendered lighting is unverified.

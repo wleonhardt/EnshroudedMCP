@@ -16,7 +16,7 @@ class Fixture:
     def call(self, method, params=None):
         self.calls.append((method, params))
         if method == "initialize":
-            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.6.1"}, "protocolVersion": "2025-06-18"}
+            return {"serverInfo": {"name": "enshrouded-mcp", "version": "0.7.0"}, "protocolVersion": "2025-06-18"}
         if method == "tools/list":
             return {"tools": [{"name": name} for name in READS | {"client_press", "future_write", "give_item"}]}
         name, args = params["name"], params["arguments"]
@@ -26,7 +26,7 @@ class Fixture:
         elif name == "client_recipes" and args.get("limit") == 9:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
-            value = {"role": "optional_client_companion", "version": "0.6.1", "enshwick": "1.0.0-alpha.15",
+            value = {"role": "optional_client_companion", "version": "0.7.0", "enshwick": "1.0.0-alpha.15",
                      "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
                      "compiled_framework_revision": "acd5550c607a38c983433f9807cc95564244fe0b", "compiled_framework_abi": "11.30",
                      "screen_host_template_observation": True,
@@ -63,6 +63,8 @@ class Fixture:
                      "selected_output_guid": guid, "total_matches": 1, "truncated": False, "unverified": ["fixture"],
                      "recipes": [{"recipe_guid": guid, "workshop_guid": guid, "debug_name": "private-recipe",
                                   "inputs": [{"item_guid": "00000000-0000-0000-0000-000000000000", "count": 0}],
+                                  "requirement_observations": {"state": "observed", "source": "vanilla_archive_recipe_requirements",
+                                      "required_prop_ids": [], "requires_shelter": False, "full_requirements_verified": False, "eligibility_verified": False},
                                   "input_observations": [{"category_id": 7, "category_membership": {
                                       "state": "observed", "source": "vanilla_archive_recipe_input_categories",
                                       "total_members": 1, "truncated": False, "scaling_semantics_verified": False,

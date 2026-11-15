@@ -2,6 +2,8 @@
 
 ## Queue
 
+- Deploy and validate companion 0.7.0 prop/shelter requirement observations on a controlled isolated fixture. Offline reflected/synthetic coverage is not live evidence. Do not infer full requirements or crafting eligibility from empty prop lists.
+
 - Compare native clock observations with rendered daylight during an authorized connected-client fixture; clock hours alone do not establish lighting, safety or placement readiness. Obtain a genuinely nonempty prop fixture before accepting template/label-row live behavior.
 
 - Compare observed recipe-category membership/scaling with a known game UI fixture before using it for alternative ingredient planning or feasibility. Companion 0.6.1 has limited native archive/member-identity evidence; native lifecycle/input executors remain priority.

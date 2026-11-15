@@ -1,5 +1,6 @@
 //! Vanilla recipe category membership; scaling is observed, not interpreted.
 
+use crate::recipe_types::{concrete, element, field};
 use enshwick::content::Blob;
 use enshwick::resources::{Kind, Registry, Type};
 use enshwick::typed::{RecipeInputCategoryItem, Reflected};
@@ -82,63 +83,6 @@ impl<'a> Index<'a> {
             "total_members":count,"truncated":count>gate::RETURNED_CATEGORY_MEMBERS,"scaling_semantics_verified":false}),
         )
     }
-}
-
-fn field<'a>(
-    registry: &'a Registry<'a>,
-    ty: &'a Type<'a>,
-    name: &str,
-) -> Result<(usize, &'a Type<'a>), String> {
-    let ty = concrete(registry, ty)?;
-    let field = ty
-        .fields()
-        .iter()
-        .find(|field| field.name() == name)
-        .ok_or("recipe category reflected field unavailable")?;
-    let inner = registry
-        .named(
-            field
-                .type_name()
-                .ok_or("recipe category field type unavailable")?,
-        )
-        .ok_or("recipe category type unavailable")?;
-    gate::field(
-        field.offset() as usize,
-        inner.size() as usize,
-        ty.size() as usize,
-    )?;
-    Ok((field.offset() as usize, inner))
-}
-
-fn concrete<'a>(registry: &'a Registry<'a>, mut ty: &'a Type<'a>) -> Result<&'a Type<'a>, String> {
-    for _ in 0..registry.len() {
-        if ty.kind() != Kind::Typedef {
-            return Ok(ty);
-        }
-        let inner = registry
-            .named(
-                ty.inner()
-                    .ok_or("recipe category alias target unavailable")?,
-            )
-            .ok_or("recipe category alias type unavailable")?;
-        if inner.size() != ty.size() {
-            return Err("recipe category alias size mismatch".into());
-        }
-        ty = inner;
-    }
-    Err("cyclic recipe category alias".into())
-}
-
-fn element<'a>(registry: &'a Registry<'a>, ty: &Type<'a>) -> Result<&'a Type<'a>, String> {
-    if ty.kind() != Kind::BlobArray || ty.size() != 8 {
-        return Err("recipe category field is not a reflected blob array".into());
-    }
-    registry
-        .named(
-            ty.inner()
-                .ok_or("recipe category array element unavailable")?,
-        )
-        .ok_or("recipe category array type unavailable".into())
 }
 
 fn resolve<'a>(registry: &'a Registry<'a>, hash: u32) -> Result<(Layout, &'a Type<'a>), String> {
