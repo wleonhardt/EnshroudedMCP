@@ -180,3 +180,7 @@ A daylight observation session found vegetation and rock still obscured confiden
 ### player_interaction_target
 
 Read-only arguments: `{ "player": "connected name or account key" }`. Name matching follows the SDK; ambiguous or absent actors refuse. The response separates an observed server prompt target, no target, and unknown/unavailable reader state. Target entity IDs last one server session; position/template may be null. This tool does not interact, raycast terrain, establish contact, or map client IDs to server IDs. All native reads run on the scheduled server game thread.
+
+### Prop discovery scope
+
+`props_in` reports item-placed props whose origins lie in the requested box. The published SDK deliberately excludes flame altars, item-placed creatures and survivors; entity queries can observe those separately. It also requires the placed-template mapping to match. An empty prop list cannot establish an empty rendered volume, absence of an altar, collision clearance or terrain contact. An isolated altar fixture agrees across prompt target, entity/used-item queries and item placed-template metadata while correctly yielding no props.
