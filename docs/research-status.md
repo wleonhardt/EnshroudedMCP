@@ -128,3 +128,9 @@ Verified 45/46-file cold archives bracketed the attempts. After logout and expli
 ## Native map control checkpoint
 
 Companion 0.8.0 implements bounded transient map-marker submission and explicit clearing. The isolated joined-client fixture accepted show/clear/show and automatic observed-leave cleanup, preserving empty submitted state after logout. Rendered visibility remains pending because fallback map shortcuts did not open the map. Prioritize supported native join/private entry, map/menu opening and logout executors; do not equate cached observations with control. See [tool reference](tool-reference.md).
+
+### Rendered map follow-up
+
+A separate isolated fixture opened World/map through the authorized desktop fallback. Native marker show and clear were accepted, but no distinct annotation label/icon was observed at the near-player offset, including after reopening the map. Existing world/player icons remained visible. The small offset may overlap existing icons at this scale; the cause is unresolved. Next use a clearly separated bounded annotation and observed hover before diagnosing the native render path. No fast travel or saved-marker editing was exercised.
+
+Explicit clear preceded logout; research settings were restored and flags removed. Complete baseline captures, operation-ledger membership/hashes and installed binaries remained exact. This adds four companion audit records and four server research-setting records. SDK submission remains verified separately from rendered visibility, which is still unaccepted. Supported native map opening and rendered feedback remain roadmap priorities.
