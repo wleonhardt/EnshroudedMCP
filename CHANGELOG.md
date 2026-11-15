@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.23.2 (foundation stop metadata; live deployment pending)
+
+- Include `terrain_stop.material` and `terrain_stop.fill` in admitted foundation previews, selected from the same copied capture as the existing stop-cell coordinate. Preserve partial fill, existing Air-only plan geometry and false rendered-contact/terrain-overwrite flags. No surface-height estimator or relaxed write admission.
+- A metadata expectation first failed, then passed; partial/full-fill fixtures retain their exact values and unchanged plans. Runtime remains server 0.23.1/companion 0.8.0. New response-field deployment/live acceptance is pending.
+
 ## 0.23.1 (site selector consistency; isolated fixture verified)
 
 - Match building_access player names with the pinned SDK's case-insensitive lowercase comparison, while keeping account-key matching exact. Preserve exact-one admission: case-variant duplicate names and name/account collisions refuse rather than selecting one actor.

@@ -57,8 +57,11 @@ fn foundation(block: &VoxelBox, request: &policy::building_survey::Foundation) -
         Err(reason) => json!({"state":"refused","plan":null,"reason":reason}),
         Ok(count) => {
             let lower = upper - count as u32;
+            let stop = block.iter()
+                .find(|(position, _)| position.to_array() == [x, lower - 1, z])
+                .map(|(_, voxel)| json!({"material":format!("{:?}",voxel.material()),"fill":voxel.fill()}));
             json!({"state":"preview_only","upper_boundary_cells":request.upper,
-                "terrain_stop_cell":[x,lower-1,z],"air_cell_count":count,
+                "terrain_stop_cell":[x,lower-1,z],"terrain_stop":stop,"air_cell_count":count,
                 "plan":{"kind":"wall","x":f64::from(x)*0.5,"y":f64::from(lower)*0.5,"z":f64::from(z)*0.5,"width":0.5,"height":count as f64*0.5,"depth":0.5},
                 "terrain_overwrite":false,"rendered_contact_verified":false,
                 "limitations":["occupied terrain is a cell stop, not the rendered surface height","no collision, structural support or traversal proof","survey and proposed plan are not authorization; placement requires fresh gated validation"]})
@@ -146,6 +149,10 @@ mod tests {
         .unwrap();
         let out = foundation(&block, &request);
         assert_eq!(out["terrain_stop_cell"], json!([10, 21, 30]));
+        assert_eq!(
+            out["terrain_stop"],
+            json!({"material":"Terrain(4)","fill":67})
+        );
         assert_eq!(out["air_cell_count"], 2);
         assert_eq!(out["rendered_contact_verified"], false);
         let args = json!({"operation":"foundation_fixture","source_x":0,"source_y":0,"source_z":0,"player":"fixture","plan":out["plan"]});
@@ -158,6 +165,35 @@ mod tests {
             policy::building_plan::cells(&spec),
             vec![[10, 22, 30], [10, 23, 30]]
         );
+    }
+
+    #[test]
+    fn partial_and_full_stops_preserve_raw_fill_without_claiming_surface_height() {
+        let request = policy::building_survey::Foundation {
+            upper: [10, 24, 30],
+            max_cells: 2,
+        };
+        for fill in [1, 57, 255] {
+            let block = VoxelBox::new(
+                VoxelPos::new(10, 21, 30),
+                [1, 3, 1],
+                vec![
+                    Voxel::new(VoxelMaterial::Terrain(1), fill),
+                    Voxel::new(VoxelMaterial::Air, 0),
+                    Voxel::new(VoxelMaterial::Air, 0),
+                ],
+            )
+            .unwrap();
+            let out = foundation(&block, &request);
+            assert_eq!(
+                out["terrain_stop"],
+                json!({"material":"Terrain(1)","fill":fill})
+            );
+            assert_eq!(out["terrain_stop_cell"], json!([10, 21, 30]));
+            assert_eq!(out["plan"]["y"], 11.0);
+            assert_eq!(out["rendered_contact_verified"], false);
+            assert_eq!(out["terrain_overwrite"], false);
+        }
     }
 
     #[test]

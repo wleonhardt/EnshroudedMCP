@@ -4,7 +4,7 @@
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.23.1** and **optional companion 0.8.0**.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. Current development versions are **server 0.23.2** and **optional companion 0.8.0**.
 
 [Setup](docs/setup.md) · [23 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -113,3 +113,5 @@ The isolated research pair now runs server 0.23.1/companion 0.8.0. A verified 47
 A bounded healthy sole-player fixture queried the same explicit box by account key, exact name and changed-case name. All three returned the identical actor, world key, allowed rights and native persistence observation. The read queries changed no journal or operation record. Live duplicate-name/Unicode/reduced-permission rosters were not exercised; offline ambiguity and Unicode regressions remain separate evidence.
 
 After logout and explicit research-setting restoration, complete prior captures, operation-ledger membership/hashes, companion journal and installed binaries remain exact. Only four expected server setting records follow the archive prefix. Flags are absent, pacification is false and zero players remain. Public-namespace installation, scene clearance/contact and functional workshop acceptance remain unverified.
+
+Server source 0.23.2 reports selected foundation stop material/fill without deriving rendered surface height. Deployment is pending; isolated runtime remains 0.23.1/0.8.0.

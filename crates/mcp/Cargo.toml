@@ -1,6 +1,6 @@
 [package]
 name = "mcp"
-version = "0.23.1"
+version = "0.23.2"
 description = "An MCP endpoint on 127.0.0.1 that lets an agent read the running world"
 edition.workspace = true
 rust-version.workspace = true
