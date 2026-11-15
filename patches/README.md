@@ -1,6 +1,6 @@
 # Pinned official framework and SDK metadata patch
 
-This branch targets server 0.26.0 / companion 0.11.0 against official enshwick commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, package alpha.16, ABI 12.0. The matching research namespace pair passes cold readiness and preservation; connected gameplay and public-namespace installation remain unverified. Preserve the earlier ABI 11.30 source and binary rollback pair.
+This branch targets server 0.26.0 / companion 0.11.0 against official enshwick commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, package alpha.16, ABI 12.0. The matching research namespace pair passes cold readiness and a bounded healthy connected read/pacification fixture; broader writes and public-namespace installation remain unverified. Preserve the earlier ABI 11.30 source and binary rollback pair.
 
 ## Reproduce the SDK source
 
@@ -20,7 +20,7 @@ The full suite exposed two compile-fixture processes racing over the same trybui
 
 Active eight-file patch SHA-256: `eb00f6d6cc41baefdc1ef721ada9ffc19c65c9c2ea085316f29aa8bb1c5cf331`.
 
-The untouched upstream `cargo xtask check --all` baseline passed, including 4,049 main nextest tests and two compile fixtures. The final patched full command also passed: 4,050 main tests, both serialized compile fixtures, full/stable doctests and Clippy, documentation/link checks and cargo-deny. Nine main tests remain skipped by the upstream harness. Product checks pass 215 Rust tests, 35 Python tests, Clippy, formatting and both release builds. These are source results; candidate cold/live acceptance remains pending.
+The untouched upstream `cargo xtask check --all` baseline passed, including 4,049 main nextest tests and two compile fixtures. The final patched full command also passed: 4,050 main tests, both serialized compile fixtures, full/stable doctests and Clippy, documentation/link checks and cargo-deny. Nine main tests remain skipped by the upstream harness. Product checks pass 215 Rust tests, 35 Python tests, Clippy, formatting and both release builds. These source results are separate from the limited research cold/connected acceptance recorded in [evidence](../docs/research-status.md).
 
 ## Matching official development loader
 

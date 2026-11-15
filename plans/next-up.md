@@ -2,7 +2,8 @@
 
 ## Queue
 
-- Source qualification and matched research cold deployment passed for server 0.26.0 / companion 0.11.0 on ABI 12. Next verify a bounded healthy connected-client fixture against independent observations, preserving captures/ledgers and clean logout. Keep the ABI 11.30 rollback pair. Cold readiness and fixed probes do not prove connected gameplay acceptance or public-namespace installation.
+- ABI 12 research cold deployment and bounded healthy connected read/pacification fixture pass for 0.26.0/0.11.0. Recipe/knowledge/target/prompt observations and complete preservation pass after clean logout. Screen-host template/position remain unavailable; broader writes and public-namespace installation remain unverified. Keep the ABI 11.30 rollback pair.
+- Assess published `Clock::set_hours` and `ClockSpeed::set` as the next server-control increment for deliberate lighting fixtures. `set_hours` advances the world to the next occurrence; returning to an earlier hour is not undo. Speed factors compose across mods. Define bounded typed admission, dry reports, journaling/read-back and explicit recovery limits before implementation or live writes. Keep native client execution routes the priority dependency.
 - Prioritize supported native join/private input, menu/logout, bounded movement/look, interaction and session-bound rendered feedback. Include lifecycle/crash readiness and explicit recovery: absent UI frames remain unavailable even if the listener answers. External crash/upload/startup dialogs still require authorized desktop fallback; no dump inspection or upload is required for these controls.
 
 - Use server candidate 0.21.2 for the next controlled deployment. Verify normal recipient lookup and refusal before any real grant; duplicate/colliding recipient cases currently have fake-host evidence only. Preserve the pending manual handoff.
