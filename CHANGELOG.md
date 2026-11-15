@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.24.0 (server prompt target; live deployment pending)
+## 0.24.0 (server prompt target; isolated altar fixture verified)
 
 - Add read-only `player_interaction_target` for exactly one connected player by SDK-compatible name or exact account key. Read the published native prompt target on the game thread; return session-only server entity and nullable position/template metadata. Missing reader/read failure remains unknown, separately from no target.
-- No terrain hit, camera raycast, collision/contact proof, client entity mapping or action executor is claimed. Strict arguments reject write fields and arbitrary entity selectors. Source tests distinguish combat and prompt slots and preserve unavailable metadata. Isolated runtime remains 0.23.2/0.8.0; nonempty target and rendered correspondence remain unverified.
+- No terrain hit, camera raycast, collision/contact proof, client entity mapping or action executor is claimed. Strict arguments reject write fields and arbitrary entity selectors. Source tests distinguish combat and prompt slots and preserve unavailable metadata. Isolated runtime 0.24.0/0.8.0 returns a nonempty target agreeing with a visible Flame Altar and separately scoped client host position/template. Full health, logout, restored settings and complete capture/ledger/binary preservation pass. Other target types, live no-target behavior and public-namespace installation remain unverified.
 
 
 ## 0.23.2 (foundation stop metadata; isolated fixture verified)

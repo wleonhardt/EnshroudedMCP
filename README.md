@@ -116,4 +116,4 @@ After logout and explicit research-setting restoration, complete prior captures,
 
 Server source 0.23.2 reports selected foundation stop material/fill without deriving rendered surface height. Isolated runtime 0.23.2/0.8.0 agrees with a complete partial-terrain capture and independent native sample; plan geometry is unchanged. Rendered surface contact remains unverified.
 
-Server source 0.24.0 adds a read-only native interaction-prompt target observation for one uniquely selected server player. This may help correlate interactive objects with rendered observations; it supplies neither a terrain hit nor an executor. Deployment and nonempty rendered correspondence remain pending.
+Server source 0.24.0 adds a read-only native interaction-prompt target observation for one uniquely selected server player. This may help correlate interactive objects with rendered observations; it supplies neither a terrain hit nor an executor. An isolated nonempty Flame Altar fixture agrees with separately scoped client host position/template; complete preservation and clean logout pass. Other targets and public-namespace installation remain unverified.
