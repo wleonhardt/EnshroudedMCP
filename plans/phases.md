@@ -19,3 +19,8 @@ Every experiment requires an independent oracle, relevant tests, isolated-site r
 Windows MCP fallback is authorized for missing native actions. Native replacements are prioritized as follows: server selection/join and private shared-password input; menu selection/cancel/logout; bounded movement/look/jump; inventory navigation and supported item use for health recovery; fresh rendered capture; station/crafting selection and interaction. Each fallback records its target, observed result and missing native capability.
 
 Executors require published framework support, bounded lifetime/cancellation, session/context admission and observed completion. Cached getters are not executors. Unknown outcomes must not be retried automatically. Never present an OS-input wrapper as native control. Credential values must stay out of tool arguments, logs and published evidence.
+
+
+## Foundation checkpoint
+
+A two-cell pier passed exact 512-cell placement/read-back/undo and post-undo cold recovery, with visible placement from two positions and disappearance after undo. Grass obscured portions of the base seam, so Phase 2 contact acceptance remains open. Next select a naturally exposed terrain seam, keep the small fixture and independent oracle, and repeat rendered/read-back/recovery checks. Health restoration and pacification are separate controls, not guarantees of quiet or safety.
