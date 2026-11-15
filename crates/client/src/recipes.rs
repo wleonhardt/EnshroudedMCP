@@ -83,12 +83,15 @@ pub(crate) fn parse(
     output: Guid,
     limit: usize,
     input_type_hash: u32,
+    registry_type_hash: u32,
 ) -> Result<Value, String> {
     gate::request(bytes.len(), limit)?;
     let registry = Registry::game().map_err(|e| e.to_string())?;
-    parse_with(layout, bytes, output, limit, |record| {
+    let mut result = parse_with(layout, bytes, output, limit, |record| {
         decode_input(registry, input_type_hash, record)
-    })
+    })?;
+    crate::categories::enrich(registry, registry_type_hash, bytes, &mut result)?;
+    Ok(result)
 }
 
 fn parse_with(

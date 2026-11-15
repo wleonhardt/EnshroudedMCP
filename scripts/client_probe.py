@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.5.2; no actions."""
+"""Fixed read-only probes for native client companion 0.6.1; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.5.2" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.6.1" and
             value.get("enshwick") == "1.0.0-alpha.15" and
             value.get("compiled_framework_revision") == "acd5550c607a38c983433f9807cc95564244fe0b" and
             value.get("compiled_framework_abi") == "11.30" and value.get("live_verified") is False and
@@ -116,6 +116,25 @@ def recipes(value):
                 isinstance(stack.get("item_guid"), str) and GUID.fullmatch(stack["item_guid"]) and
                 integer(stack.get("count")) for stack in stacks))
         require(any(stack["item_guid"] == value["selected_output_guid"] for stack in entry["outputs"]))
+        observations = entry.get("input_observations")
+        require(isinstance(observations, list) and len(observations) == len(entry["inputs"]))
+        for observation in observations:
+            membership = observation.get("category_membership")
+            require(isinstance(membership, dict))
+            if membership.get("state") == "observed":
+                members = membership.get("members")
+                total = membership.get("total_members")
+                require(membership.get("source") == "vanilla_archive_recipe_input_categories" and
+                        membership.get("scaling_semantics_verified") is False and
+                        integer(total) and total <= 1024 and isinstance(members, list) and
+                        len(members) == min(total, 32) and membership.get("truncated") is (total > 32))
+                for member in members:
+                    require(integer(member.get("item_id")) and member["item_id"] <= 0xFFFFFFFF and
+                            integer(member.get("scaling_bits")) and member["scaling_bits"] <= 0xFFFFFFFF and
+                            type(member.get("scaling_finite")) is bool and
+                            (type(member.get("scaling")) in (int, float) if member["scaling_finite"] else member.get("scaling") is None))
+            else:
+                require(membership.get("state") in ("not_found", "no_category_id") and membership.get("members") is None)
     return {"returned": len(entries), "total_matches": value["total_matches"], "truncated": value["truncated"],
             "raw_stack_semantics": "unverified; zero GUID/count remains unresolved"}
 
@@ -154,11 +173,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.5.2"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.6.1"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(READS.issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.5.2", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.6.1", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

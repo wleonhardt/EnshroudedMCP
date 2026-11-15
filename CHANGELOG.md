@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.6.1 (isolated category membership verified)
+
+- Extend `client_recipes` ingredient observations with ordered vanilla recipe-category members, item IDs, raw scaling values/bits, finite status, total count and explicit truncation. Resolve canonical reflected registry/field/array types, including typedef IDs. Admit at most 4,096 category rows and 1,024 members per row; decode only the first 32 members for each returned ingredient. Missing/zero categories remain explicit. Scaling interpretation, UI selection, effective costs and eligibility remain unverified.
+- Synthetic tests cover membership/order, caps before decoding, malformed spans, duplicate category IDs, canonical qualified types and typedef resolution. The first 0.6.0 isolated recipe probe failed on a typedef; its failure is retained. Corrected 0.6.1 passes all 179 Rust/30 Python tests, Clippy, formatting and both releases. Isolated companion-only deployment passes all 27 fixed client/server probes, fresh native Menu, six Workbench category member ID lookups and exact 6,144-cell/ledger preservation after a verified cold archive. Neutral publication binaries are not live-installed.
+
+
 ## Companion 0.5.2 (isolated read probes verified)
 
 - Report `cursor_gap` when a client selection-event cursor predates history cleared on observed session exit, including before new events arrive. Preserve monotonic sequences, session generation and overwrite-only `dropped_history`; a caught-up cursor remains gap-free. No native executor or gameplay write is added.

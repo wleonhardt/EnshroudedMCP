@@ -2,6 +2,8 @@
 
 ## Queue
 
+- Compare observed recipe-category membership/scaling with a known game UI fixture before using it for alternative ingredient planning or feasibility. Companion 0.6.1 has limited native archive/member-identity evidence; native lifecycle/input executors remain priority.
+
 - Validate companion 0.5.2 selection-event cursor gaps across an isolated join/logout. The regression is covered offline; native lifecycle execution remains unavailable.
 
 - Follow phases.md. Native executors remain the priority dependency. Server 0.20.0 prop observations are tested offline, not live-installed; foundation rendering and functional workshop acceptance remain pending.

@@ -1,4 +1,5 @@
 //! Optional native client research endpoint. No OS control or gameplay writes.
+mod categories;
 mod recipes;
 mod selection;
 
@@ -127,7 +128,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_recipes",
-                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw input/output stacks plus typed item/category branches; incomplete requirement semantics. Not the selected UI recipe or proof of craftability. Whole archive allocation precedes parsing caps.",
+                    description: "Vanilla recipe metadata for one output item's debug name, at most 8 recipes. Raw stacks, typed ingredient branches and at most 32 ordered members per recipe category with raw scaling. Missing categories and truncation explicit; scaling, eligibility and requirement semantics unverified. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
                     schema: policy::client::item_schema(true),
                 },
             ],
@@ -257,6 +258,7 @@ fn resolve(
                 guid,
                 limit,
                 input_type.ok_or("recipe input type unavailable")?,
+                key.type_hash,
             )
         }
     }

@@ -1,6 +1,6 @@
 [package]
 name = "mcp-client"
-version = "0.5.2"
+version = "0.6.1"
 description = "Optional native Enshrouded client research companion"
 edition.workspace = true
 rust-version.workspace = true
