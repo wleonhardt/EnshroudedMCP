@@ -1,9 +1,9 @@
 # Changelog
 
-## 0.25.0 (native scoped knowledge reads; live deployment pending)
+## 0.25.0 (native scoped knowledge reads; isolated player fixture verified)
 
 - Add read-only `knowledge_read` for one to eight unique nonzero native IDs. Omit player for world queries, or select exactly one connected player by SDK-compatible name/exact account key. All native reads run on the scheduled server game thread; responses preserve requested order, raw type/scope/value/expected flags, and explicit unknown/null observations.
-- Observed zero differs from unavailable; player queries can report shared world values. No grants, revocations, quest completion, progression mutation or crafting eligibility claim is added. Fake native fixtures verify scope and zero/flags/counter boundaries without grants; strict admission and fixed read probes cover shape/refusals. Runtime remains 0.24.1/0.9.0; deployment and independent live semantic comparison remain pending.
+- Observed zero differs from unavailable; player queries can report shared world values. No grants, revocations, quest completion, progression mutation or crafting eligibility claim is added. Fake native fixtures verify scope and zero/flags/counter boundaries without grants; strict admission and fixed read probes cover shape/refusals. Isolated runtime 0.25.0/0.9.0 distinguishes raw player Flags 1/0 from unknown/null and wrong-scope world reads in a healthy fixture. Complete preservation and clean logout pass. Recipe UI eligibility/flag semantics, observed world bool/counter values, persistence and public-namespace installation remain unverified.
 
 
 ## 0.24.1 (exact prompt-target item; isolated identity fixture verified)
