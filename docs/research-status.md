@@ -1,5 +1,17 @@
 # Evidence and remaining work
 
+## Bounded native client-control acceptance
+
+The isolated research pair now runs server 0.34.0 / companion 0.15.0 with official signed alpha.17, ABI 12.1. A verified 77-member cold archive, eight rollback binaries and explicit prior absence of four signature sidecars preceded matched replacement. All 12 installed hashes pass. The public namespace remains uninstalled.
+
+A healthy sole-player session exercises native map opening, Backpack and PlayerCrafting tab changes, Workbench recipe highlighting, closing to the world, two small yaw look requests and bounded movement. Fresh native snapshots and separate rendered observations agree. The menu retained its Map HUD parent while the native inner tab correctly changed. Recipe highlighting changes selection without crafting. A 150 ms movement hold produced an independently observed server displacement of about 0.231 m with full health; this is one local input fixture, not navigation, arrival or collision acceptance. No pitch calibration is claimed.
+
+Same-payload replay leaves the journal and durable identities unchanged; conflicting payloads refuse. A separate small 250 ms movement request cancels through the deliberate tool and reaches native Cancelled(ByMod). Clean logout is independently verified by native Menu and zero server players. The temporary research setting is explicitly restored. Complete previous captures and soil, prior operation ledgers, exact journal prefixes plus four expected server and 32 client records, ten new client identities, 12 installed hashes and four absent write flags pass.
+
+After a clean client exit/restart, retained native IDs are not reconstructed: old operation status reports prior_boot_unavailable and a real reuse attempt refuses. The ten identities and client journal remain byte-identical. The client then exits from Menu. The isolated server remains running with zero players and no write flags for the next lifecycle fixture. This is client reload evidence; server save/shutdown and post-fixture server cold persistence remain separate pending acceptance.
+
+Join, protected credential entry, logout, process lifecycle and rendered capture still use specifically scoped desktop/host fallbacks. The supported SDK supplies no native executors for those operations. Protected source-reference entry and one deliberate join succeed without exposing the credential. Generic screenshots or getters do not close those native gaps. Broader screen targets, tab targets, pitch, player-input cancellation, disconnect timing and live audit-fault behavior remain unverified.
+
 ## Official alpha.17 source foundation
 
 The foundation checkpoint is server 0.34.0 / companion 0.13.0, official release 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1. Cargo uses the unmodified exact Git dependency; no source override or SDK patch is active. Official archive checksum, both framework signatures and tamper rejection pass. Required consumer checks and targeted SDK checks pass. Installed alpha.16 research files remain unchanged; matched alpha.17 deployment and live acceptance are pending. See [decision 0024](../plans/decisions/0024-alpha17-native-control-foundation.md).

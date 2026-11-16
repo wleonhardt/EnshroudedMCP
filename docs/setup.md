@@ -63,3 +63,5 @@ python -B scripts/client_probe.py --port 8754
 ```
 
 These fixed probes are read-only. A report may intentionally remain `incomplete` after every fixed check passes, because fixture and gameplay acceptance are separate. Reports stay in ignored `gamedata/`.
+
+The matched alpha.17 / 0.34.0 / 0.15.0 isolated research pair now passes bounded native client-control and client-reload checks. This does not validate a public-namespace install, every command target, server lifecycle behavior or broader administrative writes. Keep binary and signature sidecars matched and preserve client-commands ledgers.

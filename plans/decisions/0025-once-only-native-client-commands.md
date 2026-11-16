@@ -1,6 +1,6 @@
 # 0025: Once-only supported native client commands
 
-Date: 2026-11-15. Status: source implemented; live acceptance pending.
+Date: 2026-11-15. Status: source verified; bounded isolated native acceptance passes. Broader live behavior remains unverified.
 
 Official alpha.17 provides copied client snapshots and queued command/status/cancel APIs. Companion 0.15.0 wraps all six published command families: open/close in-game screens, choose menu tab, bounded look/move and recipe highlight. No arbitrary input, server World access, join, credentials, logout, crafting or process lifecycle is added.
 
@@ -13,3 +13,5 @@ Default dry and require companion-folder ALLOW_WRITES plus confirm server-write 
 Cancellation is a separate deliberate dry/real tool targeting only a retained operation. Require its exact boot/operation cancellation preview and write gate, journal intent/outcome and attempt native cancellation at most once. Cancellation submission does not prove completion; inspect native status. The SDK's bounded movement timeout/release and player-input cancellation remain independent framework protections.
 
 SDK observed is not rendered acceptance, arrival, inventory change or crafting eligibility. Movement observed means its hold completed; look observed means input was written. Preserve rendered_verified and arrival_verified false. Matched cold deployment needs all official binary/signature sidecars, save and server/client ledger preservation and explicit live read-back/rendered checks. Shared hosting is outside this fixture.
+
+Bounded isolated acceptance now covers Map/SystemMenu opening, two menu tabs, one recipe highlight, close, small yaw look, movement with independent server displacement and deliberate ByMod cancellation. Replay/conflict and client-reload refusal, complete preservation and clean logout pass. Other targets, pitch, fault/disconnect behavior, server cold persistence and public namespace retain separate acceptance gates.

@@ -17,3 +17,5 @@ Rebuild server and companion together. Stop the client and coordinate an empty i
 `enshwick-abi12-item-template.patch` belongs to alpha.16 commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, ABI 12.0. Its eight-file SHA-256 was `eb00f6d6cc41baefdc1ef721ada9ffc19c65c9c2ea085316f29aa8bb1c5cf331`. It is retained for historical reproduction only and must not be applied to the current release.
 
 The earlier nightly metadata and private alpha.14 event patches are also inactive. Preserve their exact source/loader pairings if reproducing old evidence; package strings alone do not prove compatibility. No complete prop placement-box, runtime-label or held-state preflight getter is added by this migration. Administrative construction, stateful recovery and full workshop acceptance remain open.
+
+Matched isolated alpha.17 installation and a bounded native client-control fixture now pass, including all 12 binary/signature hashes and client-reload identity refusal. Public-namespace installation and broader server write acceptance remain unverified.
