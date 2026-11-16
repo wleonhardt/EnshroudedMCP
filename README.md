@@ -319,3 +319,7 @@ The inactive placement metadata proposal is submitted as [SDK PR #1141](https://
 Companion 0.20.1 clears `native_age_ms` to null when a native status poll fails, preserving terminal uncertainty and no-retry behavior. A fresh poll-error observation cannot carry the previous successful poll's age. Source regressions pass; native current-boot fault behavior remains unverified. Installed runtime is now 0.42.0/0.20.1 after matched cold/read-only qualification. See [poll-error age semantics](plans/decisions/0049-client-poll-error-age.md).
 
 Direct saved-profile join is priority 1 and requested as [SDK API #1144](https://github.com/enshwick/enshwick/issues/1144). The [consumer contract](plans/decisions/0050-native-direct-join-contract.md) keeps credentials private and pre-world lifecycle guards separate from in-game commands. No join executor is exposed yet.
+
+## Technical terrain viewer
+
+Use `python scripts/terrain_view.py --port 8751 --box 10 20 30 8 8 8 --output terrain.html` with a deliberately selected half-metre-aligned box. The standalone viewer draws native voxel occupancy in 3D, top-down and vertical sections, with exact coordinate pins, measurements and PNG export. It calls only bounded read tools and never moves the character or enables writes. Sampled cubes are diagnostic geometry; engine surface/collision correspondence remains unverified. See [capture, controls and evidence limits](docs/terrain-viewer.md).

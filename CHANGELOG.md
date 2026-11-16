@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add a read-only terrain inspector with bounded native capture, offline 3D/section views, precise pins, distance inspection and PNG export. Complete-cell validation preserves unknowns and raw fill without claiming engine mesh/collision correspondence. Browser verification fixes select-change redraw handling; no runtime tool, SDK or installed package changes.
+
 - Extend the inactive ABI 12.8 qualification crate with an opt-in server-only, one-report metadata probe. Eight separate model contracts and release build preserve errors, unknown correspondence and non-overwrite behavior; no product tool, installed provider or native acceptance is added.
 
 - Add check_contracts.py for offline capability-index/profile checks and optional read-only loopback discovery/provenance comparison. Contract drift refuses without running gameplay tools; nine behavior tests cover mismatches and fixed metadata-only dispatch.
