@@ -3,7 +3,7 @@
 ## Server 0.37.0 (read-only construction budget)
 
 - Add construction_budget to observe journal bytes, protected recovery allowances, reservation count, unreserved bytes and over-capacity state without owner IDs. Serialize the observation with shared appends; create no journal and change no reservation.
-- Keep scope explicit: no World reads, native undo-storage observation, capacity reservation or write authorization. Reject undeclared arguments. Extend the fixed read-only validator with strict count/type/arithmetic checks. Matched installation and live acceptance remain pending.
+- Keep scope explicit: no World reads, native undo-storage observation, capacity reservation or write authorization. Reject undeclared arguments. Extend the fixed read-only validator with strict count/type/arithmetic checks. Matched cold installation and zero-reservation live metadata/read-only acceptance pass; nonzero reservation and native staged recovery remain unverified.
 
 ## Read-only phase planning script
 

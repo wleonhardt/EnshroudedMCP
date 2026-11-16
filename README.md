@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Server 0.37.0 adds read-only `construction_budget` journal/recovery capacity observation. Installed isolated runtime remains 0.36.0; matched live qualification of this getter is pending. Reading capacity never reserves it or authorizes a write.
+Server 0.37.0 adds read-only `construction_budget` journal/recovery capacity observation. Matched 0.37.0 installation and live getter validation pass with no active recovery reservations; native staged recovery remains unverified. Reading capacity never reserves it or authorizes a write.
 
 Read-only phase planning: `python scripts/phase_plan.py input.json output.json --port 8753` converts named primitive geometry into bounded, revalidated phase plans. It never executes them; live feasibility and recovery remain separate. See [phase planning](plans/decisions/0028-read-only-phase-planning.md).
 
