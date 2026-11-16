@@ -1,0 +1,942 @@
+diff --git a/book/src/abi-coverage.md b/book/src/abi-coverage.md
+index 50dbc834..1fb39ec1 100644
+--- a/book/src/abi-coverage.md
++++ b/book/src/abi-coverage.md
+@@ -251,3 +251,4 @@ names every entry of the golden layout once, in that order.
+ | `interaction_prompt` | game | — | with a player, client |
+ | `ui_item_tooltip` | game | — | client |
+ | `change_permissions` | game | — | with a player |
++| `prop_placement_info` | game | fake metadata, unknown bounds and guarded headers | not exercised |
+diff --git a/book/src/stability.md b/book/src/stability.md
+index 2d94425d..cc77aad3 100644
+--- a/book/src/stability.md
++++ b/book/src/stability.md
+@@ -31,6 +31,7 @@ change in any release, a patch included.
+
+ | Part                                                                                                                                                      | Why it is unstable                                                                                       |
+ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
++| `world::PropPlacementInfo` and `world::PropPlacementBox`. `World::prop_placement_info` reads copied metadata. | native provider fidelity is not yet checked; local corners are not a complete physical footprint or recovery authority |
+ | The edits of `world`: props, build rights, captures and transactions. `world::Prop`, `world::CapturedProp`, `world::WorldTransform`, `world::PropState`, `world::HeldState`, `world::PlayerPermissions`, `world::BuildRefusal`, `world::Capture`, `world::CAPTURE_TILES`, `world::Transaction`, `world::TransactionId`, `world::TransactionStatus`. `Player::has`, `WorldError::HoldsState`, `WorldError::NotAProp`. | rollback, props in a base, build rights, block placement and the per-step voxel budget are not yet seen with a connected player |
+ | `typed`, under its own `typed` feature. That feature turns on `unstable`. | young; its items follow the newest game build until 1.0 |
+ | The parts that use `typed` items. `content::enemies`, `content::spawns`, `content::skills`, `content::knowledge`, `content::journal`, `content::removal`, `quests`. `Load::add_enemy`, `Load::add_arsenal`, `Load::change_arsenal`, `Load::add_spawn_entry`, `Load::change_spawner`. `Load::skill_nodes`, `Load::add_skill_node`, `Load::add_perk`, `Load::add_knowledge`, `Load::add_quest`, `Load::change_quest`, `Load::quests`. `Load::remove_item`, `Load::remove_workshop`, `Load::remove_loot_table`, `Load::rekey_item`. `Load::add_weather_phenomenon`, `Load::change_weather_phenomenon`, `weather::NewPhenomenon`, `weather::PhenomenonChange`, `weather::PhenomenonId`. `content::vanilla::enemy`, `content::vanilla::Enemy`, `content::vanilla::experience_values`, `content::vanilla::ExperienceBalanceValue`. `ComponentChange::set`, `ComponentChange::remove`, `ComponentChange::edit`. `Frame::input_hint`, `Knowledge::quest_progression`, `Knowledge::set_quest_progression`. | they use the generated typed items, which follow the newest game build until 1.0 |
+diff --git a/book/src/world.md b/book/src/world.md
+index 9e3f0819..f32367f2 100644
+--- a/book/src/world.md
++++ b/book/src/world.md
+@@ -674,6 +674,34 @@ fn init(load: &mut enshwick::Load<'_>) -> Result<(), enshwick::Off> {
+ In Luau, `enshwick.world.change_permissions(key, { "CanEditWorld" }, {})`
+ takes the same lists.
+
++## Prop placement metadata
++
++Enable `unstable` and use a matching ABI 12.6 loader.
++Read metadata with `world.prop_placement_info(item)`.
++The returned optional `PropPlacementBox` holds local corners in metres.
++Its `min` and `max` fields preserve declared values.
++The loader uses the same published item resolver as prop transactions; it
++neither spawns an entity nor allocates a transaction receipt for this read.
++The read can run on any thread through the server's item-registry pin.
++
++```rust
++fn inspect(world: enshwick::world::World, item: enshwick::ItemId) -> Result<(), enshwick::WorldError> {
++    let info = world.prop_placement_info(item)?;
++    if let Some(bounds) = info.local_box {
++        enshwick::info!("Declared local corners: {:?} to {:?}", bounds.min, bounds.max);
++    }
++    Ok(())
++}
++```
++
++An absent, invalid or unreadable box stays `None`. The API does not replace
++it with the loader's fallback permission box or normalize the returned
++corners. These metadata do not establish a complete physical footprint,
++collision, build permission, persistence, label ownership or safe recovery.
++An unknown item or one placing nothing is refused; creatures and flame
++altars return `NotAProp`. Without the running server, registry or required
++reads, the call is unavailable.
++
+ ## Labels
+
+ `world.set_label(entity, text)` names an entity as a player's rename does.
+diff --git a/crates/cargo-enshwick/changes/prop-placement-metadata.md b/crates/cargo-enshwick/changes/prop-placement-metadata.md
+new file mode 100644
+index 00000000..fdf0dff8
+--- /dev/null
++++ b/crates/cargo-enshwick/changes/prop-placement-metadata.md
+@@ -0,0 +1,3 @@
++### Added
++
++- Include prop placement metadata types and the reader in generated Luau declarations.
+diff --git a/crates/cargo-enshwick/src/snapshots/cargo_enshwick__luau__tests__the_definitions_match_their_snapshot.snap b/crates/cargo-enshwick/src/snapshots/cargo_enshwick__luau__tests__the_definitions_match_their_snapshot.snap
+index 9a5b5a53..95d462aa 100644
+--- a/crates/cargo-enshwick/src/snapshots/cargo_enshwick__luau__tests__the_definitions_match_their_snapshot.snap
++++ b/crates/cargo-enshwick/src/snapshots/cargo_enshwick__luau__tests__the_definitions_match_their_snapshot.snap
+@@ -2170,6 +2170,24 @@ export type PropId = {
+ 	crafting_prop: string?,
+ }
+
++--- Declared local placement corners in metres, before a prop turns. This is item metadata, not a complete physical or permission footprint.
++export type PropPlacementBox = {
++	--- The declared minimum corner.
++	min: vector,
++	--- The declared maximum corner.
++	max: vector,
++}
++
++--- An item's prop template and optional declared local placement box. These are copied metadata, not a complete physical footprint or proof of permission, collision, persistence, label ownership or safe recovery.
++export type PropPlacementInfo = {
++	--- The queried item.
++	item: number,
++	--- The template it places.
++	template: string,
++	--- The resolver's local corners in metres, before rotation. None means absent, invalid or unavailable reads, never a known empty footprint. The loader's fallback permission box is not returned here.
++	local_box: PropPlacementBox?,
++}
++
+ --- Who asks for a survivor's entity, with what it works on. The name is enshwick's, not the game's.
+ export type Purpose = { Uniqueness: PurposeUniqueness } | { Spawn: PurposeSpawn } | { BedOwner: PurposeBedOwner } | { AssignBed: PurposeAssignBed } | { PreviousOccupant: PurposePreviousOccupant } | { Roaming: PurposeRoaming } | "BedBinding" | "Cursor"
+
+@@ -3856,6 +3874,8 @@ declare enshwick: {
+ 		containers: (kinds: {string}) -> {Placed},
+ 		--- Asks the server to destroy `entity` after the systems of the next step, as the game removes things itself: no loot and no death.
+ 		destroy: (entity: number) -> (),
++		--- Copies the prop template and optional local placement box of `item`, without spawning an entity or committing a transaction. Any thread; the loader pins the server's item registry for the read.
++		prop_placement_info: (item: number) -> PropPlacementInfo,
+ 		--- The props whose position lies in the box between corners `a` and `b`, in metres, edges included, by entity: what a player placed there from an item, told apart by the template the item places, not the things a world comes with. Creatures placed from items (animals, pets, survivors) and flame altars are no props and are left out; the entity calls reach them. The engine walks every entity with a `UsedItem`, so call it now and then, not every step.
+ 		props_in: (a: vector, b: vector) -> {Prop},
+ 		--- Starts a `Transaction` of the server's world.
+diff --git a/crates/enshwick/changes/prop-placement-metadata.md b/crates/enshwick/changes/prop-placement-metadata.md
+new file mode 100644
+index 00000000..0811acfc
+--- /dev/null
++++ b/crates/enshwick/changes/prop-placement-metadata.md
+@@ -0,0 +1,5 @@
++### Added
++
++- Add and document unstable prop placement metadata reads, with copied template and optional local corners.
++- Append the headed metadata record and read-only host entry in ABI 12.6, keeping old slots fixed.
++- Reuse the native item resolver, model reads without edits in the fake, and test headed guards and unavailable bounds.
+diff --git a/crates/enshwick/include/enshwick.h b/crates/enshwick/include/enshwick.h
+index b3f483c2..86c87d82 100644
+--- a/crates/enshwick/include/enshwick.h
++++ b/crates/enshwick/include/enshwick.h
+@@ -38,7 +38,7 @@
+ // A loader loads mods built for its minor or an older one, and reads a
+ // field appended after the mod's minor only where
+ // the header's `size` covers it.
+-#define ENSHWICK_ABI_MINOR 5
++#define ENSHWICK_ABI_MINOR 6
+
+ // How many level zones an `EnshwickAltarInfo` has room for: a bound of the ABI,
+ // above the levels the game gives an altar in its reflected
+@@ -3230,6 +3230,26 @@ typedef struct EnshwickInteractionPrompt {
+ // own action, such as opening a chest, so only the mod's action runs.
+ #define EnshwickInteractionPrompt_REPLACE_ACTION 1
+
++// An item's prop template and optional local placement box, copied by
++// `EnshwickHostApi.prop_placement_info`.
++// No entity is placed and no permission, collision or persistence is checked.
++typedef struct EnshwickPropPlacementInfo {
++  // Size and version of this struct.
++  struct EnshwickHeader header;
++  // The template the item places, never `NIL` on success.
++  struct EnshwickGuid template_;
++  // The declared local minimum corner in metres; read only with `HAS_LOCAL_BOX`.
++  float min[3];
++  // The declared local maximum corner in metres; read only with `HAS_LOCAL_BOX`.
++  float max[3];
++  // `HAS_LOCAL_BOX` when the existing resolver supplied finite local corners.
++  uint32_t flags;
++} EnshwickPropPlacementInfo;
++// The resolver supplied local corners, without normalization or a complete
++// geometry check. Without it, bounds are unknown,
++// not an empty box or the loader's fallback permission box.
++#define EnshwickPropPlacementInfo_HAS_LOCAL_BOX 1
++
+
+ // A player about to interact with an entity, as
+ // `EnshwickHostApi.interaction_filter` hands it
+@@ -6542,6 +6562,13 @@ typedef struct EnshwickHostApi {
+                                        EnshwickPlayerKey account,
+                                        uint32_t deny,
+                                        uint32_t grant);
++  // Copies the prop template and optional local placement box for `item`
++  // into headed `out`. `BAD_ARGS` for an unknown item or one placing nothing;
++  // `NOT_A_PROP` for creatures and flame altars; `UNAVAILABLE` without a running
++  // server, registry or required reads. Any thread, read-only. ABI 12.6.
++  EnshwickStatus (*prop_placement_info)(EnshwickModHandle me,
++                                        EnshwickItemId item,
++                                        struct EnshwickPropPlacementInfo *out);
+ } EnshwickHostApi;
+
+ // The layout the loader was built with, from its golden layout file.
+@@ -6979,7 +7006,7 @@ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHookSpec, detour) == 16, "offset of Hook
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHookSpec, next) == 24, "offset of HookSpec.next");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHookSpec, priority) == 32, "offset of HookSpec.priority");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHookSpec, flags) == 36, "offset of HookSpec.flags");
+-ENSHWICK_STATIC_ASSERT(sizeof(EnshwickHostApi) == 1712, "size of HostApi");
++ENSHWICK_STATIC_ASSERT(sizeof(EnshwickHostApi) == 1720, "size of HostApi");
+ ENSHWICK_STATIC_ASSERT(ENSHWICK_ALIGNOF(EnshwickHostApi) == 8, "alignment of HostApi");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, header) == 0, "offset of HostApi.header");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, host_version) == 8, "offset of HostApi.host_version");
+@@ -7194,6 +7221,7 @@ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, terrain_material_add) == 1680,
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, interaction_prompt) == 1688, "offset of HostApi.interaction_prompt");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, ui_item_tooltip) == 1696, "offset of HostApi.ui_item_tooltip");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, change_permissions) == 1704, "offset of HostApi.change_permissions");
++ENSHWICK_STATIC_ASSERT(offsetof(EnshwickHostApi, prop_placement_info) == 1712, "offset of HostApi.prop_placement_info");
+ ENSHWICK_STATIC_ASSERT(sizeof(EnshwickInteraction) == 56, "size of Interaction");
+ ENSHWICK_STATIC_ASSERT(ENSHWICK_ALIGNOF(EnshwickInteraction) == 8, "alignment of Interaction");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickInteraction, header) == 0, "offset of Interaction.header");
+@@ -7492,6 +7520,13 @@ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlace, item) == 8, "offset of PropPl
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlace, reserved) == 12, "offset of PropPlace.reserved");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlace, position) == 16, "offset of PropPlace.position");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlace, orientation) == 40, "offset of PropPlace.orientation");
++ENSHWICK_STATIC_ASSERT(sizeof(EnshwickPropPlacementInfo) == 52, "size of PropPlacementInfo");
++ENSHWICK_STATIC_ASSERT(ENSHWICK_ALIGNOF(EnshwickPropPlacementInfo) == 4, "alignment of PropPlacementInfo");
++ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlacementInfo, header) == 0, "offset of PropPlacementInfo.header");
++ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlacementInfo, template_) == 8, "offset of PropPlacementInfo.template");
++ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlacementInfo, min) == 24, "offset of PropPlacementInfo.min");
++ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlacementInfo, max) == 36, "offset of PropPlacementInfo.max");
++ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropPlacementInfo, flags) == 48, "offset of PropPlacementInfo.flags");
+ ENSHWICK_STATIC_ASSERT(sizeof(EnshwickPropRemove) == 16, "size of PropRemove");
+ ENSHWICK_STATIC_ASSERT(ENSHWICK_ALIGNOF(EnshwickPropRemove) == 4, "alignment of PropRemove");
+ ENSHWICK_STATIC_ASSERT(offsetof(EnshwickPropRemove, header) == 0, "offset of PropRemove.header");
+diff --git a/crates/enshwick/tests/main.rs b/crates/enshwick/tests/main.rs
+index 3c7ff387..6f0f59e2 100644
+--- a/crates/enshwick/tests/main.rs
++++ b/crates/enshwick/tests/main.rs
+@@ -290,6 +290,8 @@ mod windows;
+ #[cfg(feature = "unstable")]
+ mod world_blocks;
+ #[cfg(feature = "unstable")]
++mod world_prop_placement;
++#[cfg(feature = "unstable")]
+ mod world_props;
+ #[cfg(feature = "unstable")]
+ mod world_queries;
+diff --git a/crates/enshwick/tests/world_prop_placement.rs b/crates/enshwick/tests/world_prop_placement.rs
+new file mode 100644
+index 00000000..794419d9
+--- /dev/null
++++ b/crates/enshwick/tests/world_prop_placement.rs
+@@ -0,0 +1,106 @@
++//! Read-only placement metadata through the fake host, not native geometry proof.
++
++#[cfg(test)]
++mod tests {
++    use enshwick::abi::Status;
++    use enshwick::content::Guid;
++    use enshwick::world::World;
++    use enshwick::{Entity, ItemId, Load, Mod, Off, WorldError};
++    use std::sync::Mutex;
++
++    static WORLD: Mutex<Option<World>> = Mutex::new(None);
++    const ITEM: ItemId = ItemId::new(30);
++    const TEMPLATE: Guid = Guid([0x3a; 16]);
++    struct Probe;
++    impl Mod for Probe {
++        fn init(load: &mut Load<'_>) -> Result<Self, Off> {
++            *WORLD.lock().unwrap() = Some(load.world()?);
++            Ok(Self)
++        }
++    }
++    enshwick::test::declare_mod!(
++        Probe,
++        "id = \"test.prop-placement-read\"\nside = \"server\""
++    );
++    fn start(host: enshwick::test::FakeHost) -> (enshwick::test::Installed, World) {
++        let host = host
++            .world()
++            .item(ITEM, 1, 0)
++            .item_places(ITEM, TEMPLATE)
++            .install();
++        // SAFETY: the exports belong to this test's declared mod.
++        let status =
++            unsafe { host.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) };
++        assert_eq!(status, Status::OK);
++        let world = WORLD.lock().unwrap().unwrap();
++        (host, world)
++    }
++    #[test]
++    fn metadata_preserves_local_corners_unknown_boxes_and_read_only_refusals() {
++        let corners = [[-2.0, 0.0, -0.5], [3.0, 4.0, 0.5]];
++        {
++            let host = enshwick::test::FakeHost::new()
++                .placement_box(ITEM, corners[0], corners[1])
++                .item(ItemId::new(31), 1, 0)
++                .item(ItemId::new(32), 1, 0)
++                .item_places(ItemId::new(32), TEMPLATE)
++                .item_not_a_prop(ItemId::new(32))
++                .prop(Entity(40), ITEM, [100.0; 3]);
++            let (host, world) = start(host);
++            let before = host.props();
++            let read = world.prop_placement_info(ITEM).unwrap();
++            assert_eq!(read.item, ITEM);
++            assert_eq!(read.template, TEMPLATE);
++            assert_eq!(read.local_box.map(|b| [b.min, b.max]), Some(corners));
++            assert_eq!(world.prop_placement_info(ITEM).unwrap(), read);
++            assert_eq!(
++                world.prop_placement_info(ItemId::new(31)),
++                Err(WorldError::Refused)
++            );
++            assert_eq!(
++                world.prop_placement_info(ItemId::new(32)),
++                Err(WorldError::NotAProp)
++            );
++            assert_eq!(
++                world.prop_placement_info(ItemId::new(99)),
++                Err(WorldError::Refused)
++            );
++            assert_eq!(host.props(), before);
++            assert!(host.transactions().is_empty());
++            host.stop_world();
++            assert_eq!(
++                world.prop_placement_info(ITEM),
++                Err(WorldError::Unavailable)
++            );
++        }
++        {
++            let corners = [[3.0, -2.0, 1.0], [-4.0, 5.0, 1.0]];
++            let (host, world) = start(
++                enshwick::test::FakeHost::new()
++                    .without_entity_commands()
++                    .placement_box(ITEM, corners[0], corners[1]),
++            );
++            assert_eq!(
++                world
++                    .prop_placement_info(ITEM)
++                    .unwrap()
++                    .local_box
++                    .map(|b| [b.min, b.max]),
++                Some(corners)
++            );
++            assert!(host.props().is_empty());
++            assert!(host.transactions().is_empty());
++        }
++        for bounds in [None, Some([[0.0; 3]; 2]), Some([[f32::NAN; 3], [1.0; 3]])] {
++            let host = enshwick::test::FakeHost::new();
++            let host = match bounds {
++                Some(bounds) => host.placement_box(ITEM, bounds[0], bounds[1]),
++                None => host,
++            };
++            let (host, world) = start(host);
++            assert_eq!(world.prop_placement_info(ITEM).unwrap().local_box, None);
++            assert!(host.props().is_empty());
++            assert!(host.transactions().is_empty());
++        }
++    }
++}
+diff --git a/crates/internal/abi/src/abi/host_api.rs b/crates/internal/abi/src/abi/host_api.rs
+index 2c5abd0e..a727ed18 100644
+--- a/crates/internal/abi/src/abi/host_api.rs
++++ b/crates/internal/abi/src/abi/host_api.rs
+@@ -16,13 +16,13 @@ use crate::abi::{
+     KnowledgeChange, KnowledgeInfo, KnowledgeInputFilterFn, Level, LoaderOff, LocalInputInfo,
+     LoopWaitFn, LoopWaitSites, MapFrameInfo, MapMarkerInfo, MapMarkerTypeInfo, MidHookSpec,
+     ModEventFn, ModHandle, ModInfo, NetMessageFn, PlayerInfo, PointFn, PointHandle, PointLink,
+-    PointSpec, PointVerdict, RateId, RecipeKind, RecipeRuleKind, RenameFilterFn, ResourceKey,
+-    ResourcePatchFn, SaveInfo, ServerWaitFn, ServiceFound, ServiceSpec, SkillCheckFn, SpawnRequest,
+-    StatChangeFn, StatModifier, StatModify, StatRef, StatSource, StatSpec, Status, StatusFn, Str,
+-    SummonFilterFn, SurvivorLookupFn, SurvivorStatusFn, TeleportRequest, TerrainEdit,
+-    TerrainMaterialAdd, TerrainMaterialInfo, TickHandle, TransactionInfo, TransactionOp, TypeEntry,
+-    UiAnswerFn, UiDialog, UiExtension, UiFrameFn, UiMarker, UiTooltipFn, UiWidget, Voxel,
+-    WeatherFront, WeatherSample,
++    PointSpec, PointVerdict, PropPlacementInfo, RateId, RecipeKind, RecipeRuleKind, RenameFilterFn,
++    ResourceKey, ResourcePatchFn, SaveInfo, ServerWaitFn, ServiceFound, ServiceSpec, SkillCheckFn,
++    SpawnRequest, StatChangeFn, StatModifier, StatModify, StatRef, StatSource, StatSpec, Status,
++    StatusFn, Str, SummonFilterFn, SurvivorLookupFn, SurvivorStatusFn, TeleportRequest,
++    TerrainEdit, TerrainMaterialAdd, TerrainMaterialInfo, TickHandle, TransactionInfo,
++    TransactionOp, TypeEntry, UiAnswerFn, UiDialog, UiExtension, UiFrameFn, UiMarker, UiTooltipFn,
++    UiWidget, Voxel, WeatherFront, WeatherSample,
+ };
+ use crate::abi::{BuffTypeId, Entity, ItemId, KnowledgeId, Metres, NpcId, PlayerKey, RecipeId};
+ use crate::content::Guid;
+@@ -2222,6 +2222,12 @@ pub struct HostApi {
+     /// link. ABI 12.5.
+     pub change_permissions:
+         extern "system" fn(me: ModHandle, account: PlayerKey, deny: u32, grant: u32) -> Status,
++    /// Copies the prop template and optional local placement box for `item`
++    /// into headed `out`. `BAD_ARGS` for an unknown item or one placing nothing;
++    /// `NOT_A_PROP` for creatures and flame altars; `UNAVAILABLE` without a running
++    /// server, registry or required reads. Any thread, read-only. ABI 12.6.
++    pub prop_placement_info:
++        extern "system" fn(me: ModHandle, item: ItemId, out: *mut PropPlacementInfo) -> Status,
+ }
+
+ /// The largest radius [`HostApi::fog_uncover`] takes, in metres.
+@@ -2443,5 +2449,6 @@ const _: () = {
+     assert!(offset_of!(HostApi, interaction_prompt) == 24 + 208 * 8);
+     assert!(offset_of!(HostApi, ui_item_tooltip) == 24 + 209 * 8);
+     assert!(offset_of!(HostApi, change_permissions) == 24 + 210 * 8);
+-    assert!(size_of::<HostApi>() == 24 + 211 * 8);
++    assert!(offset_of!(HostApi, prop_placement_info) == 24 + 211 * 8);
++    assert!(size_of::<HostApi>() == 24 + 212 * 8);
+ };
+diff --git a/crates/internal/abi/src/abi/layout.txt b/crates/internal/abi/src/abi/layout.txt
+index 5332081c..1e4d8507 100644
+--- a/crates/internal/abi/src/abi/layout.txt
++++ b/crates/internal/abi/src/abi/layout.txt
+@@ -1,4 +1,4 @@
+-abi 12.5
++abi 12.6
+ AccountActionType size 1 align 1
+     0 at 0 size 1 type u8
+ ActionCall size 96 align 8 born 96
+@@ -381,7 +381,7 @@ HookSpec size 40 align 8 born 40
+     next at 24 size 8 type *const Atomic<usize>
+     priority at 32 size 4 type i32
+     flags at 36 size 4 type HookFlags
+-HostApi size 1712 align 8
++HostApi size 1720 align 8
+     header at 0 size 8 type Header
+     host_version at 8 size 16 type Str
+     build at 24 size 8 type extern "system" fn(ModHandle, *mut BuildInfo) -> Status
+@@ -595,6 +595,7 @@ HostApi size 1712 align 8
+     interaction_prompt at 1688 size 8 type extern "system" fn(ModHandle, *const InteractionPrompt) -> Status
+     ui_item_tooltip at 1696 size 8 type extern "system" fn(ModHandle, Option<unsafe extern "system" fn(*const UiTooltipItem, *mut c_void)>, *mut c_void) -> Status
+     change_permissions at 1704 size 8 type extern "system" fn(ModHandle, PlayerKey, u32, u32) -> Status
++    prop_placement_info at 1712 size 8 type extern "system" fn(ModHandle, ItemId, *mut PropPlacementInfo) -> Status
+ Interaction size 56 align 8 born 56
+     header at 0 size 8 type Header
+     kind at 8 size 4 type u32
+@@ -859,6 +860,12 @@ PropPlace size 56 align 8 born 56
+     reserved at 12 size 4 type u32
+     position at 16 size 24 type [f64; 3]
+     orientation at 40 size 16 type [f32; 4]
++PropPlacementInfo size 52 align 4 born 52
++    header at 0 size 8 type Header
++    template at 8 size 16 type Guid
++    min at 24 size 12 type [f32; 3]
++    max at 36 size 12 type [f32; 3]
++    flags at 48 size 4 type u32
+ PropRemove size 16 align 4 born 16
+     header at 0 size 8 type Header
+     entity at 8 size 4 type Entity
+@@ -1456,6 +1463,7 @@ const ProgressWriteData::LEVEL_REFUSED = 3
+ const ProgressWriteData::NO_LEVEL_STEP = 1
+ const ProgressWriteData::UNCONFIRMED = 5
+ const ProgressWriteData::UNREADABLE = 2
++const PropPlacementInfo::HAS_LOCAL_BOX = 1
+ const PropRemove::DISCARD_STATE = 1
+ const RateId::COMFORT = 6
+ const RateId::EXPERIENCE_COMBAT = 1
+diff --git a/crates/internal/abi/src/abi/layout_tests.rs b/crates/internal/abi/src/abi/layout_tests.rs
+index 1b1e252e..9da4d6e5 100644
+--- a/crates/internal/abi/src/abi/layout_tests.rs
++++ b/crates/internal/abi/src/abi/layout_tests.rs
+@@ -245,6 +245,7 @@ shapes! {
+         TransactionOp { kind, reserved, data },
+         TransactionInfo { header, state, reason, ops, applied, bricks, refusal, reserved, holds, created },
+         PropPlace { header, item, reserved, position, orientation },
++        PropPlacementInfo { header, template, min, max, flags },
+         PropRemove { header, entity, flags },
+         VoxelWrite { header, min, size, voxels, count },
+         VoxelRegion { header, min, size },
+@@ -268,7 +269,7 @@ shapes! {
+         TypeConstant { name, value },
+         TypeField { name, type_name, offset, attribute_count, attributes },
+         TypeEntry { header, name, impact_name, qualified_name, inner, internal_hash, size, align, element_align, kind, flags, reserved, count, field_count, constant_count, attribute_count, fields, constants, attributes },
+-        HostApi { header, host_version, build, symbol, system, field_offset, type_size, hook, caller_frame, fault, log, settings, publish, service, constant, data_dir, log_level, subscribe, type_hash, component, entity_template, mods, code_range, patch_code, workshop_recipes, hosting, server_world, join_missing, hook_at, status, subscribe_game_event, net_channel, net_send, net_ready, config_schema, config_check, texts, define_event, subscribe_mod_event, send_event, rename_content, mod_dir, language, define_point, attach_point, run_point, event_types, feature, loop_wait, server_wait, task_workers, serve_call, find_call, call, subscribe_tick, set_tick_every, set_config, subscribe_client_game_event, serve_resource, add_text, define_item_data, item_data_get, set_item_data, content_serve, content_read, icons_ready, declare_content, define_entity_data, resource_read, game_text, rebuild_resource, recipe_rule, recipe_disabled, recipe_kind, rate, set_rate, change_data, set_change, use_content, resource_keys, content_hashes, types, game_version, crafting_prop, read_only, resource_served, resource_buffer, content_name, player, players, chat, chat_all, set_label, rename_filter, item_info, request_altars, altars, building_zone_filter, base_zones, entities, destroy, save_world, world_key, component_write, notify, time_of_day, set_time_of_day, request_time_speed, set_time_speed, game_settings, set_game_settings, buff_types, buffs, apply_buff, remove_buff, weather_at, weather_fronts, set_weather, terrain_materials, terrain_edit, altar_zone_filter, altar_zones_changed, altar_limit_filter, base_limit, voxel_read, build_rights, transaction_commit, transaction_undo, transaction_status, world_quiet, transaction_entities, world_persists, map_markers, account_action, map_frame, request_base_limits, set_chat_mute, chat_muted, set_base_limit, save_info, hold_saves, set_saved, progress_write, server_stop, fog_uncover, language_of, join_rule, request_inventory, inventory_submit, survivor_lookup, survivor_bed_check, summon_filter, summon_item, survivor_status, emit, teleport, spawn, damage_filter, summoned, define_stat, stat_info, stat_value, stat_modify, stat_buff, stats_changed, stat_sources, stat_watch, define_affix, affix_roll, item_lines, affix_info, item_filter, drop_items, skill_override, comfort_filter, experience_filter, knowledge, change_knowledge, quests, knowledge_input_filter, game_query, run_console, interaction_filter, craft_filter, build_filter, actions, control, run_action, chat_filter, commands, run_command, command_list, actions_changed, action_window, ui_frame, ui_widget, ui_dialog, ui_hud, ui_markers, request_fog, fog_read, map_marker_types, ui_extension, local_held, local_input_status, client_snapshot, loader_off, client_command, client_command_status, terrain_material_add, interaction_prompt, ui_item_tooltip, change_permissions },
++        HostApi { header, host_version, build, symbol, system, field_offset, type_size, hook, caller_frame, fault, log, settings, publish, service, constant, data_dir, log_level, subscribe, type_hash, component, entity_template, mods, code_range, patch_code, workshop_recipes, hosting, server_world, join_missing, hook_at, status, subscribe_game_event, net_channel, net_send, net_ready, config_schema, config_check, texts, define_event, subscribe_mod_event, send_event, rename_content, mod_dir, language, define_point, attach_point, run_point, event_types, feature, loop_wait, server_wait, task_workers, serve_call, find_call, call, subscribe_tick, set_tick_every, set_config, subscribe_client_game_event, serve_resource, add_text, define_item_data, item_data_get, set_item_data, content_serve, content_read, icons_ready, declare_content, define_entity_data, resource_read, game_text, rebuild_resource, recipe_rule, recipe_disabled, recipe_kind, rate, set_rate, change_data, set_change, use_content, resource_keys, content_hashes, types, game_version, crafting_prop, read_only, resource_served, resource_buffer, content_name, player, players, chat, chat_all, set_label, rename_filter, item_info, request_altars, altars, building_zone_filter, base_zones, entities, destroy, save_world, world_key, component_write, notify, time_of_day, set_time_of_day, request_time_speed, set_time_speed, game_settings, set_game_settings, buff_types, buffs, apply_buff, remove_buff, weather_at, weather_fronts, set_weather, terrain_materials, terrain_edit, altar_zone_filter, altar_zones_changed, altar_limit_filter, base_limit, voxel_read, build_rights, transaction_commit, transaction_undo, transaction_status, world_quiet, transaction_entities, world_persists, map_markers, account_action, map_frame, request_base_limits, set_chat_mute, chat_muted, set_base_limit, save_info, hold_saves, set_saved, progress_write, server_stop, fog_uncover, language_of, join_rule, request_inventory, inventory_submit, survivor_lookup, survivor_bed_check, summon_filter, summon_item, survivor_status, emit, teleport, spawn, damage_filter, summoned, define_stat, stat_info, stat_value, stat_modify, stat_buff, stats_changed, stat_sources, stat_watch, define_affix, affix_roll, item_lines, affix_info, item_filter, drop_items, skill_override, comfort_filter, experience_filter, knowledge, change_knowledge, quests, knowledge_input_filter, game_query, run_console, interaction_filter, craft_filter, build_filter, actions, control, run_action, chat_filter, commands, run_command, command_list, actions_changed, action_window, ui_frame, ui_widget, ui_dialog, ui_hud, ui_markers, request_fog, fog_read, map_marker_types, ui_extension, local_held, local_input_status, client_snapshot, loader_off, client_command, client_command_status, terrain_material_add, interaction_prompt, ui_item_tooltip, change_permissions, prop_placement_info },
+         SaveInfo { header, world, saved_at, size, backups, reserved },
+         ChatLine { header, account, entity, kind, loca, text },
+         ChatRewrite { header, buffer, capacity, len },
+diff --git a/crates/internal/abi/src/abi/transactions.rs b/crates/internal/abi/src/abi/transactions.rs
+index 956e85cf..bf2f0bd4 100644
+--- a/crates/internal/abi/src/abi/transactions.rs
++++ b/crates/internal/abi/src/abi/transactions.rs
+@@ -329,3 +329,42 @@ impl TransactionInfo {
+     /// again.
+     pub const UNDO_REFUSED: u32 = 6;
+ }
++
++/// An item's prop template and optional local placement box, copied by
++/// [`HostApi::prop_placement_info`](crate::abi::HostApi::prop_placement_info).
++/// No entity is placed and no permission, collision or persistence is checked.
++///
++/// # Examples
++///
++/// ```
++/// use enshwick::abi::{Header, PropPlacementInfo};
++/// let info = PropPlacementInfo {
++///     header: Header::of::<PropPlacementInfo>(),
++///     template: enshwick::content::Guid::NIL,
++///     min: [0.0; 3], max: [0.0; 3], flags: 0,
++/// };
++/// assert_eq!(info.flags & PropPlacementInfo::HAS_LOCAL_BOX, 0);
++/// ```
++#[repr(C)]
++#[derive(Clone, Copy, Debug, PartialEq, bytemuck::Zeroable)]
++pub struct PropPlacementInfo {
++    /// Size and version of this struct.
++    pub header: Header,
++    /// The template the item places, never `NIL` on success.
++    pub template: crate::content::Guid,
++    /// The declared local minimum corner in metres; read only with `HAS_LOCAL_BOX`.
++    pub min: [f32; 3],
++    /// The declared local maximum corner in metres; read only with `HAS_LOCAL_BOX`.
++    pub max: [f32; 3],
++    /// `HAS_LOCAL_BOX` when the existing resolver supplied finite local corners.
++    pub flags: u32,
++}
++
++impl_headed!(PropPlacementInfo);
++
++impl PropPlacementInfo {
++    /// The resolver supplied local corners, without normalization or a complete
++    /// geometry check. Without it, bounds are unknown,
++    /// not an empty box or the loader's fallback permission box.
++    pub const HAS_LOCAL_BOX: u32 = 1;
++}
+diff --git a/crates/internal/abi/src/abi/version.rs b/crates/internal/abi/src/abi/version.rs
+index d786a450..489117b6 100644
+--- a/crates/internal/abi/src/abi/version.rs
++++ b/crates/internal/abi/src/abi/version.rs
+@@ -32,7 +32,7 @@ pub const ABI_MAJOR: u16 = 12;
+ ///
+ /// assert_eq!(Header::of::<Manifest>().abi_minor, ABI_MINOR);
+ /// ```
+-pub const ABI_MINOR: u16 = 5;
++pub const ABI_MINOR: u16 = 6;
+
+ /// Why a loader or its tools refuse a mod built for another ABI, naming the
+ /// mod's version, this build's and what to do.
+diff --git a/crates/internal/fake/src/test/table.rs b/crates/internal/fake/src/test/table.rs
+index 8a5a7e2e..586bedfc 100644
+--- a/crates/internal/fake/src/test/table.rs
++++ b/crates/internal/fake/src/test/table.rs
+@@ -817,4 +817,5 @@ pub(crate) static TABLE: HostApi = HostApi {
+     interaction_prompt,
+     ui_item_tooltip,
+     change_permissions: permissions::change_permissions,
++    prop_placement_info,
+ };
+diff --git a/crates/internal/fake/src/test/table/world.rs b/crates/internal/fake/src/test/table/world.rs
+index 58992533..30d5fc1c 100644
+--- a/crates/internal/fake/src/test/table/world.rs
++++ b/crates/internal/fake/src/test/table/world.rs
+@@ -606,3 +606,47 @@ pub(crate) extern "system" fn chat_muted(
+         None => Status::UNAVAILABLE,
+     }
+ }
++
++/// Copies the fake item's template and optional local corners without edits.
++pub(crate) extern "system" fn prop_placement_info(
++    _me: ModHandle,
++    item: enshwick_core::ItemId,
++    out: *mut enshwick_core::abi::PropPlacementInfo,
++) -> Status {
++    use enshwick_core::abi::{Header, PropPlacementInfo};
++    with(Status::UNAVAILABLE, |s| {
++        if s.edits.stopped || !(s.host.side == Side::SERVER || s.host.hosting) {
++            return Status::UNAVAILABLE;
++        }
++        let Some(info) = s.host.items.get(&item.get()) else {
++            return Status::BAD_ARGS;
++        };
++        if s.host.no_prop_items.contains(&item.get()) {
++            return Status::NOT_A_PROP;
++        }
++        if info.placed_entity == enshwick_core::content::Guid::NIL {
++            return Status::BAD_ARGS;
++        }
++        let bounds = s
++            .host
++            .placement_boxes
++            .iter()
++            .find(|(id, ..)| *id == item.get())
++            .filter(|(_, min, max)| {
++                min.iter().chain(max).all(|v| v.is_finite()) && (0..3).any(|i| max[i] > min[i])
++            });
++        let (min, max, flags) = bounds.map_or(([0.0; 3], [0.0; 3], 0), |&(_, min, max)| {
++            (min, max, PropPlacementInfo::HAS_LOCAL_BOX)
++        });
++        super::put_headed(
++            out,
++            PropPlacementInfo {
++                header: Header::of::<PropPlacementInfo>(),
++                template: info.placed_entity,
++                min,
++                max,
++                flags,
++            },
++        )
++    })
++}
+diff --git a/crates/internal/world/changes/prop-placement-metadata.md b/crates/internal/world/changes/prop-placement-metadata.md
+new file mode 100644
+index 00000000..175066f3
+--- /dev/null
++++ b/crates/internal/world/changes/prop-placement-metadata.md
+@@ -0,0 +1,3 @@
++### Added
++
++- Add unstable World::prop_placement_info with copied template and optional declared local corners, without creating a prop or transaction.
+diff --git a/crates/internal/world/src/world.rs b/crates/internal/world/src/world.rs
+index e20d3d2d..c4a12a7b 100644
+--- a/crates/internal/world/src/world.rs
++++ b/crates/internal/world/src/world.rs
+@@ -52,7 +52,7 @@ pub use prop_state::{HeldState, PropState};
+ #[cfg(feature = "unstable")]
+ pub(crate) use props::span;
+ #[cfg(feature = "unstable")]
+-pub use props::{CapturedProp, Prop, WorldTransform};
++pub use props::{CapturedProp, Prop, PropPlacementBox, PropPlacementInfo, WorldTransform};
+ pub use rename::Rename;
+ pub use saves::{SaveInfo, WorldGuid};
+ pub use stats::{Meter, Progress, Skill, Vitals};
+diff --git a/crates/internal/world/src/world/props.rs b/crates/internal/world/src/world/props.rs
+index 373e5ea8..21e1b30a 100644
+--- a/crates/internal/world/src/world/props.rs
++++ b/crates/internal/world/src/world/props.rs
+@@ -9,6 +9,49 @@ use crate::content::Guid;
+
+ use super::{World, WorldError};
+
++/// Declared local placement corners in metres, before a prop turns.
++/// This is item metadata, not a complete physical or permission footprint.
++///
++/// # Examples
++///
++/// ```
++/// let bounds = enshwick::world::PropPlacementBox { min: [-1.0, 0.0, -1.0], max: [1.0, 2.0, 1.0] };
++/// assert_eq!(bounds.max[1], 2.0);
++/// ```
++#[derive(Clone, Copy, Debug, PartialEq, crate::Script)]
++pub struct PropPlacementBox {
++    /// The declared minimum corner.
++    pub min: [f32; 3],
++    /// The declared maximum corner.
++    pub max: [f32; 3],
++}
++
++/// An item's prop template and optional declared local placement box.
++///
++/// These are copied metadata, not a complete physical footprint or proof of
++/// permission, collision, persistence, label ownership or safe recovery.
++///
++/// # Examples
++///
++/// ```
++/// fn inspect(world: enshwick::world::World, item: enshwick::ItemId) -> Result<(), enshwick::WorldError> {
++///     let info = world.prop_placement_info(item)?;
++///     assert_eq!(info.item, item);
++///     Ok(())
++/// }
++/// ```
++#[derive(Clone, Copy, Debug, PartialEq, crate::Script)]
++pub struct PropPlacementInfo {
++    /// The queried item.
++    pub item: ItemId,
++    /// The template it places.
++    pub template: Guid,
++    /// The resolver's local corners in metres, before rotation. None means
++    /// absent, invalid or unavailable reads, never a known empty footprint.
++    /// The loader's fallback permission box is not returned here.
++    pub local_box: Option<PropPlacementBox>,
++}
++
+ /// Where a thing stands and which way it faces: the game's `WorldTransform`
+ /// without its scale, which is 1 for every prop the game places.
+ ///
+@@ -105,6 +148,44 @@ pub(crate) fn span(a: [f64; 3], b: [f64; 3]) -> Option<([f64; 3], [f64; 3])> {
+
+ #[crate::script(props)]
+ impl World {
++    /// Copies the prop template and optional local placement box of `item`,
++    /// without spawning an entity or committing a transaction. Any thread;
++    /// the loader pins the server's item registry for the read.
++    ///
++    /// # Errors
++    ///
++    /// `Refused` for an unknown item or one that places nothing; `NotAProp` for
++    /// creatures and flame altars; `Unavailable` without the running server,
++    /// registry or required reads. Missing box reads return `local_box=None`,
++    /// not a fallback footprint or a placement permission.
++    ///
++    /// # Examples
++    ///
++    /// See [`PropPlacementInfo`].
++    #[script]
++    pub fn prop_placement_info(self, item: ItemId) -> Result<PropPlacementInfo, WorldError> {
++        let mut info = crate::abi::PropPlacementInfo {
++            header: crate::abi::Header::of::<crate::abi::PropPlacementInfo>(),
++            template: Guid::NIL,
++            min: [0.0; 3],
++            max: [0.0; 3],
++            flags: 0,
++        };
++        let status =
++            (self.0.host.api().prop_placement_info)(self.0.host.handle(), item, &raw mut info);
++        WorldError::from_status(status)?;
++        Ok(PropPlacementInfo {
++            item,
++            template: info.template,
++            local_box: (info.flags & crate::abi::PropPlacementInfo::HAS_LOCAL_BOX != 0).then_some(
++                PropPlacementBox {
++                    min: info.min,
++                    max: info.max,
++                },
++            ),
++        })
++    }
++
+     /// The props whose position lies in the box between corners `a` and
+     /// `b`, in metres, edges included, by entity: what a player placed
+     /// there from an item, told apart by the template the item places,
+diff --git a/crates/runtime/loader/src/host/api.rs b/crates/runtime/loader/src/host/api.rs
+index dbb3ca6a..efbbe949 100644
+--- a/crates/runtime/loader/src/host/api.rs
++++ b/crates/runtime/loader/src/host/api.rs
+@@ -235,4 +235,5 @@ pub(crate) static API: HostApi = HostApi {
+     interaction_prompt,
+     ui_item_tooltip,
+     change_permissions,
++    prop_placement_info,
+ };
+diff --git a/crates/runtime/loader/src/host/entries/world.rs b/crates/runtime/loader/src/host/entries/world.rs
+index 4bd5fbdb..84982ecd 100644
+--- a/crates/runtime/loader/src/host/entries/world.rs
++++ b/crates/runtime/loader/src/host/entries/world.rs
+@@ -36,6 +36,14 @@ fn account(key: enshwick_core::PlayerKey) -> Result<u64, Status> {
+ }
+
+ entries! {
++    fn prop_placement_info(
++        loader as Caller,
++        item: enshwick_core::ItemId,
++        out as HeadedOut<api_frame::PropPlacementInfo>,
++    ) -> Status {
++        out.put(crate::world::transactions::prop_placement_info(loader, item.get())?)
++    }
++
+     fn language_of(_me as Mod, key: enshwick_core::PlayerKey, out as Out<u32>) -> Status {
+         out.put(crate::base::net::language_number(key.get()))
+     }
+diff --git a/crates/runtime/loader/src/host/headed_tests.rs b/crates/runtime/loader/src/host/headed_tests.rs
+index f3fb92d1..5fc71f4f 100644
+--- a/crates/runtime/loader/src/host/headed_tests.rs
++++ b/crates/runtime/loader/src/host/headed_tests.rs
+@@ -88,6 +88,7 @@ macro_rules! headed {
+             PlayerDeathData,
+             PlayerInfo,
+             PropPlace,
++            PropPlacementInfo,
+             PropRemove,
+             PointHandle,
+             PointLink,
+diff --git a/crates/runtime/loader/src/world/transactions.rs b/crates/runtime/loader/src/world/transactions.rs
+index 1cd86f90..0d6b95ec 100644
+--- a/crates/runtime/loader/src/world/transactions.rs
++++ b/crates/runtime/loader/src/world/transactions.rs
+@@ -33,7 +33,7 @@ use crate::engine::pinned;
+ use enshwick_base::Relock;
+ pub(crate) use error::TransactionError;
+ #[cfg(windows)]
+-pub(crate) use game::{resolve, resolve_prop, saving};
++pub(crate) use game::{prop_placement_info, resolve, resolve_prop, saving};
+ #[cfg(any(windows, test))]
+ pub(crate) use ledger::Change;
+ pub(crate) use ledger::Standing;
+diff --git a/crates/runtime/loader/src/world/transactions/game.rs b/crates/runtime/loader/src/world/transactions/game.rs
+index 3f3595f4..29d70d80 100644
+--- a/crates/runtime/loader/src/world/transactions/game.rs
++++ b/crates/runtime/loader/src/world/transactions/game.rs
+@@ -16,7 +16,7 @@ use crate::engine::loader::Loader;
+ use crate::engine::pinned;
+ use crate::world::voxels::ReadBox;
+ pub(crate) use blocks::resolve;
+-pub(crate) use props::resolve as resolve_prop;
++pub(crate) use props::{placement_info as prop_placement_info, resolve as resolve_prop};
+
+ /// The editor's undo write: puts the voxels of `record`'s box back through
+ /// the same write as an edit, which marks them for clients and the save;
+diff --git a/crates/runtime/loader/src/world/transactions/game/props.rs b/crates/runtime/loader/src/world/transactions/game/props.rs
+index c174dcbe..a2d2a2a0 100644
+--- a/crates/runtime/loader/src/world/transactions/game/props.rs
++++ b/crates/runtime/loader/src/world/transactions/game/props.rs
+@@ -98,6 +98,28 @@ fn item_prop(
+     Ok((template, local_box, logic))
+ }
+
++/// Copies the existing item resolver's prop metadata without constructing or
++/// committing a placement. The server pin keeps the item registry alive.
++pub(crate) fn placement_info(
++    loader: &Loader,
++    item: u32,
++) -> Result<enshwick_core::abi::PropPlacementInfo, TransactionError> {
++    use enshwick_core::abi::PropPlacementInfo;
++    let access = crate::engine::world::access(&"prop placement metadata")
++        .ok_or(TransactionError::Unavailable)?;
++    let (template, local_box, _) = item_prop(loader, &access, item)?;
++    let (min, max, flags) = local_box.map_or(([0.0; 3], [0.0; 3], 0), |(min, max)| {
++        (min, max, PropPlacementInfo::HAS_LOCAL_BOX)
++    });
++    Ok(PropPlacementInfo {
++        header: Header::of::<PropPlacementInfo>(),
++        template: enshwick_core::content::Guid(template),
++        min,
++        max,
++        flags,
++    })
++}
++
+ /// The prop `request` asks to place, checked: its item's template, box
+ /// and logic flag. [`TransactionError::BadPlace`] for a position or orientation out
+ /// of range, [`TransactionError::BadItem`] for an item that places nothing, [`TransactionError::NotAProp`] for one
+diff --git a/crates/runtime/luau/tests/transactions.rs b/crates/runtime/luau/tests/transactions.rs
+index 433a3684..55a038ad 100644
+--- a/crates/runtime/luau/tests/transactions.rs
++++ b/crates/runtime/luau/tests/transactions.rs
+@@ -12,6 +12,37 @@ mod tests {
+
+     use crate::harness::{logged, run};
+
++    #[test]
++    fn a_script_reads_placement_metadata_without_placing_a_prop() {
++        let loader = run(
++            FakeHost::new()
++                .world()
++                .item(ItemId::new(30), 1, 0)
++                .item_places(ItemId::new(30), Guid([0x3a; 16]))
++                .placement_box(ItemId::new(30), [-2.0, 0.0, -0.5], [3.0, 4.0, 0.5])
++                .item(ItemId::new(31), 1, 0)
++                .item_places(ItemId::new(31), Guid([0x3b; 16])),
++            r"
++            local world = enshwick.world
++            local info = world.prop_placement_info(30)
++            assert(info.item == 30)
++            assert(info.template == '3a3a3a3a-3a3a-3a3a-3a3a-3a3a3a3a3a3a')
++            assert(info.local_box.min == vector.create(-2, 0, -0.5))
++            assert(info.local_box.max == vector.create(3, 4, 0.5))
++            assert(world.prop_placement_info(31).local_box == nil)
++            assert(not pcall(world.prop_placement_info, 99))
++            enshwick.log.info('placement metadata copied')
++            ",
++        );
++        assert!(
++            logged(&loader, "placement metadata copied"),
++            "{:?}",
++            loader.logs()
++        );
++        assert!(loader.props().is_empty());
++        assert!(loader.transactions().is_empty());
++    }
++
+     #[test]
+     fn a_script_gets_its_placed_prop_once_it_stands() {
+         let loader = run(
+diff --git a/examples/you.shrine/types/enshwick.d.luau b/examples/you.shrine/types/enshwick.d.luau
+index 2962460d..bbd2bedc 100644
+--- a/examples/you.shrine/types/enshwick.d.luau
++++ b/examples/you.shrine/types/enshwick.d.luau
+@@ -2166,6 +2166,24 @@ export type PropId = {
+ 	crafting_prop: string?,
+ }
+
++--- Declared local placement corners in metres, before a prop turns. This is item metadata, not a complete physical or permission footprint.
++export type PropPlacementBox = {
++	--- The declared minimum corner.
++	min: vector,
++	--- The declared maximum corner.
++	max: vector,
++}
++
++--- An item's prop template and optional declared local placement box. These are copied metadata, not a complete physical footprint or proof of permission, collision, persistence, label ownership or safe recovery.
++export type PropPlacementInfo = {
++	--- The queried item.
++	item: number,
++	--- The template it places.
++	template: string,
++	--- The resolver's local corners in metres, before rotation. None means absent, invalid or unavailable reads, never a known empty footprint. The loader's fallback permission box is not returned here.
++	local_box: PropPlacementBox?,
++}
++
+ --- Who asks for a survivor's entity, with what it works on. The name is enshwick's, not the game's.
+ export type Purpose = { Uniqueness: PurposeUniqueness } | { Spawn: PurposeSpawn } | { BedOwner: PurposeBedOwner } | { AssignBed: PurposeAssignBed } | { PreviousOccupant: PurposePreviousOccupant } | { Roaming: PurposeRoaming } | "BedBinding" | "Cursor"
+
+@@ -3852,6 +3870,8 @@ declare enshwick: {
+ 		containers: (kinds: {string}) -> {Placed},
+ 		--- Asks the server to destroy `entity` after the systems of the next step, as the game removes things itself: no loot and no death.
+ 		destroy: (entity: number) -> (),
++		--- Copies the prop template and optional local placement box of `item`, without spawning an entity or committing a transaction. Any thread; the loader pins the server's item registry for the read.
++		prop_placement_info: (item: number) -> PropPlacementInfo,
+ 		--- The props whose position lies in the box between corners `a` and `b`, in metres, edges included, by entity: what a player placed there from an item, told apart by the template the item places, not the things a world comes with. Creatures placed from items (animals, pets, survivors) and flame altars are no props and are left out; the entity calls reach them. The engine walks every entity with a `UsedItem`, so call it now and then, not every step.
+ 		props_in: (a: vector, b: vector) -> {Prop},
+ 		--- Starts a `Transaction` of the server's world.
+diff --git a/examples/you.trail/types/enshwick.d.luau b/examples/you.trail/types/enshwick.d.luau
+index 2962460d..bbd2bedc 100644
+--- a/examples/you.trail/types/enshwick.d.luau
++++ b/examples/you.trail/types/enshwick.d.luau
+@@ -2166,6 +2166,24 @@ export type PropId = {
+ 	crafting_prop: string?,
+ }
+
++--- Declared local placement corners in metres, before a prop turns. This is item metadata, not a complete physical or permission footprint.
++export type PropPlacementBox = {
++	--- The declared minimum corner.
++	min: vector,
++	--- The declared maximum corner.
++	max: vector,
++}
++
++--- An item's prop template and optional declared local placement box. These are copied metadata, not a complete physical footprint or proof of permission, collision, persistence, label ownership or safe recovery.
++export type PropPlacementInfo = {
++	--- The queried item.
++	item: number,
++	--- The template it places.
++	template: string,
++	--- The resolver's local corners in metres, before rotation. None means absent, invalid or unavailable reads, never a known empty footprint. The loader's fallback permission box is not returned here.
++	local_box: PropPlacementBox?,
++}
++
+ --- Who asks for a survivor's entity, with what it works on. The name is enshwick's, not the game's.
+ export type Purpose = { Uniqueness: PurposeUniqueness } | { Spawn: PurposeSpawn } | { BedOwner: PurposeBedOwner } | { AssignBed: PurposeAssignBed } | { PreviousOccupant: PurposePreviousOccupant } | { Roaming: PurposeRoaming } | "BedBinding" | "Cursor"
+
+@@ -3852,6 +3870,8 @@ declare enshwick: {
+ 		containers: (kinds: {string}) -> {Placed},
+ 		--- Asks the server to destroy `entity` after the systems of the next step, as the game removes things itself: no loot and no death.
+ 		destroy: (entity: number) -> (),
++		--- Copies the prop template and optional local placement box of `item`, without spawning an entity or committing a transaction. Any thread; the loader pins the server's item registry for the read.
++		prop_placement_info: (item: number) -> PropPlacementInfo,
+ 		--- The props whose position lies in the box between corners `a` and `b`, in metres, edges included, by entity: what a player placed there from an item, told apart by the template the item places, not the things a world comes with. Creatures placed from items (animals, pets, survivors) and flame altars are no props and are left out; the entity calls reach them. The engine walks every entity with a `UsedItem`, so call it now and then, not every step.
+ 		props_in: (a: vector, b: vector) -> {Prop},
+ 		--- Starts a `Transaction` of the server's world.
+diff --git a/examples/you.welcome/types/enshwick.d.luau b/examples/you.welcome/types/enshwick.d.luau
+index 2962460d..bbd2bedc 100644
+--- a/examples/you.welcome/types/enshwick.d.luau
++++ b/examples/you.welcome/types/enshwick.d.luau
+@@ -2166,6 +2166,24 @@ export type PropId = {
+ 	crafting_prop: string?,
+ }
+
++--- Declared local placement corners in metres, before a prop turns. This is item metadata, not a complete physical or permission footprint.
++export type PropPlacementBox = {
++	--- The declared minimum corner.
++	min: vector,
++	--- The declared maximum corner.
++	max: vector,
++}
++
++--- An item's prop template and optional declared local placement box. These are copied metadata, not a complete physical footprint or proof of permission, collision, persistence, label ownership or safe recovery.
++export type PropPlacementInfo = {
++	--- The queried item.
++	item: number,
++	--- The template it places.
++	template: string,
++	--- The resolver's local corners in metres, before rotation. None means absent, invalid or unavailable reads, never a known empty footprint. The loader's fallback permission box is not returned here.
++	local_box: PropPlacementBox?,
++}
++
+ --- Who asks for a survivor's entity, with what it works on. The name is enshwick's, not the game's.
+ export type Purpose = { Uniqueness: PurposeUniqueness } | { Spawn: PurposeSpawn } | { BedOwner: PurposeBedOwner } | { AssignBed: PurposeAssignBed } | { PreviousOccupant: PurposePreviousOccupant } | { Roaming: PurposeRoaming } | "BedBinding" | "Cursor"
+
+@@ -3852,6 +3870,8 @@ declare enshwick: {
+ 		containers: (kinds: {string}) -> {Placed},
+ 		--- Asks the server to destroy `entity` after the systems of the next step, as the game removes things itself: no loot and no death.
+ 		destroy: (entity: number) -> (),
++		--- Copies the prop template and optional local placement box of `item`, without spawning an entity or committing a transaction. Any thread; the loader pins the server's item registry for the read.
++		prop_placement_info: (item: number) -> PropPlacementInfo,
+ 		--- The props whose position lies in the box between corners `a` and `b`, in metres, edges included, by entity: what a player placed there from an item, told apart by the template the item places, not the things a world comes with. Creatures placed from items (animals, pets, survivors) and flame altars are no props and are left out; the entity calls reach them. The engine walks every entity with a `UsedItem`, so call it now and then, not every step.
+ 		props_in: (a: vector, b: vector) -> {Prop},
+ 		--- Starts a `Transaction` of the server's world.

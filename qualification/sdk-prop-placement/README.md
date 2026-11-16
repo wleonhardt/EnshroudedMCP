@@ -2,7 +2,15 @@
 
 This is a source proposal, not an official SDK API, an active MCP patch or an installed loader. The MCP keeps its qualified SDK revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1 and Rust 1.99.1. The original source-qualification checkpoint used server 0.41.0 / companion 0.18.0; consult the product README for the current installed pair.
 
-Compatibility checkpoint, 2026-11-16: inspected official main dc0cf4ce is ABI 12.4 and already uses host slot 207 for terrain_material_add. This historical patch still applies only to 70a468bd. Rebase and fresh layout/model qualification are required before current-main submission or integration; a future append would be proposed ABI 12.5/slot 210. That rebase is not implemented or qualified here. See [ABI 12.4 feedback qualification](../sdk-ui-feedback/README.md).
+## Submitted current proposal
+
+API request [#1139](https://github.com/enshwick/enshwick/issues/1139) and draft [#1141](https://github.com/enshwick/enshwick/pull/1141) are open. The [current patch](../../patches/enshwick-prop-placement-read-abi126-proposal.patch) applies only to exact [73c18f31](https://github.com/enshwick/enshwick/tree/73c18f317440e7d2b4d61e1f81f7de0055516628). This proposes ABI 12.6/slot 211 after the official permissions entry. Existing slots stay fixed; the headed metadata record is 52 bytes and the host table is 1,720 bytes.
+
+The exact 29-file allowlist, fresh apply/tree proof and source/committed secret scans pass. `cargo +stable xtask check --base 73c18f317440e7d2b4d61e1f81f7de0055516628` passes on Rust 1.100.0: 4,237 scoped tests, nine marked skips, lint, formatting, affected doctests, generated C/C++ and Luau interfaces, rustdoc and fresh local-target links. Rust and Luau tests copy metadata without prop or transaction edits. Broad trybuild is left to CI, and 61 external book links were not checked. Optional game-input variables were absent; native provider and values remain unverified. No candidate loader was installed, and the consumer pin remains unchanged.
+
+Use the workspace's own `target` directory for these checks: the SDK link checker currently expects `target/doc`. No consumer pin or MCP execution policy changes. A future MCP adapter must still use the server game-thread scheduler.
+
+## Historical exact-base reference
 
 The [patch](../../patches/enshwick-prop-placement-read-proposal.patch) applies only to the qualified source baseline [70a468bd](https://github.com/enshwick/enshwick/tree/70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2). It proposes ABI 12.2 with one appended host entry and a headed 52-byte record. Every old host slot stays fixed. The SDK uses Rust 1.100.0; this does not change the product toolchain.
 
@@ -10,7 +18,7 @@ The proposed World::prop_placement_info(item) returns a copied item/template and
 
 These are placement metadata, not proof of complete physical geometry, collision, permission, persistence, exact label ownership or safe recovery. A future MCP adapter must still run its game read on the server game thread. The SDK registry pin does not relax MCP thread or write policy. No new MCP tool or executor is exposed here.
 
-## Qualification
+## Historical qualification
 
 The new SDK regression first failed because the getter did not exist. It now checks copied values, repeated reads, unknown boxes, non-prop/unknown-item refusal, world-stop unavailability, raw inverted corners and independence from entity-command availability. Props and transaction lists remain unchanged. Generic guarded-header tests cover the new record.
 
@@ -32,4 +40,4 @@ cargo +1.100.0 xtask check --base 70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2
 
 Follow the upstream tool prerequisites, including LLVM clang, ast-grep and nextest. Empty environment values still opt into some game checks; remove the variables for model-only qualification. These checks used an installed stable compiler reporting Rust 1.100.0.
 
-The patch retains the SDK's [MIT attribution](../../patches/enshwick-LICENSE). The [upstream request and PR text](UPSTREAM.md) are review drafts only. No issue, PR, maintainer message, runtime installation or consumer migration has been submitted or performed.
+The patch retains the SDK's [MIT attribution](../../patches/enshwick-LICENSE). The [submission record](UPSTREAM.md) links the authorized current request and PR. This historical patch was not submitted or installed.

@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Refresh the inactive placement proposal as proposed ABI 12.6/slot 211 against exact SDK 73c18f31; record source qualification, submitted request/draft and the ready diagnostic follow-up. No runtime migration.
+
 - Preserve inactive ABI 12.4 client-feedback consumer contracts and an isolated source migration patch against exact published main dc0cf4ce. Hovered slots and entity-backed tooltip data remain client-only observations, without selection/visibility or execution authority. Mark the older placement proposal for rebase because its slot is now occupied. Product dependencies and installed runtime remain unchanged; native provider compatibility is unverified.
 
 - Server 0.42.0 adds bounded read-only weather_read through the published SDK on the game thread. Preserve unavailable versus observed weights, raw finite values, weight sum and guarded SDK dominance without normalizing, changing forecasts or claiming rendered/shelter/safety evidence. Strict coordinate/write-argument admission and deferred fake-host sample behavior have regressions. Matched native 0.42.0/0.20.0 acceptance passes six samples at three points, independent weight/sum/dominance checks, eleven strict refusals and full preservation. Rendered/shelter/safety interpretation remains unverified.

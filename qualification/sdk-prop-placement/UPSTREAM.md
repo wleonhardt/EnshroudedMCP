@@ -1,43 +1,15 @@
-Submission checkpoint, 2026-11-16: these are historical drafts against 70a468bd. Inspected main dc0cf4ce is now ABI 12.4 and occupies the proposed slot 207. Rebase, regenerate coordinated interfaces and requalify before submitting a current-main PR. Explicit posting authorization is still pending; no issue, PR or maintainer message was sent.
+# Upstream submissions
 
-# Proposed upstream API request
+- API request: [#1139 — Expose read-only prop placement metadata](https://github.com/enshwick/enshwick/issues/1139).
+- Source-only draft: [#1141 — feat(world): expose read-only prop placement metadata](https://github.com/enshwick/enshwick/pull/1141).
+- Previous diagnostic draft, now ready for review: [#1111 — test(input): cover cached sampler diagnostic boundaries](https://github.com/enshwick/enshwick/pull/1111).
 
-Title: Expose read-only prop placement metadata
+The user explicitly authorized these submissions and the ready transition. No PR was merged.
 
-## Game system
+The placement draft is signed head cee4415f8408f6b9542779821934c217f1ea6b83 against exact main 73c18f31. It appends proposed ABI 12.6/slot 211, preserving official slots and the permissions API. It reuses the resolver and copies raw template/corners without props or transactions. Unknown bounds remain unknown. Full geometry, collision, permission, ownership, persistence and recovery remain separate concerns.
 
-Building and placed props, using the server's runtime item registry.
+The scoped check passes 4,237 model tests and nine marked skips, lint, formatting, affected doctests, C/C++ layout/header, generated Luau declarations, rustdoc and fresh local-target links. Source and committed secret audits, exact 29-file allowlist, fresh apply/tree proof and both hooks pass. Broad trybuild is left to CI; 61 external book links were not checked. No native provider/value acceptance or runtime installation is claimed.
 
-## What the mod needs to do
+The diagnostic implementation was adopted upstream in #1118. The refreshed #1111 preserves that implementation and history, and adds only SDK/Luau age-boundary and unknown-flag regressions plus a change fragment. Signed head b96e968baeda865631711c83a32af9ade00a5236 is open, ready and mergeable. Full checks pass 4,256 tests, nine skips and both compile tests, including internal-access trybuild. Fresh local-target rustdoc/link checks also pass. There is no production or ABI change.
 
-A planning mod needs the same local placement corners that the SDK's prop transaction resolver uses before it submits a placement. ItemInfo exposes a placed-template identity, but no public local-placement-box getter. A metadata read avoids guessing fields, constructing a zero-position placement or spawning a probe merely to discover the bounds.
-
-The local proposal wraps the existing item resolver. It returns the item, copied template and optional declared local corners without normalizing them or substituting the fallback permission box. Unknown bounds are not an empty footprint. Permission, complete collision geometry, label ownership and safe recovery remain separate concerns.
-
-## Language
-
-Both Rust and Luau. The consuming planning mod is Rust.
-
-## Example
-
-```rust
-fn inspect(world: enshwick::world::World, item: enshwick::ItemId) -> Result<(), enshwick::WorldError> {
-    let info = world.prop_placement_info(item)?;
-    if let Some(bounds) = info.local_box {
-        enshwick::info!("Local corners: {:?} to {:?}", bounds.min, bounds.max);
-    }
-    Ok(())
-}
-```
-
-## Would you send a pull request?
-
-Yes. A source-only implementation against exact main revision 70a468bd is prepared. It appends ABI 12.2 data and a host entry, preserves existing slots, reuses the native resolver and coordinates Rust, C header and generated Luau definitions. The full upstream check passes with 4,136 affected tests and nine marked skips. Native provider/value qualification remains open, and nothing is installed into the game.
-
-# Proposed draft PR
-
-Title: feat(world): expose read-only prop placement metadata
-
-Expose World::prop_placement_info so mods can inspect the existing resolver's copied template and optional local corners without creating a transaction or prop. Preserve raw corners and unknown bounds; introduce no new engine offsets or signatures. Append one headed ABI record and host slot in minor 12.2, and coordinate the safe SDK, loader, fake, C header, book and Luau declarations.
-
-The new regression covers value preservation, unknown/refused/unavailable states and no prop/transaction edits. Generic headed guards include the new record. The upstream scoped check passes: 4,136 tests passed, nine marked skipped, plus C/C++ layout, lint, formatting, doctests and docs. Optional game-dependent inputs were absent, and 61 pre-existing external book links were not checked. Native provider/value compatibility and complete physical footprint, ownership and recovery guarantees are not established. No consumer migration or runtime installation occurred.
+The old 70a468bd/ABI 12.2 patch remains a historical reference. Neither proposal is active in the MCP or installed framework. Product SDK 6a151a95 and the qualified runtime remain unchanged.
