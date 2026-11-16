@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Server 0.38.0 source adds explicit recipe alternatives. Installed isolated runtime remains 0.37.0; matched live alternative-selection acceptance is pending.
+Server 0.38.0 adds explicit recipe alternatives. Matched isolated installation, synthetic selection/arithmetic/refusal checks and full read-only preservation pass. This does not validate live eligible stock, game recipe applicability or a complete production chain. See [explicit alternatives](plans/decisions/0029-explicit-recipe-alternatives.md).
 
 Server 0.37.0 adds read-only `construction_budget` journal/recovery capacity observation. Matched 0.37.0 installation and live getter validation pass with no active recovery reservations; native staged recovery remains unverified. Reading capacity never reserves it or authorizes a write.
 

@@ -3,7 +3,7 @@
 ## Server 0.38.0 (explicit recipe alternatives)
 
 - Allow bounded alternative single-output producers in recipe_plan with optional explicit item/recipe choices. Refuse ambiguous, duplicate, unknown or mismatched selections; retain existing single-producer calls.
-- Analyze only selected dependencies and requirements while validating every supplied recipe and the full catalogue bound. Preserve batch rounding, shared stock accounting and deterministic results under catalogue reordering. No automatic search, optimality, live stock validation or crafting execution is added. Private/public 305 Rust/50 Python tests, Clippy, formatting and release builds pass. Matched live acceptance remains pending; installed runtime remains 0.37.0.
+- Analyze only selected dependencies and requirements while validating every supplied recipe and the full catalogue bound. Preserve batch rounding, shared stock accounting and deterministic results under catalogue reordering. No automatic search, optimality, live stock validation or crafting execution is added. Private/public 305 Rust/50 Python tests, Clippy, formatting and release builds pass. Matched 0.38.0 cold installation and live synthetic alternative transport/read-only preservation checks pass. Connected production-chain, live eligible stock and native staged recovery acceptance remain unverified.
 
 ## Server 0.37.0 (read-only construction budget)
 
