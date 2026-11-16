@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Server 0.39.0 source adds optional same-read inventory item counts with physical-slot deduplication and explicit unknown completeness/eligibility. Installed runtime remains 0.38.0; matched live acceptance is pending.
+Server 0.39.0 adds optional same-read inventory item counts with physical-slot deduplication and explicit unknown completeness/eligibility. Matched isolated installation and empty-result/admission checks pass; nonempty counts, native alias cases and eligible stock remain unverified. See [inventory count scope](plans/decisions/0030-same-read-inventory-counts.md).
 
 Server 0.38.0 adds explicit recipe alternatives. Matched isolated installation, synthetic selection/arithmetic/refusal checks and full read-only preservation pass. This does not validate live eligible stock, game recipe applicability or a complete production chain. See [explicit alternatives](plans/decisions/0029-explicit-recipe-alternatives.md).
 

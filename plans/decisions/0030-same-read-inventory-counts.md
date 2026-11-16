@@ -1,6 +1,6 @@
 # 0030: Same-read inventory item counts with explicit uncertainty
 
-Date: 2026-11-15. Status: implemented; private/public source verified (310 Rust/51 Python tests, Clippy, formatting and release builds pass); matched live acceptance pending.
+Date: 2026-11-15. Status: implemented; private/public source verified (310 Rust/51 Python tests, Clippy, formatting and release builds pass); matched installed empty-count/admission acceptance passes; nonempty and eligible-stock acceptance remain unverified.
 
 Production planning needs quantities that are not assembled from independent inventory pages. Extend inventory_read with optional item_ids, reusing the existing strict one-to-eight unique nonzero u32 ID admission. Keep the existing page and its per-slot metadata limits unchanged when omitted. With the option, aggregate the already copied SDK slot vector on the same scheduled game-thread callback, before pagination. Return counts sorted by item ID.
 
@@ -9,3 +9,5 @@ The published alpha.17 inventory Reader::slots follows virtual links without exp
 Bound post-read processing to 65,536 SDK-returned records. This does not cap upstream SDK allocation/traversal. At that limit the largest sum of u32 counts fits exactly in u64. Preserve session-only identities, no write gate or journal mutation, and no stock reservation or crafting permission. No private ABI reader is introduced.
 
 Verify optional/strict selectors, physical alias deduplication, conflicting aliases in both orders, empty/zero semantics, input-order invariance, record boundaries and exact large totals. Extend the fixed read-only validator with an empty-count/unknown-eligibility shape probe. Install and independently compare nonempty counts with known physical slots when a suitable isolated fixture is available; empty-shape acceptance alone is not a stock milestone.
+
+Matched 0.39.0 qualification passes after a 121-member cold archive, four rollback DLL copies and independently observed native shutdown exit code 0. Live requests preserve the page-only shape, report unknown completeness/eligibility for zero observations, ignore page offset for counts and refuse nine invalid/undeclared selector variants. All 23 fixed read-only probes, alternative compatibility, complete baselines, immutable ledgers, source closure and installed hashes pass. A fresh native Menu frame is observed after client relaunch. No suitable nonempty fixture was found by the one scoped nearby container query; this is not evidence of general container absence or eligible stock.
