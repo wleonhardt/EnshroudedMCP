@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Preserve inactive ABI 12.4 client-feedback consumer contracts and an isolated source migration patch against exact published main dc0cf4ce. Hovered slots and entity-backed tooltip data remain client-only observations, without selection/visibility or execution authority. Mark the older placement proposal for rebase because its slot is now occupied. Product dependencies and installed runtime remain unchanged; native provider compatibility is unverified.
+
 - Server 0.42.0 adds bounded read-only weather_read through the published SDK on the game thread. Preserve unavailable versus observed weights, raw finite values, weight sum and guarded SDK dominance without normalizing, changing forecasts or claiming rendered/shelter/safety evidence. Strict coordinate/write-argument admission and deferred fake-host sample behavior have regressions. Matched native 0.42.0/0.20.0 acceptance passes six samples at three points, independent weight/sum/dominance checks, eleven strict refusals and full preservation. Rendered/shelter/safety interpretation remains unverified.
 
 - Read-only phase planning now audits declared box routes against the complete planned union: occupied footing, empty headspace, adjacent footprints and bounded vertical changes. Preserve route-free output exactly and reject invalid/bounded inputs before native previews. Native pure-preview qualification detects old compact roof conflicts and a missing waypoint while retaining the complete revised workshop geometry. No runtime binary, world write or walkability claim is added.

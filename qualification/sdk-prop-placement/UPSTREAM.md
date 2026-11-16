@@ -1,3 +1,5 @@
+Submission checkpoint, 2026-11-16: these are historical drafts against 70a468bd. Inspected main dc0cf4ce is now ABI 12.4 and occupies the proposed slot 207. Rebase, regenerate coordinated interfaces and requalify before submitting a current-main PR. Explicit posting authorization is still pending; no issue, PR or maintainer message was sent.
+
 # Proposed upstream API request
 
 Title: Expose read-only prop placement metadata

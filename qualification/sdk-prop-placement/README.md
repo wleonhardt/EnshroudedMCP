@@ -1,6 +1,8 @@
 # Inactive SDK prop placement proposal
 
-This is a source proposal, not an official SDK API, an active MCP patch or an installed loader. The MCP keeps its qualified SDK revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1 and Rust 1.99.1. Installed server 0.41.0 / companion 0.18.0 are unchanged.
+This is a source proposal, not an official SDK API, an active MCP patch or an installed loader. The MCP keeps its qualified SDK revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1 and Rust 1.99.1. The original source-qualification checkpoint used server 0.41.0 / companion 0.18.0; consult the product README for the current installed pair.
+
+Compatibility checkpoint, 2026-11-16: inspected official main dc0cf4ce is ABI 12.4 and already uses host slot 207 for terrain_material_add. This historical patch still applies only to 70a468bd. Rebase and fresh layout/model qualification are required before current-main submission or integration; a future append would be proposed ABI 12.5/slot 210. That rebase is not implemented or qualified here. See [ABI 12.4 feedback qualification](../sdk-ui-feedback/README.md).
 
 The [patch](../../patches/enshwick-prop-placement-read-proposal.patch) applies only to the qualified source baseline [70a468bd](https://github.com/enshwick/enshwick/tree/70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2). It proposes ABI 12.2 with one appended host entry and a headed 52-byte record. Every old host slot stays fixed. The SDK uses Rust 1.100.0; this does not change the product toolchain.
 

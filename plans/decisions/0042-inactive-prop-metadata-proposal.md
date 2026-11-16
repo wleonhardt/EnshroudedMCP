@@ -2,7 +2,7 @@
 
 Date: 2026-11-16. Status: isolated SDK source proposal passes the upstream scoped check; no consumer migration or native-provider acceptance.
 
-Official main remains 70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2 and the checked release list still starts with alpha.17. The public SDK has no local-placement metadata getter. Its existing native prop resolver already reads an item's template and optional local corners. Reuse that resolver instead of guessing offsets, spawning a probe or constructing a placement just to inspect metadata.
+The initial qualification checked official main 70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2 with alpha.17 as the latest inspected release. The public SDK has no local-placement metadata getter. Its existing native prop resolver already reads an item's template and optional local corners. Reuse that resolver instead of guessing offsets, spawning a probe or constructing a placement just to inspect metadata.
 
 The inactive patch appends a prop_placement_info host slot and a headed 52-byte record in proposed ABI 12.2. Every previous host offset stays fixed. The safe SDK returns owned item/template data and an optional PropPlacementBox. Missing, invalid or unavailable bounds remain unknown; raw corners are preserved and no fallback permission box is returned. Rust, native wrapper, fake, guarded headers, C/C++ layout, book and generated Luau definitions are coordinated.
 
@@ -11,3 +11,5 @@ The new public-reader test first fails on the absent method, then passes value p
 Keep the product at the qualified official 6a151a95 SDK, ABI 12.1 and Rust 1.99.1. The proposal is checked with Rust 1.100.0 and stays outside its dependency graph and installed framework. A future MCP adapter still queues its server read on the game thread. Copied local metadata is not complete geometry, permission, persistence, ownership or recovery authority. Exact labels, state-safe recovery and supported client join/crafting remain independent gates.
 
 The reproducible source patch, proof limits and outgoing-message drafts belong in qualification/sdk-prop-placement and patches/. Posting an upstream API request, publishing a clean SDK fork or opening a draft PR needs explicit user authorization; none has been submitted. Any eventual runtime change requires a published supported provider, matched source/loader provenance, cold rollback and native acceptance.
+
+A later inspection finds main dc0cf4ce at ABI 12.4 with official terrain_material_add occupying slot 207. The historical patch remains valid only for its exact 70a468bd baseline. Rebase to a fresh append and requalify before any current-main submission or integration; see decision 0047. The product pin and installed provider remain unchanged by that inspection.

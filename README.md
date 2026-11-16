@@ -36,6 +36,8 @@ Server 0.35.0 adds explicit planned-volume clearance checks to pure `building_pl
 
 Current source targets server **0.42.0** / companion **0.20.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed isolated research runtime now matches alpha.17. The migration itself added no executor; companion 0.15.0 now wraps supported native commands. Bounded native client-control and server lifecycle/recovery acceptance pass; broader gameplay and public-namespace installation remain unverified. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
 
+Inactive ABI 12.4 client feedback qualification now preserves an isolated consumer patch and model probes for hovered inventory slots and entity-backed tooltip callbacks. Product SDK/ABI and installed 0.42.0/0.20.0 remain unchanged; native provider qualification precedes migration. See [UI feedback contracts](qualification/sdk-ui-feedback/README.md).
+
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
 This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.39.0** and **optional companion 0.18.0** against ABI 12.1. The matched 0.34.0/0.15.0 research pair passes cold readiness and bounded native screen/tab/recipe/look/move/cancel fixtures with exact preservation and client reload refusal. Broader gameplay writes and public-namespace installation remain unverified.
