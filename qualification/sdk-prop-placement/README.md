@@ -1,14 +1,14 @@
-# Inactive merged-SDK prop placement consumer qualification
+# Inactive merged-SDK prop placement qualification
 
-The placement API is merged upstream. This optional test-only consumer pins exact official commit 9f6efc821524df426991fb584a761eaa0e5ea898, ABI 12.8 and Rust 1.100. It adds no MCP endpoint, mod DLL or installed provider. The MCP keeps its qualified SDK revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1 and Rust 1.99.1. The original source-qualification checkpoint used server 0.41.0 / companion 0.18.0; consult the product README for the current installed pair.
+The placement API is merged upstream. This optional qualification crate pins exact official commit 9f6efc821524df426991fb584a761eaa0e5ea898, ABI 12.8 and Rust 1.100. It contains model contracts and an opt-in server-only native probe DLL; it adds no MCP endpoint or installed provider. The MCP keeps its qualified SDK revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1 and Rust 1.99.1. The original source-qualification checkpoint used server 0.41.0 / companion 0.18.0; consult the product README for the current installed pair.
 
 ## Consumer contracts
 
-Private and sanitized public copies pass four tests in debug and release, strict Clippy and formatting on an installed stable compiler reporting exact Rust 1.100.0. The lockfile pins resolution. The root four-member product workspace, SDK 6a151a95, ABI 12.1 and Rust 1.99.1 remain unchanged; installed product stays 0.45.0/0.20.2.
+Private and sanitized public copies pass eight tests in debug and release, strict Clippy, formatting and the optional release DLL build on an installed stable compiler reporting exact Rust 1.100.0. The lockfile pins resolution. The root four-member product workspace, SDK 6a151a95, ABI 12.1 and Rust 1.99.1 remain unchanged; installed product stays 0.45.0/0.20.2.
 
 The copy preserves the item ID, file-order template GUID bytes and optional declared local corners. Unknown, unavailable or invalid boxes remain null with state unknown, never an empty footprint. Mixed-order corners admitted by the SDK remain in their supplied order; they are not normalized into a physical AABB. Refused, non-prop and inactive-world SDK errors propagate instead of becoming successful empty observations.
 
-The deferred fixture queues the read from another thread and receives nothing until the fake game thread ticks. Reads also work with entity commands unavailable and preserve existing props and the transaction list. All footprint, collision, permission, persistence, ownership and recovery proof fields remain false. The probe has no caller arguments, write path, policy bypass or MCP registration. Future tool admission belongs in crates/policy and execution in the established server scheduler.
+The deferred fixture queues the read from another thread and receives nothing until the fake game thread ticks. Reads also work with entity commands unavailable and preserve existing props and the transaction list. All footprint, collision, permission, persistence, ownership and recovery proof fields remain false. The probe has no caller arguments, gameplay write path, policy bypass or MCP registration. Its native adapter can write one exclusive diagnostic report, as described below. Future tool admission belongs in crates/policy and execution in the established server scheduler.
 
 Run from the product root, with game-test environment variables unset:
 
@@ -16,7 +16,8 @@ Run from the product root, with game-test environment variables unset:
 cargo +stable test --locked --manifest-path qualification/sdk-prop-placement/Cargo.toml --target-dir target/sdk128-props
 cargo +stable test --locked --release --manifest-path qualification/sdk-prop-placement/Cargo.toml --target-dir target/sdk128-props
 cargo +stable clippy --locked --all-targets --manifest-path qualification/sdk-prop-placement/Cargo.toml --target-dir target/sdk128-props -- -D warnings
-cargo +stable fmt --check --manifest-path qualification/sdk-prop-placement/Cargo.toml
+cargo +stable fmt --all --check --manifest-path qualification/sdk-prop-placement/Cargo.toml
+cargo +stable build --locked --release --manifest-path qualification/sdk-prop-placement/Cargo.toml --target-dir target/sdk128-props
 ```
 
 These are model and source contracts, not whole-product SDK migration, native provider/value, malformed-header, geometry, collision or visible-placement acceptance. A matching native provider remains unqualified under the current project provenance gate. Upstream intentionally labels unsigned builds unofficial rather than rejecting their load; no signature verifier is disabled here. See decisions 0059 and 0060 for scope and remaining work.
@@ -72,3 +73,13 @@ Apply only to a separate clean copy of that exact base, first checking `git appl
 From the isolated product copy, run `cargo test --locked --workspace`, `cargo clippy --locked --workspace --all-targets -- -D warnings`, `cargo fmt --all --check`, `python -B -m unittest discover -s scripts -p test_*.py` and `cargo build --locked --release -p mcp -p mcp-client`. External CARGO_TARGET_DIR is supported by the fixed baseline. These whole-product checks are separate from the four optional probe tests above.
 
 This completes source compatibility only. No matching provider, native API correspondence, live upgrade or rollback is qualified. See decision 0061 and the capability matrix before any adoption.
+
+## Opt-in native probe source checkpoint (2026-11-16)
+
+The server-only DLL is `sdk128_prop_placement_qualification.dll`, mod ID `enshrouded.placement-qualification`. It is outside the four-member product workspace. No installed mod changes in this checkpoint. Build and inspect a separate matched ABI 12.8 environment before any native run; the qualified product remains SDK ABI 12.1.
+
+After the published WorldLoaded event, the probe queues one server scheduler callback. It exclusively creates `placement-observation.json` before querying two fixed item selectors: the known box selector already used by the product's fixed probes, and invalid zero. It copies metadata through the published API and optionally correlates template identity through the separate inventory item-info getter. Missing independent data remains unavailable/null, not agreement or disagreement. Declared boxes remain metadata, not physical footprints or permission. Compiled SDK/ABI, independent correspondence and general provider/world/rendered proof remain separate.
+
+Four added model tests verify deferred callback execution, bounded successful/refused results and unchanged props/transactions, missing independent-reader nulls, and refusal to overwrite existing reports before or after a previous world event. Non-overwrite cases also observe the diagnostic refusal, avoiding a false pass from an unexecuted callback. Partial reports are not automatically overwritten or retried. Original four serialization/ABI contracts remain checked through the shared metadata implementation.
+
+A paired provider/probe/candidate-server bundle is privately staged with exact hashes, not installed or executed. Its official CI development provider has no release signatures and is expected to be classified unofficial; no signature check is bypassed and no adoption follows from source tests. [Native procedure and rollback gates](NATIVE.md) describe the remaining isolated experiment. Configuration/launch, native values, provider fidelity and rollback acceptance remain unverified.

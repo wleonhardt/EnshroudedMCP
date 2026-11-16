@@ -1,35 +1,16 @@
 //! Inactive source-only consumer probe; no MCP endpoint or installed provider.
 #![cfg(test)]
+use crate::metadata::copy_metadata;
 use enshwick::{
     Entity, ItemId, Load, Mod, Off, WorldError, abi::Status, content::Guid, schedule::Scheduler,
     world::World,
 };
-use serde_json::{Value, json};
+use serde_json::json;
 use std::sync::{Mutex, mpsc};
 
 const ITEM: ItemId = ItemId::new(30);
 const TEMPLATE: Guid = Guid([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
 static CONTEXT: Mutex<Option<(World, Scheduler)>> = Mutex::new(None);
-
-fn copy_metadata(world: World, item: ItemId) -> Result<Value, WorldError> {
-    let info = world.prop_placement_info(item)?;
-    let local_box = info
-        .local_box
-        .map(|corners| json!({"min":corners.min,"max":corners.max}));
-    let template = info
-        .template
-        .0
-        .iter()
-        .map(|byte| format!("{byte:02x}"))
-        .collect::<String>();
-    Ok(
-        json!({"source":"published_world_prop_placement_info","item_id":info.item.0,
-        "template_guid_file_order_hex":template,"local_box_state":if local_box.is_some(){"declared"}else{"unknown"},
-        "declared_local_box_m":local_box,"world_mutated":false,"physical_footprint_verified":false,
-        "collision_verified":false,"build_permission_verified":false,"persistence_verified":false,
-        "label_ownership_verified":false,"safe_recovery_verified":false}),
-    )
-}
 
 struct Consumer;
 impl Mod for Consumer {
