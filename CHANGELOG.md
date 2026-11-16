@@ -1,5 +1,10 @@
 # Changelog
 
+## Read-only phase planning script
+
+- Add scripts/phase_plan.py to decompose up to 32 named primitive modules into exact disjoint phases using only pure building_plan calls. Preserve existing construction limits, bound total cells/phases and retain module provenance.
+- Revalidate each phase and the exact final union. Reports authorize no execution, world observation, build order or recovery. Independent live pure-preview comparison matches the complete workshop geometry without changing world or ledgers. Private/public 297 Rust/49 Python tests, Clippy, formatting and release builds pass.
+
 ## Server 0.36.0 (retained recovery journal reservations)
 
 - Reserve bounded construction undo audit space before native placement. Acceptance retains the allowance; later construction and all shared journal append paths preserve it. Recovery can spend only its own credit after a successful synced append.

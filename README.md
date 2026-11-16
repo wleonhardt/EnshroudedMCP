@@ -2,6 +2,8 @@
 
 # Enshrouded MCP
 
+Read-only phase planning: `python scripts/phase_plan.py input.json output.json --port 8753` converts named primitive geometry into bounded, revalidated phase plans. It never executes them; live feasibility and recovery remain separate. See [phase planning](plans/decisions/0028-read-only-phase-planning.md).
+
 Server 0.36.0 integrates shared retained-undo journal reservations. Private/public source checks, matched 0.36.0 installation, isolated server read-only readiness and fresh companion Menu observation pass. Native staged recovery and live storage-fault acceptance remain unverified.
 
 Server 0.35.0 adds explicit planned-volume clearance checks to pure `building_plan`. Matched isolated DLL installation and server 0.35.0 transport acceptance pass. Companion 0.15.0 relaunch/connected checks of the rebuilt bundle remain unverified. A planned-clear box proves no live world or avatar clearance.

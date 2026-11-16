@@ -1,0 +1,13 @@
+# 0028: Read-only exact phase planning script
+
+Date: 2026-11-15. Status: implemented; private/public source verified; bounded live pure-preview comparison passes.
+
+The full workshop exceeds one construction request, and a private exact decomposition established the required planning method. Extract it as scripts/phase_plan.py without another executor or relaxed native limits. The script uses only tools/call building_plan on the existing loopback Client. It does not start the game/server, read the world, submit writes, enable flags or generate native operation identities.
+
+Input is one unverified material label and one to 32 uniquely named primitive modules, with no per-module material or nested composites. Each module is checked through the existing pure preview. Refuse malformed/mutating geometry responses, duplicate/off-grid cell representation and more than 8,192 distinct target cells. The CLI bounds explicitly selected JSON to 1 MiB and exclusively creates its selected output, never overwriting input or an existing result.
+
+Preserve module contribution order for overlap ownership and remove already contributed cells. Merge contiguous x-runs through identical adjacent z rows; retain legal rectangles intact and split only oversized ones at brick boundaries. Greedily pack compatible rectangles across module boundaries, retaining source module provenance. Each generated phase must obey the existing eight-part, 256-cell, eight-brick, 64-cell-per-brick and 16 m full-extent limits, and is independently checked through building_plan. Refuse more than 64 phases. The final union must exactly equal all input module cells with no phase target overlap.
+
+This is deterministic bounded geometry decomposition, not an optimal phase count or a construction-order/support planner. Generated phase indices and rectangle keys are planning labels, not durable native identities. Reports remain executable false, world_observed false and material_validated false. Live actor/source/occupancy/rights/persistence, available identity capacity, journal/native undo storage, actual stability, rendering, traversal, props and recovery must still be qualified independently. Compatible module merging does not prove physical build order.
+
+Verify overlap/reorder union, distant and large splits, all existing phase limits, exact per-phase oracle comparison, untrusted responses, input/workload/phase caps, primitive-only fixed transport and avoidance of unnecessary splits. Live acceptance compares the full independent workshop target set and immutable ledger preservation without executing construction.
