@@ -26,6 +26,20 @@ pub(crate) struct Recovery {
     dir: PathBuf,
 }
 
+struct QueuedRecovery {
+    pending: Arc<PendingWrite>,
+    reply: mpsc::Receiver<Result<Value, String>>,
+}
+
+impl QueuedRecovery {
+    fn wait(self, timeout: Duration) -> Result<Value, String> {
+        self.reply.recv_timeout(timeout).map_err(|_| {
+            if self.pending.cancel() { "health recovery timed out before execution; queued request cancelled".to_owned() }
+            else { "health recovery started; outcome unknown; inspect players and journal, do not blindly retry".to_owned() }
+        })?
+    }
+}
+
 impl Recovery {
     pub(crate) fn new(load: &mut Load<'_>, construction: Construction) -> Result<Self, Off> {
         let generation = Arc::new(AtomicU64::new(0));
@@ -75,6 +89,10 @@ impl Recovery {
     }
 
     pub(crate) fn call(&self, game: Game, spec: Spec) -> Result<Value, String> {
+        self.queue(game, spec)?.wait(Duration::from_secs(5))
+    }
+
+    fn queue(&self, game: Game, spec: Spec) -> Result<QueuedRecovery, String> {
         give_gate(spec.dry, Some(&self.dir), spec.confirm.as_deref())?;
         let admitted = self.construction.active_session()?;
         let this = self.clone();
@@ -104,10 +122,7 @@ impl Recovery {
             })();
             let _ = tx.send(result);
         });
-        rx.recv_timeout(Duration::from_secs(5)).map_err(|_| {
-            if pending.cancel() { "health recovery timed out before execution; queued request cancelled".to_owned() }
-            else { "health recovery started; outcome unknown; inspect players and journal, do not blindly retry".to_owned() }
-        })?
+        Ok(QueuedRecovery { pending, reply: rx })
     }
 }
 
@@ -439,6 +454,49 @@ side = "server""#
         }
     }
     #[test]
+    fn queued_reply_preserves_results_and_never_cancels_started_work() {
+        for started in [false, true] {
+            for disconnected in [false, true] {
+                let pending = Arc::new(PendingWrite::default());
+                if started {
+                    assert!(pending.begin());
+                }
+                let (sender, reply) = mpsc::sync_channel(1);
+                let sender = (!disconnected).then_some(sender);
+                let error = QueuedRecovery {
+                    pending: pending.clone(),
+                    reply,
+                }
+                .wait(Duration::ZERO)
+                .unwrap_err();
+                assert_eq!(
+                    error,
+                    if started {
+                        "health recovery started; outcome unknown; inspect players and journal, do not blindly retry"
+                    } else {
+                        "health recovery timed out before execution; queued request cancelled"
+                    }
+                );
+                assert!(
+                    !pending.begin(),
+                    "cancelled or started work cannot start again"
+                );
+                assert!(!pending.cancel());
+                drop(sender);
+            }
+        }
+        for outcome in [Ok(json!({"state":"fixture"})), Err("native refusal".into())] {
+            let pending = Arc::new(PendingWrite::default());
+            assert!(pending.begin());
+            let (sender, reply) = mpsc::sync_channel(1);
+            sender.send(outcome.clone()).unwrap();
+            assert_eq!(
+                QueuedRecovery { pending, reply }.wait(Duration::ZERO),
+                outcome
+            );
+        }
+    }
+    #[test]
     fn fake_host_scheduled_restore_cancels_late_work_and_invalidates_actor_preview() {
         use enshwick::Entity;
         use enshwick::abi::{Header, PlayerInfo, Status};
@@ -495,15 +553,9 @@ side = "server""#
         let request =
             health_recovery::check(json!({"player":"actor"}).as_object().unwrap()).unwrap();
         let drive = |request: Spec| {
-            let adapter = recovery.clone();
-            let worker = std::thread::spawn(move || adapter.call(game, request));
-            let deadline = std::time::Instant::now() + Duration::from_secs(2);
-            while !worker.is_finished() {
-                assert!(std::time::Instant::now() < deadline);
-                let _ = loader.tick(Duration::from_millis(50));
-                std::thread::sleep(Duration::from_millis(1));
-            }
-            worker.join().unwrap()
+            let queued = recovery.queue(game, request)?;
+            let _ = loader.tick(Duration::from_millis(100));
+            queued.wait(Duration::ZERO)
         };
         let dry = drive(request.clone()).unwrap();
         assert_eq!(dry["state"], "dry");
@@ -512,19 +564,22 @@ side = "server""#
         real.dry = false;
         real.confirm = Some("server-write".into());
         real.preview = Some(dry["preview"].as_str().unwrap().into());
-        let late = recovery.clone();
-        let timed = real.clone();
         assert!(
-            std::thread::spawn(move || late.call(game, timed))
-                .join()
+            recovery
+                .queue(game, real.clone())
                 .unwrap()
+                .wait(Duration::ZERO)
                 .unwrap_err()
                 .contains("queued request cancelled")
         );
-        let _ = loader.tick(Duration::from_millis(50));
+        let _ = loader.tick(Duration::from_millis(100));
         assert_eq!(game.world.vitals(Entity(7)).unwrap().health.current, 17);
         assert!(!f.0.join("journal.jsonl").exists());
-        let outcome = drive(real.clone()).unwrap();
+        let queued = recovery.queue(game, real.clone()).unwrap();
+        assert_eq!(game.world.vitals(Entity(7)).unwrap().health.current, 17);
+        assert!(!f.0.join("journal.jsonl").exists());
+        let _ = loader.tick(Duration::from_millis(100));
+        let outcome = queued.wait(Duration::ZERO).unwrap();
         assert_eq!(outcome["state"], "restored_readback");
         assert_eq!(game.world.vitals(Entity(7)).unwrap().health.current, 100);
         assert_eq!(f.records().len(), 2);

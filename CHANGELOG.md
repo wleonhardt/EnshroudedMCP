@@ -2,6 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Remove wall-clock worker races from the health-recovery SDK fixture by driving queued requests and receipt observation separately. Preserve the production five-second deadline, cancellation before execution, uncertainty after execution starts and result/error propagation. Add deterministic receipt-boundary coverage; no health-tool behavior or authority changes.
 - Extend the optional SDK qualification suite with prop placement-permission and mixed-write/undo held-state contracts. Test rotated bounds, state acquired after queuing for all nine published kinds and an empty-state recovery control. Synthetic model evidence grants no native recovery authority; runtime pins and installed builds are unchanged.
 - Preserve runnable SDK settlement-model probes in an optional independent workspace. Seven scenarios exercise callback timing, expiry, historical entity IDs, failure, undo and world scope without changing the MCP runtime dependency.
 - Exercise populated factory observations through the production adapter, published SDK component codec and queued scheduler pass. Cover all six states, four-choice arrays, numeric extremes and unknown state/flags while preserving bytes and uncertainty. This is synthetic SDK regression coverage; populated live factory and production semantics remain unverified.
