@@ -1,0 +1,9 @@
+# 0035: Isolated client selection adapter regression fixture
+
+Date: 2026-11-16. Status: source verified; private/public 339 Rust executions (including 18 repeated shared module checks), 54 Python tests, Clippy, formatting and release builds pass. Connected category/crafting acceptance remains unverified.
+
+Recipe category observations are a prerequisite for concrete planning ingredients, but generated fields do not establish costs. The pinned SDK recipe-edit code preserves category records separately from named item costs. Its copied snapshot lacks category selection and cost state; its command enum lacks category-change and crafting execution. Preserve those capability gaps rather than infer quantities from item-stack zeroes or floating scaling values.
+
+Verify the existing production selection adapter through the published SDK fake host in a separate integration-test binary. Include selection.rs directly and provide only its shared policy evidence context. Synthetic reflection is adapted from the pinned SDK fixture under its retained MIT license. Exercise both event subscriptions and both process sides. Preserve all four choices, including zero/full-u32 category IDs, duplicate IDs and the full u8 index range. Require isolation from server events, no dedicated-server client delivery, unknown current selection and session-history invalidation. No World access, OS input or mutation is introduced.
+
+The target verifies real callback wiring and serialization, rather than replacing them with a mock adapter. It does not verify a live game event, current category state, archive membership agreement, eligibility, cost/scaling/rounding or crafting. Runtime versions, SDK pin and installed binaries stay unchanged. Record exact consumption only through independently observable UI costs and physical-slot changes around a supported craft action; a highlighted recipe or request event alone is insufficient.

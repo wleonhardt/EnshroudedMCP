@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased (regression coverage)
+
+- Exercise the production client selection adapter through published typed event delivery on both client and dedicated-server sides. Preserve bounded raw category choices, server/client isolation, unknown current selection and session clearing. This is source regression coverage, not live category/crafting acceptance; installed runtime and MCP behavior are unchanged.
+
 ## Companion 0.18.0 (recipe workshop reference contract)
 
 - Cross-check published RecipeLayout workshop reference offsets, record/array layout and GUID/u32 kinds against canonical recipe reflection before parsing. Refuse disagreement rather than returning plausible fields from an incompatible description.
