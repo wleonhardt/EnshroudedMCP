@@ -5,7 +5,7 @@ Both authorized PRs merged at 2026-11-16T17:30:23Z:
 - [#1141: read-only prop placement metadata](https://github.com/enshwick/enshwick/pull/1141), final head 3c956e5131e340c4c4d4a55743537c721fedf1fd, merge 3a3e52f71cdf9a02ffc855cf9fc921e8ccbd5b0c.
 - [#1111: cached sampler diagnostic boundaries](https://github.com/enshwick/enshwick/pull/1111), final head 3c2f3b7ef7a462b26bd9ef5b1bc5845f9e795423, merge 9f6efc821524df426991fb584a761eaa0e5ea898.
 
-The optional consumer workspace pins the latter merged revision at ABI 12.8. Its four model contracts do not install a provider or expose metadata through the active MCP. The product retains SDK 6a151a95 / ABI 12.1. See [provider qualification](../../plans/decisions/0059-upstream-merges-and-provider-qualification.md).
+The optional consumer workspace pins the latter merged revision at ABI 12.8. Its eight model contracts and the bounded isolated native server experiment are recorded separately. The unsigned provider is not adopted and metadata is not exposed through the active product MCP. See [native evidence](../../plans/decisions/0068-isolated-native-sdk128-metadata.md). The product retains SDK 6a151a95 / ABI 12.1. See [provider qualification](../../plans/decisions/0059-upstream-merges-and-provider-qualification.md).
 
 ## Historical proposal qualification
 

@@ -15,7 +15,18 @@
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
       "abi": "12.8",
       "rust": "1.100.0",
-      "source_only": true
+      "source_only": false,
+      "status": "bounded isolated native server experiment passed; not adopted",
+      "native_evidence": "plans/decisions/0068-isolated-native-sdk128-metadata.md",
+      "native_scope": [
+        "two fixed metadata selectors and template correspondence",
+        "38 fixed server read probes",
+        "one gated shutdown and independent exit code 0"
+      ],
+      "native_client_qualified": false,
+      "physical_geometry_verified": false,
+      "release_provider_qualified": false,
+      "primary_installation_changed": false
     }
   },
   "counts": {

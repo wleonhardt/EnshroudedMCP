@@ -4,7 +4,7 @@ Updated: 2026-11-16. Status: all 49 tools have explicit contract/evidence assess
 
 ## Profiles and evidence rules
 
-Product source and installed versions are server **0.45.0** and companion **0.20.2**, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** is separately source-qualified; no matching native provider is qualified or installed.
+Product source and installed versions are server **0.45.0** and companion **0.20.2**, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** has separately qualified source contracts and a bounded, completed native server experiment. The unsigned development provider is not adopted; its dedicated experiment process has exited. Client and general provider fidelity remain open.
 
 [Machine-readable contracts](capability-contracts.json) preserve all 49 advertised input schemas, descriptions, definition/dispatch references, thread ownership, admission, evidence limits and next checks. Inventory was compared with the running endpoints' tools/list and source tool definitions on this date: 36 server and 13 companion tools. Schemas describe argument bounds; policy checks add semantic bounds and reject unnamed arguments. Discovery does not prove an executor is currently available.
 
@@ -101,3 +101,7 @@ These documentation corrections add no native acceptance or runtime behavior. Hi
 ## Repeatable contract checks
 
 Run `python -B scripts/check_contracts.py` for index, table, references and source-profile consistency. Add `--server-port 8751 --client-port 8754` for the corresponding existing loopback endpoints. Live checks compare names, exact schemas/descriptions and fixed compiled-provenance metadata only. They do not execute gameplay tools or verify the runtime provider, current applicability or effects. Exit codes: 0 consistent, 1 drift, 2 unavailable. CLI reads no credentials; the helper API accepts an already configured Client when authentication is required. See [decision 0066](decisions/0066-read-only-contract-drift-checker.md).
+
+## Isolated SDK 12.8 native checkpoint — 2026-11-16
+
+[Decision 0068](decisions/0068-isolated-native-sdk128-metadata.md) qualifies one prop/template mapping against two other API observations, finite declared corners without physical semantics, invalid-zero refusal, all 38 fixed server probes and one gated shutdown with independent exit 0. The exact four loaded DLLs and loopback listeners are verified. Primary twelve hashes, 88 ledger files and original setting are preserved at experiment completion; 23 copied runtime assets remain byte-identical. No client, full world baseline, cold restore, causal-save or general provider/adoption claim follows. Active product contracts remain unchanged.

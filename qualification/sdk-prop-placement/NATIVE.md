@@ -1,6 +1,6 @@
 # Isolated native placement-metadata qualification
 
-Status: staged source/artifact procedure, 2026-11-16. No native execution or provider adoption is claimed. Product installation and SDK pin remain unchanged.
+Status: bounded isolated native server experiment completed, 2026-11-16; product adoption remains open. See decision 0068 for exact evidence limits. Product installation and SDK pin remain unchanged.
 
 ## Exact inputs
 
@@ -15,7 +15,7 @@ The provider package lacks release signatures. Upstream's [official-build classi
 
 1. Use a new disposable server tree. Preserve the existing signed server/client installation, save paths, journals and client state. Capture exact installed and immutable-ledger membership/hashes before starting. Do not overlay working DLLs.
 2. Copy only explicitly identified immutable dedicated-server runtime assets; exclude existing configuration, saves, account/cache data and credentials. Record copied asset hashes. Never touch the Steam DRM stub or disassemble game files.
-3. Verify the current published dedicated-server configuration schema before generating a fresh configuration. Use loopback binding, unused game/query/MCP ports, new save/log/mod paths and an empty character roster. Do not read or copy a credential-bearing configuration. Configuration and launch are not yet verified by this procedure.
+3. Verify the current published dedicated-server configuration schema before generating a fresh configuration. Use loopback binding, unused query/MCP ports, new save/log/mod paths and an empty character roster. Do not read or copy a credential-bearing configuration. The recorded isolated configuration and launch passed; verify these preconditions independently for each new fixture.
 4. Stage the exact provider, probe and optional administration consumer with a manifest. Keep write flags absent. No client join, avatar movement, geometry, grant, clock or other gameplay fixture is needed.
 5. Capture an independent template mapping for the known selector through the existing signed provider's read-only item_info API and record relevant build/asset identity. This is a mapping reference, not physical geometry.
 
@@ -34,3 +34,9 @@ If the optional candidate administration endpoint is healthy, preview one delibe
 If native shutdown is unavailable, record the lifecycle capability gap. Any necessary OS cleanup must target only the newly created, identity-verified experimental process; it is not native MCP execution. Do not stop another process or restore files into the working installation. Keep the disposable tree quarantined for inspection rather than deleting uncertain evidence.
 
 Verify that working installation hashes, immutable ledger membership/bytes, original settings and absent flags remain unchanged. A cold backup/restore or rollback claim requires its own exact evidence. All native outcomes, failure/recovery observations and limitations belong in the private report; publish only sanitized conclusions. Product adoption remains a later, separate decision.
+
+## Recorded bounded outcome
+
+The 2026-11-16 run confirms two-selector metadata/refusal behavior and independent template correspondence, four exact loaded DLLs, owned loopback listeners, all 38 fixed read probes and one accepted gated stop with independent exit code 0. Its report remains unchanged. Primary twelve hashes, 88 ledger files and original setting, plus all 23 copied runtime assets, remain exact at cleanup. No game client, physical geometry, broad provider fidelity, causal final-save or cold restore is certified. The unsigned provider is not adopted. See [decision 0068](../../plans/decisions/0068-isolated-native-sdk128-metadata.md).
+
+Fresh configuration followed Keen's [configuration](https://enshrouded.zendesk.com/hc/en-us/articles/16055441447709-Dedicated-Server-Configuration) and [roles](https://enshrouded.zendesk.com/hc/en-us/articles/19191581489309-Server-Roles-Configuration) documentation. Only the generated configuration is written; credential-bearing configuration and game process logs are not reopened or exported. SDK per-source logs supply classification evidence separately.
