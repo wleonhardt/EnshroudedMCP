@@ -20,7 +20,71 @@ def oracle(args):
             "cell_minima": [list(c) for c in sorted(cells)]}
 
 
+def clearance_oracle(volumes, cells):
+    reports=[]
+    for v in volumes:
+        low=[v[k] for k in ("x","y","z")]
+        high=[low[i]+v[k] for i,k in enumerate(("width","height","depth"))]
+        conflicts=sorted(list(c) for c in cells if all(low[i] <= c[i]/2 < high[i] for i in range(3)))
+        reports.append(dict(min_m=low,max_exclusive_m=high,
+                            requested_cell_count=int(v["width"]*v["height"]*v["depth"]*8),
+                            planned_clear=not conflicts,conflicting_cell_count=len(conflicts),conflicting_cell_minima=conflicts))
+    return dict(scope="planned_cells_only",world_observed=False,walkability_verified=False,volumes=reports)
+
+
 class PhaseTests(unittest.TestCase):
+    def test_per_module_clearance_is_not_silently_discarded(self):
+        module={**floor("a"),"clearance":[dict(x=0,y=4,z=0,width=.5,height=.5,depth=.5)]}
+        with self.assertRaisesRegex(ValueError,"clearance"):
+            compile_phases(oracle,{"material":"stone","parts":[module]})
+
+    def test_clearance_checks_complete_union_and_preserves_half_open_boundaries(self):
+        calls=[]
+        def checked(args):
+            calls.append(args)
+            result=oracle(args)
+            if "clearance" in args:
+                result["clearance"]=clearance_oracle(args["clearance"], result["cell_minima"])
+            return result
+        volumes=[dict(x=100,y=4,z=0,width=.5,height=.5,depth=.5),
+                 dict(x=100,y=4.5,z=0,width=.5,height=.5,depth=.5)]
+        doc={"material":"stone","parts":[floor("near",width=.5,depth=.5),floor("far",x=100,width=.5,depth=.5)],"clearance":volumes}
+        result=compile_phases(checked,doc)
+        self.assertEqual(len(result["phases"]),2)
+        self.assertFalse(result["clearance"]["volumes"][0]["planned_clear"])
+        self.assertEqual(result["clearance"]["volumes"][0]["conflicting_cell_minima"],[[200,8,0]])
+        self.assertTrue(result["clearance"]["volumes"][1]["planned_clear"])
+        self.assertFalse(result["clearance"]["world_observed"])
+        self.assertFalse(result["clearance"]["walkability_verified"])
+        self.assertEqual(sum("clearance" in call for call in calls),2)
+        plain={k:v for k,v in doc.items() if k!="clearance"}
+        expected=compile_phases(oracle,plain)
+        result.pop("clearance")
+        self.assertEqual(result,expected)
+
+    def test_clearance_more_than_one_native_batch_and_untrusted_reports(self):
+        def checked(args):
+            result=oracle(args)
+            if "clearance" in args:
+                self.assertEqual(len(args["clearance"]),1)
+                result["clearance"]=clearance_oracle(args["clearance"], result["cell_minima"])
+            return result
+        volume=dict(x=0,y=5,z=0,width=.5,height=.5,depth=.5)
+        doc={"material":"stone","parts":[floor("a")],"clearance":[volume]*32}
+        self.assertEqual(len(compile_phases(checked,doc)["clearance"]["volumes"]),32)
+        for bad in [[],[volume]*33,None,[{**volume,"width":.25}],[{**volume,"x":True}],
+                    [{**volume,"height":16,"width":16,"depth":16}],[{**volume,"x":10240}],
+                    [{**volume,"confirm":"server-write"}]]:
+            with self.assertRaises(ValueError):compile_phases(checked,{**doc,"clearance":bad})
+        with self.assertRaisesRegex(ValueError,"clearance"):
+            compile_phases(oracle,{**doc,"clearance":[volume]})
+        def dishonest(args):
+            result=checked(args)
+            if "clearance" in args:result["clearance"]["world_observed"]=True
+            return result
+        with self.assertRaisesRegex(ValueError,"clearance"):
+            compile_phases(dishonest,{**doc,"clearance":[volume]})
+
     def test_cli_bounds_input_before_transport_and_preserves_existing_output(self):
         import contextlib, io, json, tempfile
         from pathlib import Path

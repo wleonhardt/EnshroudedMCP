@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased (regression coverage)
+## Unreleased (phase clearance and regression coverage)
 
+- Preserve document-level phase clearance evidence across the complete cell union. Check up to 32 bounded absolute volumes through native pure previews and report exact later-phase conflicts. Refuse per-module clearance that was previously silently discarded. Reports remain geometry-only, with world occupancy and walkability unverified.
 - Exercise the production client selection adapter through published typed event delivery on both client and dedicated-server sides. Preserve bounded raw category choices, server/client isolation, unknown current selection and session clearing. This is source regression coverage, not live category/crafting acceptance; installed runtime and MCP behavior are unchanged.
 
 ## Companion 0.18.0 (recipe workshop reference contract)

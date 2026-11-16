@@ -16,7 +16,7 @@ Server 0.38.0 adds explicit recipe alternatives. Matched isolated installation, 
 
 Server 0.37.0 adds read-only `construction_budget` journal/recovery capacity observation. Matched 0.37.0 installation and live getter validation pass with no active recovery reservations; native staged recovery remains unverified. Reading capacity never reserves it or authorizes a write.
 
-Read-only phase planning: `python scripts/phase_plan.py input.json output.json --port 8753` converts named primitive geometry into bounded, revalidated phase plans. It never executes them; live feasibility and recovery remain separate. See [phase planning](plans/decisions/0028-read-only-phase-planning.md).
+Read-only phase planning: `python scripts/phase_plan.py input.json output.json --port 8753` accepts `material`, named primitive `parts`, and optional global `clearance` (one to 32 absolute boxes with `x`, `y`, `z`, `width`, `height`, `depth`; half-metre grid, each at most 1,024 cells). It revalidates geometry and clearance through pure native previews, then reports conflicts against the complete cell union. Put clearance at document level; per-module clearance is refused. Reports never execute phases or establish world occupancy/walkability. See [global phase clearance](plans/decisions/0036-global-phase-clearance.md).
 
 Server 0.36.0 integrates shared retained-undo journal reservations. Private/public source checks, matched 0.36.0 installation, isolated server read-only readiness and fresh companion Menu observation pass. Native staged recovery and live storage-fault acceptance remain unverified.
 

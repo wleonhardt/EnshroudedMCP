@@ -67,9 +67,43 @@ def _fits(parts):
             and all(max(c[i] for c in cells)+1-min(c[i] for c in cells)<=32 for i in range(3)))
 
 
+def _volume(volume):
+    keys=("x","y","z","width","height","depth")
+    if not isinstance(volume,dict) or set(volume)!=set(keys):
+        raise ValueError("clearance requires exactly x, y, z, width, height and depth")
+    for key,low,high in zip(keys,(0,0,0,.5,.5,.5),(10240,1024,10240,16,16,16)):
+        n=volume[key]
+        if type(n) not in (int,float) or not low<=n<=high or n*2%1:
+            raise ValueError("clearance must use bounded half-metre coordinates and dimensions")
+    start=tuple(int(volume[k]*2) for k in keys[:3])
+    size=tuple(int(volume[k]*2) for k in keys[3:])
+    end=tuple(a+b for a,b in zip(start,size))
+    count=size[0]*size[1]*size[2]
+    if count>1024 or any(n>bound for n,bound in zip(end,(20480,2048,20480))):
+        raise ValueError("clearance exceeds world bounds or 1,024 cells per volume")
+    return start,end,count
+
+
+def _clearance_report(volumes, cells):
+    reports=[]
+    for volume in volumes:
+        start,end,count=_volume(volume)
+        conflicts=[list(c) for c in sorted(cells) if all(start[i]<=c[i]<end[i] for i in range(3))]
+        reports.append(dict(min_m=[n/2 for n in start],max_exclusive_m=[n/2 for n in end],
+                            requested_cell_count=count,planned_clear=not conflicts,
+                            conflicting_cell_count=len(conflicts),conflicting_cell_minima=conflicts))
+    return dict(scope="planned_cells_only",world_observed=False,walkability_verified=False,volumes=reports)
+
+
 def compile_phases(preview, document):
-    if not isinstance(document,dict) or set(document)!={"material","parts"}:
-        raise ValueError("expected only material and parts")
+    if (not isinstance(document,dict) or not {"material","parts"}<=set(document)
+            or set(document)-{"material","parts","clearance"}):
+        raise ValueError("expected material, parts and optional clearance")
+    if "clearance" in document:
+        volumes=document["clearance"]
+        if not isinstance(volumes,list) or not 1<=len(volumes)<=32:
+            raise ValueError("clearance requires 1..32 global volumes")
+        for volume in volumes:_volume(volume)
     parts=document["parts"]; material=document["material"]
     if not isinstance(parts,list) or not 1<=len(parts)<=32:
         raise ValueError("requires 1..32 primitive modules")
@@ -81,6 +115,7 @@ def compile_phases(preview, document):
                 or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}",p["id"]) or p["id"] in ids
                 or "material" in p or p.get("kind") not in ("floor","wall","doorway","staircase","gable_roof")):
             raise ValueError("requires uniquely named primitives without per-part material")
+        if "clearance" in p:raise ValueError("put clearance at document level; per-module clearance is unsupported")
         ids.add(p["id"])
     phases=[]; union=set(); modules=[]; batch=[]; owners=[]; rectangle_index=0
     def emit(owners,batch):
@@ -105,12 +140,20 @@ def compile_phases(preview, document):
     if batch: emit(owners,batch)
     actual=[c for phase in phases for c in _rectangle_cells(phase["plan"]["parts"])]
     if len(actual)!=len(union) or set(actual)!=union: raise InvalidReply("phase union mismatch")
-    return {"status":"phase_plan_only","executable":False,"world_observed":False,
+    result={"status":"phase_plan_only","executable":False,"world_observed":False,
             "material_reference":material,"material_validated":False,"modules":modules,"phases":phases,
             "unique_cells":len(union),"cell_minima":[list(c) for c in sorted(union)],
             "unchecked":["current occupants and source material","actor, rights and persistence",
                          "operation capacity and journal/native undo storage","construction order, stability, rendering, support and traversal",
                          "functional props, native phased execution and recovery"]}
+    if "clearance" in document:
+        plan=phases[0]["plan"]; first=_rectangle_cells(plan["parts"])
+        for volume in volumes:
+            checked=preview({**plan,"clearance":[volume]})
+            if _cells(checked)!=first or checked.get("clearance")!=_clearance_report([volume],first):
+                raise InvalidReply("native clearance preview differs from requested volume and phase cells")
+        result["clearance"]=_clearance_report(volumes,union)
+    return result
 
 
 def main():
