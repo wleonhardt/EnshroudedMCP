@@ -3,6 +3,7 @@ mod categories;
 mod control;
 mod markers;
 mod native_snapshot;
+mod recipe_reference;
 mod recipe_types;
 mod recipes;
 mod requirements;
@@ -186,7 +187,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_recipes",
-                    description: "Vanilla recipe metadata for exactly one output item debug name or raw recipe_id (0..4294967295), at most 8 recipes. ID lookup counts all matching records; collisions/truncation are explicit and never imply a unique UI selection. Raw recipe/workshop definition IDs from archive records, input/output stack item IDs and GUIDs, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Workshop and prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
+                    description: "Vanilla recipe metadata for exactly one output item debug name or raw recipe_id (0..4294967295), at most 8 recipes. ID lookup counts all matching records; collisions/truncation are explicit and never imply a unique UI selection. SDK and canonical reflection workshop reference layouts must agree. Raw recipe/workshop definition IDs from archive records, input/output stack item IDs and GUIDs, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Workshop and prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
                     schema: policy::client::recipe_schema(),
                 },
             ],

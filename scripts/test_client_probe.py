@@ -80,7 +80,7 @@ class Fixture:
                      "source": "vanilla_archive_and_client_localization", "effective_definition_verified": False}
         elif name == "client_recipes":
             guid = "11111111-1111-1111-1111-111111111111"
-            value = {"mode": "report_only", "source": "vanilla_archive_recipe_registry", "effective_definition_verified": False,
+            value = {"mode": "report_only", "source": "vanilla_archive_recipe_registry", "workshop_reference_layout_checked":True, "effective_definition_verified": False,
                      "selected_output_guid": guid, "total_matches": 1, "truncated": False, "unverified": ["fixture"],
                      "recipes": [{"recipe_guid": guid, "recipe_id":0, "workshop_id":0, "workshop_guid": guid, "debug_name": "private-recipe",
                                   "inputs": [{"item_guid": "00000000-0000-0000-0000-000000000000", "item_id":0, "count": 0}],
@@ -115,6 +115,12 @@ class Fixture:
 
 
 class ClientProbeTests(unittest.TestCase):
+    def test_recipe_reference_layout_check_must_be_explicitly_true(self):
+        value=json.loads(Fixture().call("tools/call",{"name":"client_recipes","arguments":{}})["content"][0]["text"])
+        recipes(value)
+        for bad in (None,False,1,"true"):
+            with self.subTest(value=bad),self.assertRaises(ValueError):recipes({**value,"workshop_reference_layout_checked":bad})
+
     def test_workshop_definitions_preserve_unknown_availability_and_identity_types(self):
         value=json.loads(Fixture().call("tools/call",{"name":"client_workshops","arguments":{"workshop_id":0}})["content"][0]["text"])
         workshops(value)

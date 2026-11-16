@@ -96,6 +96,7 @@ pub(crate) fn parse(
 ) -> Result<Value, String> {
     gate::request(bytes.len(), limit)?;
     let registry = Registry::game().map_err(|e| e.to_string())?;
+    crate::recipe_reference::check(registry, registry_type_hash, layout)?;
     let requirements =
         crate::requirements::Reader::resolve(registry, registry_type_hash, layout.recipe)?;
     let mut result = parse_with_requirements(
@@ -107,6 +108,7 @@ pub(crate) fn parse(
         |at| requirements.read(bytes, at),
     )?;
     crate::categories::enrich(registry, registry_type_hash, bytes, &mut result)?;
+    result["workshop_reference_layout_checked"] = json!(true);
     Ok(result)
 }
 

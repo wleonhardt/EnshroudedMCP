@@ -10,6 +10,27 @@ pub const MAX_CATEGORY_MEMBERS: usize = 1024;
 pub const RETURNED_CATEGORY_MEMBERS: usize = 32;
 pub const MAX_REQUIRED_PROPS: usize = 32;
 
+/// The SDK fact provider and canonical reflection must describe the same fields.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct ReferenceLayout {
+    pub array: usize,
+    pub record: usize,
+    pub guid: usize,
+    pub id: usize,
+}
+impl ReferenceLayout {
+    pub fn check(self, reflected: Self, guid_valid: bool, id_valid: bool) -> Result<(), String> {
+        if self != reflected || !guid_valid || !id_valid {
+            return Err(
+                "recipe workshop reference layout disagrees with canonical reflection".into(),
+            );
+        }
+        stride(self.record)?;
+        field(self.guid, 16, self.record)?;
+        field(self.id, 4, self.record)
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct RequirementsLayout {
     pub record: usize,
@@ -92,6 +113,33 @@ pub fn field(offset: usize, bytes: usize, record: usize) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn workshop_reference_contract_requires_equal_offsets_sizes_and_scalar_types() {
+        let l = ReferenceLayout {
+            array: 0,
+            record: 48,
+            guid: 8,
+            id: 32,
+        };
+        assert!(l.check(l, true, true).is_ok());
+        for bad in [
+            ReferenceLayout { array: 4, ..l },
+            ReferenceLayout { record: 64, ..l },
+            ReferenceLayout { guid: 12, ..l },
+            ReferenceLayout { id: 36, ..l },
+        ] {
+            assert!(l.check(bad, true, true).is_err());
+        }
+        assert!(l.check(l, false, true).is_err());
+        assert!(l.check(l, true, false).is_err());
+        for bad in [
+            ReferenceLayout { guid: 33, ..l },
+            ReferenceLayout { id: 45, ..l },
+            ReferenceLayout { record: 4097, ..l },
+        ] {
+            assert!(bad.check(bad, true, true).is_err());
+        }
+    }
 
     #[test]
     fn requirement_layout_prop_counts_and_boolean_bytes_are_bounded() {

@@ -1,5 +1,10 @@
 # Changelog
 
+## Companion 0.18.0 (recipe workshop reference contract)
+
+- Cross-check published RecipeLayout workshop reference offsets, record/array layout and GUID/u32 kinds against canonical recipe reflection before parsing. Refuse disagreement rather than returning plausible fields from an incompatible description.
+- Add workshop_reference_layout_checked to successful client_recipes observations. Keep all raw values, including zero GUIDs, unchanged. The check establishes agreement between two published interface descriptions, not value validity, effective definitions, crafting applicability or why a reference is zero. Private/public 338 Rust executions (including 18 shared module checks), 54 Python tests, Clippy, formatting and release builds pass. Matched native acceptance remains pending.
+
 ## Companion 0.17.0 (workshop definition lookup)
 
 - Add client_workshops with raw workshop_id and optional limit (one to eight). Read the published vanilla registry on the native frame callback and preserve workshop GUID, name tag, declared station item ID/GUID and NPC-workshop flag.
