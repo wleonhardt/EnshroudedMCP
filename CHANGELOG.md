@@ -4,7 +4,7 @@
 
 - Add read-only retained shutdown status independent of active World and write admission. Busy/prior-boot states remain explicit; no native retry or process/save proof. Private/public source qualification passes; native installation and acceptance remain pending.
 
-- Server 0.44.0 source adds read-only current-boot reposition observation, with separate immutable native outcome and fresh bound actor position/distance. No arrival threshold, dispatch, retry or journal change. Source qualification and matched installation pass, including five prior-boot reposition identities, 35 server probes and 13 client probes. Current-boot observation acceptance remains pending.
+- Server 0.44.0 source adds read-only current-boot reposition observation, with separate immutable native outcome and fresh bound actor position/distance. No arrival threshold, dispatch, retry or journal change. Source qualification and matched installation pass, including five prior-boot reposition identities, 35 server probes and 13 client probes. Joined current-boot flag-free position/distance observation now passes with preserved receipts and full baselines. Native stale-session/disconnect behavior remains unverified.
 
 - Record existing-platform standing correspondence and a failed exact-return criterion after native spawn adjustment. Preserve receipts, raw nonzero building fill and all world/ledger baselines. Queue read-only reposition observation; no new movement or construction executor.
 
