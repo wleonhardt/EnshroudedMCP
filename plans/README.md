@@ -4,6 +4,9 @@ Project knowledge lives here. Keep credentials, private infrastructure, player i
 
 | Path | Purpose |
 | --- | --- |
+| `capability-matrix.md` | Current version, scope and acceptance index |
+| `capability-contracts.json` | All advertised tool schemas, execution ownership and missing checks |
+| `quality-goals.md` | Ten outcomes and evidence priorities |
 | `goal.md` | Administrative construction sequence and acceptance |
 | `next-up.md` | Current queue and verified work |
 | `open-questions.md` | Unresolved API and live-validation questions |

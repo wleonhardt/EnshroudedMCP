@@ -1,0 +1,3346 @@
+{
+  "date": "2026-11-16",
+  "status": "contract inventory verified; historical per-tool acceptance reconciliation in progress",
+  "profiles": {
+    "product": {
+      "server_version": "0.45.0",
+      "client_version": "0.20.2",
+      "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
+      "abi": "12.1",
+      "rust": "1.99.1",
+      "installed": "same versions; qualification/test assets have since changed",
+      "game_build": "not observed by capability getter; do not infer from framework version"
+    },
+    "inactive_candidate": {
+      "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
+      "abi": "12.8",
+      "rust": "1.100.0",
+      "source_only": true
+    }
+  },
+  "counts": {
+    "server": 36,
+    "client": 13
+  },
+  "tools": [
+    {
+      "scope": "server",
+      "name": "weather_read",
+      "description": "Read published server weather weights at one bounded world position in metres on the game thread. Unavailable differs from clear. Preserve finite clear/rain/snow/blizzard weights without normalization; report SDK strongest-state only for usable nonzero unit weights. Null within weights means a non-finite SDK value. No front enumeration, forecast change, rendered-weather, shelter or actor-safety proof.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "x": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1024.0,
+            "minimum": 0,
+            "type": "number"
+          },
+          "z": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/weather_read.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Native point samples/refusals; rendered weather and shelter interpretation open.",
+      "evidence_references": [
+        "plans/decisions/0046-bounded-server-weather-observation.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Correlate one point with independent weather evidence.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "entity_buffs_read",
+      "description": "Read active buffs for one session-only server entity on the game thread. At most 64 output rows, default 32; SDK first retrieves the full entity list. Read errors remain errors, not empty/healthy. Preserve type and buff-entity IDs, SDK slot/optional level and exact game-time duration nanoseconds as strings. SDK maps negative durations to zero and zero levels to null. No type-name lookup, complete physical effects, resting/safety, rendered-UI or mutation claim.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "limit": {
+            "maximum": 64,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/buff_read.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Native read-error/refusals and later positive holder observation; countdown, effect and UI agreement open.",
+      "evidence_references": [
+        "plans/decisions/0052-observe-server-active-buffs.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Observe one bounded countdown with independent value/time evidence.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "factory_station_read",
+      "description": "Read one session-local server entity's published typed FactoryStation component on the game thread. Preserve running/next recipe IDs, up to four raw category choices each, raw signed times, player-stop/use-all flags and SDK missing-requirement names. Not every crafting station has this component. Unavailable differs from not observed; no complete queue, current client selection, eligibility, safe-removal, crafting execution or time-unit claim.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "entity"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/factory_station.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Typed handle and unobserved/refusal checks; present-state semantics open.",
+      "evidence_references": [
+        "plans/decisions/0037-native-factory-station-observation.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Correlate a present station and its independently observed production state.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "construction_budget",
+      "description": "Read journal bytes and current session-local retained recovery allowances. No owner IDs, world reads, capacity reservation, native undo-storage observation or write authorization.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/journal.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "knowledge_read",
+      "description": "Read at most eight explicit native knowledge IDs on the server game thread. Without player, query world values; optional unique connected player queries that actor and world-scoped values. Preserve raw type/scope/value/expected flags; unavailable stays unknown, not zero/false. No progression writes, current crafting eligibility or client identity mapping.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "items": {
+              "maximum": 4294967295,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/knowledge_read.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "player_interaction_target",
+      "description": "Read one uniquely selected connected server player's native interaction-prompt target. Session-only server entity, optional position/template and native UsedItem ID; unavailable differs from no target. Template uses file-order hex. Item ID is an observation, not a resolved effective definition. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "player"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/interaction_target.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_access",
+      "description": "Read-only native permission/persistence observations for explicit ordered site corners, each side >0 and <=64 metres. Optional player name/account key must match exactly one connected actor; omitted player leaves build rights unknown. No item footprint, collision, terrain contact, save/reload proof or write authority. Errors remain unknown, not false.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "x1": {
+            "type": "number"
+          },
+          "x2": {
+            "type": "number"
+          },
+          "y1": {
+            "type": "number"
+          },
+          "y2": {
+            "type": "number"
+          },
+          "z1": {
+            "type": "number"
+          },
+          "z2": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "z1",
+          "x2",
+          "y2",
+          "z2"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/building_access.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "player_restore_health",
+      "description": "ADMIN WRITE, dry by default. Restore the sole connected living player's health to its observed maximum. Exact actor/session/generation/health preview, fresh write flag and confirmation required. Queued work cancels on timeout before execution. Synced intent and read-back outcome; unknown outcomes require observation, not automatic retry. No damage, revive, item use, invulnerability, undo or replay protection.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "preview": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "player"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_survey",
+      "description": "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build rights. Optional foundation previews one bounded Air-only pier before occupied terrain; no rendered surface-height claim. May trigger chunk loading. No writes, prop/collision checks, crafting costs or complete altar boundary discovery.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "depth": {
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "foundation": {
+            "additionalProperties": false,
+            "description": "Optional single Air-column pier preview, stopping before occupied terrain. Does not measure the rendered terrain surface or authorize edits.",
+            "properties": {
+              "max_cells": {
+                "maximum": 15,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "upper_y": {
+                "maximum": 1024.0,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "x": {
+                "maximum": 10240.0,
+                "minimum": 0,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "z": {
+                "maximum": 10240.0,
+                "minimum": 0,
+                "multipleOf": 0.5,
+                "type": "number"
+              }
+            },
+            "required": [
+              "x",
+              "z",
+              "upper_y",
+              "max_cells"
+            ],
+            "type": "object"
+          },
+          "height": {
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "player": {
+            "description": "Optional connected-player name or account key; at most 128 UTF-8 bytes, no controls. Checks build rights only, not survival eligibility.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "width": {
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "x": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1024.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "z": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z",
+          "width",
+          "height",
+          "depth"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/building_survey.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "enemy_pacification",
+      "description": "Read or explicitly set only server enemy pacification. Dry by default; real changes require expected current value, active session, fresh write flag and confirmation. Not invulnerability or combat safety. Configuration saves may persist changes; restore explicitly.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "expected": {
+            "type": "boolean"
+          },
+          "session": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "item_lookup",
+      "description": "Map 1..8 inventory item IDs to vanilla archive GUIDs/debug names. Zero/multiple matches explicit, at most 8 per ID. Reads whole upstream registry before the 16 MiB admission cap; traversal capped at 65536 entries and 128 bytes per name. Does not identify effective modded definitions or prove inventory eligibility.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "items": {
+              "maximum": 4294967295,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/item_lookup.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "capabilities",
+      "description": "Resolved inspection handles and limits in this mod process. Availability is initialization evidence, not proof of successful live reads. Underlying nearby-entity discovery and inventory-link traversal are not capped by output limits.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "inventory_read",
+      "description": "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Empty slots included. Optional item_ids (1..8 unique nonzero IDs) adds physical-slot-deduplicated counts over the same SDK slot read, independent of page; completeness and crafting eligibility remain unknown. Counts refuse more than 65536 returned records or conflicting aliases. Paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish absent/uninitialized inventory. Default 64, maximum 128 slots.",
+      "input_schema": {
+        "properties": {
+          "entity": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "item_ids": {
+            "items": {
+              "maximum": 4294967295,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "limit": {
+            "maximum": 128,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "offset": {
+            "maximum": 65536,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "player": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Same-read counts agree with observed physical slots; alias deduplication and eligible-stock completeness open.",
+      "evidence_references": [
+        "plans/decisions/0030-same-read-inventory-counts.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify linked-slot aliases and eligible-stock scope.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "item_info",
+      "description": "Resolve one vanilla item debug name and read static stack-size, category, capability flags and placed-entity template mapping from the running world. Known absent templates and unavailable metadata are distinct. Mapping does not establish placement eligibility, footprint, build rights, spawn authorization or crafting feasibility.",
+      "input_schema": {
+        "properties": {
+          "item": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "entity_health",
+      "description": "Typed NetworkHealth for nearest placed entities within radius (default 3 m, maximum 16), at most limit (default 10, maximum 20). Reports absent components and decode errors separately; does not scan all combat actors. Output is capped, underlying spatial discovery is not.",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "radius": {
+            "maximum": 16.0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "status",
+      "description": "Whether a world runs here, its key, save, player count and published server clock (hours, day/night, configured lengths and current speed). Unavailable differs from midnight; clock observations do not verify rendered lighting.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "players",
+      "description": "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up), and nullable native health/stamina/mana meters. Raw SDK integer values; unavailable differs from zero and UI conversion is unverified.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "voxel_sample",
+      "description": "The voxel at a point in metres: material (air, terrain id or building id) and fill 0-255.",
+      "input_schema": {
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "props_in",
+      "description": "Placed props in a box (each side at most 64 m): session-only entity, item id, transform, observed template GUID in file-order hex and nullable label presence. At most 500; metadata reads only for returned rows. Label presence is not label text or proof of safe undo; other held state remains unknown.",
+      "input_schema": {
+        "properties": {
+          "x1": {
+            "type": "number"
+          },
+          "x2": {
+            "type": "number"
+          },
+          "y1": {
+            "type": "number"
+          },
+          "y2": {
+            "type": "number"
+          },
+          "z1": {
+            "type": "number"
+          },
+          "z2": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "z1",
+          "x2",
+          "y2",
+          "z2"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "entities_near",
+      "description": "Entities within radius m (default 8, at most 32) of a point, nearest first, by kind: placed (every placed entity, the default), used_item / static_used_item (those with that component), containers (built chests, showcases, stations). Each: entity (this session only), position, distance, item it was placed from, template GUID, which of UsedItem / StaticUsedItem it has. At most 200.",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "placed",
+              "used_item",
+              "static_used_item",
+              "containers"
+            ],
+            "type": "string"
+          },
+          "radius": {
+            "maximum": 32.0,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "entity_components",
+      "description": "Every reflected ECS component of the placed entities within radius m (default 3, at most 16) of a point, nearest first, by the game's type names (keen::ecs::...). Each: entity (this session only), position, distance, template GUID, components. At most `limit` entities (default 10, at most 20).",
+      "input_schema": {
+        "properties": {
+          "limit": {
+            "maximum": 20,
+            "type": "integer"
+          },
+          "radius": {
+            "maximum": 16,
+            "type": "number"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "z": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "give_item",
+      "description": "ADMIN WRITE: caller-identified inventory grant, dry by default. Required operation/player/item; count 1..100. Real calls require exact current actor/item/session preview, fresh flag and confirm server-write. Repeat the original payload dry to inspect retained status without redispatch. Payload conflicts, stale sessions and reopened durable IDs refuse writes. At most 64 identities. Native callback commit is not inventory read-back; no automatic retry or undo. Removing a flag cannot cancel a submitted SDK request.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "type": "string"
+          },
+          "count": {
+            "default": 1,
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "item": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "preview": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation",
+          "player",
+          "item"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "knowledge_search",
+      "description": "Search the research evidence embedded at build time. Returns sources, applicability, evidence status and next tests. Does not verify facts against the current world or authorize actions. All query terms must match; results sorted by claim id.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "default": 5,
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "query": {
+            "description": "All whitespace-separated terms must match, case-insensitively; at most 256 UTF-8 bytes. Omit to browse.",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "documented",
+              "static_inspected",
+              "live_observed",
+              "cross_checked",
+              "disputed",
+              "stale",
+              "hypothesis"
+            ],
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/knowledge.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "listener; pure planning/search; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "recipe_plan",
+      "description": "Report-only crafting arithmetic over caller-supplied recipes, stock, goals, available stations and unlocks. Multiple producers require explicit item/recipe choices; selected multi-output recipes share batches across their assigned outputs, with unassigned coproducts retained as surplus. No automatic optimization. Returns batch-rounded steps, stock reservations, shortages and unmet requirements. Does not read the game, verify the catalogue, craft, gather or authorize writes.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "catalog_label": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "choices": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "item": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "recipe": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "item",
+                "recipe"
+              ],
+              "type": "object"
+            },
+            "maxItems": 512,
+            "type": "array"
+          },
+          "goals": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "count": {
+                  "maximum": 1000000000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "item": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "item",
+                "count"
+              ],
+              "type": "object"
+            },
+            "maxItems": 32,
+            "type": "array"
+          },
+          "recipes": {
+            "items": {
+              "additionalProperties": false,
+              "oneOf": [
+                {
+                  "not": {
+                    "required": [
+                      "outputs"
+                    ]
+                  },
+                  "required": [
+                    "item",
+                    "count"
+                  ]
+                },
+                {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "item"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "count"
+                        ]
+                      }
+                    ]
+                  },
+                  "required": [
+                    "outputs"
+                  ]
+                }
+              ],
+              "properties": {
+                "count": {
+                  "maximum": 1000000000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "id": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "ingredients": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "count": {
+                        "maximum": 1000000000,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "item": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "item",
+                      "count"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "type": "array"
+                },
+                "item": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "outputs": {
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "count": {
+                        "maximum": 1000000000,
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "item": {
+                        "maxLength": 128,
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "item",
+                      "count"
+                    ],
+                    "type": "object"
+                  },
+                  "maxItems": 16,
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "stations": {
+                  "items": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "maxItems": 16,
+                  "type": "array",
+                  "uniqueItems": true
+                },
+                "unlocks": {
+                  "items": {
+                    "maxLength": 128,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "maxItems": 16,
+                  "type": "array",
+                  "uniqueItems": true
+                }
+              },
+              "required": [
+                "id",
+                "ingredients",
+                "stations",
+                "unlocks"
+              ],
+              "type": "object"
+            },
+            "maxItems": 128,
+            "type": "array"
+          },
+          "stations": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 128,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "stock": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "count": {
+                  "maximum": 1000000000,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "item": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "item",
+                "count"
+              ],
+              "type": "object"
+            },
+            "maxItems": 256,
+            "type": "array"
+          },
+          "unlocks": {
+            "items": {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 128,
+            "type": "array",
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "catalog_label",
+          "recipes",
+          "stock",
+          "goals",
+          "stations",
+          "unlocks"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/recipe_plan.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "listener; pure planning/search; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Synthetic multi-output arithmetic qualified; actual coproduct/cost semantics open.",
+      "evidence_references": [
+        "plans/decisions/0041-multi-output-recipe-planning.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Verify one game recipe dependency chain with eligible stock.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_plan",
+      "description": "Preview a bounded floor, wall, framed doorway, solid staircase or solid gable roof or union of up to 8 named primitives on a half-metre grid. Optional absolute clearance volumes detect planned-cell conflicts only. No game reads, writes, material validation, walkability proof or crafting costs.",
+      "input_schema": {
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "clearance": {
+                "description": "Absolute axis-aligned volumes requested empty of planned cells only; at most 1,024 cells total. No world observation or avatar clearance claim.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depth": {
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "height": {
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "width": {
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "x": {
+                      "maximum": 10240.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "y": {
+                      "maximum": 1024.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "z": {
+                      "maximum": 10240.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "z",
+                    "width",
+                    "height",
+                    "depth"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 8,
+                "minItems": 1,
+                "type": "array"
+              },
+              "depth": {
+                "description": "Local z extent in metres; wall/doorway must be 0.5.",
+                "maximum": 16,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "door_height": {
+                "maximum": 15,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "door_offset": {
+                "description": "Door opening's local x start in metres.",
+                "maximum": 15,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "door_width": {
+                "maximum": 15,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "height": {
+                "description": "Local y extent in metres; floor must be 0.5.",
+                "maximum": 16,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "kind": {
+                "enum": [
+                  "floor",
+                  "wall",
+                  "doorway",
+                  "staircase",
+                  "gable_roof"
+                ],
+                "type": "string"
+              },
+              "material": {
+                "description": "Unvalidated material reference, not a runtime voxel/item mapping.",
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              "width": {
+                "description": "Local x extent in metres.",
+                "maximum": 16,
+                "minimum": 0.5,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "x": {
+                "maximum": 10240.0,
+                "minimum": 0,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "y": {
+                "maximum": 1024.0,
+                "minimum": 0,
+                "multipleOf": 0.5,
+                "type": "number"
+              },
+              "yaw": {
+                "enum": [
+                  0,
+                  90,
+                  180,
+                  270
+                ],
+                "type": "integer"
+              },
+              "z": {
+                "maximum": 10240.0,
+                "minimum": 0,
+                "multipleOf": 0.5,
+                "type": "number"
+              }
+            },
+            "required": [
+              "kind",
+              "x",
+              "y",
+              "z",
+              "width",
+              "height",
+              "depth",
+              "material"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "clearance": {
+                "description": "Absolute axis-aligned volumes requested empty of planned cells only; at most 1,024 cells total. No world observation or avatar clearance claim.",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depth": {
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "height": {
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "width": {
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "x": {
+                      "maximum": 10240.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "y": {
+                      "maximum": 1024.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "z": {
+                      "maximum": 10240.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "x",
+                    "y",
+                    "z",
+                    "width",
+                    "height",
+                    "depth"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 8,
+                "minItems": 1,
+                "type": "array"
+              },
+              "kind": {
+                "enum": [
+                  "composite"
+                ],
+                "type": "string"
+              },
+              "material": {
+                "description": "Unvalidated material reference, not a runtime voxel/item mapping.",
+                "maxLength": 128,
+                "minLength": 1,
+                "type": "string"
+              },
+              "parts": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "depth": {
+                      "description": "Local z extent in metres; wall/doorway must be 0.5.",
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "door_height": {
+                      "maximum": 15,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "door_offset": {
+                      "description": "Door opening's local x start in metres.",
+                      "maximum": 15,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "door_width": {
+                      "maximum": 15,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "height": {
+                      "description": "Local y extent in metres; floor must be 0.5.",
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "id": {
+                      "maxLength": 32,
+                      "minLength": 1,
+                      "pattern": "^[A-Za-z0-9_-]+$",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "enum": [
+                        "floor",
+                        "wall",
+                        "doorway",
+                        "staircase",
+                        "gable_roof"
+                      ],
+                      "type": "string"
+                    },
+                    "width": {
+                      "description": "Local x extent in metres.",
+                      "maximum": 16,
+                      "minimum": 0.5,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "x": {
+                      "maximum": 10240.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "y": {
+                      "maximum": 1024.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    },
+                    "yaw": {
+                      "enum": [
+                        0,
+                        90,
+                        180,
+                        270
+                      ],
+                      "type": "integer"
+                    },
+                    "z": {
+                      "maximum": 10240.0,
+                      "minimum": 0,
+                      "multipleOf": 0.5,
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "x",
+                    "y",
+                    "z",
+                    "width",
+                    "height",
+                    "depth",
+                    "id"
+                  ],
+                  "type": "object"
+                },
+                "maxItems": 8,
+                "minItems": 1,
+                "type": "array"
+              }
+            },
+            "required": [
+              "kind",
+              "parts",
+              "material"
+            ],
+            "type": "object"
+          }
+        ],
+        "properties": {
+          "clearance": {
+            "description": "Absolute axis-aligned volumes requested empty of planned cells only; at most 1,024 cells total. No world observation or avatar clearance claim.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "depth": {
+                  "maximum": 16,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "height": {
+                  "maximum": 16,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "width": {
+                  "maximum": 16,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "x": {
+                  "maximum": 10240.0,
+                  "minimum": 0,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "y": {
+                  "maximum": 1024.0,
+                  "minimum": 0,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "z": {
+                  "maximum": 10240.0,
+                  "minimum": 0,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y",
+                "z",
+                "width",
+                "height",
+                "depth"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array"
+          },
+          "depth": {
+            "description": "Local z extent in metres; wall/doorway must be 0.5.",
+            "maximum": 16,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "door_height": {
+            "maximum": 15,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "door_offset": {
+            "description": "Door opening's local x start in metres.",
+            "maximum": 15,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "door_width": {
+            "maximum": 15,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "height": {
+            "description": "Local y extent in metres; floor must be 0.5.",
+            "maximum": 16,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "kind": {
+            "enum": [
+              "floor",
+              "wall",
+              "doorway",
+              "staircase",
+              "gable_roof",
+              "composite"
+            ],
+            "type": "string"
+          },
+          "material": {
+            "description": "Unvalidated material reference, not a runtime voxel/item mapping.",
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "parts": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "depth": {
+                  "description": "Local z extent in metres; wall/doorway must be 0.5.",
+                  "maximum": 16,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "door_height": {
+                  "maximum": 15,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "door_offset": {
+                  "description": "Door opening's local x start in metres.",
+                  "maximum": 15,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "door_width": {
+                  "maximum": 15,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "height": {
+                  "description": "Local y extent in metres; floor must be 0.5.",
+                  "maximum": 16,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "id": {
+                  "maxLength": 32,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_-]+$",
+                  "type": "string"
+                },
+                "kind": {
+                  "enum": [
+                    "floor",
+                    "wall",
+                    "doorway",
+                    "staircase",
+                    "gable_roof"
+                  ],
+                  "type": "string"
+                },
+                "width": {
+                  "description": "Local x extent in metres.",
+                  "maximum": 16,
+                  "minimum": 0.5,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "x": {
+                  "maximum": 10240.0,
+                  "minimum": 0,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "y": {
+                  "maximum": 1024.0,
+                  "minimum": 0,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                },
+                "yaw": {
+                  "enum": [
+                    0,
+                    90,
+                    180,
+                    270
+                  ],
+                  "type": "integer"
+                },
+                "z": {
+                  "maximum": 10240.0,
+                  "minimum": 0,
+                  "multipleOf": 0.5,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "kind",
+                "x",
+                "y",
+                "z",
+                "width",
+                "height",
+                "depth",
+                "id"
+              ],
+              "type": "object"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "type": "array"
+          },
+          "width": {
+            "description": "Local x extent in metres.",
+            "maximum": 16,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "x": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1024.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "yaw": {
+            "enum": [
+              0,
+              90,
+              180,
+              270
+            ],
+            "type": "integer"
+          },
+          "z": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          }
+        },
+        "required": [
+          "kind",
+          "material"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/building_plan.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "listener; pure planning/search; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Pure geometry and declared clearances/sweeps; planned stair sweeps intersect risers.",
+      "evidence_references": [
+        "plans/decisions/0048-planned-linear-box-sweeps.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify a tiny two-stage fixture before the full workshop.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_place_cell",
+      "description": "WRITE: Isolated quiescent-site proof: copy one exact building voxel into air, with durable replay refusal and native undo. Dry by default. No placement CAS; occupancy may change after preflight.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "session": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_x": {
+            "maximum": 10239.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "source_y": {
+            "maximum": 1023.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "source_z": {
+            "maximum": 10239.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "x": {
+            "maximum": 10239.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1023.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "z": {
+            "maximum": 10239.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          }
+        },
+        "required": [
+          "operation",
+          "source_x",
+          "source_y",
+          "source_z",
+          "x",
+          "y",
+          "z",
+          "player"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/construction.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_apply_plan",
+      "description": "WRITE: Copy one exact source voxel into a floor/wall/doorway/staircase/gable_roof or union of up to 8 named primitive parts, within 16 m per axis. At most 256 unique cells across 8 bricks, 64 cells per brick, one native transaction. Dry by default. No collision/cost/feasibility proof or placement CAS; requires quiescent isolated site.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "plan": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "depth": {
+                    "description": "Local z extent in metres; wall/doorway must be 0.5.",
+                    "maximum": 16,
+                    "minimum": 0.5,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "door_height": {
+                    "maximum": 15,
+                    "minimum": 0.5,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "door_offset": {
+                    "description": "Door opening's local x start in metres.",
+                    "maximum": 15,
+                    "minimum": 0.5,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "door_width": {
+                    "maximum": 15,
+                    "minimum": 0.5,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "height": {
+                    "description": "Local y extent in metres; floor must be 0.5.",
+                    "maximum": 16,
+                    "minimum": 0.5,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "kind": {
+                    "enum": [
+                      "floor",
+                      "wall",
+                      "doorway",
+                      "staircase",
+                      "gable_roof"
+                    ],
+                    "type": "string"
+                  },
+                  "width": {
+                    "description": "Local x extent in metres.",
+                    "maximum": 16,
+                    "minimum": 0.5,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "x": {
+                    "maximum": 10240.0,
+                    "minimum": 0,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "y": {
+                    "maximum": 1024.0,
+                    "minimum": 0,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  },
+                  "yaw": {
+                    "enum": [
+                      0,
+                      90,
+                      180,
+                      270
+                    ],
+                    "type": "integer"
+                  },
+                  "z": {
+                    "maximum": 10240.0,
+                    "minimum": 0,
+                    "multipleOf": 0.5,
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "x",
+                  "y",
+                  "z",
+                  "width",
+                  "height",
+                  "depth"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "composite"
+                    ],
+                    "type": "string"
+                  },
+                  "parts": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "depth": {
+                          "description": "Local z extent in metres; wall/doorway must be 0.5.",
+                          "maximum": 16,
+                          "minimum": 0.5,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "door_height": {
+                          "maximum": 15,
+                          "minimum": 0.5,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "door_offset": {
+                          "description": "Door opening's local x start in metres.",
+                          "maximum": 15,
+                          "minimum": 0.5,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "door_width": {
+                          "maximum": 15,
+                          "minimum": 0.5,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "height": {
+                          "description": "Local y extent in metres; floor must be 0.5.",
+                          "maximum": 16,
+                          "minimum": 0.5,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "id": {
+                          "maxLength": 32,
+                          "minLength": 1,
+                          "pattern": "^[A-Za-z0-9_-]+$",
+                          "type": "string"
+                        },
+                        "kind": {
+                          "enum": [
+                            "floor",
+                            "wall",
+                            "doorway",
+                            "staircase",
+                            "gable_roof"
+                          ],
+                          "type": "string"
+                        },
+                        "width": {
+                          "description": "Local x extent in metres.",
+                          "maximum": 16,
+                          "minimum": 0.5,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "x": {
+                          "maximum": 10240.0,
+                          "minimum": 0,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "y": {
+                          "maximum": 1024.0,
+                          "minimum": 0,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        },
+                        "yaw": {
+                          "enum": [
+                            0,
+                            90,
+                            180,
+                            270
+                          ],
+                          "type": "integer"
+                        },
+                        "z": {
+                          "maximum": 10240.0,
+                          "minimum": 0,
+                          "multipleOf": 0.5,
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "x",
+                        "y",
+                        "z",
+                        "width",
+                        "height",
+                        "depth",
+                        "id"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 8,
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "parts"
+                ],
+                "type": "object"
+              }
+            ],
+            "type": "object"
+          },
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "session": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "source_x": {
+            "maximum": 10239.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "source_y": {
+            "maximum": 1023.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "source_z": {
+            "maximum": 10239.5,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          }
+        },
+        "required": [
+          "operation",
+          "source_x",
+          "source_y",
+          "source_z",
+          "player",
+          "plan"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/construction.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_operation",
+      "description": "Poll a session-bound construction transaction and verify its whole brick and props. Never reconstruct native IDs after restart.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/construction.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_accept",
+      "description": "WRITE: Accept an exactly verified applied operation, allowing another bounded placement while retaining session-only native undo. Dry by default. Does not prove save/reload persistence.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/construction.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "building_undo_cell",
+      "description": "WRITE: Undo one retained native transaction after actor, rights and whole-brick verification. Dry by default.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/construction.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "player_reposition",
+      "description": "ADMIN WRITE, dry by default. Submit one bounded server teleport request for the sole connected living player, using engine free-spot search. Requested target must be within 16 m of observed position. Exact actor/session preview, fresh write flag and confirmation required. Durable same-ID replay never dispatches again. Submission is not arrival; spawn adjustment is unbounded by this interface. No walking, camera, menu, native undo or automatic retry. Observe players separately; return requires a new gated request.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "preview": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          "x": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1024.0,
+            "minimum": 0,
+            "type": "number"
+          },
+          "z": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "operation",
+          "player",
+          "x",
+          "y",
+          "z"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/tools.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Native submission and independent pose; exact return FAILED with 2.09 m adjustment.",
+      "evidence_references": [
+        "plans/decisions/0055-platform-standing-and-adjusted-return.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Define a new discriminator and explicit recovery plan before any movement retry.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Independent server pose and operator safe altar-side confirmation; exact return still failed."
+    },
+    {
+      "scope": "server",
+      "name": "player_reposition_status",
+      "description": "Read a retained current-boot reposition request separately from fresh server actor position and distance to its requested point. No tolerance or arrival verdict. World session, roster generation and bound actor must still match; absent/stale/unavailable observations have null position/distance. Prior-boot identities are unavailable without decoding or reconstructing them. Game-thread read only; no teleport, retry, journal append, collision or safe-return proof.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/reposition.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Current-boot actor/health/distance agrees with independent reads; no arrival or ground-contact proof.",
+      "evidence_references": [
+        "plans/decisions/0056-read-only-reposition-observation.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify session invalidation/disconnect without new movement.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Independent pose/distance arithmetic agrees; no arrival or contact proof."
+    },
+    {
+      "scope": "server",
+      "name": "clock_advance",
+      "description": "ADMIN WRITE: request the next occurrence of an integer minute of day. Dry by default, one to twelve hours forward from the latest observation, paused/normal speed and empty SDK player-character roster required. Roster is not a connection lock. Real calls require session, expected_hours, fresh flag and confirmation. Durable operation replay never redispatches. Operation alone reads retained status. Advances world progression; not undo, a lighting override or a causal completion receipt. No automatic retry or speed changes.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "expected_hours": {
+            "exclusiveMaximum": 24,
+            "minimum": 0,
+            "type": "number"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "session": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "target_minute": {
+            "maximum": 1439,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/clock_control.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "server_shutdown",
+      "description": "ADMIN WRITE: request published native dedicated-server graceful shutdown/final save. Dry by default; supply an operation identity. Real request requires preview session, empty SDK player-character roster, fresh flag and confirm server-write. Roster is not a connection lock; coordinate access. Existing identities return retained status; never automatically retry. One native attempt per active session. Acceptance does not prove process exit or final save. No automatic restart, countdown, save holds, process kill or client logout.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "session": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/server_shutdown.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Native requests and independently observed exit code 0; causal final-save proof open.",
+      "evidence_references": [
+        "plans/decisions/0018-native-dedicated-shutdown.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Establish causal save/exit evidence in a disposable fixture.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Exact process exit code 0 independently observed; final-save causality unverified."
+    },
+    {
+      "scope": "server",
+      "name": "server_shutdown_status",
+      "description": "Read a retained current-boot shutdown record without an active world, write flag, scheduler or native call. Historical receipt/lifecycle observations only; no current-world, process-exit or final-save proof. Busy state is unavailable; query the same identity later, never submit another shutdown. Prior-boot identities remain unavailable without reconstruction. No retry, restart or journal append.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/server_shutdown.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "16 retained samples including 15 after ShutdownStarted; native busy branch unobserved.",
+      "evidence_references": [
+        "plans/decisions/0057-retained-shutdown-status.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify native busy/disconnect retention with bounded fault scheduling.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "server",
+      "name": "server_save",
+      "description": "ADMIN WRITE: ask the current server world to save through the published native API. Dry by default; operation identity required. Real request requires preview session, empty SDK player-character roster, fresh flag and confirm server-write. Roster is not a connection lock. Existing identities return retained status and never redispatch. A save already in progress counts as asked. Native acceptance does not prove completed save or exact persisted content; no automatic retry, undo, backup, save hold, shutdown or client control.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "session": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/server_save.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_workshops",
+      "description": "Read bounded vanilla workshop definitions by raw workshop_id (zero preserved), at most 8 matches. Returns workshop GUID, name tag, declared station item ID/GUID and NPC-workshop flag. Collisions and truncation remain explicit. Workshop IDs are not item or entity selectors. No World access, current station availability, unlock or crafting eligibility claim. Whole archive allocation precedes parser byte admission.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "maximum": 8,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "workshop_id": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "workshop_id"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "client UI frame; SDK commands execute in later native client phase",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Native definition/station-item identity correlation; current availability open.",
+      "evidence_references": [
+        "plans/decisions/0033-workshop-definition-lookup.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Correlate a present station with applicability and unlocks.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_command",
+      "description": "Deliberate native client action: open/close in-game screen, choose tab, bounded look/move or highlight recipe (never craft). Caller operation identity required; dry default. Real requests require exact current session/screen/tab preview, companion ALLOW_WRITES and confirm: server-write. Once-only durable identity: inspect client_command_status after lost replies; never retry a new identity blindly. Frame queues to SDK's later client execution phase, no server World access. SDK observed movement means hold completed, not arrival; look acceptance is not rendered proof. No join, credentials, logout, arbitrary input or offsets.",
+      "input_schema": {
+        "properties": {
+          "action": {
+            "enum": [
+              "open_screen",
+              "close_screen",
+              "choose_tab",
+              "look",
+              "move",
+              "highlight_recipe"
+            ],
+            "type": "string"
+          },
+          "confirm": {
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "dx": {
+            "type": "number"
+          },
+          "dy": {
+            "type": "number"
+          },
+          "hold_ms": {
+            "maximum": 250,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "pitch": {
+            "type": "number"
+          },
+          "preview": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          },
+          "recipe_id": {
+            "maximum": 4294967295,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "target": {
+            "maxLength": 32,
+            "type": "string"
+          },
+          "yaw": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "operation",
+          "action"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "client UI frame; SDK commands execute in later native client phase",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified.",
+      "evidence_references": [
+        "plans/decisions/0058-native-menu-tab-observations.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "Map open/close only; other command actions remain separately unverified",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify pending cancellation/stall/disconnect; do not automatically repeat movement.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Independent visible Map open/close; other actions have separate limits."
+    },
+    {
+      "scope": "client",
+      "name": "client_commands",
+      "description": "List retained client command outcomes with status-poll freshness and durable caller operation identities, sorted by operation, at most 128 records. Read only: no dispatch, SDK identity reconstruction, reservation-content decoding or retry. Prior-boot identities report unavailable. Invalid or excessive reservation entries refuse the inventory. Inspect status/journal after uncertainty; never invent a replacement operation to retry blindly.",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Prior-boot identities retained as history without reconstructed execution authority.",
+      "evidence_references": [
+        "plans/decisions/0043-read-only-client-command-inventory.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Correlate inventory with a bounded pending/terminal fault fixture.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_command_status",
+      "description": "Read retained client command outcome by caller operation identity with last frame status-poll age/staleness and polling-finished state. Unknown/prior-boot poll age stays null/stale; terminal outcomes remain historical and do not prove current UI. No dispatch, ID reconstruction or retry. Prior-boot durable identities report unavailable. Native pending/applied/observed/cancelled is distinct from rendering, arrival, craftability or server authority.",
+      "input_schema": {
+        "properties": {
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Submission/aged terminal replay metadata qualified; advancing age is separate from historical outcome.",
+      "evidence_references": [
+        "plans/decisions/0054-joined-reply-and-inventory-acceptance.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify a pending command with an actual callback stall.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_command_cancel",
+      "description": "Cancel only this companion's retained native command. Dry default returns cancellation preview. Real request needs exact preview, companion write flag and confirm: server-write; at most one native cancellation attempt per operation. SDK outcome must be observed separately. Never reconstruct an ID or cancel another mod's command.",
+      "input_schema": {
+        "properties": {
+          "confirm": {
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "operation": {
+            "maxLength": 64,
+            "minLength": 1,
+            "type": "string"
+          },
+          "preview": {
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "client UI frame; SDK commands execute in later native client phase",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Native deliberate cancellation and dry/terminal metadata; pending timing boundaries open.",
+      "evidence_references": [
+        "plans/decisions/0054-joined-reply-and-inventory-acceptance.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify before-dispatch and after-dispatch cancellation separately.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_snapshot",
+      "description": "Copied native client state from the SDK, safe on the listener thread: session, freshness, per-part availability, HUD screen, actual inner menu tab, held controls, client player and highlighted recipe. Null with reads=false is unavailable; null with reads=true means none observed. Zero recipe is the SDK no-highlight sentinel. Client IDs never select server entities. Does not submit commands or prove rendering, connection, craftability or world authority.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Copied native Menu/InGame/HUD/tab fields observed; freshness is per observation, not rendered proof.",
+      "evidence_references": [
+        "plans/decisions/0058-native-menu-tab-observations.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Qualify stale/disconnected subparts without inferring authority.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_map_markers",
+      "description": "Transient mod-owned map annotation. No args reads submitted cache, not renderer state. Supply markers (at most one; empty clears), dry defaults true. Real requests require exact preview, companion-folder ALLOW_WRITES and confirm: server-write. Frame-queued only, fresh client epoch/revision; pending timeout cancels before start. SDK acceptance is not rendered proof. Leave cleanup removes only this mod's annotation without requiring a new flag; audit failures do not block cleanup. No saved marker edits, fast travel, scene raycast, world mutation or OS input.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirm": {
+            "enum": [
+              "server-write"
+            ],
+            "type": "string"
+          },
+          "dry": {
+            "default": true,
+            "type": "boolean"
+          },
+          "markers": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "z": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "x",
+                "y",
+                "z",
+                "label"
+              ],
+              "type": "object"
+            },
+            "maxItems": 1,
+            "type": "array"
+          },
+          "preview": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "client UI frame; SDK commands execute in later native client phase; read-only report uses retained listener state",
+      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
+      "evidence_summary": "Native annotation adapter; general rendered visibility and terrain correspondence open.",
+      "evidence_references": [
+        "plans/decisions/0024-alpha17-native-control-foundation.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Use a new independently visible fixture with predefined visibility limits.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_capabilities",
+      "description": "Optional native research companion capabilities. Copied native client snapshot availability is separate from per-part runtime reads. Published bounded native client commands are separate from runtime applicability and live verification. No screenshots, OS input, crafting execution, join/logout or authoritative world inspection.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_state",
+      "description": "Latest native UI-frame snapshot: screen, interaction prompt with bounded localized verb text (English fallback; missing stays unavailable), screen host/template and local held gameplay controls. A null template may mean no host, first-frame/unresolved metadata or unavailable reader. Stale/unavailable observations explicit; no world authority or current inner selection inferred.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_events",
+      "description": "Bounded screen/host change history. Cursor and overwritten-event count; not a complete gameplay event stream.",
+      "input_schema": {
+        "properties": {
+          "after": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "limit": {
+            "maximum": 32,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_selection_events",
+      "description": "Bounded observations of named client-world UI events. Requested HUD screens and station recipe-selection events are not verified current tabs, passive recipe highlights or applied production changes. Client entity IDs are never server-world selectors.",
+      "input_schema": {
+        "properties": {
+          "after": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "limit": {
+            "maximum": 32,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "SDK event-delivery fixture preserves raw choices and scope; events do not prove current selection.",
+      "evidence_references": [
+        "plans/decisions/0035-client-selection-adapter-fixture.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Correlate one event with independently observed current selection.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_item",
+      "description": "One vanilla item debug name resolved with localized client text. Reads vanilla archive; no effective mod/instance semantics or craftability inferred.",
+      "input_schema": {
+        "properties": {
+          "item": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "item"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "client UI frame; SDK commands execute in later native client phase",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
+      "evidence_references": [],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    },
+    {
+      "scope": "client",
+      "name": "client_recipes",
+      "description": "Vanilla recipe metadata for exactly one output item debug name or raw recipe_id (0..4294967295), at most 8 recipes. ID lookup counts all matching records; collisions/truncation are explicit and never imply a unique UI selection. SDK and canonical reflection workshop reference layouts must agree. Raw recipe/workshop definition IDs from archive records, input/output stack item IDs and GUIDs, typed ingredients, at most 32 members per category and declared prop IDs/shelter flag. Missing categories/truncation explicit; raw scaling and full requirement/eligibility semantics unverified. Workshop and prop type IDs are not item or entity selectors. Not current UI selection or craftability. Whole archive allocation precedes parsing caps.",
+      "input_schema": {
+        "oneOf": [
+          {
+            "required": [
+              "item"
+            ]
+          },
+          {
+            "required": [
+              "recipe_id"
+            ]
+          }
+        ],
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "limit": {
+            "maximum": 8,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "recipe_id": {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "client UI frame; SDK commands execute in later native client phase",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Native identity/reference correlation; raw zero GUIDs preserved; costs/category/eligibility open.",
+      "evidence_references": [
+        "plans/decisions/0034-recipe-reference-contract.md"
+      ],
+      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "native_acceptance": "partial; see evidence_summary",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "next_missing_check": "Verify one displayed recipe cost and eligible stock.",
+      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+    }
+  ]
+}

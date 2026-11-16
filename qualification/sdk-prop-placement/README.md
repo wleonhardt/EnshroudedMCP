@@ -62,3 +62,13 @@ cargo +1.100.0 xtask check --base 70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2
 Follow the upstream tool prerequisites, including LLVM clang, ast-grep and nextest. Empty environment values still opt into some game checks; remove the variables for model-only qualification. These checks used an installed stable compiler reporting Rust 1.100.0.
 
 The patch retains the SDK's [MIT attribution](../../patches/enshwick-LICENSE). The [submission record](UPSTREAM.md) links the authorized current request and PR. This historical patch was not submitted or installed.
+
+## Whole-product source candidate (2026-11-16)
+
+[consumer-candidate.patch](consumer-candidate.patch) is an inactive 11-file migration of all four product members from public base `c65a42643660260c4f166174f290a4beda5da00b` to exact SDK `9f6efc821524df426991fb584a761eaa0e5ea898`, ABI 12.8 and Rust/Cargo 1.100.0. It includes truthful compiled provenance and fake-frame warm-up adaptations; production control gates and deadlines are unchanged. The health-fixture external-target parent fix is already part of the base.
+
+Apply only to a separate clean copy of that exact base, first checking `git apply --check`, then `git apply`; do not apply to the working or installed product. Patch SHA-256: `ba99ca173ff07a0211fc172170e106f60557d3f1525f084c512780cf576c2b93`. Candidate and independently reconstructed source each pass 370 Rust executions, 71 Python helper tests, strict Clippy, formatting and both release builds with two build jobs and one Rust test thread. Use an exact Rust 1.100.0 toolchain and unset optional game-test environment variables.
+
+From the isolated product copy, run `cargo test --locked --workspace`, `cargo clippy --locked --workspace --all-targets -- -D warnings`, `cargo fmt --all --check`, `python -B -m unittest discover -s scripts -p test_*.py` and `cargo build --locked --release -p mcp -p mcp-client`. External CARGO_TARGET_DIR is supported by the fixed baseline. These whole-product checks are separate from the four optional probe tests above.
+
+This completes source compatibility only. No matching provider, native API correspondence, live upgrade or rollback is qualified. See decision 0061 and the capability matrix before any adoption.
