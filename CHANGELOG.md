@@ -1,5 +1,10 @@
 # Changelog
 
+## Isolated compound geometry recovery (documentation)
+
+- Verify an independent 132-cell floor/stair/solid-gable oracle across four bricks against a complete 2,048-cell capture. Reordered replay preserves the transaction; conflicting part identity refuses; guarded undo restores the full baseline.
+- Verify connected dry lifecycle refusal, clean logout, restored setting, independently observed native shutdown, a 103-member cold archive, complete prior capture recovery, ledger preservation, installed hashes and durable-identity refusal after restart. Native yaw/pitch visibly change the camera; fixture rendering and functional workshop usability remain unverified. No product behavior changes.
+
 ## Isolated lifecycle acceptance on server 0.34.0 (documentation)
 
 - Verify deliberate native save acceptance, unchanged replay, ordered graceful-shutdown/save events and an independently observed exit code 0 in a fresh server session. Preserve the earlier observer timeout as an incomplete result; never repeat a request because an observer timed out.
