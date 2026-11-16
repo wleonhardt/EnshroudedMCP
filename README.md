@@ -1,5 +1,7 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
+An inactive [merged-SDK placement consumer probe](qualification/sdk-prop-placement/README.md) now checks copied identity/corners and unknown/error behavior on ABI 12.8. It supplies no MCP endpoint or native adoption; product remains SDK alpha.17/ABI 12.1. Whole-product migration and native metadata values remain unverified.
+
 Upstream [placement metadata #1141](https://github.com/enshwick/enshwick/pull/1141) and [diagnostics #1111](https://github.com/enshwick/enshwick/pull/1111) are merged. The matching development package still lacks detached signatures; product SDK/ABI remain alpha.17/12.1. See [provider qualification](plans/decisions/0059-upstream-merges-and-provider-qualification.md).
 
 Bounded native Backpack/PlayerCrafting tab observation now passes on installed 0.44.0/0.20.2. HUD screen and menu tab remain separate: HUD Backpack persists while the tab changes. Four once-only commands restore InGame and preserve avatar position, inventory, full baselines and installed bytes. Rendered panel transitions remain unverified; no crafting or movement is added. See [native tab evidence](plans/decisions/0058-native-menu-tab-observations.md).

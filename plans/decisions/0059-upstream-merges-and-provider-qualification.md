@@ -18,8 +18,10 @@ Latest inspected main 4ce03662 declares ABI 12.9 and adds unstable container/rul
 Next goals:
 
 1. Qualify a matching provider through the established distribution/signature checks before native adoption. Keep the current signed provider until that gate passes. Do not chase moving main or infer trust from a successful CI build alone.
-2. Prepare a source-only consumer qualification at an exact merged revision using the existing isolated qualification workflow. Verify required toolchain and source contracts before changing product pins. Preserve four root workspace members.
+2. The bounded source-only consumer contracts now pass at exact merged 9f6efc82 in decision 0060. Whole-product source compatibility remains pending in an isolated exact-revision candidate. Verify required toolchain and source contracts before changing product pins. Preserve four root workspace members.
 3. Add a bounded game-thread item/template/nullable-declared-box observer only once its supported dependency is qualified. Preserve raw identity namespaces and unknown bounds. Do not convert declared boxes into terrain contact, complete collision envelopes or build authorization.
 4. Qualify native item/template correspondence and unavailable/refused cases before using metadata in construction planning. Keep exact read-back, journaled once-only writes and recovery gates for any later placement fixture.
 
 Historical source-check counts for earlier proposal heads do not certify these final merged heads. The merge and successful artifact build are authoritative upstream state; downstream compatibility, native values and visible geometry still require their own evidence.
+
+Follow-up source review in decision 0060 establishes that upstream intentionally runs unsigned builds with an unofficial classification. Missing detached signatures are a project release-provenance/adoption gate, not proof the loader refuses a development package. The standalone consumer contract probe is separate from whole-product compatibility and native adoption; neither disables signature checks.

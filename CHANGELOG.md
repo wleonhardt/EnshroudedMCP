@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add inactive merged-SDK placement consumer contracts preserving raw corner order, unknown bounds, native errors and deferred reads. Product workspace/pins and installed runtime are unchanged; no MCP metadata tool or native acceptance is added.
+
 - Record merged upstream placement and diagnostic proposals. Matching dev artifact digest passes, but absent detached signatures keep provider/native adoption unqualified; product SDK and ABI remain unchanged.
 
 - Record native Backpack/PlayerCrafting tab transitions with HUD/tab separation and complete preservation. SDK outcomes and getter fields remain separate from pending rendered confirmation; no craft or movement action is added.
