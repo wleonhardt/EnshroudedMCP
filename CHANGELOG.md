@@ -1,5 +1,10 @@
 # Changelog
 
+## Rendered compound geometry acceptance (documentation)
+
+- Verify separate baseline/applied/undone client views of the floor, three stair rises and stepped roof after native positioning. Preserve independent full-capture, replay, conflict refusal, strict undo and cold-recovery checks.
+- Record geometric stair-to-roof gaps of 1.5 m, 1.0 m and 0.5 m. Queue deliberate headroom, landing and grounded workshop design; keep avatar clearance, traversal, shelter and support unverified. No product behavior changes.
+
 ## Isolated compound geometry recovery (documentation)
 
 - Verify an independent 132-cell floor/stair/solid-gable oracle across four bricks against a complete 2,048-cell capture. Reordered replay preserves the transaction; conflicting part identity refuses; guarded undo restores the full baseline.
