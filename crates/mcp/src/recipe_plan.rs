@@ -9,7 +9,7 @@ use serde_json::{Map, Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "recipe_plan",
-        description: "Report-only crafting arithmetic over caller-supplied recipes, stock, goals, available stations and unlocks. Supply one chosen single-output recipe per item. Returns batch-rounded steps, stock reservations, shortages and unmet requirements. Does not read the game, verify the catalogue, craft, gather or authorize writes.",
+        description: "Report-only crafting arithmetic over caller-supplied recipes, stock, goals, available stations and unlocks. Multiple single-output producers require explicit item/recipe choices; no automatic optimization. Returns batch-rounded steps, stock reservations, shortages and unmet requirements. Does not read the game, verify the catalogue, craft, gather or authorize writes.",
         schema: admission::schema(),
     }
 }
@@ -98,7 +98,7 @@ fn plan(request: Request) -> Result<Value, String> {
         "missing_unlocks":missing_unlocks,
         "limits":[
             "Inputs are supplied by the caller; no live stock, recipe, station or unlock state is verified.",
-            "Exactly one single-output recipe per item; select alternatives before calling. Ingredient categories, coproducts, recycling cycles and catalysts are unsupported.",
+            "One selected single-output recipe per item; alternatives require explicit choices, with no automatic search or optimality claim. Ingredient categories, coproducts, recycling cycles and catalysts are unsupported.",
             "Requirements are names supplied by the caller, not inferred game rules. Missing stations and unlocks are prerequisites, not automatically crafted or granted.",
             "No costs, durations, inventory eligibility, reservations in the game, progression side effects or optimality are inferred."
         ]
@@ -127,6 +127,37 @@ mod tests {
             .as_object()
             .unwrap(),
         )
+    }
+
+    #[test]
+    fn explicit_alternative_controls_batches_inputs_and_requirements() {
+        let mut slow = recipe("slow", "board", 1, json!([{"item":"wood","count":3}]));
+        slow["stations"] = json!(["unavailable station"]);
+        let fast = recipe("fast", "board", 3, json!([{"item":"scrap","count":2}]));
+        let mut args = json!({"catalog_label":"synthetic alternatives","recipes":[slow,fast],
+            "stock":[{"item":"scrap","count":4}],"goals":[{"item":"board","count":4}],
+            "stations":[],"unlocks":[],"choices":[{"item":"board","recipe":"fast"}]});
+        let result = call(args.as_object().unwrap()).unwrap();
+        assert_eq!(result["feasible_under_supplied_assumptions"], true);
+        assert_eq!(result["steps"][0]["recipe"], "fast");
+        assert_eq!(result["steps"][0]["batches"], 2);
+        assert_eq!(
+            result["stock_reserved"],
+            json!([{"item":"scrap","count":4}])
+        );
+        assert_eq!(
+            result["planned_surplus"],
+            json!([{"item":"board","count":2}])
+        );
+        args["recipes"].as_array_mut().unwrap().reverse();
+        assert_eq!(call(args.as_object().unwrap()).unwrap(), result);
+        args["choices"][0]["recipe"] = json!("slow");
+        let result = call(args.as_object().unwrap()).unwrap();
+        assert_eq!(
+            result["missing_raw_items"],
+            json!([{"item":"wood","count":12}])
+        );
+        assert_eq!(result["missing_stations"], json!(["unavailable station"]));
     }
 
     #[test]

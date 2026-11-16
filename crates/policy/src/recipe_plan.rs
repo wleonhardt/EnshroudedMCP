@@ -52,6 +52,10 @@ pub fn schema() -> Value {
                     "ingredients":quantities(16),"stations":names(16),"unlocks":names(16)
                 },"required":["id","item","count","ingredients","stations","unlocks"]
             }},
+            "choices":{"type":"array","maxItems":MAX_RECIPES,"items":{
+                "type":"object","additionalProperties":false,
+                "properties":{"item":name,"recipe":name},"required":["item","recipe"]
+            }},
             "stock":quantities(256),"goals":quantities(32),
             "stations":names(128),"unlocks":names(128)
         },"required":["catalog_label","recipes","stock","goals","stations","unlocks"]
@@ -69,8 +73,21 @@ pub fn check(args: &Map<String, Value>) -> Result<Request, String> {
     }
     let stations = names(&args["stations"], 128)?;
     let unlocks = names(&args["unlocks"], 128)?;
-    let mut recipes = BTreeMap::new();
+    let mut choices = BTreeMap::new();
+    if let Some(value) = args.get("choices") {
+        for value in array(value, MAX_RECIPES)? {
+            let fields = object(value, &["item", "recipe"])?;
+            if choices
+                .insert(name(&fields["item"])?, name(&fields["recipe"])?)
+                .is_some()
+            {
+                return Err("duplicate recipe choice for item".into());
+            }
+        }
+    }
+    let mut candidates: BTreeMap<String, Vec<Recipe>> = BTreeMap::new();
     let mut ids = BTreeSet::new();
+    let mut items: BTreeSet<_> = stock.keys().chain(goals.keys()).cloned().collect();
     for value in array(&args["recipes"], MAX_RECIPES)? {
         let r = object(
             value,
@@ -87,9 +104,34 @@ pub fn check(args: &Map<String, Value>) -> Result<Request, String> {
         if !ids.insert(recipe.id.clone()) {
             return Err(format!("duplicate recipe id '{}'", recipe.id));
         }
-        if recipes.insert(recipe.item.clone(), recipe).is_some() {
-            return Err("ambiguous recipe: supply exactly one chosen producer per item".into());
+        items.insert(recipe.item.clone());
+        items.extend(recipe.ingredients.keys().cloned());
+        candidates
+            .entry(recipe.item.clone())
+            .or_default()
+            .push(recipe);
+    }
+    if items.len() > MAX_ITEMS {
+        return Err(format!(
+            "catalogue and stock contain more than {MAX_ITEMS} distinct items"
+        ));
+    }
+    let mut recipes = BTreeMap::new();
+    for (item, options) in candidates {
+        let choice = choices.remove(&item);
+        if options.len() > 1 && choice.is_none() {
+            return Err(format!(
+                "ambiguous recipe for '{item}': supply an explicit choice"
+            ));
         }
+        let recipe = options
+            .into_iter()
+            .find(|r| choice.as_ref().is_none_or(|id| *id == r.id))
+            .ok_or_else(|| format!("chosen recipe does not produce '{item}'"))?;
+        recipes.insert(item, recipe);
+    }
+    if !choices.is_empty() {
+        return Err("recipe choice names an item without a producer".into());
     }
     let order = order(&recipes, &stock, &goals)?;
     Ok(Request {
@@ -295,6 +337,78 @@ mod tests {
             v["recipes"] = recipes;
             assert!(validate(&v).is_err());
         }
+    }
+
+    fn alternatives() -> Value {
+        let mut v = request();
+        v["recipes"] = json!([
+            {"id":"cycle","item":"wood","count":1,"ingredients":[{"item":"wood","count":1}],"stations":[],"unlocks":[]},
+            {"id":"gather","item":"wood","count":1,"ingredients":[],"stations":[],"unlocks":[]}
+        ]);
+        v["choices"] = json!([{"item":"wood","recipe":"gather"}]);
+        v
+    }
+
+    #[test]
+    fn only_selected_dependencies_participate_in_cycle_detection() {
+        let mut v = alternatives();
+        assert_eq!(validate(&v).unwrap().recipes["wood"].id, "gather");
+        v["choices"][0]["recipe"] = json!("cycle");
+        assert!(validate(&v).unwrap_err().contains("cycle"));
+        v["choices"] = json!([]);
+        assert!(validate(&v).unwrap_err().contains("ambiguous"));
+    }
+
+    #[test]
+    fn choices_refuse_unknown_mismatched_duplicate_or_malformed_entries() {
+        for choices in [
+            json!([{"item":"wood","recipe":"absent"}]),
+            json!([{"item":"stone","recipe":"gather"}]),
+            json!([{"item":"wood","recipe":"gather"},{"item":"wood","recipe":"cycle"}]),
+            json!([{"item":"wood","recipe":"gather","dry":true}]),
+            json!([{"item":"wood"}]),
+            json!([{"item":"wood","recipe":0}]),
+            json!([{"item":"wood","recipe":" gather"}]),
+            json!(vec![json!({"item":"wood","recipe":"gather"}); 129]),
+            json!(null),
+        ] {
+            let mut v = alternatives();
+            v["choices"] = choices;
+            assert!(validate(&v).is_err());
+        }
+        let mut v = alternatives();
+        v["recipes"][0]["id"] = json!("gather");
+        assert!(validate(&v).unwrap_err().contains("duplicate recipe id"));
+        let mut v = alternatives();
+        v["recipes"][0]["item"] = json!("stone");
+        v["choices"][0]["recipe"] = json!("cycle");
+        assert!(validate(&v).unwrap_err().contains("does not produce"));
+    }
+
+    #[test]
+    fn unselected_recipes_still_obey_catalogue_bounds_and_validation() {
+        let mut v = alternatives();
+        v["recipes"][0]["ingredients"][0]["count"] = json!(0);
+        assert!(validate(&v).is_err());
+        let mut v = alternatives();
+        v["recipes"] = json!((0..33).map(|i| json!({"id":format!("r{i}"),"item":"wood","count":1,
+            "ingredients":(0..16).map(|j| json!({"item":format!("input-{i}-{j}"),"count":1})).collect::<Vec<_>>(),
+            "stations":[],"unlocks":[]})).collect::<Vec<_>>());
+        v["choices"][0]["recipe"] = json!("r0");
+        assert!(validate(&v).unwrap_err().contains("512 distinct items"));
+    }
+
+    #[test]
+    fn optional_choices_preserve_single_producer_requests() {
+        let mut v = alternatives();
+        v["recipes"] = json!([v["recipes"][1].clone()]);
+        let explicit = validate(&v).unwrap();
+        v.as_object_mut().unwrap().remove("choices");
+        let implicit = validate(&v).unwrap();
+        assert_eq!(explicit.order, implicit.order);
+        assert_eq!(explicit.recipes["wood"].id, implicit.recipes["wood"].id);
+        v["choices"] = json!([]);
+        assert_eq!(validate(&v).unwrap().order, implicit.order);
     }
 
     #[test]

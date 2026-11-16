@@ -16,7 +16,7 @@ Deliver survey, preview, apply, verify and recovery workflows for advanced struc
 
 Keep every proof quiescent and isolated. Placement has no native compare-and-swap or atomicity guarantee. Native multi-change application may absorb a foreign edit into its recorded postimage; strict multi-cell undo additionally requires the entire expected voxel image. This does not establish general concurrent safety. Receipts are session-only, tombstones refuse replay after restart, and no stateful recovery is provided. A geometric capture does not preserve all prop contents.
 
-Recipe alternatives, unlock reads, eligible stock and survival debit/refund remain separate research. The broader knowledge and mechanics goal remains open.
+Explicit recipe alternative selection is source implemented; automatic alternative search, unlock reads, eligible stock and survival debit/refund remain separate research. The broader knowledge and mechanics goal remains open.
 
 
 The isolated two-brick proof passed exact whole-capture placement/read-back/replay/undo; its final cold reload passed with all 1024 baseline cells equal. Applied voxel persistence has narrow separate floor evidence. Stateful recovery and the functional workshop remain open.

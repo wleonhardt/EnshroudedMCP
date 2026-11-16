@@ -1,8 +1,10 @@
 # Tool reference
 
-The server advertises 30 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
+The server advertises 31 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
 
 ## Server reads and pure planners
+
+For `recipe_plan`, optional `choices` contains up to 128 entries shaped as `{"item":"board","recipe":"recipe-id"}`. Every output with multiple producers needs one matching choice. A sole producer is implicit. All catalogue entries remain validated, but only selected dependencies contribute costs, requirements or cycle detection. No automatic alternative search or optimization is performed.
 
 | Tool | Inputs and result |
 | --- | --- |
@@ -18,7 +20,7 @@ The server advertises 30 tools. Inspect `tools/list` for exact schemas on your i
 | `entities_near` | Point, optional `radius` (up to 32), `kind`. At most 200 nearest results. `containers` selects placed containers, not every death-loot object. |
 | `entity_components` | Point, optional `radius` (up to 16) and `limit` (up to 20). Names of locally configured reflected components; no arbitrary component-value dump. |
 | `knowledge_search` | Optional `query`, `status`, `limit`. Curated evidence, provenance and missing checks. |
-| `recipe_plan` | Supplied recipe catalogue, stock, goals, stations and unlocks. Pure dependency arithmetic, not a live recipe or survival-feasibility claim. |
+| `recipe_plan` | Supplied recipe catalogue, stock, goals, stations and unlocks; optional explicit item/recipe choices select among alternatives. Ambiguous or mismatched choices refuse. Pure dependency arithmetic, without automatic optimization or a live recipe/survival-feasibility claim. |
 | `construction_budget` | No arguments. Current mod journal bytes and session-local recovery reservations; read-only observation, never native storage or write authority. |
 | `building_plan` | Primitive dimensions/material/yaw, or `kind: "composite"`, one material label and named parts. Optional absolute `clearance` boxes report planned-cell conflicts only. At most 1024 candidates; compounds also keep construction cell/brick limits. Pure preview, never live material or execution authority. |
 | `building_survey` | Grid-aligned box dimensions and optional `player` and `foundation`. Foundation supplies grid-aligned `x`, `z`, exclusive `upper_y` in metres and integer `max_cells` from 1 to 15; the column must fit the survey. It previews only Air before occupied terrain, without a rendered surface-height claim or write authority. Up to 4096 complete cells, exact voxels, persistence and optional build rights. Props, hazards and traversal remain unchecked. |
