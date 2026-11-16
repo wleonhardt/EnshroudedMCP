@@ -1,6 +1,6 @@
 # 0027: Retained recovery journal reservations
 
-Date: 2026-11-15. Status: runtime source integrated and private/public source verified; matched deployment and read-only readiness verified; live staged recovery pending.
+Date: 2026-11-15. Status: runtime source integrated and private/public source verified; matched deployment and bounded native nonzero-owner staged recovery verified; fault/cold recovery pending (decision 0069).
 
 Accepted construction phases remain undoable in their live native session. Their remaining audit recovery budget must survive later construction and unrelated appends to the same journal. Preserve the 8 MiB cap, bounded per-record sizes, existing write/session gates and fail-stop native semantics. Do not replace admission with a diagnostic or rotate/delete audit history.
 
@@ -12,4 +12,6 @@ Before a new construction native request, reserve its bounded future undo audit 
 
 Verify ownership isolation, later construction and unrelated writer refusal, exact capacity boundary, no state consumption after failed append, once-only recovery behavior, partial audit failure, world reset and existing zero-reservation compatibility. Complete the shared-writer review before claiming the original admission gap fixed. A tiny accepted overlapping-phase live fixture and cold recovery remain separate acceptance gates.
 
-The 0.37.0 read-only construction_budget observer exposes aggregate byte/count math under the same lock without owner IDs. A read never spends or reserves capacity and does not observe native undo storage or World state. Report overflow/over-capacity conservatively; keep actual write admission separate. Matched deployment and zero-owner live readback are verified; nonzero native reservations remain pending a connected fixture.
+The 0.37.0 read-only construction_budget observer exposes aggregate byte/count math under the same lock without owner IDs. A read never spends or reserves capacity and does not observe native undo storage or World state. Report overflow/over-capacity conservatively; keep actual write admission separate. Matched deployment, zero-owner readback and bounded nonzero-owner native lifecycle are verified; decision 0069 records accepted stages and reverse recovery. Capacity/fault/cold recovery remain open.
+
+The bounded connected nonzero-owner lifecycle now passes in decision 0069: acceptance retains each allowance and exact reverse undo/status settlement releases only its owner. Capacity-fault, unrelated-writer pressure and cold recovery acceptance remain separate open gates.

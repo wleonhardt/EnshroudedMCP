@@ -201,16 +201,17 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Read-only shared journal accounting; no reservation or spend.",
+      "evidence_summary": "Native owner lifecycle 0\u21921\u21922\u21921\u21920 and retained bytes 0\u2192196608\u2192393216\u2192196608\u21920 qualified; acceptance preserves credit.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0069-native-staged-recovery-credit.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Zero-owner native readback qualified; nonzero native owners not qualified.",
+      "native_acceptance": "Native owner lifecycle 0\u21921\u21922\u21921\u21920 and retained bytes 0\u2192196608\u2192393216\u2192196608\u21920 qualified; acceptance preserves credit.",
       "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
       "persistence_acceptance": "No durable recovery authority is inferred.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Observe nonzero retained recovery credit in a tiny accepted/reverse-undo fixture.",
+      "next_missing_check": "Qualify bounded capacity/fault admission and unrelated-writer pressure; do not infer native undo-storage capacity.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "No mutation; reports budget math rather than native undo capacity.",
       "admission_sources": [
@@ -2658,16 +2659,17 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Status reads retained receipt/current captures; verified Undone baseline can settle local state and release owned recovery credit.",
+      "evidence_summary": "Native exact reverse undo plus baseline-verified status settlement releases only each completed owner; historical prior-boot refusal remains narrow.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0069-native-staged-recovery-credit.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Historical terminal capture/status and prior-boot refusal fixtures qualified; nonzero retained-credit native lifecycle open.",
+      "native_acceptance": "Native exact reverse undo plus baseline-verified status settlement releases only each completed owner; historical prior-boot refusal remains narrow.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Never reconstructs expired/session-local transaction IDs.",
       "freshness_completeness": "Native receipt and fresh capture are separate; terminal comparison may settle owned accounting. Expired/stale IDs remain unknown, never reconstructed.",
-      "next_missing_check": "Observe nonzero recovery credit before and after exact reverse undo and status settlement.",
+      "next_missing_check": "Qualify interruption/unknown outcomes and cold recovery without reconstructing native IDs.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "No new native transaction; may change companion accounting after proven undo.",
       "admission_sources": [
@@ -2713,16 +2715,17 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments and tool-specific policy. Dry default; real flag/confirmation, active retained Applied receipt, exact captures and current actor/rights/persistence; synced acceptance before local settlement. Recovery credit stays reserved.",
-      "evidence_summary": "Gated local receipt/journal acceptance after exact applied capture; preserves guarded undo and recovery credit.",
+      "evidence_summary": "Two overlapping native stages accepted with unchanged recovery credit; duplicate acceptance has no extra journal row.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0069-native-staged-recovery-credit.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Historical gap-frame accept/replay/interlock/reverse-order undo fixture qualified.",
-      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "native_acceptance": "Two overlapping native stages accepted with unchanged recovery credit; duplicate acceptance has no extra journal row.",
+      "rendered_acceptance": "Operator sees initial frame/open gap and reopened gap after fill undo; closure was missed. No general rendered, contact or traversal proof.",
       "persistence_acceptance": "Historical post-undo cold baseline only; acceptance does not prove kept-build persistence.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Qualify accepted overlapping tiny stages with nonzero recovery credit and independent rendered/function checks.",
+      "next_missing_check": "Qualify capacity/fault boundaries and independent functional/kept-build persistence outcomes.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Acceptance is local bookkeeping, not a new voxel write or proof of workshop usability.",
       "admission_sources": [
@@ -2769,16 +2772,17 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments and tool-specific policy. Dry default; real flag/confirmation, current retained receipt, required expected-image guards and reverse-order/unsettled interlocks. Native uncertainty never authorizes retry.",
-      "evidence_summary": "Gated undo of retained current-session receipt with capture guards and reverse-order interlocks; quiescent site required.",
+      "evidence_summary": "Both accepted overlapping phases reverse-undo exactly; owned credit releases 2\u21921\u21920 after native Undone and baseline status verification.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0069-native-staged-recovery-credit.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Historical exact reverse undo and cold baseline fixtures qualified; stateful prop and connected fault recovery remain open.",
-      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "native_acceptance": "Both accepted overlapping phases reverse-undo exactly; owned credit releases 2\u21921\u21920 after native Undone and baseline status verification.",
+      "rendered_acceptance": "Operator sees initial frame/open gap and reopened gap after fill undo; closure was missed. No general rendered, contact or traversal proof.",
       "persistence_acceptance": "Prior-session IDs never regain undo authority; cold restore is a separate procedure.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Close tiny accepted-stage reverse recovery, including deliberate conflict refusal and retained audit credit.",
+      "next_missing_check": "Qualify deliberate conflict/fault recovery and cold recovery separately; stateful prop restoration remains open.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Baseline capture comparison verifies narrow restoration; no generic safe prop deletion or atomic apply/undo claim.",
       "admission_sources": [
