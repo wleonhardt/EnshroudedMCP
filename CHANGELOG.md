@@ -8,7 +8,7 @@
 ## Server 0.40.0 (native factory-station observations)
 
 - Add read-only factory_station_read with one nonzero session-local server entity selector. Resolve the published typed FactoryStation handle optionally and queue its read on the game thread.
-- Preserve running/next recipe IDs and bounded raw category choices, signed raw times, stop/use-all flags and SDK missing-requirement names. Unknown differs from not observed. Report no complete queue, current client selection, crafting eligibility, time conversion or safe-removal proof. Private/public source checks pass; matched deployment and live state acceptance remain pending.
+- Preserve running/next recipe IDs and bounded raw category choices, signed raw times, stop/use-all flags and SDK missing-requirement names. Unknown differs from not observed. Report no complete queue, current client selection, crafting eligibility, time conversion or safe-removal proof. Private/public source checks pass. Matched 0.40.0/0.18.0 deployment verifies native handle resolution, repeated unobserved reads and twelve strict refusals, with all fixed read probes and runtime preservation. Present factory-state and independent semantic acceptance remain unverified.
 
 ## Companion 0.18.0 (recipe workshop reference contract)
 
