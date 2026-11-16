@@ -1,6 +1,6 @@
 # Clean official framework pin
 
-This branch targets server 0.34.0 / companion 0.15.0 against official release `v1.0.0-alpha.17`, commit `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI 12.1. Rust remains pinned to 1.99.1. Cargo uses the exact official Git revision directly; no local SDK patch or sibling checkout is required for consumer builds.
+This branch targets server 0.41.0 / companion 0.18.0 against official release `v1.0.0-alpha.17`, commit `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI 12.1. Rust remains pinned to 1.99.1. Cargo uses the exact official Git revision directly; no local SDK patch or sibling checkout is required for consumer builds.
 
 The release now includes `ItemInfo::placed_entity_template` as `Option<Guid>`. MCP preserves observed, known-no-template and unavailable metadata states without modifying the SDK. The release also provides native client snapshot and command/status/cancel APIs; this foundation increment alone exposes no new MCP executor. Native adapters and live acceptance remain separate work.
 
@@ -19,3 +19,7 @@ Rebuild server and companion together. Stop the client and coordinate an empty i
 The earlier nightly metadata and private alpha.14 event patches are also inactive. Preserve their exact source/loader pairings if reproducing old evidence; package strings alone do not prove compatibility. No complete prop placement-box, runtime-label or held-state preflight getter is added by this migration. Administrative construction, stateful recovery and full workshop acceptance remain open.
 
 Matched isolated alpha.17 installation and a bounded native client-control fixture now pass, including all 12 binary/signature hashes and client-reload identity refusal. Public-namespace installation and broader server write acceptance remain unverified.
+
+## Inactive placement metadata proposal
+
+The [source-only read proposal](enshwick-prop-placement-read-proposal.patch) targets exact official main 70a468bd and proposes an append-only ABI 12.2 metadata getter. It is not applied to the MCP dependency or installed loader. The qualified product remains on official alpha.17 / ABI 12.1. See [reproduction and proof limits](../qualification/sdk-prop-placement/README.md). Upstream submission and native-provider qualification are separate gates.
