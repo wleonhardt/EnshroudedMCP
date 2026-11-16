@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Record existing-platform standing correspondence and a failed exact-return criterion after native spawn adjustment. Preserve receipts, raw nonzero building fill and all world/ledger baselines. Queue read-only reposition observation; no new movement or construction executor.
+
 - Qualify joined 0.43.0/0.20.2 command reply freshness, user-confirmed visible map open/close, eight nonempty inventory counts and one positive buff response. Preserve all voxel fixtures, ledger prefixes and installed bytes; pending cancellation, countdown/effects, traversal and complete workshop acceptance remain open.
 
 - Companion 0.20.2 source returns polling freshness consistently on command submissions/replays and cancellation outcomes, including dry last_outcome. Retained reads do not refresh observations or change execution, journals or retry gates. Matched 0.43.0/0.20.2 native read-only/prior-boot regression now passes; joined/current-boot reply behavior remains unverified.

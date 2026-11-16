@@ -31,3 +31,14 @@ A subsequent material-based candidate produced apparent rock overlap/occlusion d
 ## Native map control checkpoint
 
 Companion 0.8.0 implements bounded transient map-marker submission and explicit clearing. The isolated joined-client fixture accepted show/clear/show and automatic observed-leave cleanup, preserving empty submitted state after logout. Rendered visibility remains pending because fallback map shortcuts did not open the map. Prioritize supported native join/private entry, map/menu opening and logout executors; do not equate cached observations with control. See [tool reference](../docs/tool-reference.md).
+
+
+## Joined standing checkpoint: 2026-11-16
+
+The operator identified an existing overhead platform. A complete native survey observes 16 building cells in a 2 m square layer, empty surveyed headroom and no placed props in the bounded queried box. One gated server reposition requests a point above its center; independent server reads settle at the platform's upper cell boundary, and the operator confirms visible foot contact. This qualifies standing correspondence at that elevated fixture, not terrain contact, avatar dimensions, walking, stair step-up or structural behavior.
+
+The separately previewed return is issued once. Its predefined 0.5 m return check fails: the stable observed actor position is 2.09 m from the original point. Native best-spawn search is already documented as allowing unbounded adjustment. The operator confirms safe standing beside the altar, with full health. Keep the failed exact-return criterion separate from safe cleanup; do not widen the threshold or retry another identity to manufacture a pass. Both native receipts remain issued_unknown; independent position observations do not rewrite them into arrival receipts.
+
+No walking, camera input, construction or inventory mutation is submitted. Complete 19,200 baseline cell observations, the 16-cell platform/headroom/prop captures and an additional 4,096-cell source survey remain equal. Twelve installed hashes and source closure match. Exactly eight new server rows comprise four pacification and four reposition records, with two durable reposition identities under four archive aliases. All old prefixes, client ledgers and unrelated records remain intact. Original pacification is restored, flags are removed and health remains full. The client stays InGame; no cold character recovery or logout is claimed.
+
+Native screen execution and visible map open/close now pass on 0.43.0/0.20.2. Join, logout and rendered capture remain capability gaps. The elevated standing observation does not close Phase 2: naturally exposed terrain contact and its rendered/recovery oracle remain required.
