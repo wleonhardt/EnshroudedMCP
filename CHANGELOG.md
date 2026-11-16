@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Fix health-recovery test fixture setup when Cargo uses an external target directory. Create the local parent explicitly and constrain cleanup to its canonical direct child. Runtime behavior and SDK pin are unchanged.
+
 - Add inactive merged-SDK placement consumer contracts preserving raw corner order, unknown bounds, native errors and deferred reads. Product workspace/pins and installed runtime are unchanged; no MCP metadata tool or native acceptance is added.
 
 - Record merged upstream placement and diagnostic proposals. Matching dev artifact digest passes, but absent detached signatures keep provider/native adoption unqualified; product SDK and ABI remain unchanged.

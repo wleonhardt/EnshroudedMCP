@@ -251,20 +251,21 @@ side = "server""#
             confirm: Some("server-write".into()),
         }
     }
-    struct Fixture(PathBuf);
+    struct Fixture(PathBuf, PathBuf);
     impl Fixture {
         fn new() -> Self {
             static NEXT: AtomicU64 = AtomicU64::new(0);
-            let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-                .join("../../target")
-                .join(format!(
-                    "health-recovery-{}-{}",
-                    std::process::id(),
-                    NEXT.fetch_add(1, Ordering::Relaxed)
-                ));
+            let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target");
+            fs::create_dir_all(&base).unwrap();
+            let base = base.canonicalize().unwrap();
+            let path = base.join(format!(
+                "health-recovery-{}-{}",
+                std::process::id(),
+                NEXT.fetch_add(1, Ordering::Relaxed)
+            ));
             fs::create_dir(&path).unwrap();
             fs::write(path.join(write_gate::FLAG), []).unwrap();
-            Self(path)
+            Self(path, base)
         }
         fn records(&self) -> Vec<Value> {
             fs::read_to_string(self.0.join("journal.jsonl"))
@@ -276,7 +277,9 @@ side = "server""#
     }
     impl Drop for Fixture {
         fn drop(&mut self) {
-            fs::remove_dir_all(&self.0).unwrap();
+            let path = self.0.canonicalize().unwrap();
+            assert_eq!(path.parent(), Some(self.1.as_path()));
+            fs::remove_dir_all(path).unwrap();
         }
     }
     #[test]
