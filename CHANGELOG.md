@@ -2,7 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
-- Server 0.44.0 source adds read-only current-boot reposition observation, with separate immutable native outcome and fresh bound actor position/distance. No arrival threshold, dispatch, retry or journal change. Source qualification passes; native installation and current-boot observation acceptance remain pending.
+- Server 0.44.0 source adds read-only current-boot reposition observation, with separate immutable native outcome and fresh bound actor position/distance. No arrival threshold, dispatch, retry or journal change. Source qualification and matched installation pass, including five prior-boot reposition identities, 35 server probes and 13 client probes. Current-boot observation acceptance remains pending.
 
 - Record existing-platform standing correspondence and a failed exact-return criterion after native spawn adjustment. Preserve receipts, raw nonzero building fill and all world/ledger baselines. Queue read-only reposition observation; no new movement or construction executor.
 
