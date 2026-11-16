@@ -1,5 +1,10 @@
 # Changelog
 
+## Retained recovery policy foundation (not runtime integrated)
+
+- Add checked aggregate journal headroom arithmetic and a reproduction of later-cycle admission consuming older retained recovery space. Preserve the existing 8 MiB cap and zero-reservation behavior; refuse overflow and boundary excess.
+- Runtime reservation ownership/lifecycle and all shared journal writer integration remain pending. No live protection or product behavior change is claimed by this foundation alone.
+
 ## Workshop planning milestone (documentation)
 
 - Independently check a revised two-storey enclosure with eleven requested clearance volumes and a bounded support survey. Decompose 947 distinct foundation/enclosure targets into 16 admitted non-overlapping phases; verify exact full-brick reverse restoration in a read-only model.

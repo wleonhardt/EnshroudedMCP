@@ -642,6 +642,21 @@ pub fn check_journal_size(existing: u64, incoming: usize) -> Result<(), String> 
     }
 }
 
+/// Checks new audit headroom while preserving all retained recovery bytes.
+///
+/// # Errors
+/// Refuses a combined budget above the existing cap or arithmetic overflow.
+pub fn check_recovery_budget(
+    existing: u64,
+    incoming: usize,
+    retained: usize,
+) -> Result<(), String> {
+    let combined = incoming
+        .checked_add(retained)
+        .ok_or("construction recovery budget overflow")?;
+    check_journal_size(existing, combined)
+}
+
 /// # Errors
 /// Refuses changed props, non-persistent sites and postimage mismatches for
 /// accepted or multi-cell operations.
@@ -677,6 +692,38 @@ pub fn check_context(facts: PlacementFacts) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn later_cycle_cannot_spend_retained_undo_headroom() {
+        use super::*;
+        let new_cycle = 7 * MAX_RECORD_BYTES;
+        let older_undo = 3 * MAX_RECORD_BYTES;
+        let existing = (JOURNAL_MAX_BYTES - new_cycle) as u64;
+        assert!(check_journal_size(existing, new_cycle).is_ok());
+        assert!(check_recovery_budget(existing, new_cycle, older_undo).is_err());
+    }
+    #[test]
+    fn aggregate_recovery_budget_accepts_exact_boundary_and_refuses_one_byte_more() {
+        use super::*;
+        let retained = 3 * MAX_RECORD_BYTES;
+        let incoming = 7 * MAX_RECORD_BYTES;
+        let boundary = (JOURNAL_MAX_BYTES - retained - incoming) as u64;
+        assert!(check_recovery_budget(boundary, incoming, retained).is_ok());
+        assert!(check_recovery_budget(boundary + 1, incoming, retained).is_err());
+        assert!(check_recovery_budget(0, usize::MAX, 1).is_err());
+        assert!(check_recovery_budget(u64::MAX, 1, 0).is_err());
+    }
+    #[test]
+    fn zero_retained_budget_preserves_existing_admission() {
+        use super::*;
+        for size in [0, JOURNAL_MAX_BYTES as u64, u64::MAX] {
+            for incoming in [0, 1, MAX_RECORD_BYTES, usize::MAX] {
+                assert_eq!(
+                    check_recovery_budget(size, incoming, 0),
+                    check_journal_size(size, incoming)
+                );
+            }
+        }
+    }
     use super::*;
 
     #[test]
