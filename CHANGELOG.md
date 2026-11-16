@@ -2,7 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
-- Server 0.43.0 adds read-only active buff observations for one server entity, with bounded output, preserved SDK errors and exact projected game-time durations. No mutation or safety claim.
+- Server 0.43.0 adds read-only active buff observations for one server entity, with bounded output, preserved SDK errors and exact projected game-time durations. No mutation or safety claim. Installed native missing-entity/error, strict refusal and full read-only preservation checks pass; positive holder and UI/countdown semantics remain unverified.
 
 - Resolve upstream #1141 conflicts with a normal merge of b86d94d1. Append placement metadata at ABI 12.8/slot 212, preserving settlement and statistics APIs. Preserve the older exact-base artifacts; no runtime migration.
 

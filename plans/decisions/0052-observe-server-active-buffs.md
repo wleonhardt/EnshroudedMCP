@@ -1,6 +1,6 @@
 # 0052: Observe active server buffs without inferring effects or safety
 
-Date: 2026-11-16. Status: source qualified; native qualification pending.
+Date: 2026-11-16. Status: installed with native read-error/refusal acceptance; positive holder semantics unverified.
 
 The project goal includes resting, equipment/combat and controlled mechanics experiments. The pinned official SDK exposes Buffs::of(entity) with error-bearing results. Add one read-only entity_buffs_read tool rather than an apply/remove interface or a buff-type enumeration whose empty result conflates unavailable data.
 
@@ -11,3 +11,7 @@ Admission lives in policy: exactly one nonzero u32 server entity and an optional
 A model fixture covers deferred reads, missing versus observed empty lists, 69 active records with 64-row and one-row truncation, all named slots and an unknown numeric kind, null versus level 3, negative-to-zero SDK projection and exact i64-max nanoseconds. Complete holder state remains unchanged. Separate policy admission tests reject extra write and client/player selectors. Read-only fixed probes test a missing entity and strict selector/write refusal; their aggregate reports do not contain raw buff or entity data.
 
 Source checks pass 365 Rust test executions, 71 Python tests, Clippy, formatting and release builds. Positive native holder values, countdown behavior, UI agreement, complete effects, resting interpretation and safety remain unverified. Do not submit a buff write to manufacture read acceptance.
+
+## Native qualification
+
+Matched server 0.43.0 / companion 0.20.1 is installed after a verified 143-member cold archive and four exact rollback DLLs. All 32 fixed server and 13 client probes pass. Missing-entity buff errors remain errors at limits 1/32/64, and twelve invalid buff requests refuse. Eighteen prior-boot command identities, five command selectors, six Menu dry refusals and prior recipe/workshop correlations pass. Complete world baselines, source closure, twelve installed hashes, immutable ledgers and absent write flags pass. One independently observed native server shutdown exited 0, adding exactly four audit rows and one marker under two aliases while preserving old prefixes. This is not causal final-save proof. Eight official framework/signature files are unchanged. Client process launch and graceful Menu close remain lifecycle capability gaps; Windows MCP/capture stayed off. No gameplay, join, buff application or removal was submitted. Positive native holder values, countdown and rendered UI agreement remain unverified.

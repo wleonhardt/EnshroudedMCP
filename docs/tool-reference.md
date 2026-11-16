@@ -355,3 +355,5 @@ Server 0.42.0 adds read-only `weather_read` with required finite world-bounded `
 ## Active entity buffs
 
 Server 0.43.0 adds `entity_buffs_read(entity, limit?)` for one session-only server entity. Reads execute on the game thread and return at most 64 rows (default 32), with explicit truncation and the full SDK-returned count. The SDK retrieves the complete entity list before output limiting. Errors remain errors rather than empty or healthy state. Preserve buff type/entity IDs, SDK slots including unknown numeric kinds, optional levels and exact game-time duration nanoseconds as strings. The SDK maps negative native durations to zero and zero levels to null; these are projected observations, not raw native values. No buff mutation, type-name lookup, complete-effect, comfort, safety or rendered-UI claim is made. Native positive-holder acceptance remains unverified.
+
+Native checkpoint: missing-entity errors and twelve strict refusals pass on installed 0.43.0. Positive holder values and UI/countdown semantics remain unverified.
