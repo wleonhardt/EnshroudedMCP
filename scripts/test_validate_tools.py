@@ -30,6 +30,10 @@ class Fixture:
         error = False
         if "validation_unknown" in args:
             error, value = True, "unknown argument"
+        elif name == "entity_buffs_read":
+            error = True
+            value = ("argument 'entity' must be at least 1" if args.get("entity") == 0 else
+                     "unknown argument 'confirm'" if "confirm" in args else "active buffs read failed: fixture missing holder")
         elif name == "weather_read":
             error="confirm" in args or args["y"]>1024
             value=("unknown argument 'confirm'" if "confirm" in args else "argument 'y' must be at most 1024") if error else {
@@ -218,7 +222,7 @@ class ValidationTests(unittest.TestCase):
                 self.assertEqual(check["outcome"], "fail")
 
     def test_unrelated_errors_do_not_prove_specific_refusals(self):
-        for label in ("invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
+        for label in ("buff_missing_entity_read_error", "buff_zero_entity_refused", "buff_write_argument_refused", "invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
                       "survey_off_grid_refused", "survey_write_argument_refused", "knowledge_write_argument_refused", "unknown_construction_operation_refused"):
             client = Fixture()
             original = client.call
@@ -226,7 +230,10 @@ class ValidationTests(unittest.TestCase):
             def reply(method, params=None):
                 if method == "tools/call":
                     name, args = params["name"], params["arguments"]
-                    target = ((label == "invalid_item_refused" and name == "item_info" and args["item"].startswith("Not_")) or
+                    target = ((label == "buff_missing_entity_read_error" and name == "entity_buffs_read" and args.get("entity") == 0xFFFFFFFF) or
+                              (label == "buff_zero_entity_refused" and name == "entity_buffs_read" and args.get("entity") == 0) or
+                              (label == "buff_write_argument_refused" and name == "entity_buffs_read" and "confirm" in args) or
+                              (label == "invalid_item_refused" and name == "item_info" and args["item"].startswith("Not_")) or
                               (label == "missing_inventory_selector" and name == "inventory_read" and not args) or
                               (label == "invalid_inventory_selector" and name == "inventory_read" and args.get("entity") == 0) or
                               (label == "invalid_lookup_id_refused" and name == "item_lookup" and args["ids"] == [0]) or
@@ -246,7 +253,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 29)
+        self.assertEqual(len(report["checks"]), 32)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -316,7 +323,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 33)
+        self.assertEqual(len(SERVER_TOOLS), 34)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

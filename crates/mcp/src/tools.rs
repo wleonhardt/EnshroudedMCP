@@ -84,6 +84,7 @@ pub(crate) struct Game {
     pub(crate) native_knowledge: enshwick::knowledge::Knowledge,
     pub(crate) clock: enshwick::daytime::Clock,
     pub(crate) weather: enshwick::weather::Weather,
+    pub(crate) buffs: enshwick::buffs::Buffs,
     pub(crate) game_settings: Option<enshwick::game_settings::GameSettings>,
     pub(crate) voxels: Voxels,
     pub(crate) scheduler: Scheduler,
@@ -158,6 +159,7 @@ impl GameTools {
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
             crate::weather_read::tool(),
+            crate::buff_read::tool(),
             crate::factory_station::tool(),
             crate::journal::tool(),
             crate::knowledge_read::tool(),
@@ -298,6 +300,7 @@ impl Tools for GameTools {
             world,
             clock,
             weather,
+            buffs,
             game_settings,
             voxels,
             scheduler,
@@ -311,6 +314,14 @@ impl Tools for GameTools {
             native_knowledge: _,
         } = self.game;
         match name {
+            "entity_buffs_read" => {
+                let (entity, limit) = policy::buff_read::check(a)?;
+                on_game_thread(scheduler, move || {
+                    let mut result = crate::buff_read::read(buffs, entity, limit)?;
+                    result["world_key"] = json!(world.key());
+                    Ok(result)
+                })?
+            }
             "weather_read" => {
                 let position = policy::weather_read::check(a)?;
                 on_game_thread(scheduler, move || {

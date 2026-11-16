@@ -1,0 +1,13 @@
+# 0052: Observe active server buffs without inferring effects or safety
+
+Date: 2026-11-16. Status: source qualified; native qualification pending.
+
+The project goal includes resting, equipment/combat and controlled mechanics experiments. The pinned official SDK exposes Buffs::of(entity) with error-bearing results. Add one read-only entity_buffs_read tool rather than an apply/remove interface or a buff-type enumeration whose empty result conflates unavailable data.
+
+Server 0.43.0 adds `entity_buffs_read(entity, limit?)` for one session-only server entity. Reads execute on the game thread and return at most 64 rows (default 32), with explicit truncation and the full SDK-returned count. The SDK retrieves the complete entity list before output limiting. Errors remain errors rather than empty or healthy state. Preserve buff type/entity IDs, SDK slots including unknown numeric kinds, optional levels and exact game-time duration nanoseconds as strings. The SDK maps negative native durations to zero and zero levels to null; these are projected observations, not raw native values. No buff mutation, type-name lookup, complete-effect, comfort, safety or rendered-UI claim is made. Native positive-holder acceptance remains unverified.
+
+Admission lives in policy: exactly one nonzero u32 server entity and an optional integer limit 1..64, default 32; unknown arguments refuse. Entity and buff-entity IDs last only the server session. Queue the observation and world key on Scheduler::next_tick. No listener-thread world access is permitted.
+
+A model fixture covers deferred reads, missing versus observed empty lists, 69 active records with 64-row and one-row truncation, all named slots and an unknown numeric kind, null versus level 3, negative-to-zero SDK projection and exact i64-max nanoseconds. Complete holder state remains unchanged. Separate policy admission tests reject extra write and client/player selectors. Read-only fixed probes test a missing entity and strict selector/write refusal; their aggregate reports do not contain raw buff or entity data.
+
+Source checks pass 365 Rust test executions, 71 Python tests, Clippy, formatting and release builds. Positive native holder values, countdown behavior, UI agreement, complete effects, resting interpretation and safety remain unverified. Do not submit a buff write to manufacture read acceptance.

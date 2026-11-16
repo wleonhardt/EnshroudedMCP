@@ -2,6 +2,7 @@
 //! The listener runs on a thread of its own; every game read is handed to the
 //! game thread through the scheduler (`tools.rs`).
 
+mod buff_read;
 mod building_access;
 mod building_plan;
 mod building_survey;
@@ -50,6 +51,7 @@ impl Mod for Mcp {
             native_knowledge: load.knowledge(),
             clock: load.clock(),
             weather: load.weather(),
+            buffs: load.buffs(),
             voxels: load.voxels(),
             scheduler: load.scheduler()?,
             used_item: enshwick::ecs::ComponentType::resolve(load, "keen::ecs::UsedItem").ok(),

@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Server 0.43.0 adds read-only active buff observations for one server entity, with bounded output, preserved SDK errors and exact projected game-time durations. No mutation or safety claim.
+
 - Resolve upstream #1141 conflicts with a normal merge of b86d94d1. Append placement metadata at ABI 12.8/slot 212, preserving settlement and statistics APIs. Preserve the older exact-base artifacts; no runtime migration.
 
 - Companion 0.20.1 clears stale native command age after SDK status-poll errors. Status, inventory and same-identity replay retain unknown outcomes with null age; no redispatch. Read-only probe checks refuse mixed old-age/error observations.

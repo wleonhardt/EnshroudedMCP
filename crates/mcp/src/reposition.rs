@@ -267,6 +267,7 @@ mod tests {
                 native_knowledge: load.knowledge(),
                 clock: load.clock(),
                 weather: load.weather(),
+                buffs: load.buffs(),
                 game_settings: None,
                 voxels: load.voxels(),
                 scheduler: load.scheduler()?,
