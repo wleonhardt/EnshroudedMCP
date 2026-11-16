@@ -9,6 +9,20 @@ use std::{
 };
 // Directories come from the loader, never tool arguments.
 static STATES: OnceLock<Mutex<BTreeMap<PathBuf, RecoveryReservations>>> = OnceLock::new();
+pub(crate) fn tool() -> policy::mcp::Tool {
+    policy::mcp::Tool {
+        name: "construction_budget",
+        description: "Read journal bytes and current session-local retained recovery allowances. No owner IDs, world reads, capacity reservation, native undo-storage observation or write authorization.",
+        schema: serde_json::json!({"type":"object","additionalProperties":false,"properties":{}}),
+    }
+}
+pub(crate) fn report(
+    dir: &Path,
+    args: &serde_json::Map<String, serde_json::Value>,
+) -> Result<serde_json::Value, String> {
+    policy::args::check(&tool().schema, args)?;
+    state(dir, |s| Ok(s.report(size(dir)?)))
+}
 fn state<T>(
     dir: &Path,
     run: impl FnOnce(&mut RecoveryReservations) -> Result<T, String>,
@@ -88,6 +102,37 @@ pub(crate) fn append(
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn capacity_observes_synced_bytes_without_disclosing_or_changing_reservations() {
+        let d = dir();
+        reserve(&d, "private_owner", 100, 0).unwrap();
+        append(&d, b"test\n", 0, Some("private_owner")).unwrap();
+        let before = fs::read(d.join("journal.jsonl")).unwrap();
+        let observation = report(&d, &serde_json::Map::new()).unwrap();
+        assert_eq!(observation["journal_bytes"], 5);
+        assert_eq!(observation["retained_recovery_bytes"], 95);
+        assert_eq!(observation["recovery_reservation_count"], 1);
+        assert!(!observation.to_string().contains("private_owner"));
+        assert_eq!(report(&d, &serde_json::Map::new()).unwrap(), observation);
+        assert_eq!(fs::read(d.join("journal.jsonl")).unwrap(), before);
+        reset(&d).unwrap();
+        fs::remove_dir_all(d).unwrap();
+    }
+    #[test]
+    fn capacity_report_is_read_only_and_rejects_undeclared_arguments() {
+        let d = dir();
+        let report = report(&d, &serde_json::Map::new()).unwrap();
+        assert_eq!(report["journal_bytes"], 0);
+        assert_eq!(
+            report["unreserved_bytes"],
+            policy::construction::JOURNAL_MAX_BYTES
+        );
+        assert_eq!(report["recovery_reservation_count"], 0);
+        assert!(!d.join("journal.jsonl").exists());
+        let bad = serde_json::json!({"confirm":"server-write"});
+        assert!(super::report(&d, bad.as_object().unwrap()).is_err());
+        fs::remove_dir_all(d).unwrap();
+    }
     #[test]
     fn dry_recovery_does_not_top_up_and_concurrent_appends_cannot_overspend() {
         let d = dir();

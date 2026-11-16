@@ -154,6 +154,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::journal::tool(),
             crate::knowledge_read::tool(),
             crate::interaction_target::tool(),
             crate::building_access::tool(),
@@ -278,6 +279,12 @@ impl Tools for GameTools {
     }
 
     fn call(&self, name: &str, a: &Map<String, Value>) -> Result<Value, String> {
+        if name == "construction_budget" {
+            return crate::journal::report(
+                self.mod_dir.as_deref().ok_or("mod folder unavailable")?,
+                a,
+            );
+        }
         if let Some(result) = offline_call(name, a) {
             return result;
         }

@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation
 
 
 VERSION = next(
@@ -64,6 +64,11 @@ class Fixture:
             value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
                      "compiled_framework_abi": "12.1", "mod_version": VERSION, "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
+        elif name == "construction_budget":
+            value = {"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":0,"journal_limit_bytes":8388608,
+                     "retained_recovery_bytes":0,"recovery_reservation_count":0,"unreserved_bytes":8388608,
+                     "over_capacity":False,"world_observed":False,"write_authorized":False,
+                     "native_undo_storage_observed":False,"capacity_reserved_by_this_read":False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
         elif name == "knowledge_search":
@@ -94,6 +99,15 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_construction_budget_shape_and_math_refuse_false_authority(self):
+        value={"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":8388558,"journal_limit_bytes":8388608,
+               "retained_recovery_bytes":100,"recovery_reservation_count":1,"unreserved_bytes":0,
+               "over_capacity":True,"world_observed":False,"write_authorized":False,
+               "native_undo_storage_observed":False,"capacity_reserved_by_this_read":False}
+        self.assertTrue(construction_budget_observation(value))
+        for key,bad in [("unreserved_bytes",50),("recovery_reservation_count",0),("over_capacity",False),("journal_bytes",True),("write_authorized",True),("native_undo_storage_observed",True),("capacity_reserved_by_this_read",True)]:
+            with self.subTest(key=key):self.assertFalse(construction_budget_observation({**value,key:bad}))
+
     def test_knowledge_probe_preserves_observed_zero_and_unknown(self):
         value = {"query":"world", "player":None, "world_mutated":False, "crafting_eligibility_verified":False,
                  "knowledge":[{"id":0xFFFFFFFF,"state":"unknown","type":None,"scope":None,"value":None,"expected_flags":None}]}
@@ -111,7 +125,7 @@ class ValidationTests(unittest.TestCase):
         for key, wrong in (("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14"),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
-                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("mod_version", "0.35.0"), ("mod_version", "0.34.0"), ("mod_version", "0.33.0"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
+                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("mod_version", "0.36.0"), ("mod_version", "0.35.0"), ("mod_version", "0.34.0"), ("mod_version", "0.33.0"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
                            ("mod_version", "0.26.0"), ("mod_version", "0.27.0"), ("mod_version", "0.28.0"), ("mod_version", "0.28.1"), ("mod_version", "0.29.0"), ("mod_version", "0.30.0"), ("mod_version", "0.31.0"), ("mod_version", "0.31.1"), ("mod_version", "0.32.0"), ("mod_version", "0.32.1"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
             client = Fixture()
             original = client.call
@@ -184,7 +198,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 21)
+        self.assertEqual(len(report["checks"]), 22)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -195,7 +209,7 @@ class ValidationTests(unittest.TestCase):
         self.assertFalse(any("dry" in params.get("arguments", {}) for method, params in client.calls if method == "tools/call"))
 
     def test_shape_arithmetic_provenance_and_geometry_mismatches_fail(self):
-        for tool in ("capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
+        for tool in ("construction_budget", "capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
             with self.subTest(tool=tool):
                 report = Validation(Fixture(tool), pause=lambda _: None).run()
                 self.assertEqual(report["verdict"], "failed")
@@ -254,7 +268,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 30)
+        self.assertEqual(len(SERVER_TOOLS), 31)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

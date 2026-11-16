@@ -1,5 +1,10 @@
 # Changelog
 
+## Server 0.37.0 (read-only construction budget)
+
+- Add construction_budget to observe journal bytes, protected recovery allowances, reservation count, unreserved bytes and over-capacity state without owner IDs. Serialize the observation with shared appends; create no journal and change no reservation.
+- Keep scope explicit: no World reads, native undo-storage observation, capacity reservation or write authorization. Reject undeclared arguments. Extend the fixed read-only validator with strict count/type/arithmetic checks. Matched installation and live acceptance remain pending.
+
 ## Read-only phase planning script
 
 - Add scripts/phase_plan.py to decompose up to 32 named primitive modules into exact disjoint phases using only pure building_plan calls. Preserve existing construction limits, bound total cells/phases and retain module provenance.

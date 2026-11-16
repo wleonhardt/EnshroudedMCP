@@ -1,4 +1,4 @@
-"""Read-only 0.36.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.37.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -23,6 +23,17 @@ RECIPE = {"catalog_label": "synthetic-validation", "goals": [{"item": "boards", 
                        "ingredients": [{"item": "wood", "count": 3}], "stations": [], "unlocks": []}]}
 FLOOR = {"kind": "floor", "x": 100, "y": 100, "z": 100, "width": 2,
          "height": 0.5, "depth": 2, "material": "unverified-validation-material"}
+
+
+def construction_budget_observation(value):
+    fields = ("journal_bytes", "journal_limit_bytes", "retained_recovery_bytes", "recovery_reservation_count", "unreserved_bytes")
+    if not isinstance(value, dict) or any(type(value.get(k)) is not int or value[k] < 0 for k in fields):
+        return False
+    current, limit, retained, owners, free = (value[k] for k in fields)
+    return (value.get("mode") == "report_only" and value.get("scope") == "mod_journal_and_session_local_recovery" and limit == 8*1024*1024 and current <= 2**64-1
+            and retained <= limit and owners <= 64 and (retained == 0 or owners > 0)
+            and free == max(0, limit-current-retained) and value.get("over_capacity") is (current+retained > limit)
+            and all(value.get(k) is False for k in ("world_observed", "write_authorized", "native_undo_storage_observed", "capacity_reserved_by_this_read")))
 
 
 def require(condition):
@@ -108,14 +119,14 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.36.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.37.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.36.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.37.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.36.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.37.0" and
                    v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
                    v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
                    v.get("native_clock_advance_live_verified") is False and
@@ -152,6 +163,7 @@ class Validation:
                    v["steps"][0]["batches"] == 2 and v["steps"][0]["produced"] == 4 and
                    v["planned_surplus"] == [{"item": "boards", "count": 1}] and
                    v["stock_reserved"] == [{"item": "wood", "count": 6}] and v["missing_raw_items"] == [])
+        self.probe("construction_journal_budget", "construction_budget", {}, construction_budget_observation)
         self.probe("floor_geometry", "building_plan", FLOOR, lambda v:
                    v.get("executable") is False and v["geometry"]["solid_cell_count"] == 16 and
                    len(v["cell_minima"]) == 16 and len({tuple(p) for p in v["cell_minima"]}) == 16)

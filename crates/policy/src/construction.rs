@@ -663,6 +663,18 @@ pub struct RecoveryReservations {
     held: std::collections::BTreeMap<String, usize>,
 }
 impl RecoveryReservations {
+    /// An observation only: this does not reserve capacity or authorize a write.
+    #[must_use]
+    pub fn report(&self, current: u64) -> Value {
+        let retained = self.held.values().sum::<usize>() as u64;
+        let limit = JOURNAL_MAX_BYTES as u64;
+        let over = current.checked_add(retained).is_none_or(|n| n > limit);
+        json!({"mode":"report_only","scope":"mod_journal_and_session_local_recovery",
+            "journal_bytes":current,"journal_limit_bytes":limit,"retained_recovery_bytes":retained,
+            "recovery_reservation_count":self.held.len(),"unreserved_bytes":limit.saturating_sub(current).saturating_sub(retained),
+            "over_capacity":over,"world_observed":false,"write_authorized":false,
+            "native_undo_storage_observed":false,"capacity_reserved_by_this_read":false})
+    }
     pub fn reserve(
         &mut self,
         current: u64,
@@ -765,6 +777,25 @@ pub fn check_context(facts: PlacementFacts) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn capacity_observation_preserves_owners_and_refuses_overflow_promotions() {
+        use super::*;
+        let mut r = RecoveryReservations::default();
+        r.reserve(0, "private_owner", 100, 0).unwrap();
+        let before = r.report(25);
+        assert_eq!(before["recovery_reservation_count"], 1);
+        assert_eq!(before["retained_recovery_bytes"], 100);
+        assert_eq!(before["unreserved_bytes"], JOURNAL_MAX_BYTES - 125);
+        assert_eq!(before["write_authorized"], false);
+        assert_eq!(before["capacity_reserved_by_this_read"], false);
+        assert!(!before.to_string().contains("private_owner"));
+        assert_eq!(r.report(25), before);
+        assert_eq!(r.report(u64::MAX)["over_capacity"], true);
+        assert_eq!(r.report(u64::MAX)["unreserved_bytes"], 0);
+        assert_eq!(r.report(25), before);
+        r.release("private_owner");
+        assert_eq!(r.report(25)["recovery_reservation_count"], 0);
+    }
     #[test]
     fn incomplete_undo_audit_requires_fresh_full_allowance_without_spending_other_owners() {
         use super::*;

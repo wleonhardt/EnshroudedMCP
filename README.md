@@ -2,17 +2,19 @@
 
 # Enshrouded MCP
 
+Server 0.37.0 adds read-only `construction_budget` journal/recovery capacity observation. Installed isolated runtime remains 0.36.0; matched live qualification of this getter is pending. Reading capacity never reserves it or authorizes a write.
+
 Read-only phase planning: `python scripts/phase_plan.py input.json output.json --port 8753` converts named primitive geometry into bounded, revalidated phase plans. It never executes them; live feasibility and recovery remain separate. See [phase planning](plans/decisions/0028-read-only-phase-planning.md).
 
 Server 0.36.0 integrates shared retained-undo journal reservations. Private/public source checks, matched 0.36.0 installation, isolated server read-only readiness and fresh companion Menu observation pass. Native staged recovery and live storage-fault acceptance remain unverified.
 
 Server 0.35.0 adds explicit planned-volume clearance checks to pure `building_plan`. Matched isolated DLL installation and server 0.35.0 transport acceptance pass. Companion 0.15.0 relaunch/connected checks of the rebuilt bundle remain unverified. A planned-clear box proves no live world or avatar clearance.
 
-Current source targets server **0.36.0** / companion **0.15.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed isolated research runtime now matches alpha.17. The migration itself added no executor; companion 0.15.0 now wraps supported native commands. Bounded native client-control and server lifecycle/recovery acceptance pass; broader gameplay and public-namespace installation remain unverified. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
+Current source targets server **0.37.0** / companion **0.15.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed isolated research runtime now matches alpha.17. The migration itself added no executor; companion 0.15.0 now wraps supported native commands. Bounded native client-control and server lifecycle/recovery acceptance pass; broader gameplay and public-namespace installation remain unverified. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.36.0** and **optional companion 0.15.0** against ABI 12.1. The matched 0.34.0/0.15.0 research pair passes cold readiness and bounded native screen/tab/recipe/look/move/cancel fixtures with exact preservation and client reload refusal. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.37.0** and **optional companion 0.15.0** against ABI 12.1. The matched 0.34.0/0.15.0 research pair passes cold readiness and bounded native screen/tab/recipe/look/move/cancel fixtures with exact preservation and client reload refusal. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
