@@ -2,6 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Extend the optional SDK qualification suite with prop placement-permission and mixed-write/undo held-state contracts. Test rotated bounds, state acquired after queuing for all nine published kinds and an empty-state recovery control. Synthetic model evidence grants no native recovery authority; runtime pins and installed builds are unchanged.
 - Preserve runnable SDK settlement-model probes in an optional independent workspace. Seven scenarios exercise callback timing, expiry, historical entity IDs, failure, undo and world scope without changing the MCP runtime dependency.
 - Exercise populated factory observations through the production adapter, published SDK component codec and queued scheduler pass. Cover all six states, four-choice arrays, numeric extremes and unknown state/flags while preserving bytes and uncertainty. This is synthetic SDK regression coverage; populated live factory and production semantics remain unverified.
 - Preserve document-level phase clearance evidence across the complete cell union. Check up to 32 bounded absolute volumes through native pure previews and report exact later-phase conflicts. Refuse per-module clearance that was previously silently discarded. Reports remain geometry-only, with world occupancy and walkability unverified.
