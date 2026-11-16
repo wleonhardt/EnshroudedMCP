@@ -1,5 +1,10 @@
 # Changelog
 
+## Isolated lifecycle acceptance on server 0.34.0 (documentation)
+
+- Verify deliberate native save acceptance, unchanged replay, ordered graceful-shutdown/save events and an independently observed exit code 0 in a fresh server session. Preserve the earlier observer timeout as an incomplete result; never repeat a request because an observer timed out.
+- Verify 91/93-member cold archives, complete capture/soil recovery, persisted restored setting, exact server/client ledgers, prior-boot refusal, 12 installed hashes and absent flags after restart. Keep native receipts causally unverified and retain connected/loading/fault and public-namespace gaps. No product behavior changes.
+
 ## Companion 0.15.0 (guarded supported native client commands)
 
 - Add client_command, read-only client_command_status and deliberate client_command_cancel over the published SDK queue/status/cancel APIs. Support in-game screen open/close, tab selection, recipe highlight and bounded look/move; add no arbitrary input or server World access.

@@ -1,6 +1,6 @@
 # 0021: Deliberate native server save requests
 
-Date: 2026-11-15. Status: implemented; private and sanitized-public source verified; live acceptance deferred.
+Date: 2026-11-15. Status: source verified; bounded alpha.17 isolated lifecycle acceptance passes. Causal attribution and broader live cases remain unverified.
 
 Workshop recovery and controlled server administration need a deliberate save request independent of shutdown. The pinned published SDK already exposes World::save on the server game thread. It asks for the same save as the game timer; a save already in progress counts as asked. Holds may refuse it. Native acceptance is not evidence of completed disk I/O or exact persisted contents. Add server_save through that API without a loader patch, forced save, save hold, backup, shutdown or client executor.
 
@@ -11,3 +11,5 @@ Keep at most 64 operation identities in memory and in server-save/. Prefix filen
 Report save_dispatched and save_request_accepted separately from save_completed_verified and causal_completion_verified, which remain false. Do not promote receipts based on timestamps or an uncorrelated WorldSaved event. The SDK does not attach an operation token to that event, and an already-running save can be accepted without proving it includes current changes. No native undo exists.
 
 Verify strict admission, safe dry mode, exact replay/reopen/session behavior, changed gates, durable and audit failures, bounded namespace/headroom, native held-save refusal, and cancellation through the published FakeHost scheduler. Include server-save records in cold archives. Live acceptance remains queued under the user's client-use hold: fresh matched source deployment, cold archive, coordinated empty fixture, one native request, independent save observations and restart/full-content verification in a disposable isolated world copy. Preserve old captures, operation ledgers and binary hashes; never reconstruct stale native undo receipts after reload.
+
+Current bounded acceptance on alpha.17/server 0.34.0 now verifies native acceptance, retained/reopened identity behavior and full cold preservation. Shutdown additionally has ordered SDK events and independent process exit code 0. Native receipts remain causally unverified; connected/loading/fault and public-namespace cases remain open. The current evidence is recorded in the lifecycle acceptance section of docs/research-status.md (private detailed evidence is maintained separately).

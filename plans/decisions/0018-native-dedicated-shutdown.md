@@ -1,6 +1,6 @@
 # 0018: Deliberate native dedicated-server shutdown
 
-Date: 2026-11-15. Status: implemented and source verified; live acceptance pending; installed runtime unchanged.
+Date: 2026-11-15. Status: source verified; bounded alpha.17 isolated lifecycle acceptance passes. Causal attribution and broader live cases remain unverified.
 
 Published World::stop requests the dedicated server's normal shutdown after the current step, final save and process exit; acceptance is immediate and does not prove any of those later outcomes. It refuses clients/hosted games and unsupported builds. Add server_shutdown through Scheduler::next_tick, never a process-kill wrapper. No automatic restart, save hold, configuration editor or countdown is introduced.
 
@@ -15,3 +15,5 @@ Native acceptance does not establish process exit, successful final save or roll
 Source 0.28.1 adds optional published ShutdownStarted/WorldSaved auditing for an attempted operation. Keep an independent WorldLoaded generation because construction deliberately invalidates its authority session during ShutdownStarted. Ignore events before an attempt, before shutdown, after a new world load and duplicates. Record at most one shutdown-start and one later save event, with explicit callback availability and journal failures. No World access or mutation occurs in these callbacks, and no new flag is required for passive completion auditing of the authorized request.
 
 Admit four bounded journal records before intent: intent, outcome and two possible lifecycle observations. Do not broaden the shared per-record headroom policy. Observed event order does not prove the request caused shutdown, successful process exit, complete save integrity or later recovery; retained acceptance and final-save/process verification flags remain unchanged. FakeHost callback coverage must include construction's shutdown invalidation and a later world generation. Live acceptance is deferred while the game client is unavailable for testing; no installed binaries or client state may be changed for this source work.
+
+Current bounded acceptance on alpha.17/server 0.34.0 now verifies native acceptance, retained/reopened identity behavior and full cold preservation. Shutdown additionally has ordered SDK events and independent process exit code 0. Native receipts remain causally unverified; connected/loading/fault and public-namespace cases remain open. The current evidence is recorded in the lifecycle acceptance section of docs/research-status.md (private detailed evidence is maintained separately).
