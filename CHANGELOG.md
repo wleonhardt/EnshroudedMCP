@@ -1,5 +1,10 @@
 # Changelog
 
+## Server 0.35.0 (explicit planned-volume clearance)
+
+- Extend pure building_plan with optional absolute half-metre-grid clearance boxes. Check one to eight world-bounded boxes and at most 1,024 requested cells; refuse malformed and unknown nested fields.
+- Report exact planned solid-cell intersections after rotations and compound union. Half-open touching boundaries pass. Omitted clearance preserves existing output. Results observe no world state and prove no avatar clearance, traversal, support or shelter; construction authority is unchanged. Matched installation and live transport acceptance remain pending.
+
 ## Rendered compound geometry acceptance (documentation)
 
 - Verify separate baseline/applied/undone client views of the floor, three stair rises and stepped roof after native positioning. Preserve independent full-capture, replay, conflict refusal, strict undo and cold-recovery checks.

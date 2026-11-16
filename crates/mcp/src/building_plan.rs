@@ -9,12 +9,25 @@ use serde_json::{Map, Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "building_plan",
-        description: "Preview a bounded floor, wall, framed doorway, solid staircase or solid gable roof or union of up to 8 named primitives on a half-metre grid. Pure geometry only; no game reads, writes, material validation or crafting costs.",
+        description: "Preview a bounded floor, wall, framed doorway, solid staircase or solid gable roof or union of up to 8 named primitives on a half-metre grid. Optional absolute clearance volumes detect planned-cell conflicts only. No game reads, writes, material validation, walkability proof or crafting costs.",
         schema: policy::building_plan::preview_schema(),
     }
 }
 
 pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
+    let clearance = policy::building_plan::check_clearance(args.get("clearance"))?;
+    let mut plan = args.clone();
+    plan.remove("clearance");
+    let mut result = preview(&plan)?;
+    if let Some(volumes) = clearance {
+        let cells: Vec<[i32; 3]> = serde_json::from_value(result["cell_minima"].clone())
+            .map_err(|e| format!("compiled preview cells unavailable: {e}"))?;
+        result["clearance"] = policy::building_plan::clearance_report(&volumes, &cells);
+    }
+    Ok(result)
+}
+
+fn preview(args: &Map<String, Value>) -> Result<Value, String> {
     if args.get("kind").and_then(Value::as_str) == Some("composite") {
         let (spec, material) = policy::building_plan::check_composite(args)?;
         let count = spec.elements.len();
@@ -79,6 +92,48 @@ pub(crate) fn call(args: &Map<String, Value>) -> Result<Value, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn requested_headroom_detects_roof_but_allows_touching_tread() {
+        let args = json!({"kind":"composite","material":"stone","parts":[
+            {"id":"stairs","kind":"staircase","x":4,"y":4,"z":3,"width":1,"height":1.5,"depth":3},
+            {"id":"roof","kind":"gable_roof","x":3,"y":6,"z":3,"width":3,"height":1.5,"depth":3}
+        ],"clearance":[
+            {"x":4,"y":5.5,"z":5,"width":1,"height":2,"depth":1},
+            {"x":4,"y":5.5,"z":5,"width":1,"height":0.5,"depth":1}
+        ]});
+        let out = call(args.as_object().unwrap()).unwrap();
+        assert_eq!(out["clearance"]["scope"], "planned_cells_only");
+        assert_eq!(out["clearance"]["volumes"][0]["planned_clear"], false);
+        assert_eq!(out["clearance"]["volumes"][0]["conflicting_cell_count"], 12);
+        assert_eq!(out["clearance"]["volumes"][1]["planned_clear"], true);
+        assert_eq!(out["clearance"]["world_observed"], false);
+        assert_eq!(out["clearance"]["walkability_verified"], false);
+        assert_eq!(out["executable"], false);
+        assert!(policy::args::check(&tool().schema, args.as_object().unwrap()).is_ok());
+    }
+
+    #[test]
+    fn primitive_clearance_uses_rotated_cells_and_preserves_absent_response() {
+        let mut args = base();
+        args.insert("yaw".into(), json!(90));
+        let original = call(&args).unwrap();
+        assert!(original.get("clearance").is_none());
+        args.insert(
+            "clearance".into(),
+            json!([
+                {"x":99.5,"y":10,"z":100,"width":0.5,"height":0.5,"depth":0.5},
+                {"x":100,"y":10,"z":100,"width":0.5,"height":0.5,"depth":0.5}
+            ]),
+        );
+        let mut checked = call(&args).unwrap();
+        assert_eq!(
+            checked["clearance"]["volumes"][0]["conflicting_cell_minima"],
+            json!([[199, 20, 200]])
+        );
+        assert_eq!(checked["clearance"]["volumes"][1]["planned_clear"], true);
+        checked.as_object_mut().unwrap().remove("clearance");
+        assert_eq!(checked, original);
+    }
     fn base() -> Map<String, Value> {
         json!({"kind":"wall","x":100,"y":10,"z":100,"width":4,"height":3,"depth":0.5,"material":"stone"}).as_object().unwrap().clone()
     }

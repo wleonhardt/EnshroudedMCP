@@ -54,8 +54,10 @@ pub fn schema() -> Value {
 /// Schema for existing primitive previews and bounded compound previews.
 #[must_use]
 pub fn preview_schema() -> Value {
-    let primitive = schema();
-    let composite = composite_preview_schema();
+    let mut primitive = schema();
+    let mut composite = composite_preview_schema();
+    primitive["properties"]["clearance"] = clearance_schema();
+    composite["properties"]["clearance"] = clearance_schema();
     let mut combined = primitive.clone();
     combined["properties"]["kind"]["enum"]
         .as_array_mut()
@@ -65,6 +67,80 @@ pub fn preview_schema() -> Value {
     combined["required"] = json!(["kind", "material"]);
     combined["oneOf"] = json!([primitive, composite]);
     combined
+}
+
+fn clearance_schema() -> Value {
+    let source = schema();
+    let mut properties = Map::new();
+    for key in ["x", "y", "z", "width", "height", "depth"] {
+        let mut property = source["properties"][key].clone();
+        property.as_object_mut().unwrap().remove("description");
+        properties.insert(key.into(), property);
+    }
+    json!({"type":"array","minItems":1,"maxItems":8,
+        "description":"Absolute axis-aligned volumes requested empty of planned cells only; at most 1,024 cells total. No world observation or avatar clearance claim.",
+        "items":{"type":"object","additionalProperties":false,"properties":properties,
+        "required":["x","y","z","width","height","depth"]}})
+}
+
+/// Checked absolute half-open volume; constructed only by clearance admission.
+pub struct ClearanceVolume {
+    min: [i32; 3],
+    max: [i32; 3],
+    cells: i32,
+}
+
+/// Admit optional explicit empty volumes without modifying construction schemas.
+pub fn check_clearance(value: Option<&Value>) -> Result<Option<Vec<ClearanceVolume>>, String> {
+    let Some(value) = value else { return Ok(None) };
+    let boxes = value.as_array().ok_or("clearance must be an array")?;
+    if boxes.is_empty() || boxes.len() > 8 {
+        return Err("clearance requires 1..8 volumes".into());
+    }
+    let mut total = 0;
+    let mut volumes = Vec::new();
+    let schema = clearance_schema();
+    for value in boxes {
+        let args = value
+            .as_object()
+            .ok_or("clearance volume must be an object")?;
+        crate::args::check(&schema["items"], args)?;
+        let min = [
+            grid(args, "x", 0.0, crate::bounds::EDGE)?,
+            grid(args, "y", 0.0, crate::bounds::HEIGHT)?,
+            grid(args, "z", 0.0, crate::bounds::EDGE)?,
+        ];
+        let size = [
+            grid(args, "width", 0.5, 16.0)?,
+            grid(args, "height", 0.5, 16.0)?,
+            grid(args, "depth", 0.5, 16.0)?,
+        ];
+        let max = std::array::from_fn(|i| min[i] + size[i]);
+        if max[0] > (crate::bounds::EDGE * 2.0) as i32
+            || max[1] > (crate::bounds::HEIGHT * 2.0) as i32
+            || max[2] > (crate::bounds::EDGE * 2.0) as i32
+        {
+            return Err("clearance volume exceeds world bounds".into());
+        }
+        let cells = size.iter().product::<i32>();
+        total += cells;
+        if total > MAX_CELLS {
+            return Err("clearance exceeds 1,024 requested cells in total".into());
+        }
+        volumes.push(ClearanceVolume { min, max, cells });
+    }
+    Ok(Some(volumes))
+}
+
+/// Intersect checked requested volumes with compiled cells only, never the world.
+#[must_use]
+pub fn clearance_report(volumes: &[ClearanceVolume], cells: &[[i32; 3]]) -> Value {
+    let reports: Vec<_> = volumes.iter().map(|v| {
+        let conflicts: std::collections::BTreeSet<_> = cells.iter().copied().filter(|c| (0..3).all(|i| c[i] >= v.min[i] && c[i] < v.max[i])).collect();
+        json!({"min_m":v.min.map(|n|f64::from(n)*0.5),"max_exclusive_m":v.max.map(|n|f64::from(n)*0.5),
+            "requested_cell_count":v.cells,"planned_clear":conflicts.is_empty(),"conflicting_cell_count":conflicts.len(),"conflicting_cell_minima":conflicts})
+    }).collect();
+    json!({"scope":"planned_cells_only","world_observed":false,"walkability_verified":false,"volumes":reports})
 }
 fn composite_preview_schema() -> Value {
     let mut schema = crate::construction::composite_schema();
@@ -259,6 +335,77 @@ pub fn local_cells(spec: &Spec) -> Vec<[i32; 3]> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn clearance_refuses_unknown_missing_off_grid_and_out_of_world_volumes() {
+        let volume = json!({"x":4,"y":4,"z":4,"width":1,"height":2,"depth":1});
+        for (key, value) in [
+            ("confirm", json!("server-write")),
+            ("yaw", json!(90)),
+            ("width", json!(0)),
+            ("height", json!(0.25)),
+            ("x", json!(crate::bounds::EDGE)),
+            ("y", json!(crate::bounds::HEIGHT)),
+            ("z", json!(-0.5)),
+            ("depth", json!("1")),
+        ] {
+            let mut bad = volume.clone();
+            bad[key] = value;
+            assert!(check_clearance(Some(&json!([bad]))).is_err(), "{key}");
+        }
+        let mut missing = volume.clone();
+        missing.as_object_mut().unwrap().remove("depth");
+        for value in [
+            json!([missing]),
+            json!([null]),
+            json!([]),
+            json!(null),
+            json!({}),
+        ] {
+            assert!(check_clearance(Some(&value)).is_err());
+        }
+        assert!(check_clearance(None).unwrap().is_none());
+    }
+
+    #[test]
+    fn clearance_caps_combined_work_before_reporting() {
+        let volume = json!({"x":0,"y":0,"z":0,"width":8,"height":2,"depth":8});
+        assert!(check_clearance(Some(&json!([volume]))).is_ok());
+        assert!(check_clearance(Some(&json!([volume, volume]))).is_err());
+        let tiny = json!({"x":0,"y":0,"z":0,"width":0.5,"height":0.5,"depth":0.5});
+        assert!(check_clearance(Some(&json!(vec![tiny.clone(); 8]))).is_ok());
+        assert!(check_clearance(Some(&json!(vec![tiny; 9]))).is_err());
+    }
+
+    #[test]
+    fn clearance_is_half_open_absolute_and_deduplicated() {
+        let volumes = check_clearance(Some(
+            &json!([{"x":0,"y":0,"z":0,"width":0.5,"height":0.5,"depth":0.5}]),
+        ))
+        .unwrap()
+        .unwrap();
+        let report = clearance_report(
+            &volumes,
+            &[[0, 0, 0], [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]],
+        );
+        assert_eq!(report["volumes"][0]["requested_cell_count"], 1);
+        assert_eq!(
+            report["volumes"][0]["conflicting_cell_minima"],
+            json!([[0, 0, 0]])
+        );
+        assert_eq!(report["volumes"][0]["conflicting_cell_count"], 1);
+        assert!(
+            !schema()["properties"]
+                .as_object()
+                .unwrap()
+                .contains_key("clearance")
+        );
+        assert!(
+            !crate::construction::composite_schema()["properties"]
+                .as_object()
+                .unwrap()
+                .contains_key("clearance")
+        );
+    }
     fn base() -> Map<String, Value> {
         json!({"kind":"wall","x":100,"y":10,"z":100,"width":4,"height":3,"depth":0.5,"material":"material:stone"}).as_object().unwrap().clone()
     }

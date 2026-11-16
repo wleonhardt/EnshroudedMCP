@@ -19,7 +19,7 @@ The server advertises 30 tools. Inspect `tools/list` for exact schemas on your i
 | `entity_components` | Point, optional `radius` (up to 16) and `limit` (up to 20). Names of locally configured reflected components; no arbitrary component-value dump. |
 | `knowledge_search` | Optional `query`, `status`, `limit`. Curated evidence, provenance and missing checks. |
 | `recipe_plan` | Supplied recipe catalogue, stock, goals, stations and unlocks. Pure dependency arithmetic, not a live recipe or survival-feasibility claim. |
-| `building_plan` | Primitive dimensions/material/yaw, or `kind: "composite"`, one material label and named parts. At most 1024 candidates; compounds also keep construction cell/brick limits. Pure preview, never live material or execution authority. |
+| `building_plan` | Primitive dimensions/material/yaw, or `kind: "composite"`, one material label and named parts. Optional absolute `clearance` boxes report planned-cell conflicts only. At most 1024 candidates; compounds also keep construction cell/brick limits. Pure preview, never live material or execution authority. |
 | `building_survey` | Grid-aligned box dimensions and optional `player` and `foundation`. Foundation supplies grid-aligned `x`, `z`, exclusive `upper_y` in metres and integer `max_cells` from 1 to 15; the column must fit the survey. It previews only Air before occupied terrain, without a rendered surface-height claim or write authority. Up to 4096 complete cells, exact voxels, persistence and optional build rights. Props, hazards and traversal remain unchecked. |
 | `building_operation` | `operation`. Reconcile native construction status and exact complete-brick images. Stale/unknown receipts never reconstruct native IDs. |
 
@@ -292,3 +292,11 @@ Read `client_snapshot` first. A dry command binds boot, operation, normalized pa
 At most 64 exclusive files in `client-commands/` reserve identities durably before dispatch. Same-payload replay returns retained status; conflicting payloads and prior-boot IDs cannot dispatch. Native IDs stay in memory and are never reconstructed. Inspect `client_command_status` by operation after any lost reply. Never invent another operation ID to retry an uncertain action. Preserve the companion journal and complete client-commands directory in cold backups.
 
 Cancellation has its own dry preview and the same client write gate. It targets only a retained native identity and attempts cancellation at most once. Native accepted cancellation is not completion: poll status separately. Pending/applied/observed/cancelled/unavailable/unknown remain distinct from rendered evidence. Observed movement means the hold ended; observed look means input was written. `rendered_verified` and `arrival_verified` remain false. Source tests do not prove a live effect.
+
+## Explicit planned-volume clearance
+
+Server 0.35.0 accepts optional `clearance` in pure `building_plan`: one to eight absolute axis-aligned boxes with `x`, `y`, `z`, `width`, `height`, `depth`. All values use the 0.5 m grid. Positive extents are at most 16 m; full boxes must fit world bounds. Their combined volume is at most 1,024 cells, counting repeated/overlapping requests separately. Unknown nested fields and empty lists refuse.
+
+For example, add `"clearance":[{"x":4,"y":5.5,"z":5,"width":1,"height":2,"depth":1}]` to a plan to request an empty 2 m high volume. Boxes use world axes independently of each primitive's yaw. Each result reports requested minimum/maximum-exclusive bounds, cell count, `planned_clear`, `conflicting_cell_count` and exact unique `conflicting_cell_minima`. Boundaries that only touch are clear. A box outside the plan footprint may be planned-clear because no planned cell intersects it.
+
+This intersects compiled plan cells only. `scope: "planned_cells_only"`, `world_observed: false` and `walkability_verified: false` remain explicit. It does not inspect terrain, props, collision, support, shelter or avatar dimensions. Omission preserves the previous response. Construction inputs do not accept clearance or gain authority from this result. Matched installation and live acceptance remain pending.
