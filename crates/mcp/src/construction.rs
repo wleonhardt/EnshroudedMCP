@@ -212,27 +212,13 @@ fn record(value: &Value) -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 fn append(dir: &Path, value: &Value) -> Result<(), String> {
-    let bytes = record(value)?;
-    let path = dir.join("journal.jsonl");
-    let mut file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(path)
-        .map_err(|e| format!("journal open failed: {e}"))?;
-    let size = file.metadata().map_err(|e| e.to_string())?.len();
-    construction::check_journal_size(size, bytes.len())?;
-    file.write_all(&bytes)
-        .and_then(|()| file.sync_all())
-        .map_err(|e| format!("journal durability failed: {e}"))
+    crate::journal::append(dir, &record(value)?, 0, None)
+}
+fn append_recovery(dir: &Path, owner: &str, value: &Value) -> Result<(), String> {
+    crate::journal::append(dir, &record(value)?, 0, Some(owner))
 }
 fn proof_headroom(dir: &Path, brick_count: usize) -> Result<(), String> {
-    let size = match fs::metadata(dir.join("journal.jsonl")) {
-        Ok(meta) if meta.is_file() => meta.len(),
-        Ok(_) => return Err("construction journal must be a regular file".into()),
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => 0,
-        Err(error) => return Err(format!("journal preflight failed: {error}")),
-    };
-    construction::check_journal_size(size, (2 * brick_count + 5) * construction::MAX_RECORD_BYTES)
+    crate::journal::check(dir, (2 * brick_count + 5) * construction::MAX_RECORD_BYTES)
 }
 fn reserve(dir: &Path, operation: &str, value: &Value) -> Result<(), String> {
     let bytes = record(value)?;
@@ -273,10 +259,16 @@ impl Construction {
         let state = this.shared.clone();
         load.on::<enshwick::events::WorldLoaded>(move |()| {
             loaded(&state.active, &state.epoch);
+            if let Err(e) = crate::journal::reset(&state.dir) {
+                enshwick::error!("journal reservation reset failed: {e}");
+            }
         })?;
         let state = this.shared.clone();
         load.on::<enshwick::events::ShutdownStarted>(move |()| {
             shutdown(&state.active, &state.epoch);
+            if let Err(e) = crate::journal::reset(&state.dir) {
+                enshwick::error!("journal reservation reset failed: {e}");
+            }
         })?;
         let state = this.shared.clone();
         load.on_voxels_changed(move |_| {
@@ -426,6 +418,12 @@ impl Construction {
             );
         }
         let intent = json!({"kind":"construction_intent","operation":spec.operation,"request":request,"session":self.shared.boot,"epoch":epoch,"actor_account_key":actor.key.0,"brick_count":bricks.len()});
+        crate::journal::reserve(
+            &self.shared.dir,
+            &spec.operation,
+            (bricks.len() + 2) * construction::MAX_RECORD_BYTES,
+            (bricks.len() + 3) * construction::MAX_RECORD_BYTES,
+        )?;
         reserve(&self.shared.dir, &spec.operation, &intent)?;
         // From reservation onward even a precommit error conservatively blocks this proof.
         let mut ops = self
@@ -554,6 +552,7 @@ impl Construction {
             cell_equal = Some(cells);
             if matches!(native, Some(TransactionStatus::Undone)) && baseline_equal == Some(true) {
                 op.settled = true;
+                crate::journal::release(&self.shared.dir, &operation)?;
             }
         }
         let state = match native {
@@ -695,18 +694,26 @@ impl Construction {
             planned_cells: op.targets.len(),
             expected_voxels_equal: expected,
         })?;
+        crate::journal::recovery(
+            &self.shared.dir,
+            &spec.operation,
+            (now.len() + 2) * construction::MAX_RECORD_BYTES,
+            spec.dry,
+        )?;
         if spec.dry {
             return Ok(
                 json!({"state":"dry_undo","world_mutated":false,"application_expected_equal":expected,"whole_capture_baseline_equal":baseline_equal,"props_unchanged":props_unchanged,"native_conflict_check_required":true}),
             );
         }
-        append(
+        append_recovery(
             &self.shared.dir,
+            &spec.operation,
             &json!({"kind":"construction_undo_intent","operation":spec.operation,"transaction":id.get(),"application_expected_equal":expected,"whole_capture_baseline_equal":baseline_equal,"props_unchanged":props_unchanged,"brick_count":now.len(),"native_conflict_check_required":true}),
         )?;
         for (index, capture) in now.iter().enumerate() {
-            append(
+            append_recovery(
                 &self.shared.dir,
+                &spec.operation,
                 &json!({"kind":"construction_undo_brick","operation":spec.operation,"index":index,"actual_before_undo":capture}),
             )?;
         }
@@ -722,8 +729,9 @@ impl Construction {
             op.error = Some(error.clone());
             return Err(error);
         }
-        if let Err(e) = append(
+        if let Err(e) = append_recovery(
             &self.shared.dir,
+            &spec.operation,
             &json!({"kind":"construction_undo_queued","operation":spec.operation,"transaction":id.get()}),
         ) {
             op.error = Some(e.clone());

@@ -11,6 +11,7 @@ mod give_item;
 mod health_recovery;
 mod interaction_target;
 mod item_lookup;
+mod journal;
 mod knowledge;
 mod knowledge_read;
 mod pacification;

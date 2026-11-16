@@ -1,5 +1,11 @@
 # Changelog
 
+## Server 0.36.0 (retained recovery journal reservations)
+
+- Reserve bounded construction undo audit space before native placement. Acceptance retains the allowance; later construction and all shared journal append paths preserve it. Recovery can spend only its own credit after a successful synced append.
+- Serialize admission, append and accounting by mod directory. Refuse unknown owners, overflow and insufficient aggregate space. Recheck/replenish complete undo audit headroom before a deliberate undo; dry checks do not change reservations. Release only after exact baseline-verified undo or world lifecycle invalidation.
+- Preserve record formats, existing caps, write/session gates, durable identities and fail-stop native semantics. Private/public 297 Rust/40 Python tests, Clippy, formatting and release builds pass. Installed runtime remains 0.35.0; matched installation, native staged recovery and live storage-fault acceptance remain pending.
+
 ## Retained recovery policy foundation (not runtime integrated)
 
 - Add checked aggregate journal headroom arithmetic and a reproduction of later-cycle admission consuming older retained recovery space. Preserve the existing 8 MiB cap and zero-reservation behavior; refuse overflow and boundary excess.

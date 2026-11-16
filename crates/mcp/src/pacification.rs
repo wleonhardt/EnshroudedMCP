@@ -2,7 +2,9 @@
 use enshwick::game_settings::GameSettings;
 use policy::{pacification::Spec, write_gate};
 use serde_json::{Value, json};
-use std::{fs::OpenOptions, io::Write, path::Path};
+#[cfg(test)]
+use std::fs::OpenOptions;
+use std::path::Path;
 
 use policy::pacification::RECORD_MAX_BYTES;
 
@@ -15,29 +17,10 @@ pub(crate) fn gate(spec: &Spec, dir: Option<&Path>) -> Result<(), String> {
     )
 }
 
-fn journal_size(dir: &Path) -> Result<u64, String> {
-    let path = dir.join("journal.jsonl");
-    Ok(match std::fs::metadata(&path) {
-        Ok(meta) if meta.is_file() => meta.len(),
-        Ok(_) => return Err("pacification journal must be a regular file".into()),
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => 0,
-        Err(e) => return Err(e.to_string()),
-    })
-}
-
 fn append(dir: &Path, record: Value) -> Result<(), String> {
     let bytes = record.to_string() + "\n";
     policy::pacification::check_record_size(bytes.len())?;
-    let size = journal_size(dir)?;
-    policy::construction::check_journal_size(size, bytes.len())?;
-    let mut file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(dir.join("journal.jsonl"))
-        .map_err(|e| e.to_string())?;
-    file.write_all(bytes.as_bytes())
-        .and_then(|()| file.sync_all())
-        .map_err(|e| format!("pacification journal durability failed: {e}"))
+    crate::journal::append(dir, bytes.as_bytes(), 0, None)
 }
 
 pub(crate) fn run(
@@ -96,7 +79,7 @@ fn run_with(
     }
     let dir = dir.ok_or("mod folder unavailable")?;
     // Reserve both bounded records before mutation, not only the smaller intent.
-    policy::construction::check_journal_size(journal_size(dir)?, 2 * RECORD_MAX_BYTES)?;
+    crate::journal::check(dir, 2 * RECORD_MAX_BYTES)?;
     append(
         dir,
         json!({"kind":"pacification_intent","session":session,"before":before,"requested":enabled}),
@@ -127,6 +110,19 @@ fn run_with(
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn direct_append_preserves_other_construction_recovery() {
+        let f = Fixture::new();
+        let d = &f.0;
+        crate::journal::reserve(d, "retained", 100, 0).unwrap();
+        let file = std::fs::File::create((d).join("journal.jsonl")).unwrap();
+        file.set_len(policy::construction::JOURNAL_MAX_BYTES as u64 - 100)
+            .unwrap();
+        drop(file);
+        assert!(append(d, json!({})).is_err());
+        crate::journal::reset(d).unwrap();
+    }
     use super::*;
     use std::{
         cell::Cell,

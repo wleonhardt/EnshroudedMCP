@@ -657,6 +657,79 @@ pub fn check_recovery_budget(
     check_journal_size(existing, combined)
 }
 
+/// Session-local audit allowances; runtime serializes checks, sync and debit.
+#[derive(Debug, Default, Clone)]
+pub struct RecoveryReservations {
+    held: std::collections::BTreeMap<String, usize>,
+}
+impl RecoveryReservations {
+    pub fn reserve(
+        &mut self,
+        current: u64,
+        owner: &str,
+        bytes: usize,
+        forward: usize,
+    ) -> Result<(), String> {
+        if owner.is_empty()
+            || owner.len() > 64
+            || self.held.contains_key(owner)
+            || self.held.len() >= MAX_OPERATIONS
+            || bytes == 0
+            || bytes > (PLAN_MAX_BRICKS + 2) * MAX_RECORD_BYTES
+        {
+            return Err("invalid, duplicate or excessive recovery reservation".into());
+        }
+        let incoming = bytes
+            .checked_add(forward)
+            .ok_or("recovery reservation overflow")?;
+        check_recovery_budget(current, incoming, self.held.values().sum())?;
+        self.held.insert(owner.into(), bytes);
+        Ok(())
+    }
+    pub fn check(
+        &self,
+        current: u64,
+        record: usize,
+        outcome: usize,
+        owner: Option<&str>,
+    ) -> Result<(), String> {
+        let credit = match owner {
+            Some(o) => record.min(*self.held.get(o).ok_or("unknown recovery reservation")?),
+            None => 0,
+        };
+        let incoming = record
+            .checked_add(outcome)
+            .ok_or("recovery append overflow")?;
+        check_recovery_budget(
+            current,
+            incoming,
+            self.held.values().sum::<usize>() - credit,
+        )
+    }
+    pub fn ensure(&mut self, current: u64, owner: &str, bytes: usize) -> Result<(), String> {
+        if bytes == 0 || bytes > (PLAN_MAX_BRICKS + 2) * MAX_RECORD_BYTES {
+            return Err("invalid recovery allowance".into());
+        }
+        let held = *self.held.get(owner).ok_or("unknown recovery reservation")?;
+        check_recovery_budget(
+            current,
+            bytes.saturating_sub(held),
+            self.held.values().sum(),
+        )?;
+        self.held.insert(owner.into(), held.max(bytes));
+        Ok(())
+    }
+    /// Call only after the corresponding append has been durably synced.
+    pub fn synced(&mut self, owner: Option<&str>, bytes: usize) {
+        if let Some(remaining) = owner.and_then(|o| self.held.get_mut(o)) {
+            *remaining = remaining.saturating_sub(bytes);
+        }
+    }
+    pub fn release(&mut self, owner: &str) {
+        self.held.remove(owner);
+    }
+}
+
 /// # Errors
 /// Refuses changed props, non-persistent sites and postimage mismatches for
 /// accepted or multi-cell operations.
@@ -692,6 +765,70 @@ pub fn check_context(facts: PlacementFacts) -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn incomplete_undo_audit_requires_fresh_full_allowance_without_spending_other_owners() {
+        use super::*;
+        let mut r = RecoveryReservations::default();
+        r.reserve(0, "a", 100, 0).unwrap();
+        r.reserve(0, "b", 200, 0).unwrap();
+        let current = JOURNAL_MAX_BYTES as u64 - 300;
+        r.synced(Some("a"), 50);
+        assert!(r.ensure(current + 50, "a", 100).is_err());
+        assert!(r.check(current + 50, 200, 0, Some("b")).is_ok());
+        r.release("b");
+        r.ensure(current + 50, "a", 100).unwrap();
+        assert!(r.check(current + 50, 100, 0, Some("a")).is_ok());
+        assert!(r.ensure(current, "unknown", 100).is_err());
+        assert!(r.ensure(current, "a", usize::MAX).is_err());
+    }
+    #[test]
+    fn failed_partial_append_is_conservative_when_credit_was_not_synced() {
+        use super::*;
+        let mut r = RecoveryReservations::default();
+        r.reserve(0, "a", 100, 0).unwrap();
+        let current = JOURNAL_MAX_BYTES as u64 - 100;
+        assert!(r.check(current, 100, 0, Some("a")).is_ok());
+        // Filesystem wrote one byte before failing. No synced() debit occurs.
+        assert!(r.check(current + 1, 100, 0, Some("a")).is_err());
+        assert!(r.check(current + 1, 1, 0, None).is_err());
+    }
+    #[test]
+    fn reservations_protect_older_owners_and_debit_only_synced_recovery() {
+        use super::*;
+        let mut r = RecoveryReservations::default();
+        r.reserve(0, "a", 100, 0).unwrap();
+        r.reserve(0, "b", 200, 0).unwrap();
+        let current = JOURNAL_MAX_BYTES as u64 - 300;
+        assert!(r.check(current, 1, 0, None).is_err());
+        assert!(r.check(current, 100, 0, Some("a")).is_ok());
+        assert!(r.check(current, 101, 0, Some("a")).is_err());
+        assert!(r.check(current, 1, 0, Some("unknown")).is_err());
+        // Checking or failing must not consume another allowance.
+        assert!(r.check(current, 101, 0, Some("a")).is_err());
+        r.synced(Some("a"), 100);
+        assert!(r.check(current + 100, 1, 0, Some("a")).is_err());
+        assert!(r.check(current + 100, 200, 0, Some("b")).is_ok());
+        r.release("a");
+        assert!(r.check(current + 100, 1, 0, None).is_err());
+        r.release("b");
+        assert!(r.check(current + 100, 200, 0, None).is_ok());
+    }
+    #[test]
+    fn reservation_admission_rejects_duplicates_overflow_and_full_capacity() {
+        use super::*;
+        let mut r = RecoveryReservations::default();
+        for i in 0..MAX_OPERATIONS {
+            r.reserve(0, &format!("op{i}"), 1, 0).unwrap();
+        }
+        assert!(r.reserve(0, "overflow", 1, 0).is_err());
+        assert!(r.reserve(0, "op0", 1, 0).is_err());
+        let mut r = RecoveryReservations::default();
+        assert!(r.reserve(0, "a", 1, usize::MAX).is_err());
+        assert!(r.reserve(0, "", 1, 0).is_err());
+        assert!(r.reserve(0, "a", JOURNAL_MAX_BYTES, 0).is_err());
+        assert!(r.reserve(JOURNAL_MAX_BYTES as u64, "a", 1, 0).is_err());
+        r.reserve(0, "a", 1, 0).unwrap();
+    }
     #[test]
     fn later_cycle_cannot_spend_retained_undo_headroom() {
         use super::*;

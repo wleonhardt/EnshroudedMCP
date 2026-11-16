@@ -51,16 +51,7 @@ fn journal_size(dir: &Path) -> Result<u64, String> {
     }
 }
 fn append(dir: &Path, value: &Value) -> Result<(), String> {
-    let bytes = bytes(value)?;
-    policy::construction::check_journal_size(journal_size(dir)?, bytes.len())?;
-    let mut file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(dir.join("journal.jsonl"))
-        .map_err(|e| e.to_string())?;
-    file.write_all(&bytes)
-        .and_then(|()| file.sync_all())
-        .map_err(|e| format!("reposition journal durability failed: {e}"))
+    crate::journal::append(dir, &bytes(value)?, 0, None)
 }
 fn reserve(dir: &Path, operation: &str, intent: &Value) -> Result<(), String> {
     let bytes = bytes(intent)?;
@@ -198,6 +189,7 @@ impl Reposition {
         reposition::check_capacity(ops.len())?;
         reposition::check_capacity(disk_count(&self.dir)?)?;
         reposition::check_journal_headroom(journal_size(&self.dir)?)?;
+        crate::journal::check(&self.dir, 2 * reposition::MAX_RECORD_BYTES)?;
         let context = self.context(game, &spec)?;
         if spec.dry {
             return Ok(
@@ -252,6 +244,19 @@ impl Reposition {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn direct_append_preserves_other_construction_recovery() {
+        let d = directory();
+        crate::journal::reserve(&d, "retained", 100, 0).unwrap();
+        let file = std::fs::File::create(d.join("journal.jsonl")).unwrap();
+        file.set_len(policy::construction::JOURNAL_MAX_BYTES as u64 - 100)
+            .unwrap();
+        drop(file);
+        assert!(append(&d, &json!({})).is_err());
+        crate::journal::reset(&d).unwrap();
+        fs::remove_dir_all(d).unwrap();
+    }
     use super::*;
     static ADAPTER: Mutex<Option<(Reposition, Game)>> = Mutex::new(None);
     struct Probe;

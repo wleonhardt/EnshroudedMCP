@@ -775,19 +775,8 @@ impl GameTools {
             .map(|d| d.as_secs())
             .unwrap_or_default();
         let line = json!({"unix": secs, "tool": tool, "result": result}).to_string() + "\n";
-        let mut file = std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(dir.join("journal.jsonl"))
-            .map_err(|error| error.to_string())?;
-        let metadata = file.metadata().map_err(|error| error.to_string())?;
-        if !metadata.is_file() {
-            return Err("write journal is not a regular file".into());
-        }
-        write_gate::journal_budget(metadata.len(), line.len(), reserve)?;
-        std::io::Write::write_all(&mut file, line.as_bytes())
-            .and_then(|()| file.sync_all())
-            .map_err(|error| error.to_string())
+        write_gate::journal_budget(0, line.len(), reserve)?;
+        crate::journal::append(dir, line.as_bytes(), reserve, None)
     }
 }
 
