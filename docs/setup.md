@@ -6,7 +6,7 @@ Use an isolated server and a disposable world for first installation. Stop proce
 
 - Windows x86-64 with the MSVC build tools and Windows SDK.
 - Rust 1.99.1, selected by the repository's toolchain file.
-- Python 3 for the standard-library helper tests.
+- Python 3.11 or newer for standard-library helper tests and TOML profile checks.
 - A local Enshrouded dedicated server or hosted game, plus the matching enshwick loader.
 
 ## Reproduce the pinned SDK
@@ -60,8 +60,11 @@ Exit the game before replacing its loaded files. Keep loader, SDK and companion 
 ```text
 python -B scripts/validate_tools.py --port 8751
 python -B scripts/client_probe.py --port 8754
+python -B scripts/check_contracts.py --server-port 8751 --client-port 8754
 ```
 
 These fixed probes are read-only. A report may intentionally remain `incomplete` after every fixed check passes, because fixture and gameplay acceptance are separate. Reports stay in ignored `gamedata/`.
 
-The matched alpha.17 / 0.34.0 / 0.15.0 isolated research pair now passes bounded native client-control and client-reload checks. This does not validate a public-namespace install, every command target, server lifecycle behavior or broader administrative writes. Keep binary and signature sidecars matched and preserve client-commands ledgers.
+The historical alpha.17 / 0.34.0 / 0.15.0 isolated pair passed bounded native client-control and client-reload checks. Use the [capability matrix](../plans/capability-matrix.md) for current versions and evidence scope. This does not validate a public-namespace install, every command target, server lifecycle behavior or broader administrative writes. Keep binary and signature sidecars matched and preserve client-commands ledgers.
+
+The contract checker without port arguments runs offline index/profile checks. Requested live scopes compare discovery plus fixed compiled metadata, not gameplay or runtime-provider behavior. Exit 0 means consistent, 1 drift and 2 unavailable. Its CLI reads no credentials; authenticated use requires an already configured Client passed to the helper API.

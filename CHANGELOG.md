@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add check_contracts.py for offline capability-index/profile checks and optional read-only loopback discovery/provenance comparison. Contract drift refuses without running gameplay tools; nine behavior tests cover mismatches and fixed metadata-only dispatch.
+
 - Add a source cancellation contract for non-file audit refusal, deliberate recovery, once-only attempt ownership and prior-boot refusal. An isolated missing-attempt-guard mutation fails the independent SDK state check. Production behavior is unchanged.
 
 - Repair the client invalid-context regression to assert the intended refusal after proving a valid fixture. An isolated missing-gate mutation now fails instead of passing through an unrelated preview error. Production guards and runtime behavior are unchanged.

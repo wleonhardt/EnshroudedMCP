@@ -4,7 +4,7 @@ Use small changes with an explicit behavior and acceptance check. The project is
 
 ## Build prerequisites
 
-Follow [setup](setup.md) to prepare the exact official framework checkout, SDK-only patch and matching loader. Rust is pinned to 1.99.1. Windows builds need MSVC and the Windows SDK. The optional companion must be rebuilt against the same SDK lineage.
+Follow [setup](setup.md) for the exact official Git-pinned SDK and matching signed loader. No SDK patch is active. Rust is pinned to 1.99.1. Windows builds need MSVC and the Windows SDK. The optional companion must be rebuilt against the same SDK lineage.
 
 ## Required checks
 
@@ -16,13 +16,9 @@ python -B -m unittest discover -s scripts -p "test_*.py"
 cargo build --release -p mcp -p mcp-client
 ```
 
-A running game is unnecessary for source tests. The current checkpoint has 173 Rust and 30 Python tests. For framework SDK changes, use its documented nextest harness and focused regression tests; do not alter the dependency cache. The active metadata patch was validated with:
+A running game is unnecessary for source tests. Python 3.11 or newer supplies the standard-library TOML parser for contract checks. Run `python -B scripts/check_contracts.py` for offline index/profile consistency; add explicit server/client ports to compare an existing installation's metadata discovery. Test counts and dated native evidence are recorded in the capability matrix and decisions.
 
-```text
-cargo nextest run -p enshwick --features test,unstable --test main
-```
-
-Run that command from the framework checkout. Broad framework contributions have additional checks in its own `CONTRIBUTING.md`.
+For framework SDK changes, use the exact candidate's documented harness and focused regressions without altering the dependency cache. Historical qualification patches remain inactive. Broad framework contributions have additional checks in its own `CONTRIBUTING.md`.
 
 ## Design boundaries
 

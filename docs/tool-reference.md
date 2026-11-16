@@ -1,6 +1,6 @@
 # Tool reference
 
-The server advertises 32 tools. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
+Use the [capability matrix](../plans/capability-matrix.md) for current tool counts, exact contracts, evidence limits and missing checks. Inspect `tools/list` for exact schemas on your installed build: unknown fields are refused. Spatial coordinates are metres with y up unless a response explicitly reports integer half-metre voxel cells. Entity IDs and inventory slot references are session-only.
 
 ## Server reads and pure planners
 
@@ -377,12 +377,12 @@ Complete connected baseline captures match 19,200 cell observations, including o
 
 ## Reposition observation boundary
 
-One native setup reaches a preserved platform with operator-confirmed standing contact. A separate return settles 2.09 m from the requested original point and fails the predefined 0.5 m criterion. The operator confirms safe altar-side position. Native receipts stay issued_unknown; observe players independently and never retry an uncertain identity. A dedicated read-only actor/distance observer is queued, not an available tool. See decision 0055.
+One native setup reaches a preserved platform with operator-confirmed standing contact. A separate return settles 2.09 m from the requested original point and fails the predefined 0.5 m criterion. The operator confirms safe altar-side position. Native receipts stay issued_unknown; observe players independently and never retry an uncertain identity. The installed player_reposition_status observer reports bound actor/distance separately; it does not change the failed return verdict. See decision 0055.
 
 
 ## Reposition status
 
-Server 0.44.0 source adds player_reposition_status with only a caller operation selector. A retained native receipt stays immutable while a separate game-thread read reports the bound actor's current position, positive observed health and raw distance to the requested point. No tolerance, arrival, collision or safe-return verdict is supplied. Session, roster generation and actor identity changes suppress current position/distance. Non-finite positions/distances and unavailable/nonpositive health also suppress them. Finite observations remain available outside write-coordinate/request-distance limits. Prior-boot identities return unavailable without decoding reservations or reconstructing native identities. Reads require no write flag and never dispatch, retry or append a journal row. The candidate is not installed; live acceptance remains pending.
+Server 0.44.0 source adds player_reposition_status with only a caller operation selector. A retained native receipt stays immutable while a separate game-thread read reports the bound actor's current position, positive observed health and raw distance to the requested point. No tolerance, arrival, collision or safe-return verdict is supplied. Session, roster generation and actor identity changes suppress current position/distance. Non-finite positions/distances and unavailable/nonpositive health also suppress them. Finite observations remain available outside write-coordinate/request-distance limits. Prior-boot identities return unavailable without decoding reservations or reconstructing native identities. Reads require no write flag and never dispatch, retry or append a journal row. Matched 0.44.0/0.20.2 installation and current-boot position/distance correlation are qualified historically; current installed versions are indexed in the capability matrix. Native session invalidation/disconnect acceptance remains open.
 
 Use `player_reposition_status {"operation":"caller-identity"}`. The only selector is a bounded current/durable caller operation name. Extra player, target, dry and confirmation fields refuse. A raw distance of zero is still an observation; arrival_verified remains false. Prior-boot records do not expose a reconstructed actor, target or native outcome.
 
