@@ -1,8 +1,8 @@
 # 0058: Preserve menu tab observations separately from HUD screen
 
-Date: 2026-11-16. Status: bounded native acceptance passes; rendered confirmation pending.
+Date: 2026-11-16. Status: bounded native acceptance passes; rendered transitions unverified.
 
-Qualify existing supported UI controls without moving the avatar, changing inventory or executing a recipe. Installed server 0.44.0 / companion 0.20.2 remains on official alpha.17 and ABI 12.1. Candidate 0.45.0 is not installed.
+Qualify existing supported UI controls without moving the avatar, changing inventory or executing a recipe. Installed server 0.44.0 / companion 0.20.2 remains on official alpha.17 and ABI 12.1. At this fixture checkpoint, candidate 0.45.0 was not installed; its later matched deployment is recorded in decision 0057.
 
 Four separately previewed, once-only commands run in a fresh nonzero client session. Each panel is held for six seconds. All four SDK terminal outcomes are Observed. Copied native snapshot fields report:
 
@@ -13,7 +13,7 @@ Four separately previewed, once-only commands run in a fresh nonzero client sess
 | Choose Backpack tab | Backpack | Backpack |
 | Close screen | InGame | null |
 
-Do not rewrite HUD Backpack into PlayerCrafting or collapse these two fields. The pinned published snapshot implementation carries HUD screen and menu tab independently. SDK Observed and changed getter fields do not independently prove a rendered panel transition, selected recipe, concrete costs, crafting eligibility or a completed craft. Operator confirmation is requested separately; it remains pending. No equivalent rendered retry is automatic.
+Do not rewrite HUD Backpack into PlayerCrafting or collapse these two fields. The pinned published snapshot implementation carries HUD screen and menu tab independently. SDK Observed and changed getter fields do not independently prove a rendered panel transition, selected recipe, concrete costs, crafting eligibility or a completed craft. The operator reports not watching, so independent rendered confirmation is unavailable. No equivalent rendered retry is automatic.
 
 Complete 19,200 baseline cell observations, an additional 4,096-cell source survey and platform/headroom/prop comparisons pass before and after. Server actor position remains within 0.02 m of its starting observation, with full health. The complete returned inventory response is equal. Twelve installed hashes, old audit prefixes and unrelated ledgers remain unchanged. Original pacification is restored and write flags are absent.
 

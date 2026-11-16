@@ -4,7 +4,7 @@
 
 - Record native Backpack/PlayerCrafting tab transitions with HUD/tab separation and complete preservation. SDK outcomes and getter fields remain separate from pending rendered confirmation; no craft or movement action is added.
 
-- Add read-only retained shutdown status independent of active World and write admission. Busy/prior-boot states remain explicit; no native retry or process/save proof. Private/public source qualification passes; native installation and acceptance remain pending.
+- Add read-only retained shutdown status independent of active World and write admission. Busy/prior-boot states remain explicit; no native retry or process/save proof. Private/public source qualification and matched 0.45.0/0.20.2 installation pass. Sixteen native retained replies, including fifteen after ShutdownStarted, and 24 prior-boot identities preserve proof limits and audit bytes. Causal save and native busy-state cases remain unverified.
 
 - Server 0.44.0 source adds read-only current-boot reposition observation, with separate immutable native outcome and fresh bound actor position/distance. No arrival threshold, dispatch, retry or journal change. Source qualification and matched installation pass, including five prior-boot reposition identities, 35 server probes and 13 client probes. Joined current-boot flag-free position/distance observation now passes with preserved receipts and full baselines. Native stale-session/disconnect behavior remains unverified.
 
