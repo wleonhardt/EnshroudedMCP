@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Repair the client invalid-context regression to assert the intended refusal after proving a valid fixture. An isolated missing-gate mutation now fails instead of passing through an unrelated preview error. Production guards and runtime behavior are unchanged.
+
 - Add source-only client frame fault contracts for cancelled late real writes and reply loss after native dispatch. Explicit same-ID replay preserves exactly one native command and durable reservation; production code and two-second deadlines are unchanged. Live stalls/disconnect remain unverified.
 
 - Fix health-recovery test fixture setup when Cargo uses an external target directory. Create the local parent explicitly and constrain cleanup to its canonical direct child. Runtime behavior and SDK pin are unchanged.

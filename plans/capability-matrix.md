@@ -81,3 +81,7 @@ The [quality goals](quality-goals.md) define all ten outcomes and dependencies; 
 ## Controlled frame fault checkpoint — 2026-11-16
 
 [Decision 0062](decisions/0062-client-frame-timeout-fault-contracts.md) records two production-route SDK model fixtures: a detached-before-begin write refuses on late frames, and post-dispatch reply loss remains unknown while explicit same-ID replay preserves one command and unchanged durable files. These add source evidence only. They do not establish actual native callback stalls, disconnect behavior, rendered effects or persistence. Product checks now execute 372 Rust tests plus 71 Python tests; the historical inactive SDK candidate remains at its separately dated 370-execution qualification.
+
+## Refusal test repair — 2026-11-16
+
+[Decision 0063](decisions/0063-specific-client-context-refusals.md) records a reproduced false-positive regression: invalid preview could mask missing context admission. The repaired test proves valid context first and requires the intended refusal for 42 invalid context/action combinations. It passes unchanged production guards and rejects the isolated mutation. This strengthens source evidence only; it does not close post-reservation races or live interruption acceptance.

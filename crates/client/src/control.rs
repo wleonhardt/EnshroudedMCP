@@ -736,11 +736,21 @@ mod tests {
             enshwick::abi::Status::OK
         );
         let input = *INPUT.lock().unwrap();
+        input.unwrap().client_snapshot().unwrap();
+        let _ = loader.draw_frame();
         let fixture = Fixture::new();
         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
         let dir = Some(fixture.0.as_path());
         let valid = snapshot(8, "InGame", "");
         let mut state = State::default();
+        loader.set_client_snapshot(valid);
+        assert!(context(input.unwrap()).unwrap().fresh);
+        assert_eq!(
+            state
+                .run(dry("valid-context"), input, dir, Instant::now())
+                .unwrap()["state"],
+            "dry"
+        );
         for context in [
             Raw::EMPTY,
             Raw {
@@ -779,7 +789,10 @@ mod tests {
             ] {
                 let mut request = real(dry("unusable-context"), &json!({"preview":"old-context"}));
                 request.action = action;
-                assert!(state.run(request, input, dir, Instant::now()).is_err());
+                assert_eq!(
+                    state.run(request, input, dir, Instant::now()).unwrap_err(),
+                    "client command requires a fresh nonzero session and readable HUD screen"
+                );
             }
         }
         assert_eq!(state.inventory(dir).unwrap()["commands"], json!([]));
