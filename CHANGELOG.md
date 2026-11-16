@@ -2,6 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Preserve runnable SDK settlement-model probes in an optional independent workspace. Seven scenarios exercise callback timing, expiry, historical entity IDs, failure, undo and world scope without changing the MCP runtime dependency.
 - Exercise populated factory observations through the production adapter, published SDK component codec and queued scheduler pass. Cover all six states, four-choice arrays, numeric extremes and unknown state/flags while preserving bytes and uncertainty. This is synthetic SDK regression coverage; populated live factory and production semantics remain unverified.
 - Preserve document-level phase clearance evidence across the complete cell union. Check up to 32 bounded absolute volumes through native pure previews and report exact later-phase conflicts. Refuse per-module clearance that was previously silently discarded. Reports remain geometry-only, with world occupancy and walkability unverified.
 - Exercise the production client selection adapter through published typed event delivery on both client and dedicated-server sides. Preserve bounded raw category choices, server/client isolation, unknown current selection and session clearing. This is source regression coverage, not live category/crafting acceptance; installed runtime and MCP behavior are unchanged.

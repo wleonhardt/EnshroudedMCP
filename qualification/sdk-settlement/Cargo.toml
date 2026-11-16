@@ -1,0 +1,10 @@
+[package]
+name = "sdk1130-qualification"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dev-dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2", features = ["unstable", "typed", "test"] }

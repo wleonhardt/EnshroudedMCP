@@ -4,6 +4,8 @@ Server 0.40.0 adds read-only `factory_station_read` through the published typed 
 
 # Enshrouded MCP
 
+Optional [SDK settlement probes](qualification/sdk-settlement/README.md) preserve seven model scenarios in an independent test workspace with its own exact SDK/Rust pin. Native fidelity and runtime migration remain separately gated.
+
 Companion 0.18.0 cross-checks SDK and canonical-reflection recipe workshop reference layouts. Matched native checks pass for six unchanged recipe records through both selection routes. Raw zero GUID meaning and crafting applicability remain unverified.
 
 Companion 0.17.0 adds bounded `client_workshops` definition lookup. Matched native checks resolve four observed workshop IDs and correlate three declared station item identities. Raw recipe GUID references are zero; current station availability and crafting applicability remain unverified.
