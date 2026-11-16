@@ -1,6 +1,6 @@
 # 0027: Retained recovery journal reservations
 
-Date: 2026-11-15. Status: runtime source integrated and private/public source verified; matched deployment and live staged recovery pending.
+Date: 2026-11-15. Status: runtime source integrated and private/public source verified; matched deployment and read-only readiness verified; live staged recovery pending.
 
 Accepted construction phases remain undoable in their live native session. Their remaining audit recovery budget must survive later construction and unrelated appends to the same journal. Preserve the 8 MiB cap, bounded per-record sizes, existing write/session gates and fail-stop native semantics. Do not replace admission with a diagnostic or rotate/delete audit history.
 

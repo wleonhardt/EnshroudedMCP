@@ -4,7 +4,7 @@
 
 - Reserve bounded construction undo audit space before native placement. Acceptance retains the allowance; later construction and all shared journal append paths preserve it. Recovery can spend only its own credit after a successful synced append.
 - Serialize admission, append and accounting by mod directory. Refuse unknown owners, overflow and insufficient aggregate space. Recheck/replenish complete undo audit headroom before a deliberate undo; dry checks do not change reservations. Release only after exact baseline-verified undo or world lifecycle invalidation.
-- Preserve record formats, existing caps, write/session gates, durable identities and fail-stop native semantics. Private/public 297 Rust/40 Python tests, Clippy, formatting and release builds pass. Installed runtime remains 0.35.0; matched installation, native staged recovery and live storage-fault acceptance remain pending.
+- Preserve record formats, existing caps, write/session gates, durable identities and fail-stop native semantics. Private/public 297 Rust/40 Python tests, Clippy, formatting and release builds pass. Matched 0.36.0 cold installation, isolated server read-only readiness and fresh companion Menu observation now pass; native staged recovery and live storage-fault acceptance remain pending.
 
 ## Retained recovery policy foundation (not runtime integrated)
 
