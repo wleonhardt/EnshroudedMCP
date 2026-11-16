@@ -5,6 +5,11 @@
 - Preserve document-level phase clearance evidence across the complete cell union. Check up to 32 bounded absolute volumes through native pure previews and report exact later-phase conflicts. Refuse per-module clearance that was previously silently discarded. Reports remain geometry-only, with world occupancy and walkability unverified.
 - Exercise the production client selection adapter through published typed event delivery on both client and dedicated-server sides. Preserve bounded raw category choices, server/client isolation, unknown current selection and session clearing. This is source regression coverage, not live category/crafting acceptance; installed runtime and MCP behavior are unchanged.
 
+## Server 0.40.0 (native factory-station observations)
+
+- Add read-only factory_station_read with one nonzero session-local server entity selector. Resolve the published typed FactoryStation handle optionally and queue its read on the game thread.
+- Preserve running/next recipe IDs and bounded raw category choices, signed raw times, stop/use-all flags and SDK missing-requirement names. Unknown differs from not observed. Report no complete queue, current client selection, crafting eligibility, time conversion or safe-removal proof. Private/public source checks pass; matched deployment and live state acceptance remain pending.
+
 ## Companion 0.18.0 (recipe workshop reference contract)
 
 - Cross-check published RecipeLayout workshop reference offsets, record/array layout and GUID/u32 kinds against canonical recipe reflection before parsing. Refuse disagreement rather than returning plausible fields from an incompatible description.

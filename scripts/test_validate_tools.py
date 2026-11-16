@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation, absent_factory_observation
 
 
 VERSION = next(
@@ -30,6 +30,12 @@ class Fixture:
         error = False
         if "validation_unknown" in args:
             error, value = True, "unknown argument"
+        elif name == "factory_station_read":
+            error = "confirm" in args or args["entity"] == 0
+            value = ("unknown argument 'confirm'" if "confirm" in args else "argument 'entity' must be at least 1") if error else {
+                "source":"published_typed_server_factory_station","entity":args["entity"],"state":"not_observed","factory":None,
+                "world_mutated":False,"crafting_eligibility_verified":False,"safe_removal_verified":False,
+                "complete_queue_verified":False,"current_client_selection_verified":False}
         elif name == "item_info":
             error = args["item"] != "Prop_Storage_24_T1_Box"
             value = "no vanilla item" if error else {"guid": "fixture", "metadata": {"item_id": 213939880},
@@ -66,7 +72,7 @@ class Fixture:
         elif name == "capabilities":
             value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
                      "compiled_framework_abi": "12.1", "mod_version": VERSION, "inventory_read": True, "item_info": True, "item_lookup": True,
-                     "typed_network_health": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
+                     "typed_network_health": True, "typed_factory_station": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
         elif name == "construction_budget":
             value = {"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":0,"journal_limit_bytes":8388608,
                      "retained_recovery_bytes":0,"recovery_reservation_count":0,"unreserved_bytes":8388608,
@@ -102,6 +108,15 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_missing_factory_never_becomes_empty_queue_or_crafting_authority(self):
+        value={"source":"published_typed_server_factory_station","entity":0xFFFFFFFF,"state":"not_observed","factory":None,
+               "world_mutated":False,"crafting_eligibility_verified":False,"safe_removal_verified":False,
+               "complete_queue_verified":False,"current_client_selection_verified":False}
+        self.assertTrue(absent_factory_observation(value))
+        self.assertTrue(absent_factory_observation({**value,"state":"unknown"}))
+        for key,bad in [("entity",True),("state","observed"),("factory",{}),("safe_removal_verified",True),
+                        ("crafting_eligibility_verified",True),("complete_queue_verified",True),("world_mutated",0)]:
+            self.assertFalse(absent_factory_observation({**value,key:bad}))
     def test_empty_inventory_counts_never_promote_absence_or_eligibility(self):
         value={"slots":[],"total_slots":0,"item_counts":{"scope":"unique_slots_returned_by_sdk",
             "inventory_completeness":"unknown","crafting_eligibility":"unknown","aliases_removed":0,
@@ -210,7 +225,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 23)
+        self.assertEqual(len(report["checks"]), 26)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -280,7 +295,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 31)
+        self.assertEqual(len(SERVER_TOOLS), 32)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

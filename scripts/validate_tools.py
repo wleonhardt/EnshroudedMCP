@@ -1,4 +1,4 @@
-"""Read-only 0.39.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.40.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -33,6 +33,14 @@ def empty_inventory_count_observation(value):
             and type(counts.get("aliases_removed")) is int and counts["aliases_removed"] == 0
             and counts.get("counts") == [{"item_id":213939880,"observed_count":0}]
             and all(type(row.get(k)) is int for row in counts["counts"] for k in ("item_id", "observed_count")))
+
+
+def absent_factory_observation(value):
+    return (value.get("source") == "published_typed_server_factory_station" and
+            type(value.get("entity")) is int and value["entity"] == 0xFFFFFFFF and
+            value.get("state") in ("unknown", "not_observed") and value.get("factory") is None and
+            all(value.get(key) is False for key in ("world_mutated", "crafting_eligibility_verified",
+                "safe_removal_verified", "complete_queue_verified", "current_client_selection_verified")))
 
 
 def construction_budget_observation(value):
@@ -129,19 +137,22 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.39.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.40.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.39.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.40.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.39.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.40.0" and
                    v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
                    v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
                    v.get("native_clock_advance_live_verified") is False and
-                   all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
+                   all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
         self.probe("world_clock_shape", "status", {}, clock_observation)
+        self.probe("factory_station_unobserved", "factory_station_read", {"entity":0xFFFFFFFF}, absent_factory_observation)
+        self.probe("factory_station_zero_entity_refused", "factory_station_read", {"entity":0}, refusal="argument 'entity' must be at least 1")
+        self.probe("factory_station_write_argument_refused", "factory_station_read", {"entity":1,"confirm":"server-write"}, refusal="unknown argument 'confirm'")
         self.probe("native_world_knowledge_shape", "knowledge_read", {"ids": [0xFFFFFFFF]}, knowledge_observation)
         self.probe("knowledge_write_argument_refused", "knowledge_read", {"ids": [1], "confirm": "server-write"}, refusal="unknown argument 'confirm'")
         self.probe("known_item_lookup", "item_lookup", {"ids": [213939880]}, lambda v:

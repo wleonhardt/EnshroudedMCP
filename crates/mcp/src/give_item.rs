@@ -306,6 +306,7 @@ mod tests {
                 inventories: Some(load.inventories()?),
                 item_layout: None,
                 network_health: None,
+                factory_station: None,
                 interaction_targets: None,
             };
             *ADAPTER.lock().unwrap() = Some((control, game));

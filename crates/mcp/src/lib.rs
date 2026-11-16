@@ -7,6 +7,7 @@ mod building_plan;
 mod building_survey;
 mod clock_control;
 mod construction;
+mod factory_station;
 mod give_item;
 mod health_recovery;
 mod interaction_target;
@@ -34,6 +35,12 @@ pub struct Mcp {
 impl Mod for Mcp {
     fn init(load: &mut Load<'_>) -> Result<Self, Off> {
         let game = tools::Game {
+            factory_station:
+                enshwick::typed::ComponentType::<enshwick::typed::ecs::FactoryStation>::resolve(
+                    load,
+                )
+                .map_err(|e| enshwick::warn!("typed FactoryStation unavailable: {e}"))
+                .ok(),
             interaction_targets: load
                 .interaction_targets()
                 .map_err(|e| enshwick::warn!("interaction target reader unavailable: {e}"))

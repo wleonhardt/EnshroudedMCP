@@ -772,6 +772,7 @@ mod tests {
                 inventories: None,
                 item_layout: None,
                 network_health: None,
+                factory_station: None,
                 interaction_targets: None,
             };
             let lifecycle = Construction::new(load)?;

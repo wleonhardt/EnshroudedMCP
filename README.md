@@ -1,5 +1,7 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
+Server 0.40.0 source adds read-only `factory_station_read` through the published typed server component API. Raw running/next fields do not establish a complete queue, current client selection, eligibility, crafting execution or safe removal. Source checks pass; matched live acceptance remains pending. Installed isolated server remains 0.39.0 with companion 0.18.0. See [factory-station scope](plans/decisions/0037-native-factory-station-observation.md).
+
 # Enshrouded MCP
 
 Companion 0.18.0 cross-checks SDK and canonical-reflection recipe workshop reference layouts. Matched native checks pass for six unchanged recipe records through both selection routes. Raw zero GUID meaning and crafting applicability remain unverified.

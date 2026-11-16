@@ -96,6 +96,8 @@ pub(crate) struct Game {
     /// Resolved and shape-checked against the running build during init.
     pub(crate) network_health:
         Option<enshwick::typed::ComponentType<enshwick::typed::ecs::NetworkHealth>>,
+    pub(crate) factory_station:
+        Option<enshwick::typed::ComponentType<enshwick::typed::ecs::FactoryStation>>,
 }
 
 #[derive(Debug)]
@@ -154,6 +156,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::factory_station::tool(),
             crate::journal::tool(),
             crate::knowledge_read::tool(),
             crate::interaction_target::tool(),
@@ -300,10 +303,18 @@ impl Tools for GameTools {
             inventories,
             item_layout,
             network_health,
+            factory_station,
             interaction_targets,
             native_knowledge: _,
         } = self.game;
         match name {
+            "factory_station_read" => {
+                let entity = policy::factory_station::check(a)?;
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    crate::factory_station::read(game, entity)
+                })?
+            }
             "knowledge_read" => {
                 let spec = policy::knowledge_read::check(a)?;
                 let game = self.game;
@@ -530,6 +541,7 @@ impl Tools for GameTools {
                 "building_survey":true,
                 "construction_available":self.construction.is_some(),
                 "typed_network_health":network_health.is_some(),
+                "typed_factory_station":factory_station.is_some(),
                 "resolved_component_names":self.components.len(),
                 "limits":{"health_radius_m":inspection::HEALTH_RADIUS,"health_entities":inspection::HEALTH_LIMIT,"inventory_page_slots":inspection::SLOT_LIMIT,"inventory_offset":inspection::SLOT_OFFSET_MAX,"survey_cells":policy::building_survey::MAX_CELLS,"survey_side_m":policy::building_survey::MAX_SIDE_M,"wait_seconds":GAME_WAIT.as_secs()},
                 "limitations":["output limits do not cap enshwick spatial discovery or virtual-inventory traversal","a response timeout does not cancel a queued read","entity IDs and slot references are session-only","inventory pages are independent snapshots"]
