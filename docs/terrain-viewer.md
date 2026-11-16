@@ -26,10 +26,24 @@ python scripts/terrain_view.py --input captured-survey.json --output terrain-off
 
 For example, a reference pin is `{"label":"Inspection point","position":[10.25,21,30.75]}`. Labels are encoded as data, never page markup. Duplicate labels, missing/duplicate/outside cells, contradictory counts/bounds, unknown material classifications and malformed coordinates refuse. The source cell order may differ; complete coordinate coverage is required.
 
+## Proposed-build overlay
+
+Pass --plan with the decoded geometry-only building_plan result, not a construction receipt or raw primitive request:
+
+```powershell
+python scripts/terrain_view.py --input captured-survey.json --plan geometry-preview.json --output proposed.html
+```
+
+The preview must have status geometry_preview_only, executable false, grid.cell_size_m 0.5, geometry.solid_cell_count equal to the length of cell_minima, and one to 256 unique in-world integer cell coordinates. An offline input object can alternatively supply plan; supplying it both ways refuses. Invalid explicit --plan files refuse before live capture. This is supplied geometry data, not authenticated execution authority.
+
+Show proposed cells toggles dashed x-ray outlines while leaving observed samples intact. Gold targets overlap sampled Air, coral sampled terrain/building, and violet unknown material; selected outlines are white. Inspect target reports exact minimum coordinates and raw sampled material/fill. Unobserved targets remain listed but are not drawn. Neither Air nor a projected outline proves clearance, support, collision, reachability or write authorization. Top view projects footprints, so different planned heights may share pixels; use sections for vertical inspection.
+
+PNG exports include proposal counts and exact half-open section coordinates. Proposals do not initiate new tool calls: live capture retains its three read tools and the preview is supplied separately. The installed game packages, SDK, runtime tools and write gates do not change.
+
 ## Evidence limits
 
 The drawing preserves raw material classification and fill. It does not reproduce the engine's interpolated terrain mesh, textures, vegetation, collision, water, props or actual camera. Unknown materials stay visibly distinct. Air cells are sampled Air, not proof of physical clearance. Outside the sampled box is unobserved. Top view shows the highest classified non-Air cell in each sampled column, which can conceal caves or lower structures; use sections to inspect them. Off-section pins are marked and outside-capture pins remain listed.
 
 Survey/player/prop reads have separate UTC intervals and are not an atomic snapshot. The current read contract exposes no native world-session identifier; the viewer reports unavailable. Offline input does not acquire capture/session evidence merely by being rendered. Save/reload persistence, terrain contact and avatar safety require separate checks.
 
-Ten behavior tests cover an asymmetric coordinate fixture, precise pins/raw fill, complete captures, strict input values, data-safe labels, exclusive output, read-only dispatch, coverage limits and actual JavaScript projection/section/face behavior. The JavaScript cases use Node when installed and otherwise report explicit skips. A connected isolated-server fixture separately matches all sixteen known platform cells. BrowserOS verifies view/slice changes, exact pin measurements, narrow layout and PNG download; a select-change reproduction was fixed before acceptance. Neither observation establishes a faithful engine terrain mesh. See decision 0070.
+Fourteen behavior tests cover an asymmetric coordinate fixture, precise pins/raw fill, complete captures, strict input values, data-safe labels, exclusive output, read-only dispatch, coverage limits and actual JavaScript projection/section/face behavior. Proposal cases also preserve sampled/unknown coverage and reject malformed geometry before live access. The JavaScript cases use Node when installed and otherwise report explicit skips. A connected isolated-server fixture separately matches all sixteen known platform cells. BrowserOS verifies view/slice changes, exact pin measurements, narrow layout and PNG download; a select-change reproduction was fixed before acceptance. Neither observation establishes a faithful engine terrain mesh. See decisions 0070 and 0071. The original isolated mutation attempt omitted a required import and is not intended-failure evidence; corrected complete-copy checks discriminate the exact event, missing-coverage and section-caption assertions.

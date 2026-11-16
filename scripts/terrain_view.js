@@ -51,8 +51,9 @@
   const controls = Object.fromEntries(["view","yaw","pitch","zoom","slice"].map(k => [k,document.getElementById(k)]));
   const info = document.getElementById("selection");
   const measure = document.getElementById("measure");
+  const proposal = data.plan || null, showPlan=document.getElementById("show-plan"), planTarget=document.getElementById("plan-target");
   const colors = {air: "#253347", terrain: "#b5986b", building: "#63b7d0", unknown: "#be97e8"};
-  let pick = [], selected = null;
+  let pick = [], selected = null, selectedTarget = null;
   const center = data.min_m.map((v,i) => (v + data.max_m[i])/2);
   const local = p => p.map((v,i) => v-center[i]);
   const bounds = [];
@@ -62,6 +63,7 @@
   function describePin(index) {
     const pin = data.pins[index];
     selected = index;
+    selectedTarget = null;
     const cell = pin.position.map(v => Math.floor(v*2));
     info.textContent = `${index+1}. ${pin.label} · ${pin.kind} · XYZ metres [${pin.position.join(", ")}] · containing cell [${cell.join(", ")}] · ${pin.inside_capture ? "inside capture" : "OUTSIDE capture"}`;
     if(measure.value!==""){
@@ -78,11 +80,25 @@
     document.getElementById("pins").append(button);
     const option=document.createElement("option");option.value=String(index);option.textContent=`${index+1}. ${pin.label}`;measure.append(option);
   });
+  function describeTarget(index){
+    const target=proposal.targets[index],observed=target.observed;
+    selected=null;selectedTarget=index;planTarget.value=String(index);
+    info.textContent=`PROPOSED cell [${target.min_cells.join(", ")}] · minimum XYZ metres [${target.min_cells.map(v=>v/2).join(", ")}] · ${target.state}${observed?`; observed ID ${observed.id}, raw fill ${observed.fill}`:"; outside capture, not drawn"} · geometry only; clearance and execution NOT authorized`;
+    draw();
+  }
+  document.getElementById("plan-controls").hidden=!proposal;
+  if(proposal){
+    proposal.targets.forEach((target,index)=>{const option=document.createElement("option");option.value=String(index);option.textContent=`[${target.min_cells.join(", ")}] ${target.state}`;planTarget.append(option);});
+    const counts=proposal.counts;
+    document.getElementById("plan-summary").textContent=`Proposed ${proposal.targets.length} cells: ${counts.sampled_air} sampled Air, ${counts.sampled_terrain} terrain, ${counts.sampled_building} building, ${counts.sampled_unknown} unknown, ${counts.unobserved} unobserved (not drawn). X-ray outlines; no clearance, support or build authorization.`;
+    showPlan.addEventListener("change",draw);
+    planTarget.addEventListener("change",()=>describeTarget(Number(planTarget.value)));
+  }
   document.getElementById("provenance").textContent = JSON.stringify({
     bounds_metres: {min:data.min_m,max_exclusive:data.max_m}, cell_size_m: .5,
     counts:data.material_counts, native_session:data.native_session, atomic_snapshot:data.atomic_snapshot,
     capture:data.capture, missing_player_positions:data.missing_player_positions,
-    prop_origins:data.prop_origins, rendered_surface_verified:false
+    prop_origins:data.prop_origins, plan:proposal?{counts:proposal.counts,source:proposal.source,executable:false,clearance_verified:false}:null, rendered_surface_verified:false
   },null,2);
   function setupSlice() {
     const view=controls.view.value, axis=view==="xy"?2:0;
@@ -100,7 +116,7 @@
     ctx.setTransform(ratio,0,0,ratio,0,0);
     ctx.fillStyle="#182332";ctx.fillRect(0,0,width,height);
     const view=controls.view.value, yaw=Number(controls.yaw.value)*Math.PI/180, pitch=Number(controls.pitch.value)*Math.PI/180;
-    const pinRows=Math.min(data.pins.length,5),plotTop=90,plotBottom=height-90-pinRows*16;
+    const pinRows=Math.min(data.pins.length,5),sectionMode=["xy","zy"].includes(view),plotTop=(proposal?110:90)+(sectionMode?20:0),plotBottom=height-90-pinRows*16;
     const raw=p=>project(local(p),view,yaw,pitch);
     const extent=bounds.map(raw), xs=extent.map(p=>p.x), ys=extent.map(p=>p.y);
     const fit=Math.min((width-120)/Math.max(.5,Math.max(...xs)-Math.min(...xs)),(plotBottom-plotTop)/Math.max(.5,Math.max(...ys)-Math.min(...ys)))*Number(controls.zoom.value)/100;
@@ -128,6 +144,20 @@
       ctx.strokeStyle=c[3]==="air"?"#3e5067":"#1a2737";ctx.lineWidth=.7;ctx.stroke();
       pick.push({points,cell:c});
     }
+    let proposedCount=0;
+    if(proposal&&showPlan.checked){
+      const slice=Number(controls.slice.value),axis=view==="xy"?2:0;
+      proposal.targets.forEach((target,index)=>{
+        if(target.state==="unobserved"||(["xy","zy"].includes(view)&&target.min_cells[axis]!==slice))return;
+        proposedCount++;
+        const c=[...target.min_cells,"unknown",null,0];
+        const outlines=view==="orbit"?exposedFaces([c],yaw,pitch):[{points:corners[view==="top"?3:view==="xy"?5:1].map(p=>p.map((v,i)=>(c[i]+v)/2))}];
+        ctx.strokeStyle=selectedTarget===index?"#ffffff":target.state==="sampled_air"?"#f6d06f":target.state==="sampled_unknown"?"#be97e8":"#ff8994";
+        ctx.lineWidth=2;ctx.setLineDash([5,3]);
+        for(const face of outlines){const points=path(face.points);ctx.stroke();pick.push({points,plan:index});}
+      });
+      ctx.setLineDash([]);
+    }
     ctx.font="12px system-ui";
     const axes=view==="top"?[0,2]:view==="xy"?[0,1]:view==="zy"?[2,1]:[0,1,2];
     axes.forEach(axis=>{
@@ -151,10 +181,12 @@
     function fitText(text,y){ctx.fillText(text,16,y,width-32);}
     fitText("0.5 m cells · y up · raw fill preserved · outside capture unobserved",48);
     fitText(`Capture minimum XYZ [${data.min_m.join(", ")}] m; maximum exclusive [${data.max_m.join(", ")}] m`,66);
+    if(proposal)fitText(`PROPOSED ${showPlan.checked?"x-ray":"hidden"}: ${proposal.counts.sampled_air} Air, ${proposal.counts.sampled_terrain} terrain, ${proposal.counts.sampled_building} building, ${proposal.counts.sampled_unknown} unknown, ${proposal.counts.unobserved} unobserved/not drawn; clearance NOT verified`,84);
+    if(sectionMode)fitText(`Section ${"XYZ"[sliceAxis]} [${slice/2}, ${(slice+1)/2}) m; off-section pins projected faintly`,proposal?102:84);
     data.pins.slice(0,5).forEach((pin,index)=>fitText(`${index+1}. ${pin.label} · XYZ ≈ [${pin.position.map(v=>v.toFixed(3)).join(", ")}] m${pin.inside_capture?"":" · outside capture"}`,height-55-(pinRows-1-index)*16));
-    fitText("Terrain: tan   Building: cyan   Unknown: violet   Pins: gold",height-31);
+    fitText("Terrain: tan   Building: cyan   Unknown: violet   Pins: gold"+(proposal?"   Proposed: dashed (white selection)":""),height-31);
     fitText("Diagnostic reconstruction; rendered terrain/contact NOT verified",height-12);
-    canvas.dataset.renderedFaces=String(faces.length);canvas.dataset.view=view;
+    canvas.dataset.renderedFaces=String(faces.length);canvas.dataset.view=view;canvas.dataset.proposedTargets=String(proposedCount);
   }
   function contains(points,x,y){
     let inside=false;
@@ -167,8 +199,9 @@
     const box=canvas.getBoundingClientRect(),x=event.clientX-box.left,y=event.clientY-box.top;
     for(const item of [...pick].reverse()){
       if(item.pin!==undefined){if(Math.hypot(item.x-x,item.y-y)<=14){describePin(item.pin);return;}}
+      else if(item.plan!==undefined&&contains(item.points,x,y)){describeTarget(item.plan);return;}
       else if(contains(item.points,x,y)){
-        const c=item.cell;selected=null;
+        const c=item.cell;if(!c)continue;selected=null;selectedTarget=null;
         info.textContent=`Cell [${c.slice(0,3).join(", ")}] · minimum XYZ metres [${c.slice(0,3).map(v=>v/2).join(", ")}] · ${c[3]} ID ${c[4]===null?"unavailable":c[4]} · raw fill ${c[5]} · half-open 0.5 m cube`;
         draw();return;
       }

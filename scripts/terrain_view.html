@@ -18,11 +18,16 @@
 <label>Measure from <select id="measure"><option value="">None</option></select></label>
 <button id="export" type="button">Save PNG</button>
 </div>
+<div id="plan-controls" hidden>
+<label><input id="show-plan" type="checkbox" checked> Show proposed cells</label>
+<label>Inspect target <select id="plan-target"></select></label>
+<p id="plan-summary" aria-live="polite"></p>
+</div>
 <div class="legend"><span style="--swatch:#b5986b">Terrain cell</span><span style="--swatch:#63b7d0">Building cell</span><span style="--swatch:#be97e8">Unknown material</span><span style="--swatch:#53657b">Air cell / sampled bounds</span></div>
 <canvas id="terrain" role="img" aria-label="Diagnostic voxel view. Use view and slice controls and numbered pin buttons to inspect coordinates."></canvas>
 <div id="pins" aria-label="Coordinate pins"></div>
 <div id="selection" aria-live="polite">Select a cell or numbered pin to inspect its exact coordinates.</div>
-<p class="hint">Outside dashed box: unobserved. Filled cubes show material classification only; raw fill is not a verified surface-height equation. Prop pins show origins only. Pins outside a section are explicitly marked. Separate reads are not atomic; native world session is unavailable. No gameplay commands.</p>
+<p class="hint">Outside dashed box: unobserved. Filled cubes show material classification only; raw fill is not a verified surface-height equation. Proposed cells use dashed x-ray outlines: gold over sampled Air, coral over sampled terrain/building, violet over unknown material. Outside-capture targets are listed, not drawn. Neither Air nor an outline proves clearance. Prop pins show origins only. Pins outside a section are explicitly marked. Separate reads are not atomic; native world session is unavailable. No gameplay commands.</p>
 <details><summary>Capture provenance and coverage</summary><pre id="provenance"></pre></details>
 <script id="terrain-data" type="application/json">__TERRAIN_DATA__</script>
 <script>__TERRAIN_SCRIPT__</script>

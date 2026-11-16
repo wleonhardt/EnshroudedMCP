@@ -8,8 +8,9 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from terrain_view import capture, scene, html, main
+from terrain_view import capture, scene, html, main, with_plan
 
 
 def survey():
@@ -26,6 +27,62 @@ def survey():
 
 
 class TerrainViewTests(unittest.TestCase):
+    def test_plan_classifies_sampled_materials_and_unobserved_without_changing_capture(self):
+        raw = survey()
+        row = next(c for c in raw["voxels"]["cells"] if c["min_cells"] == [21,40,61])
+        row["material"] = {"kind":"unknown","id":254}
+        raw["voxels"]["material_counts"].update(air=21,unknown=1)
+        base = scene(raw); original = copy.deepcopy(base)
+        cells = [[20,40,60],[21,42,63],[20,41,60],[21,40,61],[22,40,60]]
+        value = with_plan(base, preview(cells))
+        self.assertEqual(base, original)
+        self.assertEqual(value["cells"], original["cells"])
+        self.assertEqual([r["state"] for r in value["plan"]["targets"]],
+                         ["sampled_terrain","sampled_building","sampled_air","sampled_unknown","unobserved"])
+        self.assertEqual(value["plan"]["counts"], dict.fromkeys(
+            ["sampled_air","sampled_terrain","sampled_building","sampled_unknown","unobserved"],1))
+        self.assertIsNone(value["plan"]["targets"][-1]["observed"])
+        self.assertEqual(value["plan"]["targets"][0]["observed"], {"kind":"terrain","id":2,"fill":128})
+        self.assertFalse(value["plan"]["executable"])
+        self.assertFalse(value["plan"]["clearance_verified"])
+
+    def test_invalid_or_excessive_geometry_preview_refuses(self):
+        valid=preview([[20,40,60]])
+        cases=[({**valid,'status':'placed'},'geometry-only'),({**valid,'executable':True},'geometry-only'),
+               (preview([]),'1 to 256'),(preview([[True,40,60]]),'outside plan'),
+               (preview([[20,40,60]]*2),'duplicate plan'),(preview([[20480,40,60]]),'outside plan'),
+               (preview([[20+i,40,60] for i in range(257)]),'1 to 256'),
+               ({**valid,'geometry':{'solid_cell_count':2}},'counted cells'),
+               ({**valid,'grid':{'cell_size_m':1}},'plan grid')]
+        for value,fragment in cases:
+            with self.subTest(fragment=fragment):
+                with self.assertRaisesRegex(ValueError,fragment):with_plan(scene(survey()),value)
+
+    def test_bad_plan_is_refused_before_live_client_or_output_exists(self):
+        with tempfile.TemporaryDirectory() as folder:
+            folder=Path(folder);plan=folder/'plan.json';output=folder/'view.html'
+            for invalid,fragment in [(preview([[20,40,60]]*2),'duplicate plan'),(None,'geometry-only')]:
+                plan.write_text(json.dumps(invalid))
+                with patch('terrain_view.Client') as client:
+                    with self.assertRaisesRegex(ValueError,fragment):
+                        main(['--port','8751','--box','10','20','30','1','1.5','2',
+                              '--plan',str(plan),'--output',str(output)])
+                    client.assert_not_called()
+            self.assertFalse(output.exists())
+
+    def test_offline_cli_adds_geometry_file_without_altering_observations(self):
+        with tempfile.TemporaryDirectory() as folder:
+            folder=Path(folder);source=folder/'survey.json';plan=folder/'plan.json';output=folder/'view.html'
+            source.write_text(json.dumps({'survey':survey()}))
+            plan.write_text(json.dumps(preview([[20,41,60],[22,40,60]])))
+            with redirect_stdout(io.StringIO()):
+                main(['--input',str(source),'--plan',str(plan),'--output',str(output)])
+            payload=output.read_text().split('<script id="terrain-data" type="application/json">')[1].split('</script>')[0]
+            value=json.loads(payload)
+            self.assertEqual(value['cells'],scene(survey())['cells'])
+            self.assertEqual(value['plan']['counts']['sampled_air'],1)
+            self.assertEqual(value['plan']['counts']['unobserved'],1)
+
     def test_asymmetric_axes_raw_fill_and_precise_pin_survive(self):
         value = scene(survey(), [{"label": "Corner", "position": [10.25, 21.125, 31.75]}])
         self.assertEqual(value["min_m"], [10, 20, 30])
@@ -147,8 +204,9 @@ const pair=g.exposedFaces([[20,40,60,'building',157,7],[21,40,60,'terrain',2,255
 assert.equal(pair.length,5); // shared internal face is absent
 assert.equal(g.exposedFaces([[20,40,60,'air',null,255]],-.7,.6).length,0);
 '''
-        subprocess.run([shutil.which("node"), "-e", script,
-                        str(Path(__file__).with_name("terrain_view.js"))], check=True, capture_output=True)
+        result=subprocess.run([shutil.which("node"), "-e", script,
+                               str(Path(__file__).with_name("terrain_view.js"))], capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
 
     @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer event checks")
     def test_standard_select_change_redraws_sections_and_range_input_updates_slice(self):
@@ -160,18 +218,23 @@ class Element extends EventTarget {
   append(){}
 }
 const ids=['terrain-data','terrain','view','yaw','pitch','zoom','slice','selection','measure','pins',
-           'provenance','slice-control','yaw-control','pitch-control','slice-value','export'];
+           'provenance','slice-control','yaw-control','pitch-control','slice-value','export',
+           'show-plan','plan-target','plan-controls','plan-summary'];
 const nodes=Object.fromEntries(ids.map(id=>[id,new Element()]));
 nodes['terrain-data'].textContent=process.argv[2];
 nodes.view.tagName='SELECT';nodes.view.value='orbit';nodes.yaw.value='320';
 nodes.pitch.value='32';nodes.zoom.value='100';
+nodes['show-plan'].checked=true;
 nodes.terrain.clientWidth=800;nodes.terrain.clientHeight=520;
-nodes.terrain.getContext=()=>new Proxy({}, {get:(target,key)=>target[key]??(()=>{})});
+const painted=[];
+nodes.terrain.getContext=()=>new Proxy({fillText:text=>painted.push(text)}, {get:(target,key)=>target[key]??(()=>{})});
 globalThis.document={getElementById:id=>nodes[id],createElement:tag=>new Element(tag.toUpperCase())};
 globalThis.window={devicePixelRatio:1,addEventListener:()=>{}};
 require(process.argv[1]);
 assert.equal(nodes.terrain.dataset.view,'orbit');
 assert.equal(nodes['slice-control'].hidden,true);
+const hasPlan=Boolean(JSON.parse(process.argv[2]).plan);
+assert.equal(nodes['plan-controls'].hidden,!hasPlan);
 nodes.view.value='xy';nodes.view.dispatchEvent(new Event('change'));
 assert.equal(nodes.terrain.dataset.view,'xy');
 assert.equal(nodes.terrain.dataset.renderedFaces,'6');
@@ -181,14 +244,35 @@ nodes.view.value='zy';nodes.view.dispatchEvent(new Event('change'));
 assert.equal(nodes.terrain.dataset.renderedFaces,'12');
 nodes.slice.value='21';nodes.slice.dispatchEvent(new Event('input'));
 assert.equal(nodes['slice-value'].textContent,'X [10.5, 11) m');
+assert.ok(painted.some(text=>text.includes('Section X [10.5, 11) m')),'export must identify section interval');
 nodes.view.value='top';nodes.view.dispatchEvent(new Event('change'));
 assert.equal(nodes.terrain.dataset.view,'top');
 assert.equal(nodes.terrain.dataset.renderedFaces,'8');
 assert.equal(nodes['slice-control'].hidden,true);
+if(hasPlan){
+  assert.equal(nodes.terrain.dataset.proposedTargets,'3');
+  const observed=nodes.terrain.dataset.renderedFaces;
+  nodes['show-plan'].checked=false;nodes['show-plan'].dispatchEvent(new Event('change'));
+  assert.equal(nodes.terrain.dataset.proposedTargets,'0');
+  assert.equal(nodes.terrain.dataset.renderedFaces,observed);
+  nodes['show-plan'].checked=true;nodes['show-plan'].dispatchEvent(new Event('change'));
+  assert.equal(nodes.terrain.dataset.proposedTargets,'3');
+  nodes['plan-target'].value='3';nodes['plan-target'].dispatchEvent(new Event('change'));
+  assert.ok(nodes.selection.textContent.includes('unobserved; outside capture, not drawn'));
+  assert.ok(nodes.selection.textContent.includes('execution NOT authorized'));
+}
 '''
-        subprocess.run([shutil.which("node"), "-e", script,
-                        str(Path(__file__).with_name("terrain_view.js")),
-                        json.dumps(scene(survey()))], check=True, capture_output=True)
+        base=scene(survey())
+        for value in [base,with_plan(base,preview([[20,40,60],[20,41,60],[21,42,63],[22,40,60]]))]:
+            result=subprocess.run([shutil.which("node"), "-e", script,
+                                   str(Path(__file__).with_name("terrain_view.js")),
+                                   json.dumps(value)], capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+
+
+def preview(cells):
+    return {'status':'geometry_preview_only','executable':False,'grid':{'cell_size_m':.5},
+            'geometry':{'solid_cell_count':len(cells)},'cell_minima':cells}
 
 
 if __name__ == "__main__": unittest.main()

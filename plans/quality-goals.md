@@ -16,3 +16,5 @@ Date: 2026-11-16. Status: open. Close independently verified workflows rather th
 Every increment needs prerequisites, a named behavior check, a dated build/configuration result and remaining limitations. Source, native, refusal, effect, rendered and persistence evidence remain separate. Unsupported APIs remain gaps. Do not repeat unchanged successful experiments without a new discriminator. Publication retains explicit allowlists and exact-diff/secret/history audits.
 
 Goal 5 now includes the bounded technical terrain viewer qualified in decision 0070. Complete-cell/coordinate checks, actual native platform correspondence and BrowserOS section/pin/PNG acceptance pass. Engine mesh, collision/contact, planned overlays and native resource integration remain open; this is a saved diagnostic snapshot.
+
+Decision 0071 qualifies bounded proposed-geometry inspection and exact section captions. It also corrects the earlier failed-import mutation audit; complete dependency copies now discriminate the specific intended failures. Actual engine mesh/contact, native resource integration, runtime faults and functional workshop acceptance remain open.

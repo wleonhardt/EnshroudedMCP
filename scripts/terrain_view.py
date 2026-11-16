@@ -131,6 +131,40 @@ def html(value):
             .replace("__TERRAIN_DATA__", payload))
 
 
+def plan_cells(preview):
+    require(isinstance(preview, dict) and preview.get("status") == "geometry_preview_only" and
+            preview.get("executable") is False, "plan must be a geometry-only preview")
+    require(isinstance(preview.get("grid"), dict) and preview["grid"].get("cell_size_m") == .5,
+            "unsupported plan grid")
+    cells, geometry = preview.get("cell_minima"), preview.get("geometry", {})
+    require(isinstance(cells, list) and 1 <= len(cells) <= 256 and isinstance(geometry, dict) and
+            type(geometry.get("solid_cell_count")) is int and geometry["solid_cell_count"] == len(cells),
+            "plan requires 1 to 256 counted cells")
+    seen = set()
+    for cell in cells:
+        require(vector(cell, integer=True) and
+                all(0 <= cell[i] < (2048 if i == 1 else 20480) for i in range(3)), "outside plan cell")
+        key = tuple(cell)
+        require(key not in seen, "duplicate plan cell")
+        seen.add(key)
+    return cells
+
+
+def with_plan(value, preview):
+    """Compare proposed cells with samples; neither operand grants execution authority."""
+    lookup = {tuple(c[:3]): c for c in value["cells"]}
+    counts = dict.fromkeys(["sampled_" + k for k in KINDS] + ["unobserved"], 0)
+    targets = []
+    for position in plan_cells(preview):
+        cell = lookup.get(tuple(position))
+        state = "sampled_" + cell[3] if cell else "unobserved"
+        counts[state] += 1
+        targets.append({"min_cells": position, "state": state,
+                        "observed": {"kind": cell[3], "id": cell[4], "fill": cell[5]} if cell else None})
+    return {**value, "plan": {"targets": targets, "counts": counts, "executable": False,
+                             "clearance_verified": False, "source": "provided geometry preview; not an authenticated native receipt"}}
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group(required=True)
@@ -138,6 +172,7 @@ def main(argv=None):
     source.add_argument("--port", type=int, help="Existing loopback server endpoint; no credentials read")
     parser.add_argument("--box", type=float, nargs=6, metavar=("X", "Y", "Z", "W", "H", "D"))
     parser.add_argument("--pins", type=Path, help="Optional JSON list of at most 64 labelled metre positions")
+    parser.add_argument("--plan", type=Path, help="Optional geometry-only building_plan result; at most 256 cells")
     parser.add_argument("--output", required=True, type=Path, help="New standalone HTML path; never overwrites")
     args = parser.parse_args(argv)
     require(not args.output.exists(), "output already exists")
@@ -145,9 +180,14 @@ def main(argv=None):
         require(path.is_file() and path.stat().st_size <= MAX_BYTES, "input missing or too large")
         return json.loads(path.read_text(encoding="utf-8"))
     pins = load(args.pins) if args.pins else []
+    plan = load(args.plan) if args.plan else None
+    if args.plan:
+        plan_cells(plan)  # Reject malformed overlays before any live capture reads.
     if args.input:
         require(args.box is None, "--box requires --port")
         data = load(args.input)
+        require(not (args.plan and "plan" in data), "plan supplied twice")
+        plan = data.get("plan", plan)
         value = scene(data["survey"], data.get("pins", []) + pins)
     else:
         require(1 <= args.port <= 65535 and args.box is not None, "--port requires --box")
@@ -157,9 +197,12 @@ def main(argv=None):
             require(not reply.get("isError"), f"{name} refused; no view generated")
             return json.loads(reply["content"][0]["text"])
         value = capture(read, args.box, pins)
+    if plan is not None:
+        value = with_plan(value, plan)
     with args.output.open("x", encoding="utf-8") as stream:
         stream.write(html(value))
     print(json.dumps({"output": str(args.output), "cells": len(value["cells"]), "pins": len(value["pins"]),
+                      "proposed_cells": len(value.get("plan", {}).get("targets", [])),
                       "rendered_surface_verified": False, "atomic_snapshot": False}))
 
 

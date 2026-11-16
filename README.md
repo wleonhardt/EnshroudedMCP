@@ -323,3 +323,5 @@ Direct saved-profile join is priority 1 and requested as [SDK API #1144](https:/
 ## Technical terrain viewer
 
 Use `python scripts/terrain_view.py --port 8751 --box 10 20 30 8 8 8 --output terrain.html` with a deliberately selected half-metre-aligned box. The standalone viewer draws native voxel occupancy in 3D, top-down and vertical sections, with exact coordinate pins, measurements and PNG export. It calls only bounded read tools and never moves the character or enables writes. Sampled cubes are diagnostic geometry; engine surface/collision correspondence remains unverified. See [capture, controls and evidence limits](docs/terrain-viewer.md).
+
+Add `--plan geometry-preview.json` to inspect up to 256 proposed cells separately from observed terrain. The file must contain a geometry-only `building_plan` result. Outside-capture targets remain unobserved and are listed without drawing; proposed outlines never authorize placement or establish clearance. Section PNG exports identify the exact half-metre plane. See [proposed geometry evidence](plans/decisions/0071-proposed-geometry-observation.md).
