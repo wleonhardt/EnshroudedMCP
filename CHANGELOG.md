@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Record merged upstream placement and diagnostic proposals. Matching dev artifact digest passes, but absent detached signatures keep provider/native adoption unqualified; product SDK and ABI remain unchanged.
+
 - Record native Backpack/PlayerCrafting tab transitions with HUD/tab separation and complete preservation. SDK outcomes and getter fields remain separate from pending rendered confirmation; no craft or movement action is added.
 
 - Add read-only retained shutdown status independent of active World and write admission. Busy/prior-boot states remain explicit; no native retry or process/save proof. Private/public source qualification and matched 0.45.0/0.20.2 installation pass. Sixteen native retained replies, including fifteen after ShutdownStarted, and 24 prior-boot identities preserve proof limits and audit bytes. Causal save and native busy-state cases remain unverified.
