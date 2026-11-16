@@ -1,0 +1,23 @@
+# 0072: Bounded PNG presentation for successful MCP reads
+
+Date: 2026-11-16. Status: source, loopback fixture and independent browser codec checks passed; no native terrain-image producer is registered or deployed.
+
+The existing Tools::call contract continues to return JSON. Add an explicit presentation hook after strict argument admission and successful execution. Its default keeps the exact prior JSON text result. A read-only producer may instead return typed JSON metadata plus a PNG image. Images are never inferred from arbitrary JSON keys or supplied base64. Presentation grants no World access, scheduler bypass, gameplay mutation, resource loading or retry authority. Future game producers must render only copied bounded observations outside the game callback.
+
+A private-byte Png type can only be constructed from complete top-row-first packed RGB input. Game-free policy refuses zero/oversized dimensions and incorrect byte counts before encoding. Each side is at most 512 pixels; encoded PNG output is at most 1 MiB. The encoder does not crop, resize, infer alpha or fabricate missing pixels. The MCP formatter emits the usual JSON metadata text first, then type image with image/png and standard base64; isError remains false. Tool or presentation errors return only error text, with no partial image or implicit retry. Existing write tools use the unchanged default JSON path; no fallible image producer is attached to writes.
+
+The wire shape agrees with the official [2025-11-25 tool specification](https://modelcontextprotocol.io/specification/2025-11-25/server/tools) and its [2024-11-05 image format](https://modelcontextprotocol.io/specification/2024-11-05/server/tools). No new JSON-RPC method or advertised tool is introduced in this foundation. The active inventory remains 36 server plus 13 companion tools.
+
+Use exact [base64 0.23.1](https://crates.io/crates/base64/0.23.1), with alloc and default SIMD/unsafe features disabled, and exact [zune-png 0.5.2](https://crates.io/crates/zune-png/0.5.2), with std and no new default feature request. The latter already exists in the SDK dependency lock; only base64 is a new locked package. Official package/repository and cached locked source metadata are inspected before use. Their minimum Rust versions, 1.71 and 1.87, are below the pinned 1.99.1 toolchain. No framework revision, ABI, loader signature or installed file changes.
+
+## Verification
+
+Nine added Rust cases cover asymmetric 2-by-3 RGB round-trip, raw dimension/channel correspondence, zero/oversized/overflow dimensions, incomplete pixels, maximum raster bounds, JSON-content non-promotion, one successful dispatch before presentation across all negotiated revisions, no presentation on refused arguments/notifications/native errors, render/encode error with no partial content or retry, and real loopback HTTP image/Unicode metadata framing. These are nine test functions with multiple behavioral subcases. The legacy JSON response assertion now checks the exact previous content shape and text.
+
+A separate game-free executable uses the actual Tools, PNG constructor and MCP formatter to generate a synthetic response. BrowserOS independently decodes that response's PNG in Chromium and returns the exact six RGBA pixels with dimensions 2 by 3. This avoids treating the encoder's own decoder round-trip as the sole format proof. The byte/JSON fixture and browser pixels are synthetic; they are not a native game image, rendered terrain or current world snapshot. Browser research/codec tabs are closed afterward. Game/desktop capture remains off.
+
+Private/public checks pass 382 Rust executions, 94 Python tests, strict Clippy, formatting, releases and current index/discovery checks. Existing native tool contracts and installed packages stay unchanged. No cold installation is needed for this source-only foundation, and no native acceptance is claimed.
+
+## Next native integration
+
+Add a narrowly bounded server terrain-image read using the existing published game-thread voxel route, with complete copied-cell validation, explicit top/section coordinates, raw-material/unknown semantics and exact metadata. Bound raster allocation before rendering and keep PNG encoding outside World access. Register the new tool and bump the server source version before building that behavior; update the authoritative index/probes at the same time. Stage matched files and rollback hashes before requesting the manual empty-client deployment prerequisite. Native execution, actual game-client transport visibility, world/ledger preservation and broader engine surface/contact correspondence remain separate acceptance gates.

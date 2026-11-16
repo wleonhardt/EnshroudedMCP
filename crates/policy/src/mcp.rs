@@ -2,6 +2,7 @@
 //! The game half supplies the tools through [`Tools`]; everything else is
 //! decided here.
 
+use crate::presentation::Presentation;
 use serde_json::{Map, Value, json};
 
 /// Protocol revisions answered, newest first. Only tools are implemented,
@@ -24,6 +25,14 @@ pub trait Tools {
     /// # Errors
     /// When the tool fails or the game cannot answer.
     fn call(&self, name: &str, args: &Map<String, Value>) -> Result<Value, String>;
+    /// Present an already successful result using copied, bounded data only.
+    /// This hook grants no World access or native execution authority. Existing
+    /// tools keep their JSON text format unless explicitly overridden.
+    /// # Errors
+    /// A read-only image producer may refuse rendering; no partial content is returned.
+    fn present(&self, _name: &str, value: Value) -> Result<Presentation, String> {
+        Ok(Presentation::Json(value))
+    }
 }
 
 /// The negotiated revision: the client's when supported, else the newest.
@@ -91,8 +100,11 @@ fn call(params: &Map<String, Value>, tools: &impl Tools) -> Value {
     let Some(tool) = tools.list().iter().find(|t| t.name == name) else {
         return text(&format!("unknown tool: {name}"), true);
     };
-    match crate::args::check(&tool.schema, args).and_then(|()| tools.call(name, args)) {
-        Ok(v) => text(&serde_json::to_string_pretty(&v).unwrap_or_default(), false),
+    match crate::args::check(&tool.schema, args)
+        .and_then(|()| tools.call(name, args))
+        .and_then(|value| tools.present(name, value))
+    {
+        Ok(value) => value.result(),
         Err(e) => text(&e, true),
     }
 }
@@ -189,11 +201,9 @@ mod tests {
             json!({"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "echo", "arguments": {"x": 4}}}),
         );
         assert_eq!(r["result"]["isError"], false);
-        assert!(
-            r["result"]["content"][0]["text"]
-                .as_str()
-                .unwrap()
-                .contains("\"x\": 4")
+        assert_eq!(
+            r["result"],
+            json!({"content":[{"type":"text","text":"{\n  \"x\": 4\n}"}],"isError":false})
         );
     }
 
@@ -272,5 +282,126 @@ mod tests {
         assert!(header_acceptable(None));
         assert!(header_acceptable(Some("2025-06-18")));
         assert!(!header_acceptable(Some("2030-01-01")));
+    }
+
+    struct Picture {
+        echo: Echo,
+        presentations: Cell<u32>,
+    }
+    impl Picture {
+        fn new() -> Self {
+            Self {
+                echo: Echo::new(),
+                presentations: Cell::new(0),
+            }
+        }
+        fn ask(&self, params: Value) -> Value {
+            handle(
+                &json!({"jsonrpc":"2.0","id":31,"method":"tools/call","params":params}).to_string(),
+                self,
+                "fixture",
+            )
+            .unwrap()["result"]
+                .clone()
+        }
+    }
+    impl Tools for Picture {
+        fn list(&self) -> &[Tool] {
+            self.echo.list()
+        }
+        fn call(&self, name: &str, args: &Map<String, Value>) -> Result<Value, String> {
+            self.echo.call(name, args)
+        }
+        fn present(&self, _: &str, value: Value) -> Result<Presentation, String> {
+            self.presentations.set(self.presentations.get() + 1);
+            if value["x"] == 9 {
+                return Err("fixture presentation refused".into());
+            }
+            let width = if value["x"] == 8 { 0 } else { 1 };
+            let image = crate::presentation::Png::rgb(width, 1, &[255, 0, 0])?;
+            Ok(Presentation::Png {
+                metadata: value,
+                image,
+            })
+        }
+    }
+
+    #[test]
+    fn png_content_is_explicit_and_follows_exactly_one_successful_call() {
+        for protocol in PROTOCOLS {
+            let picture = Picture::new();
+            let init = handle(
+                &json!({"id":1,"method":"initialize","params":{"protocolVersion":protocol}})
+                    .to_string(),
+                &picture,
+                "fixture",
+            )
+            .unwrap();
+            assert_eq!(init["result"]["protocolVersion"], protocol);
+            let result = picture.ask(json!({"name":"echo","arguments":{"x":1}}));
+            assert_eq!(picture.echo.calls.get(), 1);
+            assert_eq!(picture.presentations.get(), 1);
+            assert_eq!(result["isError"], false);
+            assert_eq!(result["content"].as_array().unwrap().len(), 2);
+            assert_eq!(result["content"][0]["type"], "text");
+            assert_eq!(result["content"][1]["mimeType"], "image/png");
+            assert!(
+                result["content"][1]["data"]
+                    .as_str()
+                    .unwrap()
+                    .starts_with("iVBORw0KGgo")
+            );
+        }
+    }
+
+    #[test]
+    fn admission_errors_and_notifications_never_reach_presentation() {
+        let picture = Picture::new();
+        for params in [
+            json!({"name":"missing"}),
+            json!({"name":"echo","arguments":{"x":1,"unknown":0}}),
+            json!({"name":"echo","arguments":[]}),
+        ] {
+            assert_eq!(picture.ask(params)["isError"], true);
+        }
+        assert!(
+            handle(
+                r#"{"method":"tools/call","params":{"name":"echo","arguments":{"x":1}}}"#,
+                &picture,
+                "fixture"
+            )
+            .is_none()
+        );
+        assert_eq!(picture.echo.calls.get(), 0);
+        assert_eq!(picture.presentations.get(), 0);
+    }
+
+    #[test]
+    fn tool_errors_never_render_or_promote_partial_results() {
+        let picture = Picture::new();
+        let result = picture.ask(json!({"name":"echo","arguments":{"x":13}}));
+        assert_eq!(picture.echo.calls.get(), 1);
+        assert_eq!(picture.presentations.get(), 0);
+        assert_eq!(result["isError"], true);
+        assert_eq!(result["content"].as_array().unwrap().len(), 1);
+        assert_eq!(result["content"][0]["text"], "unlucky");
+    }
+
+    #[test]
+    fn rendering_or_encoding_refusal_has_no_partial_image_or_implicit_retry() {
+        for (x, message) in [(8, "PNG dimensions"), (9, "fixture presentation refused")] {
+            let picture = Picture::new();
+            let result = picture.ask(json!({"name":"echo","arguments":{"x":x}}));
+            assert_eq!(picture.echo.calls.get(), 1);
+            assert_eq!(picture.presentations.get(), 1);
+            assert_eq!(result["isError"], true);
+            assert_eq!(result["content"].as_array().unwrap().len(), 1);
+            assert!(
+                result["content"][0]["text"]
+                    .as_str()
+                    .unwrap()
+                    .contains(message)
+            );
+        }
     }
 }

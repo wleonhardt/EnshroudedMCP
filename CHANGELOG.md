@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add explicit bounded PNG presentation for successful MCP read results, retaining exact legacy JSON text by default. Game-free RGB encoding, strict size limits and error/no-retry contracts pass source, loopback and independent synthetic browser checks. No native image tool or installed update is introduced yet.
+
 - Add bounded geometry-preview overlays to the terrain inspector with separate sampled/unobserved target classes, toggle/inspection and no execution authority. Fix exported section PNGs to identify their exact interval. Correct an invalid failed-import mutation audit and verify specific assertion failures in complete dependency copies.
 
 - Add a read-only terrain inspector with bounded native capture, offline 3D/section views, precise pins, distance inspection and PNG export. Complete-cell validation preserves unknowns and raw fill without claiming engine mesh/collision correspondence. Browser verification fixes select-change redraw handling; no runtime tool, SDK or installed package changes.

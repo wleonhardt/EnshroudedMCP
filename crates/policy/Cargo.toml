@@ -9,3 +9,5 @@ publish = false
 
 [dependencies]
 serde_json.workspace = true
+base64.workspace = true
+zune-png.workspace = true

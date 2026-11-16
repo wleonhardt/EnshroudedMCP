@@ -13,6 +13,8 @@ enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a151a9550ed7a
 policy = { path = "crates/policy" }
 mcp-transport = { path = "crates/transport" }
 serde_json = "1"
+base64 = { version = "=0.23.1", default-features = false, features = ["alloc"] }
+zune-png = { version = "=0.5.2", default-features = false, features = ["std"] }
 
 # The loader catches a panic in a mod and turns only that mod off; it needs unwinding.
 [profile.release]

@@ -166,6 +166,27 @@ mod tests {
         fn call(&self, _: &str, _: &Map<String, Value>) -> Result<Value, String> {
             Ok(json!({"ok": true}))
         }
+        fn present(
+            &self,
+            name: &str,
+            value: Value,
+        ) -> Result<policy::presentation::Presentation, String> {
+            use policy::presentation::{Png, Presentation};
+            if name != "picture" {
+                return Ok(Presentation::Json(value));
+            }
+            let image = Png::rgb(
+                2,
+                3,
+                &[
+                    255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 0, 0, 255, 255, 255, 0, 255,
+                ],
+            )?;
+            Ok(Presentation::Png {
+                metadata: json!({"label":"synthetic Δ","width":2,"height":3}),
+                image,
+            })
+        }
     }
 
     /// Starts `serve` on a free loopback port and returns the port.
@@ -177,11 +198,18 @@ mod tests {
             token: token.map(Into::into),
         };
         std::thread::spawn(move || {
-            let tools = One(vec![Tool {
-                name: "ok",
-                description: "",
-                schema: json!({"type": "object"}),
-            }]);
+            let tools = One(vec![
+                Tool {
+                    name: "ok",
+                    description: "",
+                    schema: json!({"type": "object"}),
+                },
+                Tool {
+                    name: "picture",
+                    description: "synthetic image fixture",
+                    schema: json!({"type":"object"}),
+                },
+            ]);
             serve(&listener, &config, &tools, "fixture-version");
         });
         port
@@ -228,6 +256,44 @@ mod tests {
         );
         assert!(out.starts_with("HTTP/1.1 200 OK"), "{out}");
         assert!(out.contains(r#"\"ok\": true"#), "{out}");
+    }
+
+    #[test]
+    fn image_and_unicode_metadata_round_trip_with_exact_http_length() {
+        let port = start(None);
+        let out = send(
+            port,
+            &post(
+                r#"{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"picture"}}"#,
+                "",
+            ),
+        );
+        let (head, body) = out.split_once("\r\n\r\n").unwrap();
+        assert!(head.starts_with("HTTP/1.1 200 OK"));
+        let length: usize = head
+            .lines()
+            .find_map(|line| line.strip_prefix("Content-Length: "))
+            .unwrap()
+            .parse()
+            .unwrap();
+        assert_eq!(body.len(), length);
+        let result: Value = serde_json::from_str(body).unwrap();
+        let result = &result["result"];
+        assert_eq!(result["isError"], false);
+        let metadata: Value =
+            serde_json::from_str(result["content"][0]["text"].as_str().unwrap()).unwrap();
+        assert_eq!(
+            metadata,
+            json!({"label":"synthetic Δ","width":2,"height":3})
+        );
+        assert_eq!(result["content"][1]["type"], "image");
+        assert_eq!(result["content"][1]["mimeType"], "image/png");
+        assert!(
+            result["content"][1]["data"]
+                .as_str()
+                .unwrap()
+                .starts_with("iVBORw0KGgo")
+        );
     }
 
     #[test]

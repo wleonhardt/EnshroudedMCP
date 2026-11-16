@@ -18,3 +18,5 @@ Every increment needs prerequisites, a named behavior check, a dated build/confi
 Goal 5 now includes the bounded technical terrain viewer qualified in decision 0070. Complete-cell/coordinate checks, actual native platform correspondence and BrowserOS section/pin/PNG acceptance pass. Engine mesh, collision/contact, planned overlays and native resource integration remain open; this is a saved diagnostic snapshot.
 
 Decision 0071 qualifies bounded proposed-geometry inspection and exact section captions. It also corrects the earlier failed-import mutation audit; complete dependency copies now discriminate the specific intended failures. Actual engine mesh/contact, native resource integration, runtime faults and functional workshop acceptance remain open.
+
+Decision 0072 qualifies bounded typed MCP PNG presentation through synthetic source, HTTP and independent browser checks. No native terrain-image producer is registered or deployed. Goal 5 still requires native copied-cell renderer, matched installation and client acceptance; actual engine imagery/contact remains separate.
