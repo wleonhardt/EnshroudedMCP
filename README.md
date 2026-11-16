@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Companion 0.18.0 source cross-checks SDK and canonical-reflection recipe workshop reference layouts. Raw values remain unchanged; zero GUID meaning is unverified. Matched acceptance is pending; installed companion remains 0.17.0.
+Companion 0.18.0 cross-checks SDK and canonical-reflection recipe workshop reference layouts. Matched native checks pass for six unchanged recipe records through both selection routes. Raw zero GUID meaning and crafting applicability remain unverified.
 
 Companion 0.17.0 adds bounded `client_workshops` definition lookup. Matched native checks resolve four observed workshop IDs and correlate three declared station item identities. Raw recipe GUID references are zero; current station availability and crafting applicability remain unverified.
 

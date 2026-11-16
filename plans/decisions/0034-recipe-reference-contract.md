@@ -1,6 +1,6 @@
 # 0034: Cross-check recipe workshop reference field contracts
 
-Date: 2026-11-16. Status: implemented; private/public source verified (338 Rust executions, including 18 shared module checks, 54 Python tests, Clippy, formatting and release builds); matched native acceptance pending.
+Date: 2026-11-16. Status: implemented; private/public source verified (338 Rust executions, including 18 shared module checks, 54 Python tests, Clippy, formatting and release builds); matched native description agreement/raw-value preservation passes; zero-reference cause remains unverified.
 
 Observed workshop reference GUIDs are zero while their IDs resolve to nonzero definition GUIDs. Before attributing that to cooking, an unused field or a reader bug, compare the published SDK RecipeLayout with canonical reflection of the recipe registry. The SDK fact catalogue explicitly names RecipeInfo.workshopGuid and workshopId separately, and its retarget helper writes both. That source does not explain the observed zero references.
 
@@ -9,3 +9,5 @@ Resolve the canonical recipe array and record, GUID field and transparent u32 ID
 Successful public recipe observations add workshop_reference_layout_checked true. Do not expose offsets or rewrite any raw value. Agreement between two published interface descriptions is not an independent measurement of game semantics, reference value correctness or effective definitions. Zero references remain zero and their cause remains unverified.
 
 Test exact agreement, scalar/alias forms, offset/size/kind mismatches and false/missing probe markers. Matched native qualification must run both recipe selection routes, require the marker, compare all pre-upgrade observations after removing only that marker, and preserve complete runtime baselines/ledgers/binaries/gates. Even successful qualification cannot turn the zero-reference cause or crafting applicability into a verified claim.
+
+Matched 0.39.0/0.18.0 qualification passes after complete cold archive and exact rollback copies. Six records pass through both output-name and recipe-ID routes with the explicit marker. Removing only that marker reproduces prior observations exactly, including raw zero GUIDs. Prior workshop/station identity correlations, fixed read probes, complete captures, immutable ledgers, source closure, installed hashes and absent flags pass. This rules out disagreement between the checked published descriptions for this fixture; it does not independently prove the provider correct or explain a zero value. No value is rewritten, and current availability, crafting semantics and connected staged recovery remain open.
