@@ -331,3 +331,16 @@ Companion 0.18.0 successful client_recipes results include workshop_reference_la
 ## Command status observation age
 
 Companion 0.20.0 adds `status_observation` to `client_command_status` and each `client_commands` row: monotonic milliseconds since the last client-frame SDK status poll, `stale` after 1,000 whole milliseconds, and whether polling has finished. Never-polled and prior-boot records have null age and are stale; prior-boot polling state is also unknown. A poll error is a recently checked unknown outcome, not successful native execution. Retained terminal outcomes remain historical when their poll becomes old. Listener reads compute age without polling the SDK, refreshing the timestamp, submitting input or changing journals. Initial submissions and same-identity command replays retain their existing receipts; explicitly read status for freshness. Poll freshness never proves current UI, arrival or rendering. Native acceptance of this metadata remains unverified.
+
+
+## Declared routes in phase plans
+
+Optional document-level `routes` audit one to eight named declared box routes. Each route has exactly `id`, `body` (`width`, `height`, `depth`) and two to 64 `poses` as `[x,y,z]` box minima. Use the half-metre grid; body width/depth are 0.5..2 m and height is 0.5..4 m. Every pose must fit the world and leave an in-world cell directly below its footprint. The report checks every planned footing cell, every headspace cell, axis-adjacent footprints and vertical changes of at most 0.5 m. Gaps, diagonal/duplicate transitions and excessive rises/drops remain explicit failures. Per-module routes are refused. Without routes, legacy output remains identical. These are caller-declared boxes and a geometric step constraint, not measured avatar dimensions, continuous swept collision, structural support or walkability. No current world occupancy, movement, execution or recovery authority is established.
+
+For a one-metre-wide, two-metre-deep deck at y=4, a synthetic route at its top can be written as:
+
+```json
+{"material":"stone","parts":[{"id":"deck","kind":"floor","x":4,"y":4,"z":4,"width":1,"height":0.5,"depth":2}],"routes":[{"id":"access","body":{"width":1,"height":2,"depth":1},"poses":[[4,4.5,4],[4,4.5,5]]}]}
+```
+
+The optional routes report retains each pose and join, all conflicting headspace and missing footing cells, and planned_route_valid. Review the declared dimensions and unverified flags before interpreting that result. Conflicts are planning evidence, not an execution gate or a supported movement command.

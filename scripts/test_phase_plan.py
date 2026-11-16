@@ -8,6 +8,11 @@ def floor(name, x=0, z=0, width=4, depth=4):
     return dict(id=name, kind="floor", x=x, y=4, z=z, width=width, height=.5, depth=depth)
 
 
+def route(poses=None, **fields):
+    return {"id":"access", "body":{"width":1,"height":2,"depth":1},
+            "poses":poses if poses is not None else [[4,4.5,4],[4,4.5,5]], **fields}
+
+
 def oracle(args):
     if args["kind"]=="gable_roof":
         cells={(4+x,7+y,4+z) for x,top in enumerate([1,2,3,4,4,3,2,1]) for y in range(top) for z in range(12)}
@@ -33,6 +38,86 @@ def clearance_oracle(volumes, cells):
 
 
 class PhaseTests(unittest.TestCase):
+    def test_declared_route_checks_footing_headspace_and_preserves_exact_legacy_phases(self):
+        document={"material":"stone","parts":[floor("deck",x=4,z=4,width=1,depth=2)]}
+        legacy=compile_phases(oracle,document)
+        report=compile_phases(oracle,{**document,"routes":[route()]})
+        audit=report.pop("routes")
+        self.assertEqual(report,legacy)
+        self.assertTrue(audit["checks"][0]["planned_route_valid"])
+        self.assertTrue(all(p["planned_footing_present"] and p["planned_headspace_clear"] for p in audit["checks"][0]["poses"]))
+        for key in ("world_observed","walkability_verified","continuous_sweep_verified"):
+            self.assertFalse(audit[key])
+        self.assertEqual(audit["vertical_delta_limit_m"],.5)
+
+    def test_clear_headspace_does_not_hide_missing_footing_or_a_gap_between_poses(self):
+        report=compile_phases(oracle,{"material":"stone","parts":[floor("deck",x=4,z=4,width=1,depth=1)],"routes":[route()]})
+        checked=report["routes"]["checks"][0]
+        self.assertFalse(checked["planned_route_valid"])
+        self.assertTrue(checked["connected"])
+        self.assertTrue(checked["poses"][1]["planned_headspace_clear"])
+        self.assertEqual(checked["poses"][1]["missing_footing_cell_minima"],[[8,8,10],[8,8,11],[9,8,10],[9,8,11]])
+        report=compile_phases(oracle,{"material":"stone","parts":[floor("deck",x=4,z=4,width=1,depth=3)],
+                                     "routes":[route([[4,4.5,4],[4,4.5,6]])]})
+        checked=report["routes"]["checks"][0]
+        self.assertFalse(checked["connected"])
+        self.assertFalse(checked["planned_route_valid"])
+        self.assertTrue(all(p["planned_footing_present"] for p in checked["poses"]))
+
+    def test_route_headspace_includes_later_modules_and_excludes_touching_upper_face(self):
+        deck=floor("deck",x=4,z=4,width=1,depth=2)
+        roof={**floor("roof",x=4,z=5,width=1,depth=1),"y":6}
+        report=compile_phases(oracle,{"material":"stone","parts":[deck,roof],"routes":[route()]})
+        pose=report["routes"]["checks"][0]["poses"][1]
+        self.assertEqual(pose["headspace_conflicting_cell_minima"],[[8,12,10],[8,12,11],[9,12,10],[9,12,11]])
+        self.assertFalse(pose["planned_headspace_clear"])
+        roof["y"]=6.5
+        report=compile_phases(oracle,{"material":"stone","parts":[deck,roof],"routes":[route()]})
+        self.assertTrue(report["routes"]["checks"][0]["planned_route_valid"])
+
+    def test_route_admission_is_bounded_and_finishes_before_any_preview(self):
+        bad=[[],[route()]*9,[route(),route()],
+             [route(extra=True)],[route(body={"width":2.5,"height":2,"depth":1})],
+             [route(body={"width":1,"height":4.5,"depth":1})],
+             [route(body={"width":1,"height":float("nan"),"depth":1})],
+             [route(poses=[])],[route(poses=[[4,4.5,4]])],[route(poses=[[4,4.5,4]]*65)],
+             [route(poses=[[4,4.25,4],[4,4.5,5]])],[route(poses=[[4,0,4],[4,.5,5]])],
+             [route(poses=[[True,4.5,4],[4,4.5,5]])],[route(poses=[[10240,4.5,4],[4,4.5,5]])]]
+        for routes in bad:
+            calls=[]
+            def preview(args):calls.append(args);return oracle(args)
+            with self.subTest(routes=routes),self.assertRaises(ValueError):
+                compile_phases(preview,{"material":"stone","parts":[floor("deck")],"routes":routes})
+            self.assertEqual(calls,[])
+
+    def test_routes_accept_both_directions_on_each_axis_but_report_high_steps_and_diagonals(self):
+        for dx,dz in [(0,.5),(0,-.5),(.5,0),(-.5,0)]:
+            for rise in [.5,1]:
+                poses=[[4,4.5,4],[4+dx,4.5+rise,4+dz]]
+                parts=[{**floor(str(i),x=x,z=z,width=.5,depth=.5),"y":y-.5} for i,(x,y,z) in enumerate(poses)]
+                paths=[route(poses=poses,id="up",body={"width":.5,"height":.5,"depth":.5}),
+                       route(poses=list(reversed(poses)),id="down",body={"width":.5,"height":.5,"depth":.5})]
+                report=compile_phases(oracle,{"material":"stone","parts":parts,"routes":paths})
+                with self.subTest(dx=dx,dz=dz,rise=rise):
+                    self.assertTrue(all(p["planned_footing_present"] and p["planned_headspace_clear"] for r in report["routes"]["checks"] for p in r["poses"]))
+                    self.assertEqual([r["planned_route_valid"] for r in report["routes"]["checks"]],[rise==.5]*2)
+        for poses in [[[4,4.5,4],[4.5,4.5,4.5]],[[4,4.5,4],[4,4.5,4]]]:
+            report=compile_phases(oracle,{"material":"stone","parts":[floor("deck",x=4,z=4,width=2,depth=2)],"routes":[route(poses)]})
+            self.assertFalse(report["routes"]["checks"][0]["connected"])
+
+    def test_route_workload_limits_and_per_module_scope_are_explicit(self):
+        paths=[route(poses=[[4,4.5,4],[4,4.5,5]]*32,id=str(i)) for i in range(8)]
+        document={"material":"stone","parts":[floor("deck",x=4,z=4,width=1,depth=2)],"routes":paths}
+        report=compile_phases(oracle,document)
+        self.assertEqual(len(report["routes"]["checks"]),8)
+        self.assertTrue(all(len(r["poses"])==64 for r in report["routes"]["checks"]))
+        self.assertTrue(all(r["planned_route_valid"] for r in report["routes"]["checks"]))
+        calls=[]
+        def preview(args):calls.append(args);return oracle(args)
+        with self.assertRaisesRegex(ValueError,"document level"):
+            compile_phases(preview,{"material":"stone","parts":[{**floor("deck"),"routes":paths}]})
+        self.assertEqual(calls,[])
+
     def test_per_module_clearance_is_not_silently_discarded(self):
         module={**floor("a"),"clearance":[dict(x=0,y=4,z=0,width=.5,height=.5,depth=.5)]}
         with self.assertRaisesRegex(ValueError,"clearance"):
@@ -160,7 +245,7 @@ class PhaseTests(unittest.TestCase):
                 if self_call != ("tools/call","building_plan"):raise AssertionError(self_call)
                 import json
                 return {"isError":False,"content":[{"text":json.dumps(oracle(params["arguments"]))}]}
-        compile_phases(mcp_preview(Client()),{"material":"stone","parts":[floor("a")]})
+        compile_phases(mcp_preview(Client()),{"material":"stone","parts":[floor("a",x=4,z=4,width=1,depth=2)],"routes":[route()]})
 
     def test_workload_and_phase_caps_refuse_without_execution(self):
         with self.assertRaises(ValueError):

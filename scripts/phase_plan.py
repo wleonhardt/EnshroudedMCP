@@ -95,15 +95,67 @@ def _clearance_report(volumes, cells):
     return dict(scope="planned_cells_only",world_observed=False,walkability_verified=False,volumes=reports)
 
 
+def _route_specs(routes):
+    if not isinstance(routes,list) or not 1<=len(routes)<=8:
+        raise ValueError("routes require 1..8 declared box routes")
+    specs=[]; ids=set()
+    for route in routes:
+        if (not isinstance(route,dict) or set(route)!={"id","body","poses"}
+                or not isinstance(route["id"],str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}",route["id"])
+                or route["id"] in ids):
+            raise ValueError("routes require unique bounded ids, body and poses")
+        ids.add(route["id"]); body=route["body"]; poses=route["poses"]
+        if (not isinstance(body,dict) or set(body)!={"width","height","depth"}
+                or any(type(body[k]) not in (int,float) or not .5<=body[k]<=cap or body[k]*2%1
+                       for k,cap in zip(("width","height","depth"),(2,4,2)))):
+            raise ValueError("route body requires half-metre width/depth up to 2 m and height up to 4 m")
+        if not isinstance(poses,list) or not 2<=len(poses)<=64:
+            raise ValueError("route requires 2..64 box minima")
+        starts=[]
+        for pose in poses:
+            if not isinstance(pose,list) or len(pose)!=3:
+                raise ValueError("route poses require x, y, z minima")
+            start,_,_=_volume({**dict(zip(("x","y","z"),pose)),**body})
+            if start[1]==0:raise ValueError("route requires an in-world cell below its footing")
+            starts.append(start)
+        specs.append((route["id"],tuple(int(body[k]*2) for k in ("width","height","depth")),starts))
+    return specs
+
+
+def _route_report(specs, cells):
+    checks=[]
+    for name,size,starts in specs:
+        poses=[]; joins=[]; width,height,depth=size
+        for index,(x,y,z) in enumerate(starts):
+            body={(a,b,c) for a in range(x,x+width) for b in range(y,y+height) for c in range(z,z+depth)}
+            footing={(a,y-1,c) for a in range(x,x+width) for c in range(z,z+depth)}
+            conflicts=body&cells; missing=footing-cells
+            poses.append(dict(min_m=[x/2,y/2,z/2],planned_headspace_clear=not conflicts,
+                              headspace_conflicting_cell_minima=[list(c) for c in sorted(conflicts)],
+                              planned_footing_present=not missing,missing_footing_cell_minima=[list(c) for c in sorted(missing)]))
+            if index:
+                dx,dy,dz=(starts[index][i]-starts[index-1][i] for i in range(3))
+                adjacent=(dx==0 and 0<abs(dz)<=depth) or (dz==0 and 0<abs(dx)<=width)
+                joins.append(dict(from_pose=index-1,to_pose=index,horizontal_adjacent=adjacent,
+                                  vertical_delta_m=dy/2,vertical_step_within_limit=abs(dy)<=1))
+        connected=all(j["horizontal_adjacent"] and j["vertical_step_within_limit"] for j in joins)
+        valid=connected and all(p["planned_headspace_clear"] and p["planned_footing_present"] for p in poses)
+        checks.append(dict(id=name,body_m=dict(zip(("width","height","depth"),(n/2 for n in size))),
+                           poses=poses,joins=joins,connected=connected,planned_route_valid=valid))
+    return dict(scope="planned_cells_only",world_observed=False,walkability_verified=False,
+                continuous_sweep_verified=False,vertical_delta_limit_m=.5,checks=checks)
+
+
 def compile_phases(preview, document):
     if (not isinstance(document,dict) or not {"material","parts"}<=set(document)
-            or set(document)-{"material","parts","clearance"}):
-        raise ValueError("expected material, parts and optional clearance")
+            or set(document)-{"material","parts","clearance","routes"}):
+        raise ValueError("expected material, parts and optional clearance/routes")
     if "clearance" in document:
         volumes=document["clearance"]
         if not isinstance(volumes,list) or not 1<=len(volumes)<=32:
             raise ValueError("clearance requires 1..32 global volumes")
         for volume in volumes:_volume(volume)
+    routes=_route_specs(document["routes"]) if "routes" in document else None
     parts=document["parts"]; material=document["material"]
     if not isinstance(parts,list) or not 1<=len(parts)<=32:
         raise ValueError("requires 1..32 primitive modules")
@@ -116,6 +168,7 @@ def compile_phases(preview, document):
                 or "material" in p or p.get("kind") not in ("floor","wall","doorway","staircase","gable_roof")):
             raise ValueError("requires uniquely named primitives without per-part material")
         if "clearance" in p:raise ValueError("put clearance at document level; per-module clearance is unsupported")
+        if "routes" in p:raise ValueError("put routes at document level; per-module routes are unsupported")
         ids.add(p["id"])
     phases=[]; union=set(); modules=[]; batch=[]; owners=[]; rectangle_index=0
     def emit(owners,batch):
@@ -153,6 +206,7 @@ def compile_phases(preview, document):
             if _cells(checked)!=first or checked.get("clearance")!=_clearance_report([volume],first):
                 raise InvalidReply("native clearance preview differs from requested volume and phase cells")
         result["clearance"]=_clearance_report(volumes,union)
+    if routes is not None:result["routes"]=_route_report(routes,union)
     return result
 
 
