@@ -10,6 +10,11 @@
 - Preserve document-level phase clearance evidence across the complete cell union. Check up to 32 bounded absolute volumes through native pure previews and report exact later-phase conflicts. Refuse per-module clearance that was previously silently discarded. Reports remain geometry-only, with world occupancy and walkability unverified.
 - Exercise the production client selection adapter through published typed event delivery on both client and dedicated-server sides. Preserve bounded raw category choices, server/client isolation, unknown current selection and session clearing. This is source regression coverage, not live category/crafting acceptance; installed runtime and MCP behavior are unchanged.
 
+## Server 0.41.0 (multi-output recipe planning)
+
+- Accept mutually exclusive legacy item/count or one to 16 explicit outputs per supplied recipe. Group items by selected producer, aggregate consumer demand and stock once, share batch rounding and report every output and surplus. Choices extend to 512 items; all existing catalogue/arithmetic gates remain.
+- Preserve explicit output-producer allocation: coproducts assigned elsewhere remain surplus. Preserve legacy response shape; bundle steps and reports expose complete outputs and allocation. Verify with a qualified synthetic legacy response and 1,296 independent batch-search/inventory-conservation cases. Native transport and game coproduct/eligibility/crafting semantics remain unverified; installed runtime is unchanged.
+
 ## Server 0.40.0 (native factory-station observations)
 
 - Add read-only factory_station_read with one nonzero session-local server entity selector. Resolve the published typed FactoryStation handle optionally and queue its read on the game thread.

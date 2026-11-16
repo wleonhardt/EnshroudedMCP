@@ -9,11 +9,11 @@ pub const MAX_TOTAL: u64 = 1_000_000_000_000;
 const MAX_RECIPES: usize = 128;
 const MAX_ITEMS: usize = 512;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Recipe {
     pub id: String,
-    pub item: String,
-    pub count: u64,
+    pub outputs: BTreeMap<String, u64>,
+    pub bundle: bool,
     pub ingredients: BTreeMap<String, u64>,
     pub stations: BTreeSet<String>,
     pub unlocks: BTreeSet<String>,
@@ -27,8 +27,8 @@ pub struct Request {
     pub goals: BTreeMap<String, u64>,
     pub stations: BTreeSet<String>,
     pub unlocks: BTreeSet<String>,
-    /// Producers precede their ingredients. Every item occurs exactly once.
-    pub order: Vec<String>,
+    /// Producer groups precede their ingredients. Every item occurs once.
+    pub order: Vec<Vec<String>>,
 }
 
 #[must_use]
@@ -42,6 +42,8 @@ pub fn schema() -> Value {
         }})
     };
     let names = |max| json!({"type":"array","maxItems":max,"uniqueItems":true,"items":name});
+    let mut outputs = quantities(16);
+    outputs["minItems"] = json!(1);
     json!({"type":"object","additionalProperties":false,
         "properties":{
             "catalog_label":name,
@@ -49,10 +51,13 @@ pub fn schema() -> Value {
                 "type":"object","additionalProperties":false,
                 "properties":{
                     "id":name,"item":name,"count":{"type":"integer","minimum":1,"maximum":MAX_QUANTITY},
+                    "outputs":outputs,
                     "ingredients":quantities(16),"stations":names(16),"unlocks":names(16)
-                },"required":["id","item","count","ingredients","stations","unlocks"]
+                },"required":["id","ingredients","stations","unlocks"],
+                "oneOf":[{"required":["item","count"],"not":{"required":["outputs"]}},
+                    {"required":["outputs"],"not":{"anyOf":[{"required":["item"]},{"required":["count"]}]}}]
             }},
-            "choices":{"type":"array","maxItems":MAX_RECIPES,"items":{
+            "choices":{"type":"array","maxItems":MAX_ITEMS,"items":{
                 "type":"object","additionalProperties":false,
                 "properties":{"item":name,"recipe":name},"required":["item","recipe"]
             }},
@@ -75,7 +80,7 @@ pub fn check(args: &Map<String, Value>) -> Result<Request, String> {
     let unlocks = names(&args["unlocks"], 128)?;
     let mut choices = BTreeMap::new();
     if let Some(value) = args.get("choices") {
-        for value in array(value, MAX_RECIPES)? {
+        for value in array(value, MAX_ITEMS)? {
             let fields = object(value, &["item", "recipe"])?;
             if choices
                 .insert(name(&fields["item"])?, name(&fields["recipe"])?)
@@ -89,14 +94,25 @@ pub fn check(args: &Map<String, Value>) -> Result<Request, String> {
     let mut ids = BTreeSet::new();
     let mut items: BTreeSet<_> = stock.keys().chain(goals.keys()).cloned().collect();
     for value in array(&args["recipes"], MAX_RECIPES)? {
-        let r = object(
-            value,
-            &["id", "item", "count", "ingredients", "stations", "unlocks"],
-        )?;
+        let bundle = value.get("outputs").is_some();
+        let fields: &[&str] = if bundle {
+            &["id", "outputs", "ingredients", "stations", "unlocks"]
+        } else {
+            &["id", "item", "count", "ingredients", "stations", "unlocks"]
+        };
+        let r = object(value, fields)?;
+        let outputs = if bundle {
+            quantities(&r["outputs"], 16)?
+        } else {
+            BTreeMap::from([(name(&r["item"])?, quantity(&r["count"])?)])
+        };
+        if outputs.is_empty() {
+            return Err("recipe outputs must contain at least one item".into());
+        }
         let recipe = Recipe {
             id: name(&r["id"])?,
-            item: name(&r["item"])?,
-            count: quantity(&r["count"])?,
+            outputs,
+            bundle,
             ingredients: quantities(&r["ingredients"], 16)?,
             stations: names(&r["stations"], 16)?,
             unlocks: names(&r["unlocks"], 16)?,
@@ -104,12 +120,14 @@ pub fn check(args: &Map<String, Value>) -> Result<Request, String> {
         if !ids.insert(recipe.id.clone()) {
             return Err(format!("duplicate recipe id '{}'", recipe.id));
         }
-        items.insert(recipe.item.clone());
+        items.extend(recipe.outputs.keys().cloned());
         items.extend(recipe.ingredients.keys().cloned());
-        candidates
-            .entry(recipe.item.clone())
-            .or_default()
-            .push(recipe);
+        for item in recipe.outputs.keys() {
+            candidates
+                .entry(item.clone())
+                .or_default()
+                .push(recipe.clone());
+        }
     }
     if items.len() > MAX_ITEMS {
         return Err(format!(
@@ -212,44 +230,62 @@ fn order(
     recipes: &BTreeMap<String, Recipe>,
     stock: &BTreeMap<String, u64>,
     goals: &BTreeMap<String, u64>,
-) -> Result<Vec<String>, String> {
-    let mut indegree: BTreeMap<String, usize> = stock
-        .keys()
-        .chain(goals.keys())
-        .map(|s| (s.clone(), 0))
-        .collect();
+) -> Result<Vec<Vec<String>>, String> {
+    let mut items: BTreeSet<_> = stock.keys().chain(goals.keys()).cloned().collect();
+    let mut producer_keys = BTreeMap::new();
     for (item, recipe) in recipes {
-        indegree.entry(item.clone()).or_default();
-        for ingredient in recipe.ingredients.keys() {
-            *indegree.entry(ingredient.clone()).or_default() += 1;
+        items.insert(item.clone());
+        items.extend(recipe.ingredients.keys().cloned());
+        producer_keys.entry(&recipe.id).or_insert(item);
+    }
+    let owners: BTreeMap<_, _> = items
+        .iter()
+        .map(|item| {
+            let key = recipes
+                .get(item)
+                .map_or(item, |recipe| producer_keys[&recipe.id]);
+            (item.clone(), key.clone())
+        })
+        .collect();
+    let mut groups: BTreeMap<String, Vec<String>> = BTreeMap::new();
+    for (item, key) in &owners {
+        groups.entry(key.clone()).or_default().push(item.clone());
+    }
+    let mut indegree: BTreeMap<_, usize> = groups.keys().map(|key| (key.clone(), 0)).collect();
+    let mut dependencies = BTreeMap::new();
+    for key in groups.keys() {
+        let inputs: BTreeSet<_> = recipes
+            .get(key)
+            .into_iter()
+            .flat_map(|recipe| recipe.ingredients.keys())
+            .map(|item| owners[item].clone())
+            .collect();
+        for input in &inputs {
+            *indegree
+                .get_mut(input)
+                .expect("all ingredients have owners") += 1;
         }
+        dependencies.insert(key.clone(), inputs);
     }
-    if indegree.len() > MAX_ITEMS {
-        return Err(format!(
-            "catalogue and stock contain more than {MAX_ITEMS} distinct items"
-        ));
-    }
-    let mut ready: BTreeSet<String> = indegree
+    let mut ready: BTreeSet<_> = indegree
         .iter()
         .filter(|(_, degree)| **degree == 0)
-        .map(|(item, _)| item.clone())
+        .map(|(key, _)| key.clone())
         .collect();
     let mut result = Vec::new();
-    while let Some(item) = ready.pop_first() {
-        if let Some(recipe) = recipes.get(&item) {
-            for ingredient in recipe.ingredients.keys() {
-                let degree = indegree
-                    .get_mut(ingredient)
-                    .expect("all ingredients were inserted");
-                *degree -= 1;
-                if *degree == 0 {
-                    ready.insert(ingredient.clone());
-                }
+    while let Some(key) = ready.pop_first() {
+        for input in &dependencies[&key] {
+            let degree = indegree
+                .get_mut(input)
+                .expect("all ingredients have owners");
+            *degree -= 1;
+            if *degree == 0 {
+                ready.insert(input.clone());
             }
         }
-        result.push(item);
+        result.push(groups[&key].clone());
     }
-    if result.len() != indegree.len() {
+    if result.len() != groups.len() {
         return Err("recipe cycle detected; supply an acyclic set of chosen recipes".into());
     }
     Ok(result)
@@ -417,5 +453,93 @@ mod tests {
         assert!(add(MAX_TOTAL, 1).is_err());
         assert!(multiply(MAX_TOTAL, 2).is_err());
         assert!(multiply(u64::MAX, 2).is_err());
+    }
+
+    fn bundled() -> Value {
+        let mut v = request();
+        v["recipes"] = json!([{"id":"split","outputs":[{"item":"wood","count":2},{"item":"scrap","count":1}],
+            "ingredients":[],"stations":[],"unlocks":[]}]);
+        v
+    }
+
+    #[test]
+    fn bundle_outputs_are_strict_nonempty_unique_and_bounded() {
+        for outputs in [
+            json!([]),
+            json!(null),
+            json!([{"item":"x","count":0}]),
+            json!([{"item":"x","count":-1}]),
+            json!([{"item":"x","count":1,"extra":true}]),
+            json!([{"item":"x","count":1},{"item":"x","count":2}]),
+            json!(
+                (0..17)
+                    .map(|i| json!({"item":format!("x{i}"),"count":1}))
+                    .collect::<Vec<_>>()
+            ),
+        ] {
+            let mut v = bundled();
+            v["recipes"][0]["outputs"] = outputs;
+            assert!(validate(&v).is_err());
+        }
+        for (field, value) in [
+            ("item", json!("wood")),
+            ("count", json!(1)),
+            ("extra", json!(false)),
+        ] {
+            let mut v = bundled();
+            v["recipes"][0][field] = value;
+            assert!(validate(&v).is_err());
+        }
+        let mut v = bundled();
+        v["recipes"][0]["ingredients"] = json!([{"item":"scrap","count":1}]);
+        assert!(validate(&v).unwrap_err().contains("cycle"));
+    }
+
+    #[test]
+    fn all_bundle_outputs_count_toward_catalogue_bounds_and_choices() {
+        let mut v = bundled();
+        v["recipes"] = json!((0..33).map(|i|json!({"id":format!("r{i}"),
+            "outputs":(0..16).map(|j|json!({"item":format!("out-{i}-{j}"),"count":1})).collect::<Vec<_>>(),
+            "ingredients":[],"stations":[],"unlocks":[]})).collect::<Vec<_>>());
+        assert!(validate(&v).unwrap_err().contains("512 distinct items"));
+        let mut v = bundled();
+        v["recipes"].as_array_mut().unwrap().push(json!({"id":"other","item":"scrap","count":1,"ingredients":[],"stations":[],"unlocks":[]}));
+        assert!(validate(&v).unwrap_err().contains("ambiguous"));
+        v["choices"] = json!([{"item":"scrap","recipe":"other"}]);
+        let valid = validate(&v).unwrap();
+        assert_eq!(valid.recipes["wood"].id, "split");
+        assert_eq!(valid.recipes["scrap"].id, "other");
+    }
+
+    #[test]
+    fn bundle_choices_cover_more_than_128_items_and_exclude_unselected_cycles() {
+        let mut v = bundled();
+        let mut recipes = Vec::new();
+        let mut choices = Vec::new();
+        for i in 0..9 {
+            let outputs: Vec<_> = (0..16)
+                .map(|j| json!({"item":format!("out-{i}-{j}"),"count":1}))
+                .collect();
+            for branch in 0..2 {
+                recipes.push(json!({"id":format!("r{i}-{branch}"),"outputs":outputs,"ingredients":[],"stations":[],"unlocks":[]}));
+            }
+            choices.extend(
+                (0..16).map(|j| json!({"item":format!("out-{i}-{j}"),"recipe":format!("r{i}-0")})),
+            );
+        }
+        v["recipes"] = json!(recipes);
+        v["choices"] = json!(choices);
+        assert!(validate(&v).is_ok());
+        let mut v = bundled();
+        v["recipes"][0]["ingredients"] = json!([{"item":"scrap","count":1}]);
+        for item in ["wood", "scrap"] {
+            v["recipes"].as_array_mut().unwrap().push(json!({"id":item,"item":item,"count":1,"ingredients":[],"stations":[],"unlocks":[]}));
+        }
+        v["choices"] = json!([{"item":"wood","recipe":"wood"},{"item":"scrap","recipe":"scrap"}]);
+        assert!(validate(&v).is_ok());
+        v["choices"][0]["recipe"] = json!("split");
+        assert!(validate(&v).is_ok());
+        v["choices"][1]["recipe"] = json!("split");
+        assert!(validate(&v).unwrap_err().contains("cycle"));
     }
 }

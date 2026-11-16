@@ -1,0 +1,171 @@
+{
+  "request": {
+    "catalog_label": "synthetic legacy contract",
+    "recipes": [
+      {
+        "id": "assemble-a",
+        "item": "a",
+        "count": 1,
+        "ingredients": [
+          {
+            "item": "board",
+            "count": 1
+          }
+        ],
+        "stations": [],
+        "unlocks": []
+      },
+      {
+        "id": "assemble-b",
+        "item": "b",
+        "count": 1,
+        "ingredients": [
+          {
+            "item": "board",
+            "count": 1
+          }
+        ],
+        "stations": [],
+        "unlocks": []
+      },
+      {
+        "id": "saw",
+        "item": "board",
+        "count": 3,
+        "ingredients": [
+          {
+            "item": "wood",
+            "count": 2
+          }
+        ],
+        "stations": [],
+        "unlocks": []
+      }
+    ],
+    "stock": [
+      {
+        "item": "board",
+        "count": 1
+      },
+      {
+        "item": "wood",
+        "count": 6
+      }
+    ],
+    "goals": [
+      {
+        "item": "a",
+        "count": 2
+      },
+      {
+        "item": "b",
+        "count": 2
+      },
+      {
+        "item": "wood",
+        "count": 1
+      }
+    ],
+    "stations": [],
+    "unlocks": []
+  },
+  "response": {
+    "catalog_label": "synthetic legacy contract",
+    "feasible_under_supplied_assumptions": true,
+    "goals": [
+      {
+        "count": 2,
+        "item": "a"
+      },
+      {
+        "count": 2,
+        "item": "b"
+      },
+      {
+        "count": 1,
+        "item": "wood"
+      }
+    ],
+    "limits": [
+      "Inputs are supplied by the caller; no live stock, recipe, station or unlock state is verified.",
+      "One selected single-output recipe per item; alternatives require explicit choices, with no automatic search or optimality claim. Ingredient categories, coproducts, recycling cycles and catalysts are unsupported.",
+      "Requirements are names supplied by the caller, not inferred game rules. Missing stations and unlocks are prerequisites, not automatically crafted or granted.",
+      "No costs, durations, inventory eligibility, reservations in the game, progression side effects or optimality are inferred."
+    ],
+    "missing_raw_items": [],
+    "missing_stations": [],
+    "missing_unlocks": [],
+    "mode": "report_only",
+    "planned_surplus": [],
+    "provenance": "caller_supplied_unverified",
+    "steps": [
+      {
+        "batches": 1,
+        "ingredients": [
+          {
+            "count": 2,
+            "item": "wood"
+          }
+        ],
+        "item": "board",
+        "missing_stations": [],
+        "missing_unlocks": [],
+        "needed_after_stock": 3,
+        "produced": 3,
+        "recipe": "saw",
+        "required_stations": [],
+        "required_unlocks": []
+      },
+      {
+        "batches": 2,
+        "ingredients": [
+          {
+            "count": 2,
+            "item": "board"
+          }
+        ],
+        "item": "b",
+        "missing_stations": [],
+        "missing_unlocks": [],
+        "needed_after_stock": 2,
+        "produced": 2,
+        "recipe": "assemble-b",
+        "required_stations": [],
+        "required_unlocks": []
+      },
+      {
+        "batches": 2,
+        "ingredients": [
+          {
+            "count": 2,
+            "item": "board"
+          }
+        ],
+        "item": "a",
+        "missing_stations": [],
+        "missing_unlocks": [],
+        "needed_after_stock": 2,
+        "produced": 2,
+        "recipe": "assemble-a",
+        "required_stations": [],
+        "required_unlocks": []
+      }
+    ],
+    "stock_reserved": [
+      {
+        "count": 1,
+        "item": "board"
+      },
+      {
+        "count": 3,
+        "item": "wood"
+      }
+    ],
+    "unreserved_stock": [
+      {
+        "count": 3,
+        "item": "wood"
+      }
+    ]
+  }
+}

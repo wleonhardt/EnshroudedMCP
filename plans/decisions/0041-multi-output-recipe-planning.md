@@ -1,0 +1,15 @@
+# 0041: Shared batches for explicitly selected multi-output recipes
+
+Date: 2026-11-16. Status: source implementation and full private/public checks pass (354 Rust executions including 19 repeated shared-module checks, 58 Python tests, lint, formatting and release builds); matched native transport and game semantics remain unverified.
+
+Extend recipe_plan with a mutually exclusive output encoding: the existing item/count fields or an outputs array of one to 16 unique positive item/count entries. Preserve strict nested fields, 128 recipes, 16 ingredients per recipe, 512 distinct catalogue/stock/goal items, quantity and derived-total limits. Choices may name up to 512 distinct items so every ambiguous bundle output can be selected. Validate every supplied candidate before selecting producers.
+
+Every item has one selected producer, including items with several candidate output bundles. Items assigned to the same recipe form one dependency group. Process consumers before their suppliers, reserve each item's stock once, then choose the smallest batch count satisfying all remaining assigned-output demands. Expand that recipe's ingredients once and report its complete output bundle. Group edges are deduplicated; selected cycles still refuse even if supplied stock could bootstrap one. Unselected candidates do not introduce dependency edges.
+
+Explicit producer choices also define allocation provenance. A coproduct assigned to another producer is reported as planned surplus and never silently substitutes for that choice. Its surplus is added to any surplus from its selected producer. This is deterministic caller-directed arithmetic, not alternative search or a claim of optimal resource use. Selecting the same recipe for its outputs enables their shared batches. Raw game/archive output vectors do not prove coproduct semantics or applicability.
+
+Legacy item/count calls retain their exact result format and deterministic ordering. Bundle steps contain outputs and an array-valued needed_after_stock; legacy steps retain item, produced and scalar needed_after_stock. Bundle reports add output_allocation=selected_producers_only and selected_producers. The unchanged legacy result is checked against a synthetic request/response captured from the qualified installed 0.40.0 tool; the fixture contains no real game state.
+
+Focused checks cover shared goals/ingredients, output-order invariance, overlapping explicit alternatives, aggregate surplus, cycles, catalogue/output/choice bounds and excessive arithmetic. An independent enumeration searches integer batch counts for 1,296 yield/goal/stock cases, then simulates consuming ingredients, producing outputs and satisfying goals to compare the complete remaining inventory with reported surplus and unreserved stock.
+
+Server source becomes 0.41.0; the companion, official SDK revision, ABI and Rust pin are unchanged. The installed 0.40.0/0.18.0 pair is not replaced by source qualification. Native transport, eligible stock, actual coproduct/catalyst/category semantics, a connected production chain and crafting execution remain separate requirements.
