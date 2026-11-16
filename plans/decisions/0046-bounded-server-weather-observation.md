@@ -1,6 +1,6 @@
 # 0046: Observe bounded server weather through the published SDK
 
-Date: 2026-11-16. Status: source verified; native qualification pending.
+Date: 2026-11-16. Status: source and native point-read acceptance pass; rendered and broader provider behavior remain open.
 
 Workshop experiments need current server environmental observations distinct from the server clock and client rendering. The pinned official alpha.17 SDK already publishes Load::weather and Weather::at. Wrap one point sample; do not introduce offsets, signatures, a private SDK patch or a forecast executor.
 
@@ -13,3 +13,11 @@ The new policy and adapter tests fail before their functions exist. Regressions 
 Keep the official 6a151a95 SDK, ABI 12.1 and companion 0.20.0 unchanged. The server version becomes 0.42.0. A matched cold deployment must preserve all existing rollback, world and ledger invariants before native acceptance. No weather write or mutable front state is exposed.
 
 Private/public checks pass 363 Rust executions (including 19 repeated shared-module checks), 67 Python tests, strict Clippy, formatting and both release builds. Installed runtime remains 0.41.0/0.20.0 until matched native qualification; provider fidelity, rendered weather and safety/shelter interpretation are not established by model checks.
+
+## Native acceptance
+
+Signed sanitized source 0497e930a08cc8345b015d63c5cc95c3ef8efa4f passes its source checks and exact 169-file publication audits. Matched 0.42.0/0.20.0 native production-route qualification observes six samples at three bounded points. All have usable dominance and agree with independent decoded-weight, sum and SDK tie-order checks; each world key matches a separate current status read. Eleven invalid or mutable selectors refuse. Raw positions, world keys and weights remain private evidence, not publication artifacts.
+
+All 29 fixed server and 13 client probes, existing recipe/workshop correlations, complete world baselines, runtime source closure, 12 installed hashes and immutable ledgers pass. A verified 139-member cold archive and four exact rollback DLLs preserve recovery; eight official framework/signature files are unchanged. One independently observed native shutdown exits 0, adding exactly four journal rows and one marker under two archive aliases while preserving every old prefix and other ledger byte. Exit is not causal final-save proof. Original settings, zero roster, fresh native Menu and absent flags are preserved. No weather write or forecast executor is added; Windows MCP/capture remain off.
+
+Native missing/malformed samples were not forced. Their handling has model coverage only. Rendered weather, actual shelter/hazard interpretation, broader climates and future provider versions remain unverified. A joined rendered fixture is the next correlation gate; point observations do not authorize construction, movement or weather mutation.
