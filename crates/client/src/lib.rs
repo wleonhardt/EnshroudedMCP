@@ -493,10 +493,12 @@ mod tests {
     }
 
     static FRAME_STATE: Mutex<Option<Arc<Shared>>> = Mutex::new(None);
+    static FRAME_INPUT: Mutex<Option<enshwick::input::Input>> = Mutex::new(None);
     struct Recorder;
     impl Mod for Recorder {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             let companion = ResearchClient::init(load)?;
+            *FRAME_INPUT.lock().unwrap() = companion.tools.native_input;
             *FRAME_STATE.lock().unwrap() = Some(companion.tools.shared);
             Ok(Self)
         }
@@ -600,6 +602,193 @@ side = "both""#
             }
             assert!(loader.client_commands().is_empty());
         }
+    }
+
+    struct FrameFixture(std::path::PathBuf, std::path::PathBuf);
+    impl FrameFixture {
+        fn new() -> Self {
+            let parent = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("../../target/client-frame-tests");
+            std::fs::create_dir_all(&parent).unwrap();
+            let parent = parent.canonicalize().unwrap();
+            let path = parent.join(format!(
+                "{}-{}",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            std::fs::create_dir(&path).unwrap();
+            Self(path, parent)
+        }
+    }
+    impl Drop for FrameFixture {
+        fn drop(&mut self) {
+            let path = self.0.canonicalize().unwrap();
+            assert_eq!(path.parent(), Some(self.1.as_path()));
+            std::fs::remove_dir_all(path).unwrap();
+        }
+    }
+
+    fn frame_write_tools(
+        fixture: &FrameFixture,
+    ) -> (enshwick::test::Installed, ClientTools, Value) {
+        use enshwick::abi::{ClientSnapshot, Side, Status, Str};
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .mod_dir(fixture.0.to_str().unwrap())
+            .install();
+        // SAFETY: these are this test module's framework-generated exports.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            Status::OK
+        );
+        let input = *FRAME_INPUT.lock().unwrap();
+        // Start copied-snapshot sampling before injecting the fixture's fresh context.
+        input.unwrap().client_snapshot().unwrap();
+        let _ = loader.draw_frame();
+        loader.set_client_snapshot(ClientSnapshot {
+            state: ClientSnapshot::FRESH,
+            session: 1,
+            age_ms: 0,
+            available: ClientSnapshot::SCREENS,
+            hud_screen: Str::new("InGame"),
+            ..ClientSnapshot::EMPTY
+        });
+        let shared = FRAME_STATE.lock().unwrap().as_ref().unwrap().clone();
+        let mut tools = ClientTools::new(shared, true, false);
+        tools.native_input = input;
+        tools.mod_dir = Some(fixture.0.clone());
+        let mut args = json!({"operation":"frame-fault","action":"open_screen","target":"Map"});
+        let spec = policy::client_control::check(args.as_object().unwrap()).unwrap();
+        let preview = tools
+            .shared
+            .control
+            .lock()
+            .unwrap()
+            .run(spec, input, tools.mod_dir.as_deref(), Instant::now())
+            .unwrap();
+        std::fs::write(fixture.0.join(policy::write_gate::FLAG), b"").unwrap();
+        args["dry"] = json!(false);
+        args["confirm"] = json!(policy::write_gate::CONFIRM);
+        args["preview"] = preview["preview"].clone();
+        (loader, tools, args)
+    }
+
+    fn take_frame_request(shared: &Shared) -> Pending {
+        let deadline = Instant::now() + WAIT;
+        loop {
+            if let Some(job) = shared.pending.lock().unwrap().take() {
+                return job;
+            }
+            assert!(
+                Instant::now() < deadline,
+                "request was not published before its deadline"
+            );
+            std::thread::yield_now();
+        }
+    }
+
+    #[test]
+    fn timed_out_real_write_cannot_execute_on_a_late_client_frame() {
+        let fixture = FrameFixture::new();
+        let (loader, tools, args) = frame_write_tools(&fixture);
+        // Hold a detached frame job before begin, then let the actual listener wait expire.
+        let (job, error) = std::thread::scope(|scope| {
+            let waiter = scope.spawn(|| tools.call("client_command", args.as_object().unwrap()));
+            let job = take_frame_request(&tools.shared);
+            let error = waiter.join().unwrap().unwrap_err();
+            (job, error)
+        });
+        assert!(error.contains("queued request cancelled before execution"));
+        assert!(tools.shared.pending.lock().unwrap().is_none());
+        // Republish the held job so the production frame handler must reject its cancelled token.
+        *tools.shared.pending.lock().unwrap() = Some(job);
+        for _ in 0..2 {
+            let _ = loader.draw_frame();
+        }
+        assert!(loader.client_commands().is_empty());
+        assert!(!fixture.0.join("client-commands").exists());
+        assert!(!fixture.0.join("journal.jsonl").exists());
+        assert!(
+            tools
+                .call(
+                    "client_command_status",
+                    json!({"operation":"frame-fault"}).as_object().unwrap()
+                )
+                .is_err()
+        );
+        assert_eq!(std::fs::read_dir(&fixture.0).unwrap().count(), 1); // Only the write flag.
+    }
+
+    #[test]
+    fn lost_reply_after_frame_dispatch_stays_unknown_and_replay_never_redispatches() {
+        let fixture = FrameFixture::new();
+        let (loader, tools, args) = frame_write_tools(&fixture);
+        let (reply, error) = std::thread::scope(|scope| {
+            let waiter = scope.spawn(|| tools.call("client_command", args.as_object().unwrap()));
+            let mut job = take_frame_request(&tools.shared);
+            let original_reply = job.reply;
+            let (replacement, received) = mpsc::sync_channel(1);
+            job.reply = replacement;
+            *tools.shared.pending.lock().unwrap() = Some(job);
+            // Exercise the registered production frame handler, withholding only its reply.
+            let _ = loader.draw_frame();
+            let reply = received.try_recv().unwrap().unwrap();
+            assert_eq!(reply["native_submitted"], true);
+            assert_eq!(reply["native_state"], "pending");
+            assert_eq!(loader.client_commands().len(), 1);
+            let error = waiter.join().unwrap().unwrap_err();
+            assert!(original_reply.send(Ok(reply.clone())).is_err());
+            (reply, error)
+        });
+        assert!(error.contains("started but did not answer"));
+        assert!(error.contains("outcome unknown"));
+        assert!(tools.shared.pending.lock().unwrap().is_none());
+        assert_eq!(reply["rendered_verified"], false);
+        assert_eq!(reply["arrival_verified"], false);
+        let journal = std::fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        let reservation =
+            std::fs::read(fixture.0.join("client-commands/command-frame-fault.json")).unwrap();
+        assert_eq!(
+            std::fs::read_dir(fixture.0.join("client-commands"))
+                .unwrap()
+                .count(),
+            1
+        );
+        // Replay through the listener and registered frame: retain the original native identity.
+        let replay = std::thread::scope(|scope| {
+            let waiter = scope.spawn(|| tools.call("client_command", args.as_object().unwrap()));
+            let job = take_frame_request(&tools.shared);
+            *tools.shared.pending.lock().unwrap() = Some(job);
+            let _ = loader.draw_frame();
+            waiter.join().unwrap().unwrap()
+        });
+        assert_eq!(replay["native_state"], "pending");
+        assert_eq!(loader.client_commands().len(), 1);
+        assert_eq!(
+            std::fs::read(fixture.0.join("journal.jsonl")).unwrap(),
+            journal
+        );
+        assert_eq!(
+            std::fs::read(fixture.0.join("client-commands/command-frame-fault.json")).unwrap(),
+            reservation
+        );
+        assert_eq!(
+            tools
+                .shared
+                .control
+                .lock()
+                .unwrap()
+                .inventory(tools.mod_dir.as_deref())
+                .unwrap()["commands"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     #[test]

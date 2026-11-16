@@ -77,3 +77,7 @@ Each row links its full schema and limits through the JSON by exact tool name. T
 3. Make cancellation/stall/disconnect and storage-fault tests deterministic before extending control. Preserve production deadlines.
 
 The [quality goals](quality-goals.md) define all ten outcomes and dependencies; [next-up](next-up.md) tracks bounded increments. No live operation, installation or runtime behavior changes in this inventory increment.
+
+## Controlled frame fault checkpoint — 2026-11-16
+
+[Decision 0062](decisions/0062-client-frame-timeout-fault-contracts.md) records two production-route SDK model fixtures: a detached-before-begin write refuses on late frames, and post-dispatch reply loss remains unknown while explicit same-ID replay preserves one command and unchanged durable files. These add source evidence only. They do not establish actual native callback stalls, disconnect behavior, rendered effects or persistence. Product checks now execute 372 Rust tests plus 71 Python tests; the historical inactive SDK candidate remains at its separately dated 370-execution qualification.
