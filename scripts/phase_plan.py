@@ -136,14 +136,28 @@ def _route_report(specs, cells):
             if index:
                 dx,dy,dz=(starts[index][i]-starts[index-1][i] for i in range(3))
                 adjacent=(dx==0 and 0<abs(dz)<=depth) or (dz==0 and 0<abs(dx)<=width)
+                conflicts=None
+                if adjacent and abs(dy)<=1:
+                    # For these grid-aligned joins (one horizontal axis, at most
+                    # one vertical cell), every cell in this hull has positive
+                    # overlap with the translated box at some time in [0,1].
+                    low=tuple(min(a,b) for a,b in zip(starts[index-1],(x,y,z)))
+                    high=tuple(max(a,b)+n for a,b,n in zip(starts[index-1],(x,y,z),size))
+                    conflicts=[[a,b,c] for a in range(low[0],high[0]) for b in range(low[1],high[1])
+                               for c in range(low[2],high[2]) if (a,b,c) in cells]
                 joins.append(dict(from_pose=index-1,to_pose=index,horizontal_adjacent=adjacent,
-                                  vertical_delta_m=dy/2,vertical_step_within_limit=abs(dy)<=1))
+                                  vertical_delta_m=dy/2,vertical_step_within_limit=abs(dy)<=1,
+                                  planned_sweep_clear=None if conflicts is None else not conflicts,
+                                  sweep_conflicting_cell_minima=conflicts))
         connected=all(j["horizontal_adjacent"] and j["vertical_step_within_limit"] for j in joins)
-        valid=connected and all(p["planned_headspace_clear"] and p["planned_footing_present"] for p in poses)
+        sweeps=[j["planned_sweep_clear"] for j in joins]
+        sweep_clear=False if False in sweeps else None if None in sweeps else True
+        valid=connected and sweep_clear is True and all(p["planned_headspace_clear"] and p["planned_footing_present"] for p in poses)
         checks.append(dict(id=name,body_m=dict(zip(("width","height","depth"),(n/2 for n in size))),
-                           poses=poses,joins=joins,connected=connected,planned_route_valid=valid))
+                           poses=poses,joins=joins,connected=connected,planned_sweeps_clear=sweep_clear,planned_route_valid=valid))
     return dict(scope="planned_cells_only",world_observed=False,walkability_verified=False,
-                continuous_sweep_verified=False,vertical_delta_limit_m=.5,checks=checks)
+                continuous_sweep_verified=False,planned_sweep_model="declared_box_linear_translation_half_metre_cells",
+                vertical_delta_limit_m=.5,checks=checks)
 
 
 def compile_phases(preview, document):

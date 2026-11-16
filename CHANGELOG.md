@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Audit continuous linear declared-box intersections between admitted planned route poses. Expose swept-cell conflicts, preserve unknown skipped joins and require clear sweeps for route validity. Stair risers can fail despite clear supported endpoints; no native traversal claim or runtime change.
+
 - Refresh the inactive placement proposal as proposed ABI 12.6/slot 211 against exact SDK 73c18f31; record source qualification, submitted request and ready-for-review PRs. No runtime migration.
 
 - Preserve inactive ABI 12.4 client-feedback consumer contracts and an isolated source migration patch against exact published main dc0cf4ce. Hovered slots and entity-backed tooltip data remain client-only observations, without selection/visibility or execution authority. Mark the older placement proposal for rebase because its slot is now occupied. Product dependencies and installed runtime remain unchanged; native provider compatibility is unverified.

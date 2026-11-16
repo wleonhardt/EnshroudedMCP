@@ -37,7 +37,78 @@ def clearance_oracle(volumes, cells):
     return dict(scope="planned_cells_only",world_observed=False,walkability_verified=False,volumes=reports)
 
 
+def sweep_oracle(start, end, body, cells):
+    # Independent time partition: test boxes between every face-crossing event.
+    from fractions import Fraction as F
+    start, end = [list(map(F, p)) for p in (start, end)]
+    size = [F(body[k]) for k in ("width", "height", "depth")]
+    conflicts = []
+    for cell in cells:
+        low = [F(n, 2) for n in cell]
+        times = {F(0), F(1)}
+        for axis in range(3):
+            delta = end[axis] - start[axis]
+            if delta:
+                for face in (low[axis], low[axis] + F(1, 2)):
+                    for offset in (F(0), size[axis]):
+                        t = (face - start[axis] - offset) / delta
+                        if 0 < t < 1: times.add(t)
+        ordered = sorted(times)
+        samples = times | {(a+b)/2 for a,b in zip(ordered, ordered[1:])}
+        if any(all(start[i] + (end[i]-start[i])*t < low[i] + F(1, 2)
+                   and start[i] + (end[i]-start[i])*t + size[i] > low[i]
+                   for i in range(3)) for t in samples):
+            conflicts.append(list(cell))
+    return sorted(conflicts)
+
+
 class PhaseTests(unittest.TestCase):
+    def test_linear_stair_sweep_can_hit_riser_despite_clear_supported_endpoints(self):
+        parts = [{**floor("lower",x=4,z=4,width=.5,depth=.5),"y":4},
+                 {**floor("upper",x=4.5,z=4,width=.5,depth=.5),"y":4.5}]
+        for poses in ([[4,4.5,4],[4.5,5,4]], [[4.5,5,4],[4,4.5,4]]):
+            spec=route(poses,body={"width":.5,"height":1,"depth":.5})
+            report=compile_phases(oracle,{"material":"stone","parts":parts,"routes":[spec]})
+            checked=report["routes"]["checks"][0]
+            self.assertTrue(checked["connected"])
+            self.assertTrue(all(p["planned_headspace_clear"] and p["planned_footing_present"] for p in checked["poses"]))
+            self.assertEqual(checked["joins"][0]["sweep_conflicting_cell_minima"],[[9,9,8]])
+            self.assertFalse(checked["planned_sweeps_clear"])
+            self.assertFalse(checked["planned_route_valid"])
+            self.assertFalse(report["routes"]["continuous_sweep_verified"])
+
+    def test_linear_sweeps_match_exact_time_oracle_for_all_admitted_directions(self):
+        import itertools, random
+        rng=random.Random(48)
+        bodies=[(.5,.5,.5),(1,2,1),(2,4,2),(2,.5,.5),(.5,4,2)]
+        advances=[(d,axis,n/2) for d in bodies for axis in (0,2) for n in range(1,int(d[axis]*2)+1)]
+        for (dimensions,axis,advance),sign,dy in itertools.product(advances,(-1,1),(-.5,0,.5)):
+            body=dict(zip(("width","height","depth"),dimensions))
+            start=[6,6,6];end=start.copy();end[axis]+=sign*advance;end[1]+=dy
+            candidates=list(itertools.product(*(range(int(min(start[i],end[i])*2)-1,
+                int((max(start[i],end[i])+dimensions[i])*2)+1) for i in range(3))))
+            cells=rng.sample(candidates,min(24,len(candidates)))
+            parts=[{**floor(str(i),x=c[0]/2,z=c[2]/2,width=.5,depth=.5),"y":c[1]/2} for i,c in enumerate(cells)]
+            report=compile_phases(oracle,{"material":"stone","parts":parts,"routes":[route([start,end],body=body)]})
+            join=report["routes"]["checks"][0]["joins"][0]
+            expected=sweep_oracle(start,end,body,cells)
+            self.assertEqual(join["sweep_conflicting_cell_minima"],expected,(dimensions,axis,sign,dy))
+            self.assertIs(join["planned_sweep_clear"],not expected)
+
+    def test_inadmissible_join_does_not_report_an_unchecked_sweep_as_clear(self):
+        for poses in ([[4,4.5,4],[4,4.5,6]], [[4,4.5,4],[5,4.5,5]], [[4,4.5,4],[4,5.5,5]]):
+            checked=compile_phases(oracle,{"material":"stone","parts":[floor("deck")],"routes":[route(poses)]})["routes"]["checks"][0]
+            self.assertIsNone(checked["planned_sweeps_clear"])
+            self.assertIsNone(checked["joins"][0]["planned_sweep_clear"])
+            self.assertIsNone(checked["joins"][0]["sweep_conflicting_cell_minima"])
+            self.assertFalse(checked["planned_route_valid"])
+        parts=[{**floor("lower",x=4,z=4,width=.5,depth=.5),"y":4},
+               {**floor("upper",x=4.5,z=4,width=.5,depth=.5),"y":4.5}]
+        spec=route([[4,4.5,4],[4.5,5,4],[6,5,4]],body={"width":.5,"height":1,"depth":.5})
+        checked=compile_phases(oracle,{"material":"stone","parts":parts,"routes":[spec]})["routes"]["checks"][0]
+        self.assertEqual([j["planned_sweep_clear"] for j in checked["joins"]],[False,None])
+        self.assertIs(checked["planned_sweeps_clear"],False)
+
     def test_declared_route_checks_footing_headspace_and_preserves_exact_legacy_phases(self):
         document={"material":"stone","parts":[floor("deck",x=4,z=4,width=1,depth=2)]}
         legacy=compile_phases(oracle,document)
@@ -100,7 +171,9 @@ class PhaseTests(unittest.TestCase):
                 report=compile_phases(oracle,{"material":"stone","parts":parts,"routes":paths})
                 with self.subTest(dx=dx,dz=dz,rise=rise):
                     self.assertTrue(all(p["planned_footing_present"] and p["planned_headspace_clear"] for r in report["routes"]["checks"] for p in r["poses"]))
-                    self.assertEqual([r["planned_route_valid"] for r in report["routes"]["checks"]],[rise==.5]*2)
+                    self.assertEqual([r["connected"] for r in report["routes"]["checks"]],[rise==.5]*2)
+                    self.assertEqual([r["planned_sweeps_clear"] for r in report["routes"]["checks"]],[False if rise==.5 else None]*2)
+                    self.assertEqual([r["planned_route_valid"] for r in report["routes"]["checks"]],[False]*2)
         for poses in [[[4,4.5,4],[4.5,4.5,4.5]],[[4,4.5,4],[4,4.5,4]]]:
             report=compile_phases(oracle,{"material":"stone","parts":[floor("deck",x=4,z=4,width=2,depth=2)],"routes":[route(poses)]})
             self.assertFalse(report["routes"]["checks"][0]["connected"])
