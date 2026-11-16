@@ -1,0 +1,15 @@
+# 0025: Once-only supported native client commands
+
+Date: 2026-11-15. Status: source implemented; live acceptance pending.
+
+Official alpha.17 provides copied client snapshots and queued command/status/cancel APIs. Companion 0.15.0 wraps all six published command families: open/close in-game screens, choose menu tab, bounded look/move and recipe highlight. No arbitrary input, server World access, join, credentials, logout, crafting or process lifecycle is added.
+
+Validate action-specific arguments in game-free policy. Require a fresh native snapshot, readable HUD, nonzero session and exact boot/operation/payload/session/HUD/tab preview. Movement/look require InGame; tab selection requires an observed current tab; recipe highlight requires the observed PlayerCrafting tab and a nonzero recipe ID. Move holds are 1..250 ms with a nonzero direction of length at most one; look is at most a quarter turn per axis before sensitivity. Reject directions that vanish at native float precision.
+
+Use the existing one-request client-frame queue. Cancellation before a handler starts prevents dispatch. The frame submits to the SDK queue; actual execution runs later in the SDK's own client phase. The SDK rechecks session and HUD screen and gives player input priority. The mod's tab comparison is admission-time observation, not an atomic native tab compare-and-swap. Preserve these timing limits rather than claiming stronger isolation.
+
+Default dry and require companion-folder ALLOW_WRITES plus confirm server-write for real requests. Sync an exclusive client-commands identity and intent before one native submission, with bounded audit headroom and a second fresh gate/context/deadline check. Keep at most 64 identities, never reconstruct native IDs after reload and never redispatch a retained or prior-boot operation. Payload conflict refuses; retained same-payload calls return status. Read-only status needs no write flag. Poll terminal outcomes on client frames, retaining them independently of HTTP replies. Audit failure remains explicit and never triggers retry. Keep native IDs in memory only.
+
+Cancellation is a separate deliberate dry/real tool targeting only a retained operation. Require its exact boot/operation cancellation preview and write gate, journal intent/outcome and attempt native cancellation at most once. Cancellation submission does not prove completion; inspect native status. The SDK's bounded movement timeout/release and player-input cancellation remain independent framework protections.
+
+SDK observed is not rendered acceptance, arrival, inventory change or crafting eligibility. Movement observed means its hold completed; look observed means input was written. Preserve rendered_verified and arrival_verified false. Matched cold deployment needs all official binary/signature sidecars, save and server/client ledger preservation and explicit live read-back/rendered checks. Shared hosting is outside this fixture.

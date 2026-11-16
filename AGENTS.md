@@ -11,6 +11,7 @@ Follow the user's request, this file, then settled choices in `plans/decisions/`
 - Bind loopback only. Unknown tool arguments are refused.
 - Every world read or write runs on the game thread through `Scheduler::next_tick`. Listener threads never access the world.
 - The companion copies native UI state on its owning callback and observes explicitly client-scoped events. It grants no server authority; client IDs are never server selectors.
+- Native client commands are admitted on the client frame and queued through the published SDK for its later client execution phase, never through server World access. Preserve session/HUD guards, dry/write gates, durable once-only identities and separate native versus rendered outcomes; see decision 0025. The SDK copied snapshot getter is safe on the listener thread.
 - Entity IDs last one session. Durable building identity requires tested labels or plan keys.
 - Writes require the existing fresh `ALLOW_WRITES` gate and explicit confirmation, meaningful dry runs, journaling and recovery. Building writes retain typed session transaction IDs for undo and reconcile unknown outcomes without replay. Keep proof sites quiescent; multi-cell undo requires the exact expected voxel image.
 - Do not commit credentials, private host details, player identities, generated game data, logs, saves or build output.

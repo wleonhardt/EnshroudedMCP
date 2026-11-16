@@ -35,11 +35,11 @@ class Fixture:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
             value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.17",
-                     "native_client_snapshot": True, "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
+                     "native_client_snapshot": True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
                      "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9", "compiled_framework_abi": "12.1",
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
-                     "semantic_gameplay_actions": [], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers"]}
+                     "semantic_gameplay_actions": ["client_command.look", "client_command.move"], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers", "client_command"]}
         elif name == "client_snapshot":
             value = {"source":"published_native_client_snapshot", "state":"fresh", "session":789, "age_ms":0,
                      "reads":{key:True for key in ("screens","menu_tab","held","player","recipe")},
@@ -200,7 +200,7 @@ class ClientProbeTests(unittest.TestCase):
         for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True), ("native_map_marker_rendered_verified", True),
                            ("semantic_ui_actions", ["client_press"]), ("native_map_marker_ui", False),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
-                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("version", "0.13.0"), ("version", "0.12.1"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0"), ("version", "0.11.0"), ("version", "0.12.0")):
+                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("version", "0.14.0"), ("native_command_live_verified", True), ("native_client_commands", False), ("version", "0.13.0"), ("version", "0.12.1"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0"), ("version", "0.11.0"), ("version", "0.12.0")):
             client = Fixture()
             original = client.call
             def reply(method, params=None):

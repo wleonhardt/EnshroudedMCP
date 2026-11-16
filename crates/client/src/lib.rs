@@ -1,5 +1,6 @@
-//! Optional native client research endpoint. No OS control or gameplay writes.
+//! Optional native client endpoint. Published client commands; no OS input or World access.
 mod categories;
+mod control;
 mod markers;
 mod native_snapshot;
 mod recipe_types;
@@ -80,6 +81,8 @@ impl Observation {
 
 #[derive(Debug)]
 enum Request {
+    Command(policy::client_control::Spec, Instant),
+    Cancel(policy::client_control::CancelSpec, Instant),
     Item(String),
     Recipe(policy::client::RecipeSelector, usize),
     Markers(policy::client_markers::Spec),
@@ -93,6 +96,7 @@ struct Pending {
 
 #[derive(Default)]
 struct Shared {
+    control: Mutex<control::State>,
     observation: Mutex<Observation>,
     pending: Mutex<Option<Pending>>,
     selection: Mutex<policy::client_selection::Evidence>,
@@ -122,6 +126,21 @@ impl ClientTools {
             native_input: None,
             list: vec![
                 Tool {
+                    name: "client_command",
+                    description: "Deliberate native client action: open/close in-game screen, choose tab, bounded look/move or highlight recipe (never craft). Caller operation identity required; dry default. Real requests require exact current session/screen/tab preview, companion ALLOW_WRITES and confirm: server-write. Once-only durable identity: inspect client_command_status after lost replies; never retry a new identity blindly. Frame queues to SDK's later client execution phase, no server World access. SDK observed movement means hold completed, not arrival; look acceptance is not rendered proof. No join, credentials, logout, arbitrary input or offsets.",
+                    schema: policy::client_control::schema(),
+                },
+                Tool {
+                    name: "client_command_status",
+                    description: "Read retained client command outcome by caller operation identity. No dispatch, ID reconstruction or retry. Prior-boot durable identities report unavailable. Native pending/applied/observed/cancelled is distinct from rendering, arrival, craftability or server authority.",
+                    schema: policy::client_control::status_schema(),
+                },
+                Tool {
+                    name: "client_command_cancel",
+                    description: "Cancel only this companion's retained native command. Dry default returns cancellation preview. Real request needs exact preview, companion write flag and confirm: server-write; at most one native cancellation attempt per operation. SDK outcome must be observed separately. Never reconstruct an ID or cancel another mod's command.",
+                    schema: policy::client_control::cancel_schema(),
+                },
+                Tool {
                     name: "client_snapshot",
                     description: "Copied native client state from the SDK, safe on the listener thread: session, freshness, per-part availability, HUD screen, actual inner menu tab, held controls, client player and highlighted recipe. Null with reads=false is unavailable; null with reads=true means none observed. Zero recipe is the SDK no-highlight sentinel. Client IDs never select server entities. Does not submit commands or prove rendering, connection, craftability or world authority.",
                     schema: json!({"type":"object"}),
@@ -133,7 +152,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_capabilities",
-                    description: "Optional native research companion capabilities. Copied native client snapshot availability is separate from per-part runtime reads. No screenshots, OS input, camera or gameplay executor, crafting execution or authoritative world inspection.",
+                    description: "Optional native research companion capabilities. Copied native client snapshot availability is separate from per-part runtime reads. Published bounded native client commands are separate from runtime applicability and live verification. No screenshots, OS input, crafting execution, join/logout or authoritative world inspection.",
                     schema: json!({"type":"object"}),
                 },
                 Tool {
@@ -220,6 +239,27 @@ impl Tools for ClientTools {
             .ok_or("unknown client tool")?;
         policy::args::check(&tool.schema, args)?;
         match name {
+            "client_command" => {
+                let spec = policy::client_control::check(args)?;
+                control::admission(spec.dry, spec.confirm.as_deref(), self.mod_dir.as_deref())?;
+                if self.native_input.is_none() {
+                    return Err("native client command API unavailable".into());
+                }
+                self.request(Request::Command(spec, Instant::now()))
+            }
+            "client_command_status" => {
+                let operation = policy::client_control::operation(args)?;
+                self.shared
+                    .control
+                    .lock()
+                    .map_err(|_| "client command state poisoned")?
+                    .report(&operation, self.mod_dir.as_deref())
+            }
+            "client_command_cancel" => {
+                let spec = policy::client_control::cancel(args)?;
+                control::admission(spec.dry, spec.confirm.as_deref(), self.mod_dir.as_deref())?;
+                self.request(Request::Cancel(spec, Instant::now()))
+            }
             "client_snapshot" => native_snapshot::read(self.native_input),
             "client_map_markers" => {
                 let spec = policy::client_markers::check(args)?;
@@ -238,7 +278,7 @@ impl Tools for ClientTools {
                 self.request(Request::Markers(spec))
             }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":if self.marker_ui {vec!["client_map_markers"]}else{vec![]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -315,7 +355,9 @@ fn resolve(
                 key.type_hash,
             )
         }
-        Request::Markers(_) => Err("marker request requires the client frame dispatcher".into()),
+        Request::Markers(_) | Request::Command(..) | Request::Cancel(..) => {
+            Err("UI request requires the client frame dispatcher".into())
+        }
     }
 }
 
@@ -345,6 +387,7 @@ impl Mod for ResearchClient {
         let host = load.host();
         let frames = shared.clone();
         load.on_frame(move |frame|{
+            if let Ok(mut state)=frames.control.lock(){state.observe(input,frame_dir.as_deref());}
             let prompt=frame.prompt().map(|prompt| {
                 let language=host.language();
                 prompt_value(&prompt.title,prompt.verb,language.code(),host.game_text(prompt.verb,language))
@@ -359,6 +402,8 @@ impl Mod for ResearchClient {
             let job=frames.pending.lock().ok().and_then(|mut job|job.take());
             if let Some(job)=job && job.cancel.begin() {
                 let result=match job.request {
+                    Request::Command(spec,queued)=>frames.control.lock().map_err(|_|"client command state poisoned".to_owned()).and_then(|mut state|state.run(spec,input,frame_dir.as_deref(),queued)),
+                    Request::Cancel(spec,queued)=>frames.control.lock().map_err(|_|"client command state poisoned".to_owned()).and_then(|mut state|state.cancel(spec,input,frame_dir.as_deref(),queued)),
                     Request::Markers(spec)=>frames.markers.lock().map_err(|_|"marker state poisoned".to_owned()).and_then(|mut state|state.run(spec,frame_dir.as_deref(),|list|markers::submit(marker_ui.as_ref(),list))),
                     request=>resolve(host,layout,input_type,request),
                 };
@@ -439,6 +484,7 @@ side = "both""#
         use enshwick::ui::HudScreenType;
         let loader = enshwick::test::FakeHost::new()
             .side(Side::CLIENT)
+            .player_input()
             .game_text(7, enshwick::i18n::Language::EN_US, "Open")
             .install();
         // SAFETY: these are this test module's framework-generated exports.
@@ -488,6 +534,43 @@ side = "both""#
         assert!(state["observation"]["host_template"].is_null());
         assert!(state["observation"]["prompt"].is_null());
         assert_eq!(state["sequence"], 2);
+        loader.set_client_snapshot(enshwick::abi::ClientSnapshot {
+            state: enshwick::abi::ClientSnapshot::FRESH,
+            session: 1,
+            age_ms: 0,
+            available: enshwick::abi::ClientSnapshot::SCREENS,
+            hud_screen: enshwick::abi::Str::new("InGame"),
+            ..enshwick::abi::ClientSnapshot::EMPTY
+        });
+        for cancelled in [false, true] {
+            let spec = policy::client_control::check(
+                json!({"operation":"test-frame-dry","action":"open_screen","target":"Map"})
+                    .as_object()
+                    .unwrap(),
+            )
+            .unwrap();
+            let cancel = Arc::new(PendingWrite::default());
+            if cancelled {
+                assert!(cancel.cancel());
+            }
+            let (tx, rx) = mpsc::sync_channel(1);
+            *shared.pending.lock().unwrap() = Some(Pending {
+                request: Request::Command(spec, Instant::now()),
+                cancel,
+                reply: tx,
+            });
+            assert!(matches!(rx.try_recv(), Err(mpsc::TryRecvError::Empty)));
+            let _ = loader.draw_frame();
+            if cancelled {
+                assert!(matches!(
+                    rx.try_recv(),
+                    Err(mpsc::TryRecvError::Disconnected)
+                ));
+            } else {
+                assert_eq!(rx.try_recv().unwrap().unwrap()["state"], "dry");
+            }
+            assert!(loader.client_commands().is_empty());
+        }
     }
 
     #[test]
@@ -538,7 +621,7 @@ side = "both""#
     #[test]
     fn unavailable_marker_control_and_invalid_selectors_never_enqueue() {
         let tools = ClientTools::new(Arc::default(), false, false);
-        assert_eq!(tools.list().len(), 8);
+        assert_eq!(tools.list().len(), 11);
         for (name, args) in [
             ("client_item", json!({"item":""})),
             ("client_recipes", json!({"item":"wood","limit":9})),
@@ -546,6 +629,12 @@ side = "both""#
             ("client_recipes", json!({"recipe_id":4294967296u64})),
             ("client_state", json!({"key":"Escape"})),
             ("client_snapshot", json!({"key":"Escape"})),
+            ("client_command", json!({"operation":"bad","action":"join"})),
+            ("client_command_status", json!({"operation":"../other"})),
+            (
+                "client_command_status",
+                json!({"operation":"bad","dry":true}),
+            ),
             ("client_events", json!({"limit":0})),
         ] {
             assert!(tools.call(name, args.as_object().unwrap()).is_err());

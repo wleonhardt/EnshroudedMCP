@@ -59,13 +59,16 @@ Every real write requires the fresh flag and confirmation described in [architec
 
 Composite parts use absolute positions and quarter-turn yaw. Reordering parts normalizes to the same request; renaming a part changes identity. Overlaps are written once and owned by the first lexical part ID. Openings omit cells and can be filled by another part's contribution. No nested compositions or per-part material source is accepted.
 
-## Optional companion: eight additional tools
+## Optional companion: eleven additional tools
 
 These are on the separate client endpoint, outside the server's count of 30.
 
 | Tool | Result |
 | --- | --- |
 | `client_capabilities` | Companion APIs, limits and explicit unsupported actions. |
+| `client_command` | Caller operation plus supported action payload; dry default, exact native context preview and companion write gate. Once-only SDK submission; no server authority. |
+| `client_command_status` | Read retained caller operation outcome without dispatch or ID reconstruction. |
+| `client_command_cancel` | Separate dry preview and gated once-only cancellation of a retained native operation. |
 | `client_snapshot` | Copied SDK state, age/session and per-part read flags; actual menu tab, local client identity and recipe highlight. Null with unread part means unavailable. No command or World access. |
 | `client_map_markers` | At most one transient mod-owned annotation; dry by default. Exact preview and client write gate required for real submission. Cached submission is not rendered proof. |
 | `client_state` | Freshness-tagged native screen, prompt, host position/template and observed held controls. |
@@ -74,7 +77,7 @@ These are on the separate client endpoint, outside the server's count of 30.
 | `client_item` | Vanilla identity and available localized item name. |
 | `client_recipes` | Bounded raw vanilla recipe observations. Effective settings and unresolved requirements remain unknown. |
 
-Client IDs are never server selectors. The existing frame screen and named event history do not prove current tabs. The new client_snapshot reports the native inner tab separately when its read flag is available, with explicit native freshness. No tool opens vanilla menus, synthesizes gameplay input, crafts an item or drives the camera.
+Client IDs are never server selectors. The existing frame screen and named event history do not prove current tabs. The new client_snapshot reports the native inner tab separately when its read flag is available, with explicit native freshness. Companion 0.15.0 now opens supported in-game screens and submits bounded native move/look. No join, credentials, logout, arbitrary input or crafting executor is exposed. Native outcome is not rendered proof.
 
 ### Isolated research setting
 
@@ -279,3 +282,13 @@ The request queues on the game thread, syncs exclusive `give-operations/grant-{o
 Repeat the original operation/player/item/count with `dry: true` to inspect retained same-session status. It never redispatches. Changed payload conflicts. Real replay still requires write admission and preview syntax; it only returns retained status. Reopened durable identities are unknown and cannot dispatch; old in-memory sessions refuse. Keep this namespace in cold archives and never remove identities to bypass capacity. A new ID is a new deliberate grant, not reconciliation or a hidden retry.
 
 `native_outcome_reported` and `given` report native commit/rollback, not independent inventory contents. `inventory_readback_verified` remains false. Late callbacks remain scoped to their original session; audit failures stay explicit in cache. There is no native undo, inventory-loss cleanup, automatic retry or survival accounting. Live inventory baseline/read-back, matched deployment and connected acceptance remain deferred while the client is unavailable.
+
+## Guarded native client commands
+
+Companion 0.15.0 exposes `client_command`, `client_command_status` and `client_command_cancel`. All command requests require caller `operation` and one `action`. Dry is the default. Use `open_screen`/`choose_tab` with a whitelisted `target`; `close_screen` has no payload; `look` requires `yaw` and `pitch` radians (at most a quarter turn each, before sensitivity); `move` requires `dx`, `dy`, `hold_ms` (nonzero direction, length at most one, 1..250 ms); `highlight_recipe` requires a nonzero `recipe_id` and highlights without crafting. Fields belonging to another action are refused.
+
+Read `client_snapshot` first. A dry command binds boot, operation, normalized payload, native session, HUD and observed tab in `preview`. Real submission requires `dry: false`, that exact preview, a fresh companion-folder `ALLOW_WRITES` and `confirm: "server-write"`. Admission runs on a client frame, then the SDK queues execution in its later client phase. SDK session/HUD checks and player-input cancellation protect execution; the admission-time tab observation is not an atomic native tab guard. Movement/look require InGame. Tab changes need an observed menu; recipe highlighting needs the observed PlayerCrafting tab. No main-menu join, credentials, logout, arbitrary input or server World access is exposed.
+
+At most 64 exclusive files in `client-commands/` reserve identities durably before dispatch. Same-payload replay returns retained status; conflicting payloads and prior-boot IDs cannot dispatch. Native IDs stay in memory and are never reconstructed. Inspect `client_command_status` by operation after any lost reply. Never invent another operation ID to retry an uncertain action. Preserve the companion journal and complete client-commands directory in cold backups.
+
+Cancellation has its own dry preview and the same client write gate. It targets only a retained native identity and attempts cancellation at most once. Native accepted cancellation is not completion: poll status separately. Pending/applied/observed/cancelled/unavailable/unknown remain distinct from rendered evidence. Observed movement means the hold ended; observed look means input was written. `rendered_verified` and `arrival_verified` remain false. Source tests do not prove a live effect.

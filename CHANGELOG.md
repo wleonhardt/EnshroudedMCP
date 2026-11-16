@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.15.0 (guarded supported native client commands)
+
+- Add client_command, read-only client_command_status and deliberate client_command_cancel over the published SDK queue/status/cancel APIs. Support in-game screen open/close, tab selection, recipe highlight and bounded look/move; add no arbitrary input or server World access.
+- Default dry. Require a fresh nonzero native session, action-specific HUD/tab context, exact preview, companion write gate and synced bounded audit before once-only submission. Keep 64 exclusive durable identities; refuse conflicts/prior-boot reuse and retain outcomes after reply/audit failure without redispatch.
+- Poll native outcomes separately and bound cancellation to one deliberate attempt. SDK observed never implies rendered proof or arrival. Reject movement that vanishes at native float precision. Matched deployment and live acceptance remain pending.
+
 ## Companion 0.14.0 (copied native client snapshot)
 
 - Add read-only client_snapshot through the published SDK's any-thread copied state API. Preserve native state/age/session and per-part read flags, actual inner menu tab, held actions, local client identity and highlighted recipe.

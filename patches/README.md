@@ -1,6 +1,6 @@
 # Clean official framework pin
 
-This branch targets server 0.34.0 / companion 0.14.0 against official release `v1.0.0-alpha.17`, commit `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI 12.1. Rust remains pinned to 1.99.1. Cargo uses the exact official Git revision directly; no local SDK patch or sibling checkout is required for consumer builds.
+This branch targets server 0.34.0 / companion 0.15.0 against official release `v1.0.0-alpha.17`, commit `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI 12.1. Rust remains pinned to 1.99.1. Cargo uses the exact official Git revision directly; no local SDK patch or sibling checkout is required for consumer builds.
 
 The release now includes `ItemInfo::placed_entity_template` as `Option<Guid>`. MCP preserves observed, known-no-template and unavailable metadata states without modifying the SDK. The release also provides native client snapshot and command/status/cancel APIs; this foundation increment alone exposes no new MCP executor. Native adapters and live acceptance remain separate work.
 

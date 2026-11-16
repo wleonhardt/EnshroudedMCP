@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.14.0; no actions."""
+"""Fixed read-only probes for native client companion 0.15.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,14 +25,14 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.14.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.15.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
-            value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == [] and
-            type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and
-            value.get("semantic_ui_actions") == (["client_map_markers"] if value["native_map_marker_ui"] else []) and
-            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "live_verified", "native_client_snapshot")))
+            value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == (["client_command.look", "client_command.move"] if value.get("native_client_commands") else []) and
+            type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and value.get("native_command_live_verified") is False and
+            value.get("semantic_ui_actions") == ((["client_map_markers"] if value["native_map_marker_ui"] else []) + (["client_command"] if value.get("native_client_commands") else [])) and
+            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "live_verified", "native_client_snapshot", "native_client_commands", "native_command_live_verified")))
     sources = value.get("client_event_sources")
     require(isinstance(sources, dict) and all(type(sources.get(key)) is bool for key in ("open_hud_screen", "station_recipe_selection")))
     return {"compiled_framework_revision": value["compiled_framework_revision"], "compiled_framework_abi": value["compiled_framework_abi"],
@@ -214,11 +214,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.14.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.15.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.14.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.15.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):
