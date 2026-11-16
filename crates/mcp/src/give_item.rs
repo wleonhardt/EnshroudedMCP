@@ -523,7 +523,11 @@ side = "server""#
         let dry = input("audit");
         let preview = run(dry.clone()).unwrap();
         let request = real(dry.clone(), &preview);
-        run(request).unwrap();
+        let submission = run(request).unwrap();
+        assert_eq!(
+            submission["state"], "submitted_outcome_pending",
+            "callback audit fixture requires native submission: {submission}"
+        );
         assert_eq!(loader.inventory_requests().len(), 1);
         fs::remove_file(f.0.join("journal.jsonl")).unwrap();
         fs::create_dir(f.0.join("journal.jsonl")).unwrap();
