@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation
 
 
 VERSION = next(
@@ -44,6 +44,9 @@ class Fixture:
             error = args.get("entity") != 4294967295
             if not error:
                 value = {"slots": [], "total_slots": 0, "entity": "private-id", "world_key": "private-world"}
+                if "item_ids" in args:
+                    value["item_counts"] = {"scope":"unique_slots_returned_by_sdk","inventory_completeness":"unknown",
+                        "crafting_eligibility":"unknown","aliases_removed":0,"counts":[{"item_id":213939880,"observed_count":0}]}
             elif not args:
                 value = "provide exactly one of player or entity"
             elif args.get("entity") == 0:
@@ -99,6 +102,15 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_empty_inventory_counts_never_promote_absence_or_eligibility(self):
+        value={"slots":[],"total_slots":0,"item_counts":{"scope":"unique_slots_returned_by_sdk",
+            "inventory_completeness":"unknown","crafting_eligibility":"unknown","aliases_removed":0,
+            "counts":[{"item_id":213939880,"observed_count":0}]}}
+        self.assertTrue(empty_inventory_count_observation(value))
+        for key,bad in [("inventory_completeness","complete"),("crafting_eligibility",True),("aliases_removed",False),
+                        ("counts",[{"item_id":213939880,"observed_count":False}]),("counts",[{"item_id":213939880,"observed_count":1}])]:
+            with self.subTest(key=key):self.assertFalse(empty_inventory_count_observation({**value,"item_counts":{**value['item_counts'],key:bad}}))
+
     def test_construction_budget_shape_and_math_refuse_false_authority(self):
         value={"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":8388558,"journal_limit_bytes":8388608,
                "retained_recovery_bytes":100,"recovery_reservation_count":1,"unreserved_bytes":0,
@@ -198,7 +210,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 22)
+        self.assertEqual(len(report["checks"]), 23)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))

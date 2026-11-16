@@ -1,4 +1,4 @@
-"""Read-only 0.38.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.39.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -23,6 +23,16 @@ RECIPE = {"catalog_label": "synthetic-validation", "goals": [{"item": "boards", 
                        "ingredients": [{"item": "wood", "count": 3}], "stations": [], "unlocks": []}]}
 FLOOR = {"kind": "floor", "x": 100, "y": 100, "z": 100, "width": 2,
          "height": 0.5, "depth": 2, "material": "unverified-validation-material"}
+
+
+def empty_inventory_count_observation(value):
+    counts = value.get("item_counts")
+    return (value.get("slots") == [] and type(value.get("total_slots")) is int and value["total_slots"] == 0
+            and isinstance(counts, dict) and counts.get("scope") == "unique_slots_returned_by_sdk"
+            and counts.get("inventory_completeness") == "unknown" and counts.get("crafting_eligibility") == "unknown"
+            and type(counts.get("aliases_removed")) is int and counts["aliases_removed"] == 0
+            and counts.get("counts") == [{"item_id":213939880,"observed_count":0}]
+            and all(type(row.get(k)) is int for row in counts["counts"] for k in ("item_id", "observed_count")))
 
 
 def construction_budget_observation(value):
@@ -119,14 +129,14 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.38.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.39.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.38.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.39.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.38.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.39.0" and
                    v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
                    v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
                    v.get("native_clock_advance_live_verified") is False and
@@ -150,6 +160,8 @@ class Validation:
         self.probe("unmatched_player", "inventory_read", {"player": "__mcp_validation_no_such_player__"}, refusal="no connected player")
         self.probe("arbitrary_entity_empty_inventory", "inventory_read", {"entity": 4294967295, "limit": 1},
                    lambda v: v.get("slots") == [] and v.get("total_slots") == 0)
+        self.probe("empty_inventory_counts_unknown_eligibility", "inventory_read", {"entity":4294967295,"limit":1,"item_ids":[213939880]},
+                   empty_inventory_count_observation)
         self.probe("empty_health_shape", "entity_health", {"x": 5120, "y": 100, "z": 5120, "radius": 1, "limit": 1},
                    lambda v: v.get("entities") == [] and v.get("total_candidates") == 0 and v.get("truncated") is False)
         self.probe("knowledge_provenance", "knowledge_search", {}, lambda v:

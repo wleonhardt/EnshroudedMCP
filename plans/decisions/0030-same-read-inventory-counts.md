@@ -1,0 +1,11 @@
+# 0030: Same-read inventory item counts with explicit uncertainty
+
+Date: 2026-11-15. Status: implemented; private/public source verified (310 Rust/51 Python tests, Clippy, formatting and release builds pass); matched live acceptance pending.
+
+Production planning needs quantities that are not assembled from independent inventory pages. Extend inventory_read with optional item_ids, reusing the existing strict one-to-eight unique nonzero u32 ID admission. Keep the existing page and its per-slot metadata limits unchanged when omitted. With the option, aggregate the already copied SDK slot vector on the same scheduled game-thread callback, before pagination. Return counts sorted by item ID.
+
+The published alpha.17 inventory Reader::slots follows virtual links without exposing a visited-set/completeness report, and Reader::count saturates a sum of returned records. Do not infer physical uniqueness, traversal completeness or crafting eligibility from that API. The MCP count policy keys records by physical SlotRef, includes each physical item/count once, reports aliases removed and refuses conflicting observations. Categories and item-instance properties do not establish ingredient eligibility. Zero observed can mean absent, uninitialized or omitted by the SDK; both inventory_completeness and crafting_eligibility remain unknown.
+
+Bound post-read processing to 65,536 SDK-returned records. This does not cap upstream SDK allocation/traversal. At that limit the largest sum of u32 counts fits exactly in u64. Preserve session-only identities, no write gate or journal mutation, and no stock reservation or crafting permission. No private ABI reader is introduced.
+
+Verify optional/strict selectors, physical alias deduplication, conflicting aliases in both orders, empty/zero semantics, input-order invariance, record boundaries and exact large totals. Extend the fixed read-only validator with an empty-count/unknown-eligibility shape probe. Install and independently compare nonempty counts with known physical slots when a suitable isolated fixture is available; empty-shape acceptance alone is not a stock milestone.

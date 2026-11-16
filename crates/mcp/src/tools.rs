@@ -177,12 +177,13 @@ impl GameTools {
             },
             Tool {
                 name: "inventory_read",
-                description: "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Empty slots included. Follows virtual inventory links through enshwick; paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish an absent/uninitialized inventory. Default 64, maximum 128 slots.",
+                description: "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Empty slots included. Optional item_ids (1..8 unique nonzero IDs) adds physical-slot-deduplicated counts over the same SDK slot read, independent of page; completeness and crafting eligibility remain unknown. Counts refuse more than 65536 returned records or conflicting aliases. Paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish absent/uninitialized inventory. Default 64, maximum 128 slots.",
                 schema: json!({"type":"object","properties": {
                     "player":{"type":"string"},
                     "entity":{"type":"integer","minimum":1,"maximum":u32::MAX},
                     "offset":{"type":"integer","minimum":0,"maximum":inspection::SLOT_OFFSET_MAX},
-                    "limit":{"type":"integer","minimum":1,"maximum":inspection::SLOT_LIMIT}
+                    "limit":{"type":"integer","minimum":1,"maximum":inspection::SLOT_LIMIT},
+                    "item_ids":policy::item_lookup::schema()["properties"]["ids"]
                 }}),
             },
             Tool {
@@ -564,6 +565,18 @@ impl Tools for GameTools {
                     let reader = inventories.read();
                     let slots = reader.slots(entity);
                     let total = slots.len();
+                    let item_counts = request
+                        .item_ids
+                        .as_ref()
+                        .map(|ids| {
+                            inspection::inventory_item_counts(
+                                ids,
+                                slots
+                                    .iter()
+                                    .map(|slot| (slot.at.0, slot.item.0, slot.count)),
+                            )
+                        })
+                        .transpose()?;
                     let listed: Vec<Value> = slots.iter().skip(request.offset).take(request.limit).map(|slot| {
                         let info = (!slot.is_empty()).then(|| inventories.item_info(slot.item)).flatten();
                         let durability = slot.pide.and_then(|p| reader.durability(p)).map(|bar| json!({"current":bar.current,"max":bar.max}));
@@ -571,9 +584,11 @@ impl Tools for GameTools {
                         json!({"slot_ref":slot.at.0.to_string(),"inventory_entity":slot.at.inventory().0,"index":slot.at.index(),"category":slot.category.0,"item_id":slot.item.0,"count":slot.count,"empty":slot.is_empty(),"item_entity":slot.pide.map(|p|p.0),"item_info":info.map(item_metadata),"durability":durability,"meter":meter})
                     }).collect();
                     let end = request.offset + listed.len();
-                    Ok(
-                        json!({"world_key":world.key(),"entity":entity.0,"identity_scope":"current session","total_slots":total,"offset":request.offset,"next_offset":(end < total).then_some(end),"slots":listed,"note":"slots follow virtual links; pages are not an atomic inventory snapshot; no slots may mean absent or uninitialized inventory"}),
-                    )
+                    let mut result = json!({"world_key":world.key(),"entity":entity.0,"identity_scope":"current session","total_slots":total,"offset":request.offset,"next_offset":(end < total).then_some(end),"slots":listed,"note":"slots follow virtual links; pages are not an atomic inventory snapshot; no slots may mean absent or uninitialized inventory"});
+                    if let Some(counts) = item_counts {
+                        result["item_counts"] = counts;
+                    }
+                    Ok(result)
                 })?
             }
             "item_info" => {

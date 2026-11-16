@@ -1,6 +1,8 @@
 //! Bounded selectors for read-only runtime inspection.
 
-use serde_json::{Map, Value};
+use std::collections::BTreeMap;
+
+use serde_json::{Map, Value, json};
 
 use crate::{args, bounds};
 
@@ -19,6 +21,7 @@ pub fn unique_player<T>(mut matches: impl Iterator<Item = T>) -> Result<T, Strin
 pub const HEALTH_LIMIT: usize = 20;
 pub const SLOT_LIMIT: usize = 128;
 pub const SLOT_OFFSET_MAX: usize = 65_536;
+pub const COUNT_SLOT_LIMIT: usize = 65_536;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum InventoryTarget {
@@ -31,6 +34,7 @@ pub struct InventoryRequest {
     pub target: InventoryTarget,
     pub offset: usize,
     pub limit: usize,
+    pub item_ids: Option<Vec<u32>>,
 }
 
 /// Validate even when called without the MCP schema admission layer.
@@ -50,7 +54,48 @@ pub fn inventory(a: &Map<String, Value>) -> Result<InventoryRequest, String> {
         target,
         offset: integer(a, "offset", 0, 0, SLOT_OFFSET_MAX)?,
         limit: integer(a, "limit", 64, 1, SLOT_LIMIT)?,
+        item_ids: a
+            .get("item_ids")
+            .map(|ids| {
+                crate::item_lookup::check(json!({"ids":ids}).as_object().expect("object literal"))
+            })
+            .transpose()?,
     })
+}
+
+/// Counts unique physical slots from one SDK read, without inferring eligibility
+/// or completeness of the SDK's virtual-link traversal.
+pub fn inventory_item_counts(
+    ids: &[u32],
+    slots: impl IntoIterator<Item = (u64, u32, u32)>,
+) -> Result<Value, String> {
+    let ids = crate::item_lookup::check(json!({"ids":ids}).as_object().expect("object literal"))?;
+    let mut counts: BTreeMap<_, u64> = ids.into_iter().map(|id| (id, 0)).collect();
+    let mut seen = BTreeMap::new();
+    let mut aliases = 0;
+    for (index, (slot, item, count)) in slots.into_iter().enumerate() {
+        if index >= COUNT_SLOT_LIMIT {
+            return Err("inventory item counts exceed 65536 returned slot records".into());
+        }
+        if let Some(previous) = seen.insert(slot, (item, count)) {
+            if previous != (item, count) {
+                return Err("conflicting observations for one physical inventory slot".into());
+            }
+            aliases += 1;
+            continue;
+        }
+        if let Some(total) = counts.get_mut(&item) {
+            // At most COUNT_SLOT_LIMIT u32 counts fit exactly in u64.
+            *total += u64::from(count);
+        }
+    }
+    Ok(json!({
+        "scope":"unique_slots_returned_by_sdk",
+        "inventory_completeness":"unknown",
+        "crafting_eligibility":"unknown",
+        "aliases_removed":aliases,
+        "counts":counts.into_iter().map(|(item,count)| json!({"item_id":item,"observed_count":count})).collect::<Vec<_>>()
+    }))
 }
 
 pub fn item(a: &Map<String, Value>) -> Result<String, String> {
@@ -137,7 +182,8 @@ mod tests {
             InventoryRequest {
                 target: InventoryTarget::Player("p".into()),
                 offset: 0,
-                limit: 64
+                limit: 64,
+                item_ids: None
             }
         );
         assert_eq!(
@@ -165,6 +211,95 @@ mod tests {
             assert!(inventory(&obj(v)).is_err());
         }
         assert!(inventory(&obj(json!({"entity":1,"limit":128,"offset":65536}))).is_ok());
+    }
+
+    #[test]
+    fn inventory_counts_deduplicate_physical_slots_without_claiming_eligibility() {
+        let result = inventory_item_counts(
+            &[7, 8],
+            [(11, 7, 4), (11, 7, 4), (12, 7, 2), (13, 8, 0), (14, 0, 9)],
+        )
+        .unwrap();
+        assert_eq!(
+            result["counts"],
+            json!([{"item_id":7,"observed_count":6},{"item_id":8,"observed_count":0}])
+        );
+        assert_eq!(result["aliases_removed"], 1);
+        assert_eq!(result["scope"], "unique_slots_returned_by_sdk");
+        assert_eq!(result["inventory_completeness"], "unknown");
+        assert_eq!(result["crafting_eligibility"], "unknown");
+    }
+
+    #[test]
+    fn inventory_count_selectors_are_optional_bounded_and_strict() {
+        let request = inventory(&obj(json!({"entity":1,"item_ids":[1,4294967295_u64]}))).unwrap();
+        assert_eq!(request.item_ids, Some(vec![1, u32::MAX]));
+        for ids in [
+            json!([]),
+            json!([0]),
+            json!([1, 1]),
+            json!([1.5]),
+            json!(["1"]),
+            json!([-1]),
+            json!([4294967296_u64]),
+            json!([1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            json!(null),
+            json!({}),
+        ] {
+            assert!(inventory(&obj(json!({"entity":1,"item_ids":ids}))).is_err());
+        }
+        for ids in [vec![], vec![0], vec![1, 1], vec![1, 2, 3, 4, 5, 6, 7, 8, 9]] {
+            assert!(inventory_item_counts(&ids, []).is_err());
+        }
+    }
+
+    #[test]
+    fn inventory_counts_refuse_conflicting_aliases_and_ignore_record_order() {
+        for conflicting in [
+            [(11, 7, 4), (11, 7, 5)],
+            [(11, 7, 4), (11, 8, 4)],
+            [(11, 7, 4), (11, 7, 0)],
+        ] {
+            assert!(
+                inventory_item_counts(&[7], conflicting)
+                    .unwrap_err()
+                    .contains("conflicting")
+            );
+            assert!(inventory_item_counts(&[7], conflicting.into_iter().rev()).is_err());
+        }
+        let records = [(11, 7, 4), (12, 8, 2), (11, 7, 4), (13, 7, 3)];
+        assert_eq!(
+            inventory_item_counts(&[7, 8], records).unwrap(),
+            inventory_item_counts(&[8, 7], records.into_iter().rev()).unwrap()
+        );
+    }
+
+    #[test]
+    fn inventory_counts_bound_record_work_and_keep_large_totals_exact() {
+        let records = (0..COUNT_SLOT_LIMIT).map(|i| (i as u64, 7, u32::MAX));
+        let result = inventory_item_counts(&[7], records).unwrap();
+        assert_eq!(
+            result["counts"][0]["observed_count"],
+            281_474_976_645_120_u64
+        );
+        assert_eq!(result["aliases_removed"], 0);
+        assert!(
+            inventory_item_counts(&[7], std::iter::repeat_n((1, 7, 1), COUNT_SLOT_LIMIT + 1))
+                .unwrap_err()
+                .contains("65536")
+        );
+        let result =
+            inventory_item_counts(&[7], std::iter::repeat_n((1, 7, 1), COUNT_SLOT_LIMIT)).unwrap();
+        assert_eq!(result["counts"][0]["observed_count"], 1);
+        assert_eq!(result["aliases_removed"], COUNT_SLOT_LIMIT - 1);
+    }
+
+    #[test]
+    fn empty_sdk_result_is_zero_observed_without_proving_absence() {
+        let result = inventory_item_counts(&[7], []).unwrap();
+        assert_eq!(result["counts"], json!([{"item_id":7,"observed_count":0}]));
+        assert_eq!(result["inventory_completeness"], "unknown");
+        assert_eq!(result["crafting_eligibility"], "unknown");
     }
 
     #[test]

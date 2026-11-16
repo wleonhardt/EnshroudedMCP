@@ -1,5 +1,10 @@
 # Changelog
 
+## Server 0.39.0 (same-read inventory item counts)
+
+- Extend inventory_read with optional item_ids (one to eight unique nonzero IDs). Count each physical slot once over the same SDK slot read, independently of the returned page. Existing calls retain their page response.
+- Refuse more than 65,536 returned records and conflicting aliases. Keep large totals exact. Report unknown inventory completeness and crafting eligibility, including when observed counts are zero; this is not eligible stock, a reservation or a live crafting claim. The SDK traversal itself is not capped by this post-read bound. Private/public 310 Rust/51 Python tests, Clippy, formatting and release builds pass. Matched live count acceptance remains pending; installed runtime remains 0.38.0.
+
 ## Server 0.38.0 (explicit recipe alternatives)
 
 - Allow bounded alternative single-output producers in recipe_plan with optional explicit item/recipe choices. Refuse ambiguous, duplicate, unknown or mismatched selections; retain existing single-producer calls.
