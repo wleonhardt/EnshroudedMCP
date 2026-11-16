@@ -725,6 +725,133 @@ mod tests {
     }
 
     #[test]
+    fn cancellation_intent_fault_preserves_pending_command_and_attempt_ownership() {
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .install();
+        // SAFETY: these are this test module's framework-generated exports.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+        let input = *INPUT.lock().unwrap();
+        let native = input.unwrap();
+        native.client_snapshot().unwrap();
+        let _ = loader.draw_frame();
+        loader.set_client_snapshot(snapshot(7, "InGame", ""));
+        let fixture = Fixture::new();
+        let dir = Some(fixture.0.as_path());
+        fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+        let mut state = State::default();
+        let preview = state
+            .run(dry("cancel-fault"), input, dir, Instant::now())
+            .unwrap();
+        let submitted = state
+            .run(
+                real(dry("cancel-fault"), &preview),
+                input,
+                dir,
+                Instant::now(),
+            )
+            .unwrap();
+        assert_eq!(submitted["native_state"], "pending");
+        let native_id = loader.client_commands()[0].0;
+        let id = CommandId::new(native_id);
+        let preview = state
+            .cancel(
+                gate::cancel(json!({"operation":"cancel-fault"}).as_object().unwrap()).unwrap(),
+                input,
+                dir,
+                Instant::now(),
+            )
+            .unwrap();
+        let cancel = gate::cancel(json!({"operation":"cancel-fault","dry":false,"preview":preview["preview"],"confirm":write_gate::CONFIRM}).as_object().unwrap()).unwrap();
+        let journal = fixture.0.join("journal.jsonl");
+        let original = fs::read(&journal).unwrap();
+        let reservation = fs::read(path(&fixture.0, "cancel-fault")).unwrap();
+        // A non-file audit path must refuse before touching the pending native command.
+        fs::remove_file(&journal).unwrap();
+        fs::create_dir(&journal).unwrap();
+        assert_eq!(
+            state
+                .cancel(cancel.clone(), input, dir, Instant::now())
+                .unwrap_err(),
+            "client command journal must be a regular file"
+        );
+        assert_eq!(
+            native.command_status(id).unwrap().state,
+            CommandState::Pending
+        );
+        assert_eq!(state.report("cancel-fault", dir).unwrap(), submitted);
+        assert_eq!(loader.client_commands().len(), 1);
+        assert_eq!(
+            fs::read(path(&fixture.0, "cancel-fault")).unwrap(),
+            reservation
+        );
+        // Repair only this owned fixture path, then deliberately request cancellation.
+        fs::remove_dir(&journal).unwrap();
+        fs::write(&journal, &original).unwrap();
+        let accepted = state
+            .cancel(cancel.clone(), input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(accepted["cancel_attempted"], true);
+        assert_eq!(accepted["cancel_request_accepted"], true);
+        assert_eq!(
+            native.command_status(id).unwrap().state,
+            CommandState::Cancelled(enshwick::input::CancelReason::ByMod)
+        );
+        let after_cancel = fs::read(&journal).unwrap();
+        assert!(after_cancel.starts_with(&original));
+        assert_eq!(
+            after_cancel
+                .split(|byte| *byte == b'\n')
+                .filter(|line| !line.is_empty())
+                .count(),
+            4
+        );
+        // Rearm only the SDK model: a second native cancel would visibly cancel it again.
+        loader.set_command_status(native_id, Status::PENDING, 0);
+        let replay = state
+            .cancel(cancel.clone(), input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(replay, accepted);
+        assert_eq!(
+            native.command_status(id).unwrap().state,
+            CommandState::Pending
+        );
+        assert_eq!(fs::read(&journal).unwrap(), after_cancel);
+        assert_eq!(
+            fs::read(path(&fixture.0, "cancel-fault")).unwrap(),
+            reservation
+        );
+        assert_eq!(loader.client_commands().len(), 1);
+        assert_eq!(
+            state.inventory(dir).unwrap()["commands"]
+                .as_array()
+                .unwrap()
+                .len(),
+            1
+        );
+        let mut reopened = State::default();
+        assert_eq!(
+            reopened.report("cancel-fault", dir).unwrap()["state"],
+            "prior_boot_unavailable"
+        );
+        assert_eq!(
+            reopened
+                .cancel(cancel, input, dir, Instant::now())
+                .unwrap_err(),
+            "client cancellation requires a retained operation; no ID reconstruction"
+        );
+        assert_eq!(
+            native.command_status(id).unwrap().state,
+            CommandState::Pending
+        );
+        assert_eq!(fs::read(&journal).unwrap(), after_cancel);
+    }
+
+    #[test]
     fn unusable_native_contexts_refuse_before_reservation_or_dispatch() {
         let loader = enshwick::test::FakeHost::new()
             .side(Side::CLIENT)

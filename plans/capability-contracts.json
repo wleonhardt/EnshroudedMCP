@@ -2917,7 +2917,8 @@
       "evidence_references": [
         "plans/decisions/0058-native-menu-tab-observations.md",
         "plans/decisions/0062-client-frame-timeout-fault-contracts.md",
-        "plans/decisions/0063-specific-client-context-refusals.md"
+        "plans/decisions/0063-specific-client-context-refusals.md",
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
       ],
       "source_checks": "Workspace source checks pass, including controlled detached-before-begin and post-dispatch reply-loss fixtures; no live interruption claim. Initial context refusal now requires the exact reason for seven snapshots across six action families and detects an isolated removed-gate mutation; post-reservation recheck has separate coverage limits.",
       "native_acceptance": "partial; see evidence_summary",
@@ -2925,7 +2926,7 @@
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Qualify pending cancellation/stall/disconnect; do not automatically repeat movement.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
+      "refusal_acceptance": "Native dry Map-open request refuses with the exact context error while UI frames are fresh at Menu and copied context is Never. Installed 0.45.0/0.20.2; command inventory, 88 ledger files, 12 installed hashes and absent flags preserved. Not native pending cancellation acceptance.",
       "independent_effect_acceptance": "Independent visible Map open/close; other actions have separate limits."
     },
     {
@@ -3028,16 +3029,17 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "client UI frame; SDK commands execute in later native client phase",
       "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Native deliberate cancellation and dry/terminal metadata; pending timing boundaries open.",
+      "evidence_summary": "Native deliberate cancellation and dry/terminal metadata; pending timing boundaries open. Source audit-path and once-only attempt ownership contracts qualified; append/sync faults and actual native interruption remain open.",
       "evidence_references": [
-        "plans/decisions/0054-joined-reply-and-inventory-acceptance.md"
+        "plans/decisions/0054-joined-reply-and-inventory-acceptance.md",
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "Workspace checks plus non-file audit admission, deliberate cancellation recovery, independent SDK replay discriminator and prior-boot refusal pass; removing attempt guard in an isolated source copy fails.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Qualify before-dispatch and after-dispatch cancellation separately.",
+      "next_missing_check": "Qualify actual pending native cancellation and disconnect with bounded independent observations; distinguish audit-path admission from append/sync failures.",
       "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
     },
@@ -3054,9 +3056,10 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Copied native Menu/InGame/HUD/tab fields observed; freshness is per observation, not rendered proof.",
+      "evidence_summary": "Copied InGame/HUD/tab fields observed historically. Current Menu UI frames are fresh while copied client state is Never; handle availability does not imply freshness. No rendered proof.",
       "evidence_references": [
-        "plans/decisions/0058-native-menu-tab-observations.md"
+        "plans/decisions/0058-native-menu-tab-observations.md",
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "partial; see evidence_summary",
@@ -3178,14 +3181,16 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Current native UI callback yields fresh Menu observation while the separate copied client snapshot is Never. No server World authority or rendered-panel proof.",
+      "evidence_references": [
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
+      "native_acceptance": "Bounded fresh Menu UI observation qualified; copied-client freshness is separate.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
+      "next_missing_check": "Reconcile historical screen/prompt/host evidence and qualify stale frame behavior separately from copied snapshot readiness.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
     },

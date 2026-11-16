@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add a source cancellation contract for non-file audit refusal, deliberate recovery, once-only attempt ownership and prior-boot refusal. An isolated missing-attempt-guard mutation fails the independent SDK state check. Production behavior is unchanged.
+
 - Repair the client invalid-context regression to assert the intended refusal after proving a valid fixture. An isolated missing-gate mutation now fails instead of passing through an unrelated preview error. Production guards and runtime behavior are unchanged.
 
 - Add source-only client frame fault contracts for cancelled late real writes and reply loss after native dispatch. Explicit same-ID replay preserves exactly one native command and durable reservation; production code and two-second deadlines are unchanged. Live stalls/disconnect remain unverified.
