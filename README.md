@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Server 0.35.0 adds explicit planned-volume clearance checks to pure `building_plan`. Installed isolated runtime remains 0.34.0 / companion 0.15.0; matched installation and live acceptance of the new source are pending. A planned-clear box proves no live world or avatar clearance.
+Server 0.35.0 adds explicit planned-volume clearance checks to pure `building_plan`. Matched isolated DLL installation and server 0.35.0 transport acceptance pass. Companion 0.15.0 relaunch/connected checks of the rebuilt bundle remain unverified. A planned-clear box proves no live world or avatar clearance.
 
 Current source targets server **0.35.0** / companion **0.15.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed isolated research runtime now matches alpha.17. The migration itself added no executor; companion 0.15.0 now wraps supported native commands. Bounded native client-control and server lifecycle/recovery acceptance pass; broader gameplay and public-namespace installation remain unverified. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
 

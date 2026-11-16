@@ -1,6 +1,6 @@
 # 0026: Explicit planned-volume clearance checks
 
-Date: 2026-11-15. Status: implemented; private and sanitized-public source verified; installed runtime unchanged.
+Date: 2026-11-15. Status: implemented; private and sanitized-public source verified; matched DLL installation and isolated server transport verified; rebuilt companion relaunch remains unverified.
 
 The rendered floor/stair/roof fixture has only 1.5 m, 1.0 m and 0.5 m vertical air between successive treads and the roof. A matching solid-cell capture does not establish usable headroom. Extend the existing pure building_plan preview with optional clearance volumes rather than create another executor or infer avatar collision dimensions.
 

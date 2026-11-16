@@ -3,7 +3,7 @@
 ## Server 0.35.0 (explicit planned-volume clearance)
 
 - Extend pure building_plan with optional absolute half-metre-grid clearance boxes. Check one to eight world-bounded boxes and at most 1,024 requested cells; refuse malformed and unknown nested fields.
-- Report exact planned solid-cell intersections after rotations and compound union. Half-open touching boundaries pass. Omitted clearance preserves existing output. Results observe no world state and prove no avatar clearance, traversal, support or shelter; construction authority is unchanged. Matched installation and live transport acceptance remain pending.
+- Report exact planned solid-cell intersections after rotations and compound union. Half-open touching boundaries pass. Omitted clearance preserves existing output. Results observe no world state and prove no avatar clearance, traversal, support or shelter; construction authority is unchanged. Matched cold installation and isolated server transport now pass with independent cramped/raised-roof cell oracles and unchanged world/ledgers. Companion relaunch/connected checks of the rebuilt bundle remain unverified.
 
 ## Rendered compound geometry acceptance (documentation)
 
