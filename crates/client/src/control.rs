@@ -20,6 +20,14 @@ struct Entry {
     cancel_attempted: bool,
     observed_at: Option<Instant>,
 }
+impl Entry {
+    fn outcome(&self) -> Value {
+        let mut result = self.result.clone();
+        result["status_observation"] =
+            gate::status_observation(self.observed_at.map(|at| at.elapsed()), Some(self.terminal));
+        result
+    }
+}
 pub(crate) struct State {
     boot: String,
     operations: BTreeMap<String, Entry>,
@@ -168,12 +176,7 @@ impl State {
     }
     pub(crate) fn report(&self, operation: &str, dir: Option<&Path>) -> Result<Value, String> {
         if let Some(entry) = self.operations.get(operation) {
-            let mut result = entry.result.clone();
-            result["status_observation"] = gate::status_observation(
-                entry.observed_at.map(|at| at.elapsed()),
-                Some(entry.terminal),
-            );
-            return Ok(result);
+            return Ok(entry.outcome());
         }
         if dir.is_some_and(|dir| path(dir, operation).exists()) {
             return Ok(
@@ -196,7 +199,7 @@ impl State {
             if entry.request != request {
                 return Err("client operation payload conflicts with retained identity".into());
             }
-            return Ok(entry.result.clone());
+            return Ok(entry.outcome());
         }
         if dir.is_some_and(|dir| path(dir, &spec.operation).exists()) {
             return Err(
@@ -254,7 +257,7 @@ impl State {
         ) {
             entry.result["audit_error"] = json!(error);
         }
-        let result = entry.result.clone();
+        let result = entry.outcome();
         self.operations.insert(spec.operation, entry);
         Ok(result)
     }
@@ -321,12 +324,12 @@ impl State {
         let token = json!({"boot":self.boot,"operation":operation,"cancel":true}).to_string();
         if spec.dry {
             return Ok(
-                json!({"state":"dry_cancel","operation":operation,"preview":token,"last_outcome":entry.result,"native_submitted":false}),
+                json!({"state":"dry_cancel","operation":operation,"preview":token,"last_outcome":entry.outcome(),"native_submitted":false}),
             );
         }
         gate::exact(spec.preview.as_deref(), &token)?;
         if entry.terminal || entry.cancel_attempted {
-            return Ok(entry.result.clone());
+            return Ok(entry.outcome());
         }
         let dir = dir.ok_or("client mod folder unavailable")?;
         let input = input.ok_or("native client command API unavailable")?;
@@ -354,7 +357,7 @@ impl State {
         ) {
             entry.result["audit_error"] = json!(error);
         }
-        Ok(entry.result.clone())
+        Ok(entry.outcome())
     }
 }
 
@@ -459,7 +462,7 @@ mod tests {
         let journal_before_inventory = fs::read(fixture.0.join("journal.jsonl")).unwrap();
         let inventory = state.inventory(dir).unwrap();
         assert_eq!(inventory["commands"].as_array().unwrap().len(), 1);
-        assert_eq!(retained_outcome(inventory["commands"][0].clone()), queued);
+        assert_eq!(inventory["commands"][0], queued);
         assert_eq!(inventory["commands_submitted"], false);
         assert_eq!(
             fs::read(fixture.0.join("journal.jsonl")).unwrap(),
@@ -567,7 +570,7 @@ mod tests {
                 assert!(report["audit_error"].is_string());
                 let before = loader.client_commands().len();
                 assert_eq!(
-                    state.run(request, input, dir, Instant::now()).unwrap(),
+                    retained_outcome(state.run(request, input, dir, Instant::now()).unwrap()),
                     retained_outcome(report)
                 );
                 assert_eq!(loader.client_commands().len(), before);
@@ -713,7 +716,7 @@ mod tests {
             let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
             state.observe(input, dir);
             assert_eq!(
-                state.run(request, input, dir, Instant::now()).unwrap(),
+                retained_outcome(state.run(request, input, dir, Instant::now()).unwrap()),
                 retained_outcome(report)
             );
             assert_eq!(loader.client_commands(), commands);
@@ -783,6 +786,85 @@ mod tests {
         assert!(loader.client_commands().is_empty());
         assert!(!fixture.0.join("client-commands").exists());
         assert!(!fixture.0.join("journal.jsonl").exists());
+    }
+
+    #[test]
+    fn retained_replies_expose_poll_age_without_refreshing_or_redispatching() {
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .install();
+        // SAFETY: these are this test module's framework-generated exports.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+        let input = *INPUT.lock().unwrap();
+        loader.set_client_snapshot(snapshot(9, "InGame", ""));
+        let fixture = Fixture::new();
+        fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+        let dir = Some(fixture.0.as_path());
+        let mut state = State::default();
+        let preview = state
+            .run(dry("reply-age"), input, dir, Instant::now())
+            .unwrap();
+        let request = real(dry("reply-age"), &preview);
+        let queued = state
+            .run(request.clone(), input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(queued["status_observation"]["stale"], true);
+        assert!(queued["status_observation"]["age_ms"].is_null());
+        assert_eq!(queued["status_observation"]["polling_finished"], false);
+        state.observe(input, dir);
+        state.operations.get_mut("reply-age").unwrap().observed_at =
+            Some(Instant::now() - std::time::Duration::from_secs(2));
+        let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        let replay = state
+            .run(dry("reply-age"), input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(replay["native_state"], "pending");
+        assert_eq!(replay["status_observation"]["stale"], true);
+        assert!(replay["status_observation"]["age_ms"].as_u64().unwrap() >= 2000);
+        let cancel_dry =
+            gate::cancel(json!({"operation":"reply-age"}).as_object().unwrap()).unwrap();
+        let cancel_preview = state
+            .cancel(cancel_dry, input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(
+            cancel_preview["last_outcome"]["status_observation"]["stale"],
+            true
+        );
+        assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
+        let cancel = gate::cancel(json!({"operation":"reply-age","dry":false,"confirm":write_gate::CONFIRM,"preview":cancel_preview["preview"]}).as_object().unwrap()).unwrap();
+        let submitted = state
+            .cancel(cancel.clone(), input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(submitted["cancel_attempted"], true);
+        assert_eq!(submitted["status_observation"]["stale"], true);
+        let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        let again = state
+            .cancel(cancel.clone(), input, dir, Instant::now())
+            .unwrap();
+        assert_eq!(again["status_observation"]["stale"], true);
+        assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
+        state.observe(input, dir);
+        state.operations.get_mut("reply-age").unwrap().observed_at =
+            Some(Instant::now() - std::time::Duration::from_secs(2));
+        let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        for reply in [
+            state.run(request, input, dir, Instant::now()).unwrap(),
+            state.cancel(cancel, input, dir, Instant::now()).unwrap(),
+        ] {
+            assert_eq!(reply["native_state"], "cancelled");
+            assert_eq!(reply["status_observation"]["polling_finished"], true);
+            assert_eq!(reply["status_observation"]["stale"], true);
+            assert_eq!(
+                reply["status_observation"]["current_context_verified"],
+                false
+            );
+        }
+        assert_eq!(loader.client_commands().len(), 1);
+        assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
     }
 
     #[test]
@@ -907,7 +989,7 @@ mod tests {
                 Instant::now(),
             )
             .unwrap();
-        assert_eq!(replay, retained_outcome(unknown));
+        assert_eq!(retained_outcome(replay), retained_outcome(unknown));
         assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
         assert_eq!(loader.client_commands().len(), 2);
     }
