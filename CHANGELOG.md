@@ -13,7 +13,7 @@
 ## Server 0.41.0 (multi-output recipe planning)
 
 - Accept mutually exclusive legacy item/count or one to 16 explicit outputs per supplied recipe. Group items by selected producer, aggregate consumer demand and stock once, share batch rounding and report every output and surplus. Choices extend to 512 items; all existing catalogue/arithmetic gates remain.
-- Preserve explicit output-producer allocation: coproducts assigned elsewhere remain surplus. Preserve legacy response shape; bundle steps and reports expose complete outputs and allocation. Verify with a qualified synthetic legacy response and 1,296 independent batch-search/inventory-conservation cases. Native transport and game coproduct/eligibility/crafting semantics remain unverified; installed runtime is unchanged.
+- Preserve explicit output-producer allocation: coproducts assigned elsewhere remain surplus. Preserve legacy response shape; bundle steps and reports expose complete outputs and allocation. Verify with a qualified synthetic legacy response and 1,296 independent batch-search/inventory-conservation cases. Matched 0.41.0/0.18.0 cold deployment and 1,296 native synthetic comparisons now pass, including exact step yields/costs and complete balances, branching/explicit-overlap sequences, 144 choices/16 outputs, thirteen refusals and all fixed reads with source/hash/ledger preservation. Game coproduct/eligibility/crafting semantics remain unverified.
 
 ## Server 0.40.0 (native factory-station observations)
 

@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Server 0.41.0 adds explicit multi-output recipe planning with shared batches and stock, strict producer choices and complete surplus accounting. Source checks are separate from installed 0.40.0/0.18.0 acceptance. Native transport for this build and live coproduct/crafting semantics remain unverified. See [multi-output planning](plans/decisions/0041-multi-output-recipe-planning.md).
+Server 0.41.0 adds explicit multi-output recipe planning with shared batches and stock, strict producer choices and complete surplus accounting. Matched 0.41.0/0.18.0 deployment passes 1,296 native synthetic batch/yield/cost/inventory-balance comparisons, branching and explicit-overlap sequences, strict bounds, legacy compatibility and read-only preservation. Game coproduct/crafting semantics and eligible stock remain unverified. See [multi-output planning](plans/decisions/0041-multi-output-recipe-planning.md).
 
 Server 0.40.0 adds read-only `factory_station_read` through the published typed server component API. Matched 0.40.0/0.18.0 deployment verifies handle resolution, unobserved reads and strict refusals with full preservation checks. Present factory state, complete queue, client selection, time units, eligibility, crafting and safe removal remain unverified. See [factory-station scope](plans/decisions/0037-native-factory-station-observation.md).
 
