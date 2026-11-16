@@ -4,9 +4,11 @@ This is a source proposal, not an official SDK API, an active MCP patch or an in
 
 ## Submitted current proposal
 
-API request [#1139](https://github.com/enshwick/enshwick/issues/1139) and PR [#1141](https://github.com/enshwick/enshwick/pull/1141) are open. The [current patch](../../patches/enshwick-prop-placement-read-abi126-proposal.patch) applies only to exact [73c18f31](https://github.com/enshwick/enshwick/tree/73c18f317440e7d2b4d61e1f81f7de0055516628). This proposes ABI 12.6/slot 211 after the official permissions entry. Existing slots stay fixed; the headed metadata record is 52 bytes and the host table is 1,720 bytes.
+API request [#1139](https://github.com/enshwick/enshwick/issues/1139) and PR [#1141](https://github.com/enshwick/enshwick/pull/1141) are open. The [current patch](../../patches/enshwick-prop-placement-read-abi128-proposal.patch) applies only to exact [b86d94d1](https://github.com/enshwick/enshwick/tree/b86d94d1c40dfba5661321276a29b989d80b8ba1).
 
-The exact 29-file allowlist, fresh apply/tree proof and source/committed secret scans pass. `cargo +stable xtask check --base 73c18f317440e7d2b4d61e1f81f7de0055516628` passes on Rust 1.100.0: 4,237 scoped tests, nine marked skips, lint, formatting, affected doctests, generated C/C++ and Luau interfaces, rustdoc and fresh local-target links. Rust and Luau tests copy metadata without prop or transaction edits. Broad trybuild is left to CI, and 61 external book links were not checked. Optional game-input variables were absent; native provider and values remain unverified. No candidate loader was installed, and the consumer pin remains unchanged.
+Placement PR [#1141](https://github.com/enshwick/enshwick/pull/1141) remains open and ready at signed 1b647ee7. A normal merge preserves its published history and official main b86d94d1, including statistics and transaction settlement. The proposal appends ABI 12.8/slot 212 after settlement slot 211; the host table is 1,728 bytes and the metadata record remains 52 bytes. Exact 29-file source/commit audits, fresh apply/tree proof and hooks pass. The upstream check passes 4,268 model tests with nine skips, lint, formatting, interfaces, affected doctests and fresh local-target documentation links. Broad trybuild and stable-surface checks remain with CI; 61 external book links and native provider/value behavior remain unverified. No provider was installed. Product SDK 6a151a95/ABI 12.1 and installed 0.42.0/0.20.1 remain unchanged.
+
+Reproduce with `cargo +stable xtask check --base b86d94d1c40dfba5661321276a29b989d80b8ba1` on Rust 1.100.0 after applying the exact-base patch. The [ABI 12.6 patch](../../patches/enshwick-prop-placement-read-abi126-proposal.patch) remains a historical artifact for exact 73c18f31; its old slot must not be applied to current main.
 
 Use the workspace's own `target` directory for these checks: the SDK link checker currently expects `target/doc`. No consumer pin or MCP execution policy changes. A future MCP adapter must still use the server game-thread scheduler.
 
@@ -41,5 +43,3 @@ cargo +1.100.0 xtask check --base 70a468bd4d0001f5e7237bf09ff3b3b0ffc04fc2
 Follow the upstream tool prerequisites, including LLVM clang, ast-grep and nextest. Empty environment values still opt into some game checks; remove the variables for model-only qualification. These checks used an installed stable compiler reporting Rust 1.100.0.
 
 The patch retains the SDK's [MIT attribution](../../patches/enshwick-LICENSE). The [submission record](UPSTREAM.md) links the authorized current request and PR. This historical patch was not submitted or installed.
-
-Ready checkpoint: the user requested review readiness on 2026-11-16. PR #1141 is now open, ready for review and mergeable at the same verified signed head. This does not claim native acceptance or authorize merging.

@@ -22,4 +22,6 @@ Matched isolated alpha.17 installation and a bounded native client-control fixtu
 
 ## Inactive placement metadata proposal
 
+Current [ABI 12.8 proposal](enshwick-prop-placement-read-abi128-proposal.patch) targets exact b86d94d1 and appends slot 212 after transaction settlement. Historical 12.6 and 12.2 patches retain their exact bases. See [qualification](../qualification/sdk-prop-placement/README.md); none changes the active dependency or installed provider.
+
 The [source-only read proposal](enshwick-prop-placement-read-proposal.patch) targets exact official main 70a468bd and proposes an append-only ABI 12.2 metadata getter. It is not applied to the MCP dependency or installed loader. The qualified product remains on official alpha.17 / ABI 12.1. See [reproduction and proof limits](../qualification/sdk-prop-placement/README.md). Upstream submission and native-provider qualification are separate gates.
