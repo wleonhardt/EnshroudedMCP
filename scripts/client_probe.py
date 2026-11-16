@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.20.0; no actions."""
+"""Fixed read-only probes for native client companion 0.20.1; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.20.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.20.1" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
@@ -68,6 +68,9 @@ def command_inventory(value):
             require(age is None and observed.get("polling_finished") is None)
         else:
             require(type(observed.get("polling_finished")) is bool)
+        if "native_error" in row:
+            require(isinstance(row["native_error"], str) and row.get("native_state") == "unknown"
+                    and "native_age_ms" in row and row["native_age_ms"] is None)
         stale_polls += int(observed["stale"])
         unpolled += int(age is None)
         counts[state] = counts.get(state, 0) + 1
@@ -272,11 +275,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.20.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.20.1"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.20.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.20.1", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

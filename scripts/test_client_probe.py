@@ -138,6 +138,20 @@ class ClientProbeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 command_inventory({**value,"commands":[{**current,"status_observation":{**observed,"stale":not stale}}]})
 
+    def test_poll_error_has_no_native_age_from_an_earlier_successful_poll(self):
+        value=json.loads(Fixture().call("tools/call",{"name":"client_commands","arguments":{}})["content"][0]["text"])
+        row={"operation":"private-error","state":"finished_or_unknown","automatic_retry":False,
+             "native_submitted":True,"rendered_verified":False,"arrival_verified":False,
+             "native_state":"unknown","native_error":"private-poll-error","native_age_ms":None,
+             "status_observation":{"source":"client_frame_status_poll","age_ms":0,"stale":False,
+                                   "polling_finished":True,"current_context_verified":False}}
+        self.assertNotIn("private-",json.dumps(command_inventory({**value,"commands":[row]})))
+        for age in (0,1,False,"0"):
+            with self.subTest(age=age),self.assertRaises(ValueError):
+                command_inventory({**value,"commands":[{**row,"native_age_ms":age}]})
+        missing=dict(row);missing.pop("native_age_ms")
+        with self.assertRaises(ValueError):command_inventory({**value,"commands":[missing]})
+
     def test_command_inventory_refuses_malformed_rows_without_saving_identities(self):
         value = json.loads(Fixture().call("tools/call", {"name":"client_commands","arguments":{}})["content"][0]["text"])
         self.assertEqual(command_inventory(value)["records"], 1)

@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Companion 0.20.1 clears stale native command age after SDK status-poll errors. Status, inventory and same-identity replay retain unknown outcomes with null age; no redispatch. Read-only probe checks refuse mixed old-age/error observations.
+
 - Audit continuous linear declared-box intersections between admitted planned route poses. Expose swept-cell conflicts, preserve unknown skipped joins and require clear sweeps for route validity. Stair risers can fail despite clear supported endpoints; no native traversal claim or runtime change.
 
 - Refresh the inactive placement proposal as proposed ABI 12.6/slot 211 against exact SDK 73c18f31; record source qualification, submitted request and ready-for-review PRs. No runtime migration.

@@ -290,6 +290,7 @@ impl State {
                 }
                 Err(error) => {
                     entry.result["native_state"] = json!("unknown");
+                    entry.result["native_age_ms"] = Value::Null;
                     entry.result["native_error"] = json!(error.to_string());
                     entry.terminal = true;
                 }
@@ -865,18 +866,49 @@ mod tests {
                 Instant::now(),
             )
             .unwrap();
+        let id = loader.client_commands()[1].0;
+        loader.set_command_status(id, Status::APPLIED, 0);
+        state.observe(input, dir);
+        assert_eq!(
+            state.report("poll-error", dir).unwrap()["native_state"],
+            "applied"
+        );
+        assert_eq!(state.report("poll-error", dir).unwrap()["native_age_ms"], 0);
         // Model an SDK identity no longer available in its native status store.
         state.operations.get_mut("poll-error").unwrap().id = Some(CommandId::new(999));
         state.observe(input, dir);
         let unknown = state.report("poll-error", dir).unwrap();
         assert_eq!(unknown["native_state"], "unknown");
         assert!(unknown["native_error"].is_string());
+        assert!(unknown["native_age_ms"].is_null());
         assert!(unknown["status_observation"]["age_ms"].is_number());
         assert_eq!(unknown["status_observation"]["polling_finished"], true);
         assert_eq!(
             unknown["status_observation"]["current_context_verified"],
             false
         );
+        assert_eq!(loader.client_commands().len(), 2);
+        let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        state.observe(input, dir);
+        let inventory = state.inventory(dir).unwrap();
+        let row = inventory["commands"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|row| row["operation"] == "poll-error")
+            .unwrap();
+        assert!(row["native_age_ms"].is_null());
+        assert_eq!(row["native_state"], "unknown");
+        let replay = state
+            .run(
+                real(dry("poll-error"), &preview),
+                input,
+                dir,
+                Instant::now(),
+            )
+            .unwrap();
+        assert_eq!(replay, retained_outcome(unknown));
+        assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
         assert_eq!(loader.client_commands().len(), 2);
     }
 }
