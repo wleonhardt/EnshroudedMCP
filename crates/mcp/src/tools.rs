@@ -249,6 +249,7 @@ impl GameTools {
         list.push(crate::reposition::status_tool());
         list.push(crate::clock_control::tool());
         list.push(crate::server_shutdown::tool());
+        list.push(crate::server_shutdown::status_tool());
         list.push(crate::server_save::tool());
         let grants = mod_dir
             .clone()
@@ -412,6 +413,13 @@ impl Tools for GameTools {
                     .as_ref()
                     .ok_or("save lifecycle unavailable")?
                     .call(self.game.world, scheduler, spec)
+            }
+            "server_shutdown_status" => {
+                let operation = policy::server_shutdown::check_status(a)?;
+                self.shutdown
+                    .as_ref()
+                    .ok_or("shutdown lifecycle unavailable")?
+                    .status(&operation)
             }
             "server_shutdown" => {
                 let spec = policy::server_shutdown::check(a)?;

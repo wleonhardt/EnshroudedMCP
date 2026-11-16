@@ -3,6 +3,14 @@ use serde_json::{Map, Value, json};
 use std::time::Duration;
 pub const WAIT: Duration = Duration::from_secs(5);
 pub const MAX_OPERATIONS: usize = 64;
+pub fn status_schema() -> Value {
+    json!({"type":"object","additionalProperties":false,"required":["operation"],"properties":{
+        "operation":{"type":"string","minLength":1,"maxLength":64}}})
+}
+pub fn check_status(args: &Map<String, Value>) -> Result<String, String> {
+    crate::args::check(&status_schema(), args)?;
+    Ok(check(args)?.operation)
+}
 #[derive(Clone, Debug)]
 pub struct Spec {
     pub operation: String,
@@ -125,6 +133,28 @@ pub fn observes(generation: u64, attempted: Option<u64>) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn status_accepts_only_a_bounded_shutdown_identity() {
+        assert_eq!(
+            super::check_status(
+                serde_json::json!({"operation":"stop_01"})
+                    .as_object()
+                    .unwrap()
+            )
+            .unwrap(),
+            "stop_01"
+        );
+        for value in [
+            serde_json::json!({}),
+            serde_json::json!({"operation":"../other"}),
+            serde_json::json!({"operation":"A"}),
+            serde_json::json!({"operation":"x".repeat(65)}),
+            serde_json::json!({"operation":"stop_01","confirm":"server-write"}),
+            serde_json::json!({"operation":"stop_01","dry":true}),
+        ] {
+            assert!(super::check_status(value.as_object().unwrap()).is_err());
+        }
+    }
     use super::*;
     use serde_json::json;
     #[test]

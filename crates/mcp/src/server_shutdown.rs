@@ -11,7 +11,7 @@ use std::{
     fs::{self, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex, mpsc},
+    sync::{Arc, Mutex, TryLockError, mpsc},
     time::{Duration, Instant},
 };
 
@@ -37,6 +37,13 @@ pub(crate) fn tool() -> policy::mcp::Tool {
         name: "server_shutdown",
         description: "ADMIN WRITE: request published native dedicated-server graceful shutdown/final save. Dry by default; supply an operation identity. Real request requires preview session, empty SDK player-character roster, fresh flag and confirm server-write. Roster is not a connection lock; coordinate access. Existing identities return retained status; never automatically retry. One native attempt per active session. Acceptance does not prove process exit or final save. No automatic restart, countdown, save holds, process kill or client logout.",
         schema: shutdown::schema(),
+    }
+}
+pub(crate) fn status_tool() -> policy::mcp::Tool {
+    policy::mcp::Tool {
+        name: "server_shutdown_status",
+        description: "Read a retained current-boot shutdown record without an active world, write flag, scheduler or native call. Historical receipt/lifecycle observations only; no current-world, process-exit or final-save proof. Busy state is unavailable; query the same identity later, never submit another shutdown. Prior-boot identities remain unavailable without reconstruction. No retry, restart or journal append.",
+        schema: shutdown::status_schema(),
     }
 }
 fn gate(spec: &shutdown::Spec, dir: &Path) -> Result<(), String> {
@@ -113,6 +120,34 @@ fn observe(dir: &Path, state: &mut State, generation: u64, event: shutdown::Life
 }
 
 impl Shutdown {
+    pub(crate) fn status(&self, operation: &str) -> Result<Value, String> {
+        let mut report = json!({"operation":operation,"source":"retained_shutdown_record",
+            "state":"busy","native_outcome":null,"read_only":true,
+            "current_world_context_verified":false,"native_identity_reconstructed":false,
+            "automatic_retry":false,"automatic_restart":false,
+            "process_exit_verified":false,"final_save_verified":false});
+        let (retained, durable) = match self.state.try_lock() {
+            Ok(state) => {
+                let retained = state
+                    .operations
+                    .get(operation)
+                    .map(|(_, value)| value.clone());
+                let durable = retained.is_none() && path(&self.dir, operation).exists();
+                (retained, durable)
+            }
+            Err(TryLockError::WouldBlock) => return Ok(report),
+            Err(TryLockError::Poisoned(_)) => return Err("shutdown state poisoned".into()),
+        };
+        if let Some(value) = retained {
+            report["state"] = json!("retained");
+            report["native_outcome"] = value;
+        } else if durable {
+            report["state"] = json!("prior_boot_unavailable");
+        } else {
+            return Err("unknown shutdown operation".into());
+        }
+        Ok(report)
+    }
     pub(crate) fn new(dir: PathBuf, lifecycle: Construction) -> Self {
         Self {
             dir,
@@ -761,6 +796,18 @@ side = "server""#
         );
         assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
         let (control, world, scheduler) = ADAPTER.lock().unwrap().as_ref().unwrap().clone();
+        assert!(
+            control
+                .status("absent")
+                .unwrap_err()
+                .contains("unknown shutdown")
+        );
+        {
+            let _held = control.state.lock().unwrap();
+            let busy = control.status("con").unwrap();
+            assert_eq!(busy["state"], "busy");
+            assert!(busy["native_outcome"].is_null());
+        }
         let drive = |request: shutdown::Spec| {
             let adapter = control.clone();
             let task = std::thread::spawn(move || adapter.call(world, scheduler, request));
@@ -794,7 +841,18 @@ side = "server""#
         let _ = loader.tick(Duration::from_millis(50));
         assert!(!loader.stop_asked());
         assert!(!f.0.join("server-shutdown").exists());
-        let receipt = drive(request.clone()).unwrap();
+        let receipt = match drive(request.clone()) {
+            Ok(receipt) => receipt,
+            Err(error) => {
+                assert_eq!(
+                    error,
+                    "shutdown started; outcome unknown; inspect journal and exact process, never blindly retry"
+                );
+                let reconciled = control.status("con").unwrap();
+                assert_eq!(reconciled["state"], "retained");
+                reconciled["native_outcome"].clone()
+            }
+        };
         assert!(loader.stop_asked());
         assert_eq!(receipt["stop_request_accepted"], true);
         assert_eq!(receipt["process_exit_verified"], false);
@@ -802,10 +860,37 @@ side = "server""#
         assert_eq!(drive(request).unwrap(), receipt);
         assert_eq!(f.records(), 2);
         fs::remove_file(f.0.join(write_gate::FLAG)).unwrap();
+        let retained = control.status("con").unwrap();
+        assert_eq!(retained["native_outcome"], receipt);
+        let listener = control.clone();
+        assert_eq!(
+            std::thread::spawn(move || listener.status("con"))
+                .join()
+                .unwrap()
+                .unwrap(),
+            retained
+        );
+        for field in [
+            "automatic_retry",
+            "automatic_restart",
+            "process_exit_verified",
+            "final_save_verified",
+            "current_world_context_verified",
+            "native_identity_reconstructed",
+        ] {
+            assert_eq!(retained[field], false);
+        }
+        assert_eq!(f.records(), 2);
         assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
         assert_eq!(f.records(), 2);
         assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
         assert_eq!(f.records(), 3);
+        let stopped = control.status("con").unwrap();
+        assert_eq!(
+            stopped["native_outcome"]["lifecycle_observations"]["shutdown_started"],
+            true
+        );
+        assert_eq!(stopped["process_exit_verified"], false);
         assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
         assert_eq!(f.records(), 4);
         assert!(loader.raise::<enshwick::events::WorldSaved>(&()) > 0);
@@ -822,5 +907,16 @@ side = "server""#
         assert_eq!(f.records(), 4);
         let status = shutdown::check(json!({"operation":"con"}).as_object().unwrap()).unwrap();
         assert!(drive(status).is_err());
+        let historical = control.status("con").unwrap();
+        assert_eq!(historical["state"], "retained");
+        assert_eq!(historical["current_world_context_verified"], false);
+        let audit = fs::read(f.0.join("journal.jsonl")).unwrap();
+        control.state.lock().unwrap().operations.clear();
+        fs::write(path(&f.0, "con"), b"not a decodable reservation").unwrap();
+        let prior = control.status("con").unwrap();
+        assert_eq!(prior["state"], "prior_boot_unavailable");
+        assert!(prior["native_outcome"].is_null());
+        assert_eq!(fs::read(f.0.join("journal.jsonl")).unwrap(), audit);
+        assert!(loader.stop_asked());
     }
 }

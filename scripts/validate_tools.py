@@ -1,4 +1,4 @@
-"""Read-only 0.44.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.45.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("player_reposition_status", "entity_buffs_read", "weather_read", "factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("server_shutdown_status", "player_reposition_status", "entity_buffs_read", "weather_read", "factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -158,18 +158,21 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.44.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.45.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.44.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.45.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.44.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.45.0" and
                    v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
                    v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
                    v.get("native_clock_advance_live_verified") is False and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
+        self.probe("shutdown_status_unknown_operation", "server_shutdown_status", {"operation":"_validation_absent_shutdown_045"}, refusal="unknown shutdown operation")
+        self.probe("shutdown_status_path_refused", "server_shutdown_status", {"operation":"../other"}, refusal="shutdown operation must contain")
+        self.probe("shutdown_status_write_refused", "server_shutdown_status", {"operation":"once","confirm":"server-write"}, refusal="unknown argument 'confirm'")
         self.probe("reposition_unknown_operation", "player_reposition_status", {"operation":"_validation_absent_reposition_044"}, refusal="unknown reposition operation")
         self.probe("reposition_status_path_refused", "player_reposition_status", {"operation":"../other"}, refusal="operation must contain")
         self.probe("reposition_status_write_refused", "player_reposition_status", {"operation":"once","confirm":"server-write"}, refusal="unknown argument 'confirm'")
