@@ -59,20 +59,22 @@ Every real write requires the fresh flag and confirmation described in [architec
 
 Composite parts use absolute positions and quarter-turn yaw. Reordering parts normalizes to the same request; renaming a part changes identity. Overlaps are written once and owned by the first lexical part ID. Openings omit cells and can be filled by another part's contribution. No nested compositions or per-part material source is accepted.
 
-## Optional companion: seven additional tools
+## Optional companion: eight additional tools
 
-These are on the separate client endpoint, outside the server's count of 22.
+These are on the separate client endpoint, outside the server's count of 30.
 
 | Tool | Result |
 | --- | --- |
 | `client_capabilities` | Companion APIs, limits and explicit unsupported actions. |
+| `client_snapshot` | Copied SDK state, age/session and per-part read flags; actual menu tab, local client identity and recipe highlight. Null with unread part means unavailable. No command or World access. |
+| `client_map_markers` | At most one transient mod-owned annotation; dry by default. Exact preview and client write gate required for real submission. Cached submission is not rendered proof. |
 | `client_state` | Freshness-tagged native screen, prompt, host position/template and observed held controls. |
 | `client_events` | Bounded screen/host change history, sequence cursor and gaps. |
 | `client_selection_events` | Named client-world HUD/recipe-event observations. They do not establish a current passive selection. |
 | `client_item` | Vanilla identity and available localized item name. |
 | `client_recipes` | Bounded raw vanilla recipe observations. Effective settings and unresolved requirements remain unknown. |
 
-Client IDs are never server selectors. Screen enum names need not expose tabs: a crafting tab may still report its Backpack parent. No tool opens vanilla menus, synthesizes gameplay input, crafts an item or drives the camera.
+Client IDs are never server selectors. The existing frame screen and named event history do not prove current tabs. The new client_snapshot reports the native inner tab separately when its read flag is available, with explicit native freshness. No tool opens vanilla menus, synthesizes gameplay input, crafts an item or drives the camera.
 
 ### Isolated research setting
 

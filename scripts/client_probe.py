@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.13.0; no actions."""
+"""Fixed read-only probes for native client companion 0.14.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("client_capabilities", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes"))
+READS = frozenset(("client_capabilities", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes"))
 GUID = re.compile(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\Z")
 
 
@@ -25,19 +25,43 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.13.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.14.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
             value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == [] and
             type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and
             value.get("semantic_ui_actions") == (["client_map_markers"] if value["native_map_marker_ui"] else []) and
-            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "live_verified")))
+            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "live_verified", "native_client_snapshot")))
     sources = value.get("client_event_sources")
     require(isinstance(sources, dict) and all(type(sources.get(key)) is bool for key in ("open_hud_screen", "station_recipe_selection")))
     return {"compiled_framework_revision": value["compiled_framework_revision"], "compiled_framework_abi": value["compiled_framework_abi"],
             "live_verified": False, "native_observation": value["ui_observation"], "recipe_layout_available": value["recipe_layout"],
             "client_event_sources": {key: sources[key] for key in ("open_hud_screen", "station_recipe_selection")}}
+
+
+def native_snapshot(value):
+    require(value.get("source") == "published_native_client_snapshot" and
+            value.get("state") in ("never", "off", "stale", "fresh") and integer(value.get("session")) and
+            (value.get("age_ms") is None or integer(value["age_ms"])) and
+            value.get("entity_world") == "client" and value.get("commands_submitted") is False and
+            value.get("rendered_verified") is False)
+    reads = value.get("reads")
+    require(isinstance(reads, dict) and all(type(reads.get(key)) is bool for key in ("screens", "menu_tab", "held", "player", "recipe")))
+    for key, part, kind in (("hud_screen", "screens", str), ("return_screen", "screens", str),
+                            ("menu_tab", "menu_tab", str), ("host", "screens", int),
+                            ("player", "player", int), ("highlighted_recipe_id", "recipe", int),
+                            ("held_actions", "held", list)):
+        require(key in value)
+        item = value[key]
+        require(item is None or reads[part] and type(item) is kind)
+        if kind is int and item is not None:
+            require(item > 0 and (key != "highlighted_recipe_id" or item <= 0xFFFFFFFF))
+        if kind is list and item is not None:
+            require(all(type(action) is str for action in item))
+    # Never save entity IDs, session identity, selection or held controls.
+    return {"state":value["state"], "age_ms":value["age_ms"], "reads":reads,
+            "rendered_verified":False, "commands_submitted":False}
 
 
 def state(value):
@@ -190,16 +214,17 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.13.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.14.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.13.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.14.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):
             return self.report("failed")
         self.tool("capabilities", "client_capabilities", {}, capabilities)
+        self.tool("native_snapshot_shape", "client_snapshot", {}, native_snapshot)
         self.tool("state_shape", "client_state", {}, state)
         self.tool("event_cursor", "client_events", {"after": 0, "limit": 2}, events)
         self.tool("selection_event_evidence", "client_selection_events", {"after": 0, "limit": 2}, selection_events)

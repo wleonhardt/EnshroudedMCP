@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from client_probe import Probe, READS, state, recipes
+from client_probe import Probe, READS, state, recipes, native_snapshot
 
 
 VERSION = next(
@@ -35,11 +35,17 @@ class Fixture:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
             value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.17",
-                     "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
+                     "native_client_snapshot": True, "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
                      "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9", "compiled_framework_abi": "12.1",
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
                      "semantic_gameplay_actions": [], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers"]}
+        elif name == "client_snapshot":
+            value = {"source":"published_native_client_snapshot", "state":"fresh", "session":789, "age_ms":0,
+                     "reads":{key:True for key in ("screens","menu_tab","held","player","recipe")},
+                     "hud_screen":"private-screen", "return_screen":None, "menu_tab":"private-tab",
+                     "host":13, "player":17, "highlighted_recipe_id":73, "held_actions":["private-action"],
+                     "entity_world":"client", "commands_submitted":False, "rendered_verified":False}
         elif name == "client_state":
             value = {"age_ms": 2000 if self.stale else 0, "stale": self.stale, "sequence": 1,
                      "observation": {"screen": "private-screen", "prompt": {"title": "private-prompt", "verb":7,
@@ -85,6 +91,8 @@ class Fixture:
         if self.broken == name:
             if error:
                 value = "tool unavailable"
+            elif name == "client_snapshot":
+                value["entity_world"] = "server"
             elif name == "client_events":
                 value["next_after"] = 0
             elif name == "client_selection_events":
@@ -101,6 +109,21 @@ class Fixture:
 
 
 class ClientProbeTests(unittest.TestCase):
+    def test_native_snapshot_refuses_scope_availability_and_zero_identity_claims(self):
+        value = json.loads(Fixture().call("tools/call", {"name":"client_snapshot", "arguments":{}})["content"][0]["text"])
+        for key, invalid in (("entity_world", "server"), ("player", 0), ("highlighted_recipe_id", 0),
+                             ("commands_submitted", True), ("age_ms", -1), ("state", "ready")):
+            bad = dict(value, **{key:invalid})
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                native_snapshot(bad)
+        value["reads"]["menu_tab"] = False
+        with self.assertRaises(ValueError):
+            native_snapshot(value)
+        value["menu_tab"] = None
+        report = native_snapshot(value)
+        self.assertNotIn("session", report)
+        self.assertNotIn("private-", json.dumps(report))
+
     def test_native_recipe_id_preserves_zero_and_refuses_malformed_values(self):
         value=json.loads(Fixture().call("tools/call", {"name":"client_recipes","arguments":{}})["content"][0]["text"])
         recipes(value)
@@ -129,7 +152,7 @@ class ClientProbeTests(unittest.TestCase):
         client = Fixture()
         report = Probe(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 9)
+        self.assertEqual(len(report["checks"]), 10)
         self.assertTrue(all(check["outcome"] == "pass" for check in report["checks"]))
         serialized = json.dumps(report)
         self.assertNotIn("private-", serialized)
@@ -177,7 +200,7 @@ class ClientProbeTests(unittest.TestCase):
         for key, value in (("compiled_framework_revision", "wrong"), ("compiled_framework_abi", "11.20"), ("live_verified", True), ("native_map_marker_rendered_verified", True),
                            ("semantic_ui_actions", ["client_press"]), ("native_map_marker_ui", False),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
-                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("version", "0.12.1"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0"), ("version", "0.11.0"), ("version", "0.12.0")):
+                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("version", "0.13.0"), ("version", "0.12.1"), ("enshwick", "1.0.0-alpha.15"), ("version", "0.10.0"), ("version", "0.11.0"), ("version", "0.12.0")):
             client = Fixture()
             original = client.call
             def reply(method, params=None):

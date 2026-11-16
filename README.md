@@ -2,11 +2,11 @@
 
 # Enshrouded MCP
 
-Current source targets server **0.34.0** / companion **0.13.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed research runtime remains alpha.16. This migration adds no MCP executor; native client adapters and matched live acceptance are next. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
+Current source targets server **0.34.0** / companion **0.14.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed research runtime remains alpha.16. This migration adds no MCP executor; native client adapters and matched live acceptance are next. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.34.0** and **optional companion 0.13.0** against ABI 12.1. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.34.0** and **optional companion 0.14.0** against ABI 12.1. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -211,3 +211,9 @@ The request queues on the game thread, syncs exclusive `give-operations/grant-{o
 Repeat the original operation/player/item/count with `dry: true` to inspect retained same-session status. It never redispatches. Changed payload conflicts. Real replay still requires write admission and preview syntax; it only returns retained status. Reopened durable identities are unknown and cannot dispatch; old in-memory sessions refuse. Keep this namespace in cold archives and never remove identities to bypass capacity. A new ID is a new deliberate grant, not reconciliation or a hidden retry.
 
 `native_outcome_reported` and `given` report native commit/rollback, not independent inventory contents. `inventory_readback_verified` remains false. Late callbacks remain scoped to their original session; audit failures stay explicit in cache. There is no native undo, inventory-loss cleanup, automatic retry or survival accounting. Live inventory baseline/read-back, matched deployment and connected acceptance remain deferred while the client is unavailable.
+
+## Copied native client state
+
+Companion 0.14.0 adds `client_snapshot` with no arguments. It reads the SDK's copied client state without touching a World or submitting a command: native state (`never`, `off`, `stale`, `fresh`), age, session, read flags, HUD/return screens, actual menu tab, held controls, client player/host IDs and highlighted recipe ID. Per-part `reads: false` means unavailable; a null read part means none observed. Zero player and the SDK's recipe-zero no-highlight sentinel become null. This differs from archive lookup, where raw recipe ID zero remains a valid search input.
+
+These observations remain client/session scoped. They do not establish connection success, server selectors, crafting eligibility, rendered state or native execution. The existing frame snapshot and named event history keep their own scope and freshness. Native command adapters and matched live acceptance remain next.

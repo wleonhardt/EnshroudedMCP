@@ -1,6 +1,7 @@
 //! Optional native client research endpoint. No OS control or gameplay writes.
 mod categories;
 mod markers;
+mod native_snapshot;
 mod recipe_types;
 mod recipes;
 mod requirements;
@@ -106,6 +107,7 @@ struct ClientTools {
     selection_sources: [bool; 2],
     mod_dir: Option<std::path::PathBuf>,
     marker_ui: bool,
+    native_input: Option<enshwick::input::Input>,
 }
 
 impl ClientTools {
@@ -117,7 +119,13 @@ impl ClientTools {
             selection_sources: [false; 2],
             mod_dir: None,
             marker_ui: false,
+            native_input: None,
             list: vec![
+                Tool {
+                    name: "client_snapshot",
+                    description: "Copied native client state from the SDK, safe on the listener thread: session, freshness, per-part availability, HUD screen, actual inner menu tab, held controls, client player and highlighted recipe. Null with reads=false is unavailable; null with reads=true means none observed. Zero recipe is the SDK no-highlight sentinel. Client IDs never select server entities. Does not submit commands or prove rendering, connection, craftability or world authority.",
+                    schema: json!({"type":"object"}),
+                },
                 Tool {
                     name: "client_map_markers",
                     description: "Transient mod-owned map annotation. No args reads submitted cache, not renderer state. Supply markers (at most one; empty clears), dry defaults true. Real requests require exact preview, companion-folder ALLOW_WRITES and confirm: server-write. Frame-queued only, fresh client epoch/revision; pending timeout cancels before start. SDK acceptance is not rendered proof. Leave cleanup removes only this mod's annotation without requiring a new flag; audit failures do not block cleanup. No saved marker edits, fast travel, scene raycast, world mutation or OS input.",
@@ -125,7 +133,7 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_capabilities",
-                    description: "Optional native research companion. No screenshots, OS input, camera, gameplay mutations, selected recipe or local-player world inspection API.",
+                    description: "Optional native research companion capabilities. Copied native client snapshot availability is separate from per-part runtime reads. No screenshots, OS input, camera or gameplay executor, crafting execution or authoritative world inspection.",
                     schema: json!({"type":"object"}),
                 },
                 Tool {
@@ -212,6 +220,7 @@ impl Tools for ClientTools {
             .ok_or("unknown client tool")?;
         policy::args::check(&tool.schema, args)?;
         match name {
+            "client_snapshot" => native_snapshot::read(self.native_input),
             "client_map_markers" => {
                 let spec = policy::client_markers::check(args)?;
                 if spec.markers.is_none() {
@@ -229,7 +238,7 @@ impl Tools for ClientTools {
                 self.request(Request::Markers(spec))
             }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":if self.marker_ui {vec!["client_map_markers"]}else{vec![]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":if self.marker_ui {vec!["client_map_markers"]}else{vec![]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -364,6 +373,7 @@ impl Mod for ResearchClient {
         tools.selection_sources = selection_sources;
         tools.mod_dir = mod_dir;
         tools.marker_ui = marker_available;
+        tools.native_input = input;
         Ok(Self { tools })
     }
 
@@ -528,13 +538,14 @@ side = "both""#
     #[test]
     fn unavailable_marker_control_and_invalid_selectors_never_enqueue() {
         let tools = ClientTools::new(Arc::default(), false, false);
-        assert_eq!(tools.list().len(), 7);
+        assert_eq!(tools.list().len(), 8);
         for (name, args) in [
             ("client_item", json!({"item":""})),
             ("client_recipes", json!({"item":"wood","limit":9})),
             ("client_recipes", json!({"item":"wood","recipe_id":0})),
             ("client_recipes", json!({"recipe_id":4294967296u64})),
             ("client_state", json!({"key":"Escape"})),
+            ("client_snapshot", json!({"key":"Escape"})),
             ("client_events", json!({"limit":0})),
         ] {
             assert!(tools.call(name, args.as_object().unwrap()).is_err());

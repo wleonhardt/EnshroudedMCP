@@ -1,5 +1,11 @@
 # Changelog
 
+## Companion 0.14.0 (copied native client snapshot)
+
+- Add read-only client_snapshot through the published SDK's any-thread copied state API. Preserve native state/age/session and per-part read flags, actual inner menu tab, held actions, local client identity and highlighted recipe.
+- Distinguish unread parts from observed absence; map player zero and the SDK recipe-zero sentinel to null. Keep client IDs out of server selectors. No commands, world reads, crafting eligibility or rendered acceptance are claimed.
+- Extend the fixed read-only probe with strict scope/availability checks and sanitized summaries that omit identities, selection and held input. Matched deployment and live acceptance remain pending.
+
 ## 0.34.0 / companion 0.13.0 (official alpha.17 source foundation)
 
 - Pin the unmodified official alpha.17 release, revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1, directly through Cargo Git. Retire the local source override and metadata patch; adapt the upstream placed-template Guid while preserving observation semantics.
