@@ -32,6 +32,20 @@ struct Operation {
     outcome: Value,
 }
 
+struct QueuedClock {
+    pending: Arc<PendingWrite>,
+    reply: mpsc::Receiver<Result<Value, String>>,
+}
+
+impl QueuedClock {
+    fn wait(self, timeout: Duration) -> Result<Value, String> {
+        self.reply.recv_timeout(timeout).map_err(|_| {
+            if self.pending.cancel() { "clock request timed out before execution; queued request cancelled".to_owned() }
+            else { "clock request started; outcome unknown; inspect operation status and journal, never blindly retry".to_owned() }
+        })?
+    }
+}
+
 pub(crate) fn tool() -> policy::mcp::Tool {
     policy::mcp::Tool {
         name: "clock_advance",
@@ -106,9 +120,22 @@ impl ClockControl {
     }
 
     pub(crate) fn call(&self, game: Game, spec: clock::Spec) -> Result<Value, String> {
+        self.queue(game, spec, || {
+            let started = Instant::now();
+            move || started.elapsed()
+        })?
+        .wait(clock::WAIT)
+    }
+
+    fn queue<F: Fn() -> Duration + Send + 'static>(
+        &self,
+        game: Game,
+        spec: clock::Spec,
+        start_elapsed: impl FnOnce() -> F,
+    ) -> Result<QueuedClock, String> {
         gate(&spec, &self.dir)?;
         let admitted = self.construction.active_session()?;
-        let started = Instant::now();
+        let elapsed = start_elapsed();
         let pending = Arc::new(PendingWrite::default());
         let queued = pending.clone();
         let this = self.clone();
@@ -131,15 +158,12 @@ impl ClockControl {
                     &active,
                     || this.context(game),
                     |target| game.clock.set_hours(target).map_err(|e| e.to_string()),
-                    || started.elapsed(),
+                    elapsed,
                 )
             })();
             let _ = tx.send(result);
         });
-        rx.recv_timeout(clock::WAIT).map_err(|_| {
-            if pending.cancel() { "clock request timed out before execution; queued request cancelled".to_owned() }
-            else { "clock request started; outcome unknown; inspect operation status and journal, never blindly retry".to_owned() }
-        })?
+        Ok(QueuedClock { pending, reply: rx })
     }
 }
 
@@ -756,6 +780,44 @@ mod tests {
         assert_eq!(f.records(), 2);
     }
 
+    #[test]
+    fn queued_reply_preserves_results_and_never_cancels_started_clock_work() {
+        for started in [false, true] {
+            for disconnected in [false, true] {
+                let pending = Arc::new(PendingWrite::default());
+                if started {
+                    assert!(pending.begin());
+                }
+                let (sender, reply) = mpsc::sync_channel(1);
+                let sender = (!disconnected).then_some(sender);
+                let error = QueuedClock {
+                    pending: pending.clone(),
+                    reply,
+                }
+                .wait(Duration::ZERO)
+                .unwrap_err();
+                assert_eq!(
+                    error,
+                    if started {
+                        "clock request started; outcome unknown; inspect operation status and journal, never blindly retry"
+                    } else {
+                        "clock request timed out before execution; queued request cancelled"
+                    }
+                );
+                assert!(!pending.begin());
+                assert!(!pending.cancel());
+                drop(sender);
+            }
+        }
+        for outcome in [Ok(json!({"state":"fixture"})), Err("native refusal".into())] {
+            let pending = Arc::new(PendingWrite::default());
+            assert!(pending.begin());
+            let (sender, reply) = mpsc::sync_channel(1);
+            sender.send(outcome.clone()).unwrap();
+            assert_eq!(QueuedClock { pending, reply }.wait(Duration::ZERO), outcome);
+        }
+    }
+
     static ADAPTER: Mutex<Option<(ClockControl, Game)>> = Mutex::new(None);
     struct Probe;
     impl enshwick::Mod for Probe {
@@ -812,15 +874,9 @@ side = "server""#
         loader.set_daytime(info);
         let (control, game) = ADAPTER.lock().unwrap().as_ref().unwrap().clone();
         let drive = |request: Spec| {
-            let adapter = control.clone();
-            let worker = std::thread::spawn(move || adapter.call(game, request));
-            let deadline = Instant::now() + Duration::from_secs(8);
-            while !worker.is_finished() {
-                assert!(Instant::now() < deadline);
-                let _ = loader.tick(Duration::from_millis(50));
-                std::thread::sleep(Duration::from_millis(1));
-            }
-            worker.join().unwrap()
+            let queued = control.queue(game, request, || || Duration::ZERO)?;
+            let _ = loader.tick(Duration::from_millis(100));
+            queued.wait(Duration::ZERO)
         };
         let mut request = spec();
         request.dry = true;
@@ -832,17 +888,39 @@ side = "server""#
         request.dry = false;
         request.session = Some(dry["session"].as_str().unwrap().into());
         request.expected_hours = dry["expected_hours"].as_f64();
-        let adapter = control.clone();
-        let late = request.clone();
-        let timed = std::thread::spawn(move || adapter.call(game, late))
-            .join()
+        let timed = control
+            .queue(game, request.clone(), || || Duration::ZERO)
             .unwrap()
+            .wait(Duration::ZERO)
             .unwrap_err();
         assert!(timed.contains("queued request cancelled"));
-        let _ = loader.tick(Duration::from_millis(50));
+        let _ = loader.tick(Duration::from_millis(100));
         assert_eq!(loader.daytime().unwrap().time_ns, 8 * HOUR);
         assert!(!f.0.join("clock-operations").exists());
-        let result = drive(request.clone()).unwrap();
+        let elapsed = Arc::new(Mutex::new(Duration::ZERO));
+        let read_elapsed = elapsed.clone();
+        let expired = control
+            .queue(game, request.clone(), || {
+                move || *read_elapsed.lock().unwrap()
+            })
+            .unwrap();
+        *elapsed.lock().unwrap() = clock::WAIT;
+        let _ = loader.tick(Duration::from_millis(100));
+        assert!(
+            expired
+                .wait(Duration::ZERO)
+                .unwrap_err()
+                .contains("deadline expired")
+        );
+        assert_eq!(loader.daytime().unwrap().time_ns, 8 * HOUR);
+        assert!(!f.0.join("clock-operations").exists());
+        let queued = control
+            .queue(game, request.clone(), || || Duration::ZERO)
+            .unwrap();
+        assert_eq!(loader.daytime().unwrap().time_ns, 8 * HOUR);
+        assert!(!f.0.join("clock-operations").exists());
+        let _ = loader.tick(Duration::from_millis(100));
+        let result = queued.wait(Duration::ZERO).unwrap();
         assert_eq!(result["readback_near_target"], true);
         assert_eq!(loader.daytime().unwrap().time_ns, 12 * HOUR);
         assert_eq!(f.records(), 2);

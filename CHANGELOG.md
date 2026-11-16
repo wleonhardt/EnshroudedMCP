@@ -2,6 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Make the clock adapter fixture deterministic with explicit scheduler passes, controlled elapsed time and separate reply observation. Cover expiry while queued, cancellation, ready results/errors and uncertainty after execution starts. Production keeps the original timer start point, five-second limits, durable replay and admission rules; no clock-tool behavior or authority changes.
 - Remove wall-clock worker races from the health-recovery SDK fixture by driving queued requests and receipt observation separately. Preserve the production five-second deadline, cancellation before execution, uncertainty after execution starts and result/error propagation. Add deterministic receipt-boundary coverage; no health-tool behavior or authority changes.
 - Extend the optional SDK qualification suite with prop placement-permission and mixed-write/undo held-state contracts. Test rotated bounds, state acquired after queuing for all nine published kinds and an empty-state recovery control. Synthetic model evidence grants no native recovery authority; runtime pins and installed builds are unchanged.
 - Preserve runnable SDK settlement-model probes in an optional independent workspace. Seven scenarios exercise callback timing, expiry, historical entity IDs, failure, undo and world scope without changing the MCP runtime dependency.
