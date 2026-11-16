@@ -27,6 +27,7 @@ pub mod pacification;
 pub mod recipe_plan;
 pub mod reposition;
 pub mod request;
+pub mod weather_read;
 pub mod write_gate;
 
 pub mod server_shutdown;

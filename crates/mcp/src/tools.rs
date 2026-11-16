@@ -83,6 +83,7 @@ pub(crate) struct Game {
     pub(crate) world: World,
     pub(crate) native_knowledge: enshwick::knowledge::Knowledge,
     pub(crate) clock: enshwick::daytime::Clock,
+    pub(crate) weather: enshwick::weather::Weather,
     pub(crate) game_settings: Option<enshwick::game_settings::GameSettings>,
     pub(crate) voxels: Voxels,
     pub(crate) scheduler: Scheduler,
@@ -156,6 +157,7 @@ impl GameTools {
         health["properties"]["limit"] =
             json!({"type":"integer", "minimum":1, "maximum":inspection::HEALTH_LIMIT});
         let mut list = vec![
+            crate::weather_read::tool(),
             crate::factory_station::tool(),
             crate::journal::tool(),
             crate::knowledge_read::tool(),
@@ -295,6 +297,7 @@ impl Tools for GameTools {
         let Game {
             world,
             clock,
+            weather,
             game_settings,
             voxels,
             scheduler,
@@ -308,6 +311,14 @@ impl Tools for GameTools {
             native_knowledge: _,
         } = self.game;
         match name {
+            "weather_read" => {
+                let position = policy::weather_read::check(a)?;
+                on_game_thread(scheduler, move || {
+                    let mut result = crate::weather_read::read(weather, position);
+                    result["world_key"] = json!(world.key());
+                    result
+                })
+            }
             "factory_station_read" => {
                 let entity = policy::factory_station::check(a)?;
                 let game = self.game;

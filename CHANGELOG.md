@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Server 0.42.0 adds bounded read-only weather_read through the published SDK on the game thread. Preserve unavailable versus observed weights, raw finite values, weight sum and guarded SDK dominance without normalizing, changing forecasts or claiming rendered/shelter/safety evidence. Strict coordinate/write-argument admission and deferred fake-host sample behavior have regressions. Native qualification remains pending.
+
 - Read-only phase planning now audits declared box routes against the complete planned union: occupied footing, empty headspace, adjacent footprints and bounded vertical changes. Preserve route-free output exactly and reject invalid/bounded inputs before native previews. Native pure-preview qualification detects old compact roof conflicts and a missing waypoint while retaining the complete revised workshop geometry. No runtime binary, world write or walkability claim is added.
 
 - Companion 0.20.0 reports last frame status-poll age/staleness and polling-finished state for command status and inventory. Distinguish never-polled, stalled and historical terminal results without refreshing age on reads or changing native dispatch, receipts or journals. Matched 0.41.0/0.20.0 native Menu acceptance verifies unknown/stale metadata for all 18 prior-boot identities and read-only preservation. Current-boot SDK polling and callback-stall behavior remain unverified.

@@ -1,4 +1,4 @@
-"""Read-only 0.41.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.42.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("weather_read", "factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -33,6 +33,27 @@ def empty_inventory_count_observation(value):
             and type(counts.get("aliases_removed")) is int and counts["aliases_removed"] == 0
             and counts.get("counts") == [{"item_id":213939880,"observed_count":0}]
             and all(type(row.get(k)) is int for row in counts["counts"] for k in ("item_id", "observed_count")))
+
+
+
+def weather_observation(value):
+    flags=("world_mutated","rendered_weather_verified","shelter_verified","actor_safety_verified","weights_normalized_by_mcp")
+    required={"state","weights","weight_sum","weights_usable_for_dominance","dominant_sdk_state","world_key"}
+    if (not required<=set(value) or value.get("source")!="published_server_weather_at" or value.get("position_m")!=[100,100,100]
+            or not all(value.get(k) is False for k in flags) or not (value["world_key"] is None or isinstance(value["world_key"],str))):
+        return False
+    if value["state"]=="unavailable":
+        return all(value[k] is None for k in ("weights","weight_sum","weights_usable_for_dominance","dominant_sdk_state"))
+    names=("clear","rain","snow","blizzard"); weights=value["weights"]
+    if value["state"]!="observed" or not isinstance(weights,dict) or set(weights)!=set(names):return False
+    numbers=[weights[k] for k in names]
+    if any(n is not None and (type(n) not in (int,float) or not math.isfinite(n)) for n in numbers):return False
+    usable=all(n is not None and 0<=n<=1 for n in numbers) and any(n>0 for n in numbers)
+    total=sum(numbers) if all(n is not None for n in numbers) else None
+    dominant=names[max(range(4),key=numbers.__getitem__)] if usable else None
+    reported=value["weight_sum"]
+    return (value["weights_usable_for_dominance"] is usable and value["dominant_sdk_state"]==dominant
+            and (reported is None if total is None else type(reported) in (int,float) and math.isfinite(reported) and reported==total))
 
 
 def absent_factory_observation(value):
@@ -137,18 +158,21 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.41.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.42.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.41.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.42.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.41.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.42.0" and
                    v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
                    v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
                    v.get("native_clock_advance_live_verified") is False and
                    all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
+        self.probe("weather_sample_shape", "weather_read", {"x":100,"y":100,"z":100}, weather_observation)
+        self.probe("weather_bounds_refused", "weather_read", {"x":100,"y":1024.5,"z":100}, refusal="argument 'y' must be at most 1024")
+        self.probe("weather_write_argument_refused", "weather_read", {"x":100,"y":100,"z":100,"confirm":"server-write"}, refusal="unknown argument 'confirm'")
         self.probe("world_clock_shape", "status", {}, clock_observation)
         self.probe("factory_station_unobserved", "factory_station_read", {"entity":0xFFFFFFFF}, absent_factory_observation)
         self.probe("factory_station_zero_entity_refused", "factory_station_read", {"entity":0}, refusal="argument 'entity' must be at least 1")

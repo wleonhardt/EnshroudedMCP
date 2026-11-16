@@ -266,6 +266,7 @@ mod tests {
                 world: load.world()?,
                 native_knowledge: load.knowledge(),
                 clock: load.clock(),
+                weather: load.weather(),
                 game_settings: None,
                 voxels: load.voxels(),
                 scheduler: load.scheduler()?,

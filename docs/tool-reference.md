@@ -11,6 +11,7 @@ For `recipe_plan`, optional `choices` contains up to 512 entries shaped as `{"it
 | `status` | No arguments. Hosting state, save observations and player count. Save timestamps do not prove a requested checkpoint completed. |
 | `capabilities` | No arguments. Resolved APIs, versions, limits and verification caveats. Availability is not live acceptance. |
 | `players` | No arguments. Connected player name, account key, slot, admin flag, position and native vitals. Null is unavailable/absent, not zero; UI unit conversion is unverified. |
+| `weather_read` | One bounded x/y/z server weather sample on the game thread; preserve raw weights, unavailable state and guarded SDK dominance. No forecast mutation or rendered/shelter/safety proof. |
 | `factory_station_read` | One nonzero `entity` from this server session. Optional typed FactoryStation reader; game-thread observation of running/next recipe IDs, up to four category choices each, signed raw times, stop/use-all flags and SDK missing-requirement names. Unknown differs from not observed; not every station has this component. No complete queue, UI selection, ETA conversion, eligibility, crafting or safe-removal proof. SDK decoding precedes output bounds. |
 | `inventory_read` | Exactly one `player` or `entity`; optional `offset`, `limit` (1–128) and `item_ids` (one to eight unique nonzero IDs). Linked inventory slots and available per-item metadata. Pages are independent snapshots; no slots can mean absent or uninitialized inventory. Optional `item_counts` deduplicates physical slots over the same SDK result independently of page, refusing conflicting aliases or more than 65,536 returned records. Inventory completeness and crafting eligibility remain unknown, including zero counts; SDK traversal is not bounded by the post-read cap. |
 | `item_info` | `item` debug name. Vanilla identity and runtime static metadata, including `placement` states `observed`, `known_no_template` or `unavailable`. Mapping does not prove placement eligibility. |
@@ -344,3 +345,8 @@ For a one-metre-wide, two-metre-deep deck at y=4, a synthetic route at its top c
 ```
 
 The optional routes report retains each pose and join, all conflicting headspace and missing footing cells, and planned_route_valid. Review the declared dimensions and unverified flags before interpreting that result. Conflicts are planning evidence, not an execution gate or a supported movement command.
+
+
+## Server weather observation
+
+Server 0.42.0 adds read-only `weather_read` with required finite world-bounded `x`, `y`, `z` in metres. It queues one published SDK sample on the server game thread and reports world key, position, clear/rain/snow/blizzard weights, their sum and the SDK strongest-state name. Unavailable has null weights; observed clear and observed zero weights remain distinct. Finite weights are preserved without normalization. Dominance requires every weight in 0..1 with a positive signal; otherwise its name is null. A null inside the weight object denotes a non-finite SDK value, and a non-finite sum is null. This is a point observation, not rendered weather, shelter or actor-safety verification. No weather/front mutation or unbounded front enumeration is exposed. Native qualification remains pending.

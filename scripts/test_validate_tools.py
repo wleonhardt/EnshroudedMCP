@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation, absent_factory_observation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation, absent_factory_observation, weather_observation
 
 
 VERSION = next(
@@ -30,6 +30,13 @@ class Fixture:
         error = False
         if "validation_unknown" in args:
             error, value = True, "unknown argument"
+        elif name == "weather_read":
+            error="confirm" in args or args["y"]>1024
+            value=("unknown argument 'confirm'" if "confirm" in args else "argument 'y' must be at most 1024") if error else {
+                "source":"published_server_weather_at","position_m":[100,100,100],"world_key":"private-weather-world",
+                "state":"observed","weights":{"clear":0.25,"rain":0.5,"snow":0.25,"blizzard":0},"weight_sum":1.0,
+                "weights_usable_for_dominance":True,"dominant_sdk_state":"rain","world_mutated":False,
+                "rendered_weather_verified":False,"shelter_verified":False,"actor_safety_verified":False,"weights_normalized_by_mcp":False}
         elif name == "factory_station_read":
             error = "confirm" in args or args["entity"] == 0
             value = ("unknown argument 'confirm'" if "confirm" in args else "argument 'entity' must be at least 1") if error else {
@@ -108,6 +115,20 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_weather_probe_distinguishes_missing_clear_and_unusable_weights_without_authority(self):
+        value=json.loads(Fixture().call("tools/call",{"name":"weather_read","arguments":{"x":100,"y":100,"z":100}})["content"][0]["text"])
+        self.assertTrue(weather_observation(value))
+        missing={**value,"state":"unavailable","weights":None,"weight_sum":None,"weights_usable_for_dominance":None,"dominant_sdk_state":None}
+        self.assertTrue(weather_observation(missing))
+        zero={**value,"weights":dict.fromkeys(("clear","rain","snow","blizzard"),0),"weight_sum":0,"weights_usable_for_dominance":False,"dominant_sdk_state":None}
+        self.assertTrue(weather_observation(zero))
+        self.assertTrue(weather_observation({**zero,"weights":{**zero["weights"],"clear":None},"weight_sum":None}))
+        for key,bad in [("rendered_weather_verified",True),("shelter_verified",True),("actor_safety_verified",True),
+                        ("weights_normalized_by_mcp",True),("dominant_sdk_state","clear"),("weight_sum",2),("weight_sum",True),
+                        ("weights_usable_for_dominance",False),("weights",None),("position_m",[1,2,3])]:
+            with self.subTest(key=key):self.assertFalse(weather_observation({**value,key:bad}))
+        self.assertFalse(weather_observation({**missing,"dominant_sdk_state":"clear"}))
+
     def test_missing_factory_never_becomes_empty_queue_or_crafting_authority(self):
         value={"source":"published_typed_server_factory_station","entity":0xFFFFFFFF,"state":"not_observed","factory":None,
                "world_mutated":False,"crafting_eligibility_verified":False,"safe_removal_verified":False,
@@ -225,7 +246,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 26)
+        self.assertEqual(len(report["checks"]), 29)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -295,7 +316,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 32)
+        self.assertEqual(len(SERVER_TOOLS), 33)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

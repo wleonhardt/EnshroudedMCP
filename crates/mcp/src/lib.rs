@@ -22,6 +22,7 @@ mod recipe_plan;
 mod reposition;
 mod server;
 mod tools;
+mod weather_read;
 mod world_clock;
 
 use enshwick::{Load, Mod, Off};
@@ -48,6 +49,7 @@ impl Mod for Mcp {
             world: load.world()?,
             native_knowledge: load.knowledge(),
             clock: load.clock(),
+            weather: load.weather(),
             voxels: load.voxels(),
             scheduler: load.scheduler()?,
             used_item: enshwick::ecs::ComponentType::resolve(load, "keen::ecs::UsedItem").ok(),
