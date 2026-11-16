@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Companion 0.17.0 source adds bounded `client_workshops` definition lookup, preserving raw IDs, collisions and unknown station availability. Matched live acceptance is pending; installed companion remains 0.16.0.
+Companion 0.17.0 adds bounded `client_workshops` definition lookup. Matched native checks resolve four observed workshop IDs and correlate three declared station item identities. Raw recipe GUID references are zero; current station availability and crafting applicability remain unverified.
 
 Companion 0.16.0 adds raw input/output stack item IDs and workshop definition IDs to `client_recipes`. Matched isolated deployment verifies both recipe selection routes and eleven item identities without deriving IDs. Category/scaling interpretation, eligible stock and crafting feasibility remain unverified.
 

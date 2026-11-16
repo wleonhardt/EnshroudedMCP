@@ -3,7 +3,7 @@
 ## Companion 0.17.0 (workshop definition lookup)
 
 - Add client_workshops with raw workshop_id and optional limit (one to eight). Read the published vanilla registry on the native frame callback and preserve workshop GUID, name tag, declared station item ID/GUID and NPC-workshop flag.
-- Keep zero IDs, collisions, total matches and truncation explicit. Bound the complete array and every field in game-free policy; reject malformed records and non-boolean flag bytes. Definitions never establish current station availability, unlocks or crafting eligibility. Whole SDK resource allocation still precedes parser caps. Private/public 336 Rust executions (including 18 shared module checks), 53 Python tests, Clippy, formatting and release builds pass. Matched live acceptance remains pending.
+- Keep zero IDs, collisions, total matches and truncation explicit. Bound the complete array and every field in game-free policy; reject malformed records and non-boolean flag bytes. Definitions never establish current station availability, unlocks or crafting eligibility. Whole SDK resource allocation still precedes parser caps. Private/public 336 Rust executions (including 18 shared module checks), 53 Python tests, Clippy, formatting and release builds pass. Matched 0.39.0/0.17.0 deployment resolves four observed nonzero workshop IDs and independently correlates three declared station identities, with fixed probes and full preservation checks. Raw recipe GUID references are zero; their agreement, current availability and crafting applicability remain unverified.
 
 ## Companion 0.16.0 (recipe stack and workshop identities)
 
