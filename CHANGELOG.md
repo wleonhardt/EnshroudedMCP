@@ -3,7 +3,7 @@
 ## Companion 0.16.0 (recipe stack and workshop identities)
 
 - Add the raw item_id to every client_recipes input/output stack and the raw workshop_id beside workshop_guid. Copy the published archive fields; preserve zero and full u32 values without deriving IDs from GUIDs.
-- Keep matching, collision/truncation reporting, all parser limits and unknown recipe/category/eligibility semantics. Stack item IDs can be correlated through item lookup; workshop definition IDs are not inventory item or entity selectors. Extend the fixed client probe with strict u32 identity checks. Private/public 331 Rust executions (including 18 shared module checks), 52 Python tests, Clippy, formatting and release builds pass. Matched deployment and native catalogue correlation remain pending.
+- Keep matching, collision/truncation reporting, all parser limits and unknown recipe/category/eligibility semantics. Stack item IDs can be correlated through item lookup; workshop definition IDs are not inventory item or entity selectors. Extend the fixed client probe with strict u32 identity checks. Private/public 331 Rust executions (including 18 shared module checks), 52 Python tests, Clippy, formatting and release builds pass. Matched 0.39.0/0.16.0 cold deployment and six-record/eleven-ID native identity correlation pass, with both fixed read probes and complete preservation checks. Category/scaling interpretation, eligible stock and crafting feasibility remain unverified.
 
 ## Construction adapter regression coverage
 

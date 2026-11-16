@@ -2,7 +2,7 @@
 
 # Enshrouded MCP
 
-Companion 0.16.0 source adds raw input/output stack item IDs and workshop definition IDs to `client_recipes`, enabling bounded identity correlation without deriving IDs or inferring craftability. Matched deployment remains pending; installed companion is 0.15.0.
+Companion 0.16.0 adds raw input/output stack item IDs and workshop definition IDs to `client_recipes`. Matched isolated deployment verifies both recipe selection routes and eleven item identities without deriving IDs. Category/scaling interpretation, eligible stock and crafting feasibility remain unverified.
 
 Construction regression coverage now exercises native-receipt/postimage disagreement through the production adapter and SDK fake host. It verifies refusal and replay/lifecycle guards, not successful native placement or staged recovery. See [fixture scope](plans/decisions/0031-isolated-construction-regression.md).
 

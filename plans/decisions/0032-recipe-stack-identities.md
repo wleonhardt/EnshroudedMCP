@@ -1,6 +1,6 @@
 # 0032: Preserve raw recipe stack and workshop identities
 
-Date: 2026-11-16. Status: implemented; private/public source verified (331 Rust executions, including 18 shared module checks, 52 Python tests, Clippy, formatting and release builds); matched native correlation pending.
+Date: 2026-11-16. Status: implemented; private/public source verified (331 Rust executions, including 18 shared module checks, 52 Python tests, Clippy, formatting and release builds); matched bounded native identity correlation passes; crafting semantics remain unverified.
 
 A native Menu recipe lookup resolves actual recipe records and typed ingredient IDs, but raw output stacks omit their item IDs. Recipe-ID lookup therefore cannot correlate output identities through the existing bounded item_lookup API without guessing or deriving an ID. The published RecipeLayout already supplies stack_item and workshop offsets, and existing game-free admission checks these fields against each complete record.
 
@@ -9,3 +9,5 @@ Read the raw u32 item field for every input/output stack and report item_id besi
 Only stack item IDs belong to item lookup. Workshop definition IDs and required prop type IDs are separate namespaces, not server entity or inventory selectors. No new executor, effective-definition assertion or category/catalyst/eligibility interpretation is introduced. The companion continues to read on its published native frame callback without World access.
 
 Verify failing missing-field reproductions, synthetic unrelated GUIDs and zero/full-u32 identities, strict client probe validation, existing array/layout/truncation cases and both recipe selection routes. After matched deployment, compare output-name and recipe-ID observations, correlate nonzero IDs and GUIDs independently through the server registry, preserve category uncertainty and check complete runtime preservation. Connected UI applicability and eligible stock remain separate milestones.
+
+Matched 0.39.0/0.16.0 qualification passes after a complete cold archive and exact rollback copies. Six records match through both recipe selection routes; eleven nonzero item identities correlate with independent server GUID lookup, and raw/typed input identities agree. Removing the new fields preserves all pre-upgrade recipe observations. All fixed read probes, complete baseline captures, immutable ledgers, source closure, installed hashes and absent write flags pass. The bounded definition graph preserves alternative recipes and uninterpreted category edges. Zero producer matches for two queried category members do not establish resource classification or obtainability. No automatic planner conversion or crafting/stock applicability is claimed.
