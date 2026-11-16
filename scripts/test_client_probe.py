@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from client_probe import Probe, READS, state, recipes, native_snapshot, workshops
+from client_probe import Probe, READS, state, recipes, native_snapshot, workshops, command_inventory
 
 
 VERSION = next(
@@ -40,6 +40,9 @@ class Fixture:
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
                      "semantic_gameplay_actions": ["client_command.look", "client_command.move"], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers", "client_command"]}
+        elif name == "client_commands":
+            value = {"commands_submitted":False,"native_identity_reconstructed":False,"automatic_retry":False,"max_records":128,
+                     "commands":[{"operation":"private-operation","state":"prior_boot_unavailable","native_identity_reconstructed":False,"automatic_retry":False}]}
         elif name == "client_workshops":
             value={"mode":"report_only","source":"vanilla_archive_workshop_registry","identity_scope":"recipe_workshop_definition",
                 "effective_definition_verified":False,"current_availability_verified":False,"current_station_available":None,
@@ -103,6 +106,8 @@ class Fixture:
                 value["events"][0]["scope"] = "server_world"
             elif name == "client_recipes":
                 value["recipes"][0]["feasible"] = True
+            elif name == "client_commands":
+                value["commands_submitted"] = True
             elif name == "client_workshops":
                 value["current_availability_verified"] = True
             elif name == "client_state":
@@ -115,6 +120,16 @@ class Fixture:
 
 
 class ClientProbeTests(unittest.TestCase):
+    def test_command_inventory_refuses_malformed_rows_without_saving_identities(self):
+        value = json.loads(Fixture().call("tools/call", {"name":"client_commands","arguments":{}})["content"][0]["text"])
+        self.assertEqual(command_inventory(value)["records"], 1)
+        self.assertNotIn("private-", json.dumps(command_inventory(value)))
+        for row in ({"operation":"../outside","state":"prior_boot_unavailable"},
+                    {"operation":"a","state":"observed"}, {**value["commands"][0],"automatic_retry":True}):
+            with self.subTest(row=row),self.assertRaises(ValueError):command_inventory({**value,"commands":[row]})
+        for commands in ([value["commands"][0]]*2, [value["commands"][0]]*129):
+            with self.assertRaises(ValueError):command_inventory({**value,"commands":commands})
+
     def test_recipe_reference_layout_check_must_be_explicitly_true(self):
         value=json.loads(Fixture().call("tools/call",{"name":"client_recipes","arguments":{}})["content"][0]["text"])
         recipes(value)
@@ -187,7 +202,7 @@ class ClientProbeTests(unittest.TestCase):
         client = Fixture()
         report = Probe(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 11)
+        self.assertEqual(len(report["checks"]), 13)
         self.assertTrue(all(check["outcome"] == "pass" for check in report["checks"]))
         serialized = json.dumps(report)
         self.assertNotIn("private-", serialized)

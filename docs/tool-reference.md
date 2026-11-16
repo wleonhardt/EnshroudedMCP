@@ -71,6 +71,7 @@ These are on the separate client endpoint, outside the server's count of 30.
 | --- | --- |
 | `client_capabilities` | Companion APIs, limits and explicit unsupported actions. |
 | `client_command` | Caller operation plus supported action payload; dry default, exact native context preview and companion write gate. Once-only SDK submission; no server authority. |
+| `client_commands` | Read sorted retained outcomes and durable caller identities, at most 128 records; no dispatch or native ID reconstruction. Invalid reservation entries refuse. |
 | `client_command_status` | Read retained caller operation outcome without dispatch or ID reconstruction. |
 | `client_command_cancel` | Separate dry preview and gated once-only cancellation of a retained native operation. |
 | `client_snapshot` | Copied SDK state, age/session and per-part read flags; actual menu tab, local client identity and recipe highlight. Null with unread part means unavailable. No command or World access. |

@@ -95,6 +95,13 @@ pub fn operation(args: &Map<String, Value>) -> Result<String, String> {
     }
     Ok(id.into())
 }
+pub fn reserved_operation(filename: &str) -> Result<String, String> {
+    let operation = filename
+        .strip_prefix("command-")
+        .and_then(|name| name.strip_suffix(".json"))
+        .ok_or("unexpected entry in client command reservations")?;
+    self::operation(json!({"operation":operation}).as_object().unwrap())
+}
 pub fn mode(args: &Map<String, Value>) -> Result<(bool, Option<String>, Option<String>), String> {
     let dry = args.get("dry").and_then(Value::as_bool).unwrap_or(true);
     let preview = args.get("preview").and_then(Value::as_str);
@@ -291,6 +298,20 @@ mod tests {
             tab_read: true,
             tab: None,
         }
+    }
+    #[test]
+    fn reservation_names_recover_only_bounded_caller_operation_identities() {
+        assert_eq!(reserved_operation("command-a_12-z.json").unwrap(), "a_12-z");
+        for name in [
+            "command-.json",
+            "command-UPPER.json",
+            "command-../other.json",
+            "command-a.json.bak",
+            "other.json",
+        ] {
+            assert!(reserved_operation(name).is_err(), "{name}");
+        }
+        assert!(reserved_operation(&format!("command-{}.json", "a".repeat(65))).is_err());
     }
     #[test]
     fn bounded_supported_actions_default_dry_and_refuse_cross_action_or_unpublished_fields() {

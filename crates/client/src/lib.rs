@@ -141,6 +141,11 @@ impl ClientTools {
                     schema: policy::client_control::schema(),
                 },
                 Tool {
+                    name: "client_commands",
+                    description: "List retained client command outcomes and durable caller operation identities, sorted by operation, at most 128 records. Read only: no dispatch, SDK identity reconstruction, reservation-content decoding or retry. Prior-boot identities report unavailable. Invalid or excessive reservation entries refuse the inventory. Inspect status/journal after uncertainty; never invent a replacement operation to retry blindly.",
+                    schema: json!({"type":"object","properties":{}}),
+                },
+                Tool {
                     name: "client_command_status",
                     description: "Read retained client command outcome by caller operation identity. No dispatch, ID reconstruction or retry. Prior-boot durable identities report unavailable. Native pending/applied/observed/cancelled is distinct from rendering, arrival, craftability or server authority.",
                     schema: policy::client_control::status_schema(),
@@ -265,6 +270,12 @@ impl Tools for ClientTools {
                     .map_err(|_| "client command state poisoned")?
                     .report(&operation, self.mod_dir.as_deref())
             }
+            "client_commands" => self
+                .shared
+                .control
+                .lock()
+                .map_err(|_| "client command state poisoned")?
+                .inventory(self.mod_dir.as_deref()),
             "client_command_cancel" => {
                 let spec = policy::client_control::cancel(args)?;
                 control::admission(spec.dry, spec.confirm.as_deref(), self.mod_dir.as_deref())?;
@@ -665,7 +676,11 @@ side = "both""#
     #[test]
     fn unavailable_marker_control_and_invalid_selectors_never_enqueue() {
         let tools = ClientTools::new(Arc::default(), false, false);
-        assert_eq!(tools.list().len(), 12);
+        assert_eq!(tools.list().len(), 13);
+        assert_eq!(
+            tools.call("client_commands", &Map::new()).unwrap()["commands"],
+            json!([])
+        );
         for (name, args) in [
             ("client_item", json!({"item":""})),
             ("client_recipes", json!({"item":"wood","limit":9})),
@@ -673,6 +688,7 @@ side = "both""#
             ("client_recipes", json!({"recipe_id":4294967296u64})),
             ("client_state", json!({"key":"Escape"})),
             ("client_snapshot", json!({"key":"Escape"})),
+            ("client_commands", json!({"operation":"other"})),
             ("client_command", json!({"operation":"bad","action":"join"})),
             ("client_command_status", json!({"operation":"../other"})),
             (

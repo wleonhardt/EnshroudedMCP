@@ -5,7 +5,7 @@ use enshwick::input::{
 use policy::{client_control as gate, write_gate};
 use serde_json::{Value, json};
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs::{self, OpenOptions},
     io::Write,
     path::Path,
@@ -129,6 +129,42 @@ fn native(action: &gate::Action) -> CommandAction {
     }
 }
 impl State {
+    pub(crate) fn inventory(&self, dir: Option<&Path>) -> Result<Value, String> {
+        let mut operations: BTreeSet<_> = self.operations.keys().cloned().collect();
+        if let Some(dir) = dir {
+            match fs::read_dir(dir.join("client-commands")) {
+                Ok(entries) => {
+                    for (index, entry) in entries.enumerate() {
+                        gate::capacity(index)?;
+                        let entry = entry.map_err(|error| error.to_string())?;
+                        if !entry
+                            .file_type()
+                            .map_err(|error| error.to_string())?
+                            .is_file()
+                        {
+                            return Err("client command reservations must be regular files".into());
+                        }
+                        let name = entry.file_name();
+                        operations.insert(gate::reserved_operation(
+                            name.to_str()
+                                .ok_or("invalid client command reservation name")?,
+                        )?);
+                    }
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => (),
+                Err(error) => return Err(error.to_string()),
+            }
+        }
+        let commands = operations
+            .iter()
+            .map(|operation| self.report(operation, dir))
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(
+            json!({"commands":commands,"commands_submitted":false,"native_identity_reconstructed":false,
+            "automatic_retry":false,"scope":"retained client operations and durable caller identities",
+            "max_records":2*gate::MAX_OPERATIONS}),
+        )
+    }
     pub(crate) fn report(&self, operation: &str, dir: Option<&Path>) -> Result<Value, String> {
         if let Some(entry) = self.operations.get(operation) {
             return Ok(entry.result.clone());
@@ -405,6 +441,15 @@ mod tests {
             .unwrap();
         assert_eq!(queued["state"], "queued");
         assert_eq!(loader.client_commands().len(), 1);
+        let journal_before_inventory = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        let inventory = state.inventory(dir).unwrap();
+        assert_eq!(inventory["commands"], json!([queued.clone()]));
+        assert_eq!(inventory["commands_submitted"], false);
+        assert_eq!(
+            fs::read(fixture.0.join("journal.jsonl")).unwrap(),
+            journal_before_inventory
+        );
+        assert_eq!(loader.client_commands().len(), 1);
         assert_eq!(
             state
                 .run(write.clone(), input, dir, Instant::now())
@@ -443,6 +488,13 @@ mod tests {
             reopened.report("open", dir).unwrap()["state"],
             "prior_boot_unavailable"
         );
+        let inventory = reopened.inventory(dir).unwrap();
+        assert_eq!(inventory["commands"].as_array().unwrap().len(), 1);
+        assert_eq!(
+            inventory["commands"][0],
+            reopened.report("open", dir).unwrap()
+        );
+        assert_eq!(inventory["native_identity_reconstructed"], false);
         assert!(reopened.run(write, input, dir, Instant::now()).is_err());
         let preview = state.run(dry("stale"), input, dir, Instant::now()).unwrap();
         loader.set_client_snapshot(snapshot(2, "InGame", ""));
@@ -527,5 +579,193 @@ mod tests {
                 .run(dry("deadline"), input, dir, Instant::now() - gate::WAIT)
                 .is_err()
         );
+    }
+
+    #[test]
+    fn durable_inventory_is_bounded_sorted_read_only_and_never_decodes_old_native_ids() {
+        let fixture = Fixture::new();
+        let dir = Some(fixture.0.as_path());
+        let state = State::default();
+        assert_eq!(state.inventory(None).unwrap()["commands"], json!([]));
+        assert_eq!(state.inventory(dir).unwrap()["commands"], json!([]));
+        let namespace = fixture.0.join("client-commands");
+        fs::create_dir(&namespace).unwrap();
+        // Reservation contents are deliberately unreadable as JSON. Only caller identities are recovered.
+        for operation in ["z-last", "a-first"] {
+            fs::write(path(&fixture.0, operation), b"not a native command record").unwrap();
+        }
+        let inventory = state.inventory(dir).unwrap();
+        assert_eq!(inventory["commands"][0]["operation"], "a-first");
+        assert_eq!(inventory["commands"][1]["operation"], "z-last");
+        assert!(
+            inventory["commands"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|row| row["state"] == "prior_boot_unavailable"
+                    && row["automatic_retry"] == false)
+        );
+        assert!(!fixture.0.join("journal.jsonl").exists());
+        fs::create_dir(path(&fixture.0, "directory")).unwrap();
+        assert!(state.inventory(dir).is_err());
+        fs::remove_dir(path(&fixture.0, "directory")).unwrap();
+        let invalid = namespace.join("command-INVALID.json");
+        fs::write(&invalid, b"").unwrap();
+        assert!(state.inventory(dir).is_err());
+        fs::remove_file(invalid).unwrap();
+        for index in 2..gate::MAX_OPERATIONS {
+            fs::write(path(&fixture.0, &format!("entry-{index}")), b"").unwrap();
+        }
+        assert_eq!(
+            state.inventory(dir).unwrap()["commands"]
+                .as_array()
+                .unwrap()
+                .len(),
+            gate::MAX_OPERATIONS
+        );
+        fs::write(path(&fixture.0, "overflow"), b"").unwrap();
+        assert!(state.inventory(dir).is_err());
+    }
+
+    #[test]
+    fn native_cancellation_and_unavailability_remain_terminal_without_redispatch() {
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .install();
+        // SAFETY: these are this test module's framework-generated exports.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+        let input = *INPUT.lock().unwrap();
+        loader.set_client_snapshot(snapshot(7, "InGame", ""));
+        let fixture = Fixture::new();
+        fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+        let dir = Some(fixture.0.as_path());
+        let mut state = State::default();
+        for (reason, expected) in [
+            (Status::SESSION_CHANGED, "SessionChanged"),
+            (Status::OTHER_SCREEN, "OtherScreen"),
+            (Status::PLAYER_INPUT, "PlayerInput"),
+            (Status::BY_MOD, "ByMod"),
+            (Status::TIMED_OUT, "TimedOut"),
+            (Status::INPUT_BLOCKED, "InputBlocked"),
+            (Status::MOD_OFF, "ModOff"),
+            (999, "Other(999)"),
+            (0, ""),
+        ] {
+            let operation = format!("terminal-{reason}");
+            let request = dry(&operation);
+            let preview = state
+                .run(request.clone(), input, dir, Instant::now())
+                .unwrap();
+            let request = real(request, &preview);
+            state
+                .run(request.clone(), input, dir, Instant::now())
+                .unwrap();
+            let commands = loader.client_commands();
+            let id = commands.last().unwrap().0;
+            loader.set_command_status(id, Status::APPLIED, 0);
+            state.observe(input, dir);
+            assert_eq!(state.report(&operation, dir).unwrap()["state"], "queued");
+            loader.set_command_status(
+                id,
+                if reason == 0 {
+                    Status::UNAVAILABLE
+                } else {
+                    Status::CANCELLED
+                },
+                reason,
+            );
+            state.observe(input, dir);
+            let report = state.report(&operation, dir).unwrap();
+            assert_eq!(report["state"], "finished_or_unknown");
+            assert_eq!(
+                report["native_state"],
+                if reason == 0 {
+                    "unavailable"
+                } else {
+                    "cancelled"
+                }
+            );
+            if reason != 0 {
+                assert_eq!(report["cancel_reason"], expected);
+            }
+            assert_eq!(report["rendered_verified"], false);
+            assert_eq!(report["arrival_verified"], false);
+            let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+            state.observe(input, dir);
+            assert_eq!(
+                state.run(request, input, dir, Instant::now()).unwrap(),
+                report
+            );
+            assert_eq!(loader.client_commands(), commands);
+            assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
+        }
+    }
+
+    #[test]
+    fn unusable_native_contexts_refuse_before_reservation_or_dispatch() {
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .install();
+        // SAFETY: these are this test module's framework-generated exports.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+        let input = *INPUT.lock().unwrap();
+        let fixture = Fixture::new();
+        fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+        let dir = Some(fixture.0.as_path());
+        let valid = snapshot(8, "InGame", "");
+        let mut state = State::default();
+        for context in [
+            Raw::EMPTY,
+            Raw {
+                state: Raw::OFF,
+                ..valid
+            },
+            Raw {
+                state: Raw::STALE,
+                ..valid
+            },
+            Raw {
+                age_ms: 1001,
+                ..valid
+            },
+            Raw {
+                session: 0,
+                ..valid
+            },
+            Raw {
+                available: 0,
+                ..valid
+            },
+            Raw {
+                hud_screen: Str::new(""),
+                ..valid
+            },
+        ] {
+            loader.set_client_snapshot(context);
+            for action in [
+                gate::Action::Open("Map".into()),
+                gate::Action::Close,
+                gate::Action::Tab("Map".into()),
+                gate::Action::Recipe(73),
+                gate::Action::Look(0.1, 0.0),
+                gate::Action::Move([0.0, 1.0], 1),
+            ] {
+                let mut request = real(dry("unusable-context"), &json!({"preview":"old-context"}));
+                request.action = action;
+                assert!(state.run(request, input, dir, Instant::now()).is_err());
+            }
+        }
+        assert_eq!(state.inventory(dir).unwrap()["commands"], json!([]));
+        assert!(loader.client_commands().is_empty());
+        assert!(!fixture.0.join("client-commands").exists());
+        assert!(!fixture.0.join("journal.jsonl").exists());
     }
 }

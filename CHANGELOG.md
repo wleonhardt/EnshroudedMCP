@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Companion 0.19.0 adds a bounded read-only command inventory for recovering caller operation identities and retained outcomes after lost replies or reloads. It never decodes old SDK IDs or dispatches input. Invalid reservation entries refuse; terminal cancellation/unavailability and unchanged replay/audit behavior have regression coverage. Native deployment remains unverified.
+
 - Preserve an inactive, reproducible SDK prop-placement metadata proposal. It reuses the existing resolver, appends ABI 12.2 data/entry without moving old slots and coordinates safe/fake/native/C/Luau interfaces. Upstream model/lint/docs checks pass; no product dependency, installed loader or control authority changes. Native provider acceptance remains unverified.
 - Make the clock adapter fixture deterministic with explicit scheduler passes, controlled elapsed time and separate reply observation. Cover expiry while queued, cancellation, ready results/errors and uncertainty after execution starts. Production keeps the original timer start point, five-second limits, durable replay and admission rules; no clock-tool behavior or authority changes.
 - Remove wall-clock worker races from the health-recovery SDK fixture by driving queued requests and receipt observation separately. Preserve the production five-second deadline, cancellation before execution, uncertainty after execution starts and result/error propagation. Add deterministic receipt-boundary coverage; no health-tool behavior or authority changes.

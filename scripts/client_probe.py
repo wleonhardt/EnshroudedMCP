@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.18.0; no actions."""
+"""Fixed read-only probes for native client companion 0.19.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("client_capabilities", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes", "client_workshops"))
+READS = frozenset(("client_capabilities", "client_commands", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes", "client_workshops"))
 GUID = re.compile(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\Z")
 
 
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.18.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.19.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
@@ -38,6 +38,29 @@ def capabilities(value):
     return {"compiled_framework_revision": value["compiled_framework_revision"], "compiled_framework_abi": value["compiled_framework_abi"],
             "live_verified": False, "native_observation": value["ui_observation"], "recipe_layout_available": value["recipe_layout"],
             "client_event_sources": {key: sources[key] for key in ("open_hud_screen", "station_recipe_selection")}}
+
+
+
+def command_inventory(value):
+    require(value.get("commands_submitted") is False and value.get("native_identity_reconstructed") is False
+            and value.get("automatic_retry") is False and type(value.get("max_records")) is int and value["max_records"] == 128)
+    commands = value.get("commands")
+    require(isinstance(commands, list) and len(commands) <= 128 and all(isinstance(row, dict) for row in commands))
+    operations = [row.get("operation") for row in commands]
+    require(all(type(operation) is str and re.fullmatch(r"[a-z0-9_-]{1,64}", operation) for operation in operations))
+    require(operations == sorted(set(operations)))
+    counts = {}
+    for row in commands:
+        state = row.get("state")
+        require(state in ("reserved", "queued", "finished_or_unknown", "refused_or_unknown", "prior_boot_unavailable")
+                and row.get("automatic_retry") is False)
+        if state == "prior_boot_unavailable":
+            require(row.get("native_identity_reconstructed") is False)
+        else:
+            require(type(row.get("native_submitted")) is bool and row.get("rendered_verified") is False and row.get("arrival_verified") is False)
+        counts[state] = counts.get(state, 0) + 1
+    # Caller operation identities, payloads and errors never enter the saved probe report.
+    return {"records":len(commands), "states":counts, "commands_submitted":False, "native_identity_reconstructed":False}
 
 
 def native_snapshot(value):
@@ -236,16 +259,18 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.18.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.19.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.18.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.19.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):
             return self.report("failed")
         self.tool("capabilities", "client_capabilities", {}, capabilities)
+        self.tool("command_inventory", "client_commands", {}, command_inventory)
+        self.tool("command_inventory_unknown_argument", "client_commands", {"probe_unknown": True}, refusal="unknown argument")
         self.tool("native_snapshot_shape", "client_snapshot", {}, native_snapshot)
         self.tool("state_shape", "client_state", {}, state)
         self.tool("event_cursor", "client_events", {"after": 0, "limit": 2}, events)
