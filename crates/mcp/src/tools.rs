@@ -508,8 +508,8 @@ impl Tools for GameTools {
                 "native_clock_advance":self.clock_control.is_some(),
                 "native_clock_advance_live_verified":false,
                 "native_reposition_live_verified":false,
-                "enshwick":"1.0.0-alpha.16",
-                "compiled_framework_revision":"5436ffddcc623439c339a283a4dc2b45f924fe5b",
+                "enshwick":"1.0.0-alpha.17",
+                "compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
                 "game_build":null,
                 "game_build_status":"not_observed",
@@ -798,7 +798,7 @@ fn item_metadata(info: enshwick::inventory::ItemInfo) -> Value {
 fn item_inspection(info: Option<enshwick::inventory::ItemInfo>) -> Value {
     let (state, template) = match info {
         Some(info) => match info.placed_entity_template {
-            Some(template) => ("observed", Some(hex(template))),
+            Some(template) => ("observed", Some(hex(template.0))),
             None => ("known_no_template", None),
         },
         None => ("unavailable", None),
@@ -898,7 +898,9 @@ mod tests {
             max_stack_size: 24,
             flags: 0,
             category: 3,
-            placed_entity_template: Some([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 255]),
+            placed_entity_template: Some(enshwick::content::Guid([
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 255,
+            ])),
         };
         let expected_metadata = json!({"item_id":7,"max_stack_size":24,"category":3,"flags":0,
             "has_item_entity":false,"is_container":false,"is_blueprint":false});

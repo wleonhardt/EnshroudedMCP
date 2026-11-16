@@ -229,7 +229,7 @@ impl Tools for ClientTools {
                 self.request(Request::Markers(spec))
             }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.16","compiled_framework_revision":"5436ffddcc623439c339a283a4dc2b45f924fe5b","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"pinned nightly SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":if self.marker_ui {vec!["client_map_markers"]}else{vec![]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":if self.marker_ui {vec!["client_map_markers"]}else{vec![]},"semantic_gameplay_actions":[],"unavailable":["screenshots","keyboard/mouse injection","camera control","current selected tab","passively highlighted crafting recipe","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -484,12 +484,12 @@ side = "both""#
     fn compiled_framework_provenance_is_separate_from_live_verification() {
         let tools = ClientTools::new(Arc::default(), false, false);
         let value = tools.call("client_capabilities", &Map::new()).unwrap();
-        assert_eq!(value["enshwick"], "1.0.0-alpha.16");
+        assert_eq!(value["enshwick"], "1.0.0-alpha.17");
         assert_eq!(
             value["compiled_framework_revision"],
-            "5436ffddcc623439c339a283a4dc2b45f924fe5b"
+            "6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
         );
-        assert_eq!(value["compiled_framework_abi"], "12.0");
+        assert_eq!(value["compiled_framework_abi"], "12.1");
         assert_eq!(value["screen_host_template_observation"], true);
         assert_eq!(value["live_verified"], false);
         assert_eq!(value["semantic_gameplay_actions"], json!([]));

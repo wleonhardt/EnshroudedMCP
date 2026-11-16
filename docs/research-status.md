@@ -1,5 +1,11 @@
 # Evidence and remaining work
 
+## Official alpha.17 source foundation
+
+Current source is server 0.34.0 / companion 0.13.0, official release 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1. Cargo uses the unmodified exact Git dependency; no source override or SDK patch is active. Official archive checksum, both framework signatures and tamper rejection pass. Required consumer checks and targeted SDK checks pass. Installed alpha.16 research files remain unchanged; matched alpha.17 deployment and live acceptance are pending. See [decision 0024](../plans/decisions/0024-alpha17-native-control-foundation.md).
+
+Alpha.17 now publishes native client snapshots and bounded screen/tab, movement/look and recipe-highlight commands with status/cancel. This compatibility increment adds no MCP adapter. Implement adapters next with explicit client scope, session/screen gates and durable outcome reconciliation; native join, protected credential entry, logout and rendered evidence remain separate gaps. Historical evidence below retains its original source/runtime scope.
+
 ## Direct recipe-ID comparison
 
 The isolated 0.27.0/0.12.0 pair passes a matched cold deployment and live comparison: two observed archive IDs return complete unchanged output-query metadata at Menu and during a healthy connected session. Zero/max-ID queries and invalid selectors are exercised. Clean logout, restored settings, complete captures, archived ledgers and eight installed binary hashes pass. Live duplicate/zero/max-ID records, actual selected-UI applicability and public-namespace installation remain unverified.
@@ -51,7 +57,7 @@ An isolated character died while idle during read-only observation. Normal clien
 
 The corrected server write gate was installed alone after a verified 40-file cold archive. Loader and companion hashes stayed unchanged. Directory and future-dated flag fixtures were refused using deliberately invalid player/item selectors; no inventory grant occurred. All 4096 preserved cells and complete pre-restart ledger bytes remained exact. An initial startup run passed 17 of 18 probes while construction was inactive; after observed readiness, all 18 passed, with broader acceptance still incomplete. These fixtures use the existing research installation; the neutral public mod namespace has not been independently live-installed.
 
-The framework maintainer [reported a suspected held-input defect and planned diagnostic support](https://github.com/enshwick/enshwick/issues/1107#issuecomment-6883127694). Native look/movement/menu work is being investigated upstream. These are maintainer plans, not released capabilities. A focused cached-diagnostic draft has been shared upstream for review; it is not an input executor and its candidate loader remains uninstalled.
+The framework maintainer [reported a suspected held-input defect and planned diagnostic support](https://github.com/enshwick/enshwick/issues/1107#issuecomment-6883127694). That statement was historical: alpha.17 now publishes bounded native look/movement and in-game screen/tab APIs, as described above. Main-menu join and logout remain unsupported in the reviewed API. A focused cached-diagnostic draft has been shared upstream for review; it is not an input executor and its candidate loader remains uninstalled.
 
 ## Next acceptance milestones
 

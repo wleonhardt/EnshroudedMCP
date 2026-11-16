@@ -28,9 +28,9 @@ Run the checks above. Update public documentation and changelog for behavior cha
 
 ## Structure
 
-Rust 2024 workspace: `crates/policy` holds rules, `crates/mcp` the server adapter, `crates/transport` loopback HTTP/MCP, and `crates/client` the optional native research companion. `scripts` contains Python read-only probes and helper tests. `patches` contains the reproducible pinned framework extension. Read its instructions before building.
+Rust 2024 workspace: `crates/policy` holds rules, `crates/mcp` the server adapter, `crates/transport` loopback HTTP/MCP, and `crates/client` the optional native research companion. `scripts` contains Python read-only probes and helper tests. `patches` records framework lineage and historical inactive extensions. Read its instructions before changing loader lineage.
 
-The current SDK pin is official commit `5436ffddcc623439c339a283a4dc2b45f924fe5b`, ABI 12.0, through sibling `enshwick-abi12`. Apply only the active metadata patch; the old private event patch is historical. Read `patches/README.md` before changing dependency or loader lineage.
+The current SDK pin is official release commit `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, alpha.17, ABI 12.1, fetched directly by Cargo. No local SDK patch or source override is active. Read `patches/README.md` before changing dependency or loader lineage; source qualification and live acceptance remain separate.
 
 `player_reposition` is a once-command request, not a construction transaction or arrival receipt. Preserve exact actor/session previews, positive-health/sole-actor admission, fresh pre-dispatch gates, synced durable intent and cached outcomes. The requested-distance gate does not bound native spawn correction. Never redispatch a reserved identity or automate retries; a return is a new separately gated request, not undo. Keep both operation namespaces and journals private.
 

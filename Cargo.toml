@@ -8,15 +8,11 @@ rust-version = "1.99"
 license = "MIT"
 
 [workspace.dependencies]
-# Pin the exact official development build whose loader is staged for validation.
-enshwick = { git = "https://github.com/enshwick/enshwick", rev = "5436ffddcc623439c339a283a4dc2b45f924fe5b" }
+# Pin the exact official alpha.17 release qualified with its matching signed loader.
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" }
 policy = { path = "crates/policy" }
 mcp-transport = { path = "crates/transport" }
 serde_json = "1"
-
-# SDK-only existing-field exposure; native ABI is official 12.0. See decision 0015.
-[patch."https://github.com/enshwick/enshwick"]
-enshwick = { path = "../enshwick-abi12/crates/enshwick" }
 
 # The loader catches a panic in a mod and turns only that mod off; it needs unwinding.
 [profile.release]

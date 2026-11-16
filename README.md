@@ -2,9 +2,11 @@
 
 # Enshrouded MCP
 
+Current source targets server **0.34.0** / companion **0.13.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed research runtime remains alpha.16. This migration adds no MCP executor; native client adapters and matched live acceptance are next. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
+
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.33.0** and **optional companion 0.12.1** against ABI 12.0. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.34.0** and **optional companion 0.13.0** against ABI 12.1. The previous 0.26.0/0.11.0 research pair passes cold readiness and a bounded healthy connected-client observation with exact preservation. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
@@ -26,8 +28,8 @@ A composed 164-cell shell has rendered placement and exact recovery evidence wit
 ## Get started
 
 1. Use a disposable isolated world and coordinate access with its players.
-2. Prepare the exact framework source and matching official loader using [setup](docs/setup.md). The candidate pin is `5436ffddcc623439c339a283a4dc2b45f924fe5b`, package alpha.16, **ABI 12.0**. Keep the loader and all consumers matched.
-3. Apply the [SDK metadata patch](patches/README.md), then build and test both consumers you intend to install.
+2. Prepare the exact framework source and matching official loader using [setup](docs/setup.md). The candidate pin is `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, package alpha.17, **ABI 12.1**. Keep the loader and all consumers matched.
+3. Build and test both consumers against the exact clean dependency; [historical patches](patches/README.md) are inactive.
 4. Install the server mod with writes disabled. Connect your MCP client to `http://127.0.0.1:8751/mcp` and begin with `capabilities`, `status` and `players`.
 
 The endpoint always binds loopback. Remote use requires an authenticated tunnel. An optional bearer token adds request authentication; it does not replace the write gate. The client companion has a separate endpoint and token.

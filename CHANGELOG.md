@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.34.0 / companion 0.13.0 (official alpha.17 source foundation)
+
+- Pin the unmodified official alpha.17 release, revision 6a151a9550ed7a6ade99c23fa817a91e25b71bc9, ABI 12.1, directly through Cargo Git. Retire the local source override and metadata patch; adapt the upstream placed-template Guid while preserving observation semantics.
+- Rebuild both consumers and update provenance checks together. The release adds supported native client commands upstream; this compatibility increment exposes no new MCP executor.
+- Verify the official archive checksum and both framework release signatures, including tamper rejection. Source checks and targeted SDK checks pass; installed alpha.16 files remain unchanged. Matched deployment and live alpha.17 acceptance remain unverified.
+
 ## 0.33.0 (replay-safe caller-identified inventory grants)
 
 - Require give_item operation identity, default dry and exact current actor/item/session preview for real calls. Legacy identity-free requests fail closed; preserve strict counts/selectors and unique actor resolution.

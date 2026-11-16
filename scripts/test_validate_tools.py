@@ -61,8 +61,8 @@ class Fixture:
                                                "night_starts_hours": 22.0, "day_duration_seconds": 1800.0,
                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
         elif name == "capabilities":
-            value = {"enshwick": "1.0.0-alpha.16", "compiled_framework_revision": "5436ffddcc623439c339a283a4dc2b45f924fe5b",
-                     "compiled_framework_abi": "12.0", "mod_version": VERSION, "inventory_read": True, "item_info": True, "item_lookup": True,
+            value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
+                     "compiled_framework_abi": "12.1", "mod_version": VERSION, "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
         elif name == "entity_health":
             value = {"entities": [], "total_candidates": 0, "truncated": False}
@@ -111,7 +111,7 @@ class ValidationTests(unittest.TestCase):
         for key, wrong in (("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14"),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
-                           ("compiled_framework_abi", "11.30"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
+                           ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("mod_version", "0.33.0"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),
                            ("mod_version", "0.26.0"), ("mod_version", "0.27.0"), ("mod_version", "0.28.0"), ("mod_version", "0.28.1"), ("mod_version", "0.29.0"), ("mod_version", "0.30.0"), ("mod_version", "0.31.0"), ("mod_version", "0.31.1"), ("mod_version", "0.32.0"), ("mod_version", "0.32.1"), ("native_clock_advance_live_verified", True), ("native_clock_advance", "true")):
             client = Fixture()
             original = client.call
