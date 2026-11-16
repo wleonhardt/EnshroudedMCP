@@ -102,6 +102,12 @@ pub fn reserved_operation(filename: &str) -> Result<String, String> {
         .ok_or("unexpected entry in client command reservations")?;
     self::operation(json!({"operation":operation}).as_object().unwrap())
 }
+pub fn status_observation(age: Option<Duration>, polling_finished: Option<bool>) -> Value {
+    let age_ms = age.map(|age| age.as_millis());
+    json!({"source":"client_frame_status_poll","age_ms":age_ms,
+        "stale":age_ms.is_none_or(|age|age>1000),"polling_finished":polling_finished,
+        "current_context_verified":false})
+}
 pub fn mode(args: &Map<String, Value>) -> Result<(bool, Option<String>, Option<String>), String> {
     let dry = args.get("dry").and_then(Value::as_bool).unwrap_or(true);
     let preview = args.get("preview").and_then(Value::as_str);
@@ -312,6 +318,25 @@ mod tests {
             assert!(reserved_operation(name).is_err(), "{name}");
         }
         assert!(reserved_operation(&format!("command-{}.json", "a".repeat(65))).is_err());
+    }
+    #[test]
+    fn status_poll_freshness_is_bounded_and_never_proves_current_context() {
+        for (age, stale) in [
+            (None, true),
+            (Some(0), false),
+            (Some(1000), false),
+            (Some(1001), true),
+        ] {
+            let value = status_observation(age.map(Duration::from_millis), Some(false));
+            assert_eq!(value["stale"], stale);
+            assert_eq!(value["age_ms"], json!(age));
+            assert_eq!(value["current_context_verified"], false);
+        }
+        assert!(status_observation(None, None)["polling_finished"].is_null());
+        assert_eq!(
+            status_observation(Some(Duration::from_secs(2)), Some(true))["polling_finished"],
+            true
+        );
     }
     #[test]
     fn bounded_supported_actions_default_dry_and_refuse_cross_action_or_unpublished_fields() {

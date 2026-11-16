@@ -10,7 +10,7 @@ The new regression first fails on the missing inventory method. Coverage checks 
 
 The official product SDK remains 6a151a95 / ABI 12.1. The inactive placement proposal is unrelated. Native installation, joined fault/disconnect acceptance and actual rendered outcomes remain separate gates.
 
-Private and independent sanitized-public checks pass 358 Rust executions (including 19 repeated shared-module checks), 59 Python tests, strict Clippy, formatting and both release builds. Seven unusable copied contexts refuse all six command families before reservations, journal entries or SDK dispatch. Native deployment remains unverified.
+Private and independent sanitized-public checks pass 358 Rust executions (including 19 repeated shared-module checks), 59 Python tests, strict Clippy, formatting and both release builds. Seven unusable copied contexts refuse all six command families before reservations, journal entries or SDK dispatch. Native Menu acceptance is recorded below; connected fault/disconnect acceptance remains open.
 
 ## Native acceptance
 
@@ -19,3 +19,5 @@ Signed sanitized source 6389439030ad5375778797141f81a9cee276cc16 passes its requ
 Four exact rollback DLLs, all 12 installed hashes, eight official framework/signature files and the new runtime source closure are verified. The initial cold installation archive has 133 members. A launch mistakenly inherited the default loopback port; this was corrected with explicit process environment settings and a second native shutdown, preserving a 135-member correction archive. Both exact-process observers report exit code 0. This is not causal final-save proof. The two stops add exactly eight unique journal rows and two durable markers under four archive aliases; all old journal prefixes and other immutable ledger bytes are unchanged. There are no gameplay/client-command writes, active flags or players. Future launches must specify the dedicated and client-host/companion ports before process creation.
 
 Fresh native Menu is separate from a joined command context. Current-boot live inventory outcomes, real disconnect timing, rendering and crafting remain unverified. Windows MCP/capture remain off. The SDK placement proposal stays inactive and upstream submission authorization remains pending.
+
+Companion 0.20.0 source adds per-read status-observation age without changing retained outcome or identity semantics; ages can differ between otherwise matching status/inventory reads. See decision 0044. Native freshness acceptance remains pending.

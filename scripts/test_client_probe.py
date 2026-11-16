@@ -42,7 +42,8 @@ class Fixture:
                      "semantic_gameplay_actions": ["client_command.look", "client_command.move"], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers", "client_command"]}
         elif name == "client_commands":
             value = {"commands_submitted":False,"native_identity_reconstructed":False,"automatic_retry":False,"max_records":128,
-                     "commands":[{"operation":"private-operation","state":"prior_boot_unavailable","native_identity_reconstructed":False,"automatic_retry":False}]}
+                     "commands":[{"operation":"private-operation","state":"prior_boot_unavailable","native_identity_reconstructed":False,"automatic_retry":False,
+                     "status_observation":{"source":"client_frame_status_poll","age_ms":None,"stale":True,"polling_finished":None,"current_context_verified":False}}]}
         elif name == "client_workshops":
             value={"mode":"report_only","source":"vanilla_archive_workshop_registry","identity_scope":"recipe_workshop_definition",
                 "effective_definition_verified":False,"current_availability_verified":False,"current_station_available":None,
@@ -120,6 +121,23 @@ class Fixture:
 
 
 class ClientProbeTests(unittest.TestCase):
+    def test_command_inventory_requires_explicit_poll_age_without_current_context_authority(self):
+        value = json.loads(Fixture().call("tools/call", {"name":"client_commands","arguments":{}})["content"][0]["text"])
+        row = value["commands"][0]
+        observation = row["status_observation"]
+        for bad in (None, {}, {**observation,"stale":False}, {**observation,"age_ms":0},
+                    {**observation,"polling_finished":True}, {**observation,"current_context_verified":True}):
+            with self.subTest(bad=bad),self.assertRaises(ValueError):
+                command_inventory({**value,"commands":[{**row,"status_observation":bad}]})
+        current = {"operation":"private-current","state":"queued","automatic_retry":False,"native_submitted":True,
+                   "rendered_verified":False,"arrival_verified":False,"error":"private-error"}
+        for age,stale in ((None,True),(0,False),(1000,False),(1001,True)):
+            observed = {**observation,"age_ms":age,"stale":stale,"polling_finished":False}
+            report = command_inventory({**value,"commands":[{**current,"status_observation":observed}]})
+            self.assertNotIn("private-",json.dumps(report))
+            with self.assertRaises(ValueError):
+                command_inventory({**value,"commands":[{**current,"status_observation":{**observed,"stale":not stale}}]})
+
     def test_command_inventory_refuses_malformed_rows_without_saving_identities(self):
         value = json.loads(Fixture().call("tools/call", {"name":"client_commands","arguments":{}})["content"][0]["text"])
         self.assertEqual(command_inventory(value)["records"], 1)

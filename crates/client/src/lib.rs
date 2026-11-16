@@ -142,12 +142,12 @@ impl ClientTools {
                 },
                 Tool {
                     name: "client_commands",
-                    description: "List retained client command outcomes and durable caller operation identities, sorted by operation, at most 128 records. Read only: no dispatch, SDK identity reconstruction, reservation-content decoding or retry. Prior-boot identities report unavailable. Invalid or excessive reservation entries refuse the inventory. Inspect status/journal after uncertainty; never invent a replacement operation to retry blindly.",
+                    description: "List retained client command outcomes with status-poll freshness and durable caller operation identities, sorted by operation, at most 128 records. Read only: no dispatch, SDK identity reconstruction, reservation-content decoding or retry. Prior-boot identities report unavailable. Invalid or excessive reservation entries refuse the inventory. Inspect status/journal after uncertainty; never invent a replacement operation to retry blindly.",
                     schema: json!({"type":"object","properties":{}}),
                 },
                 Tool {
                     name: "client_command_status",
-                    description: "Read retained client command outcome by caller operation identity. No dispatch, ID reconstruction or retry. Prior-boot durable identities report unavailable. Native pending/applied/observed/cancelled is distinct from rendering, arrival, craftability or server authority.",
+                    description: "Read retained client command outcome by caller operation identity with last frame status-poll age/staleness and polling-finished state. Unknown/prior-boot poll age stays null/stale; terminal outcomes remain historical and do not prove current UI. No dispatch, ID reconstruction or retry. Prior-boot durable identities report unavailable. Native pending/applied/observed/cancelled is distinct from rendering, arrival, craftability or server authority.",
                     schema: policy::client_control::status_schema(),
                 },
                 Tool {

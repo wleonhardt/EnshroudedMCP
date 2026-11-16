@@ -72,7 +72,7 @@ These are on the separate client endpoint, outside the server's count of 30.
 | `client_capabilities` | Companion APIs, limits and explicit unsupported actions. |
 | `client_command` | Caller operation plus supported action payload; dry default, exact native context preview and companion write gate. Once-only SDK submission; no server authority. |
 | `client_commands` | Read sorted retained outcomes and durable caller identities, at most 128 records; no dispatch or native ID reconstruction. Invalid reservation entries refuse. |
-| `client_command_status` | Read retained caller operation outcome without dispatch or ID reconstruction. |
+| `client_command_status` | Read retained caller operation outcome with last frame status-poll age/staleness and polling-finished state; no dispatch or ID reconstruction. |
 | `client_command_cancel` | Separate dry preview and gated once-only cancellation of a retained native operation. |
 | `client_snapshot` | Copied SDK state, age/session and per-part read flags; actual menu tab, local client identity and recipe highlight. Null with unread part means unavailable. No command or World access. |
 | `client_map_markers` | At most one transient mod-owned annotation; dry by default. Exact preview and client write gate required for real submission. Cached submission is not rendered proof. |
@@ -326,3 +326,8 @@ Companion 0.17.0 client_workshops reads only the published vanilla workshop regi
 Observed recipe workshop GUID references can be zero even when the raw workshop ID resolves to a definition. Preserve raw references and use explicitly scoped ID lookup; do not claim GUID-reference verification in that case. A zero/NIL declared station item is an unresolved declaration, not evidence that no station is required or available.
 
 Companion 0.18.0 successful client_recipes results include workshop_reference_layout_checked: true. The SDK recipe array/record layout and workshopGuid/workshopId field positions and kinds must agree with canonical published reflection before parsing. This checks interface-description agreement only, preserves raw values and never fills a zero reference from client_workshops. Why observed GUIDs are zero, their value-level agreement with definitions and crafting applicability remain unverified.
+
+
+## Command status observation age
+
+Companion 0.20.0 adds `status_observation` to `client_command_status` and each `client_commands` row: monotonic milliseconds since the last client-frame SDK status poll, `stale` after 1,000 whole milliseconds, and whether polling has finished. Never-polled and prior-boot records have null age and are stale; prior-boot polling state is also unknown. A poll error is a recently checked unknown outcome, not successful native execution. Retained terminal outcomes remain historical when their poll becomes old. Listener reads compute age without polling the SDK, refreshing the timestamp, submitting input or changing journals. Initial submissions and same-identity command replays retain their existing receipts; explicitly read status for freshness. Poll freshness never proves current UI, arrival or rendering. Native acceptance of this metadata remains unverified.

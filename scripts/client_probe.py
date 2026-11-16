@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.19.0; no actions."""
+"""Fixed read-only probes for native client companion 0.20.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.19.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.20.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
@@ -50,6 +50,7 @@ def command_inventory(value):
     require(all(type(operation) is str and re.fullmatch(r"[a-z0-9_-]{1,64}", operation) for operation in operations))
     require(operations == sorted(set(operations)))
     counts = {}
+    stale_polls = unpolled = 0
     for row in commands:
         state = row.get("state")
         require(state in ("reserved", "queued", "finished_or_unknown", "refused_or_unknown", "prior_boot_unavailable")
@@ -58,9 +59,21 @@ def command_inventory(value):
             require(row.get("native_identity_reconstructed") is False)
         else:
             require(type(row.get("native_submitted")) is bool and row.get("rendered_verified") is False and row.get("arrival_verified") is False)
+        observed = row.get("status_observation")
+        require(isinstance(observed, dict) and observed.get("source") == "client_frame_status_poll"
+                and observed.get("current_context_verified") is False)
+        age = observed.get("age_ms")
+        require((age is None or integer(age)) and observed.get("stale") is (age is None or age > 1000))
+        if state == "prior_boot_unavailable":
+            require(age is None and observed.get("polling_finished") is None)
+        else:
+            require(type(observed.get("polling_finished")) is bool)
+        stale_polls += int(observed["stale"])
+        unpolled += int(age is None)
         counts[state] = counts.get(state, 0) + 1
     # Caller operation identities, payloads and errors never enter the saved probe report.
-    return {"records":len(commands), "states":counts, "commands_submitted":False, "native_identity_reconstructed":False}
+    return {"records":len(commands), "states":counts, "stale_poll_observations":stale_polls, "unpolled_operations":unpolled,
+            "commands_submitted":False, "native_identity_reconstructed":False}
 
 
 def native_snapshot(value):
@@ -259,11 +272,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.19.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.20.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.19.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.20.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

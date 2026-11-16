@@ -18,6 +18,7 @@ struct Entry {
     result: Value,
     terminal: bool,
     cancel_attempted: bool,
+    observed_at: Option<Instant>,
 }
 pub(crate) struct State {
     boot: String,
@@ -167,11 +168,17 @@ impl State {
     }
     pub(crate) fn report(&self, operation: &str, dir: Option<&Path>) -> Result<Value, String> {
         if let Some(entry) = self.operations.get(operation) {
-            return Ok(entry.result.clone());
+            let mut result = entry.result.clone();
+            result["status_observation"] = gate::status_observation(
+                entry.observed_at.map(|at| at.elapsed()),
+                Some(entry.terminal),
+            );
+            return Ok(result);
         }
         if dir.is_some_and(|dir| path(dir, operation).exists()) {
             return Ok(
-                json!({"operation":operation,"state":"prior_boot_unavailable","automatic_retry":false,"native_identity_reconstructed":false}),
+                json!({"operation":operation,"state":"prior_boot_unavailable","automatic_retry":false,"native_identity_reconstructed":false,
+                    "status_observation":gate::status_observation(None,None)}),
             );
         }
         Err("unknown client command operation".into())
@@ -217,6 +224,7 @@ impl State {
             result: json!({"state":"reserved","operation":spec.operation,"session":ctx.session,"native_submitted":false,"automatic_retry":false,"rendered_verified":false,"arrival_verified":false}),
             terminal: true,
             cancel_attempted: false,
+            observed_at: None,
         };
         let result = (|| {
             reserve(dir, &spec.operation, &intent)?;
@@ -261,7 +269,9 @@ impl State {
             let Some(id) = entry.id else {
                 continue;
             };
-            match input.command_status(id) {
+            let status = input.command_status(id);
+            entry.observed_at = Some(Instant::now());
+            match status {
                 Ok(status) => {
                     let (state, terminal) = match status.state {
                         CommandState::Pending => ("pending", false),
@@ -385,6 +395,10 @@ mod tests {
             fs::remove_dir_all(&self.0).unwrap();
         }
     }
+    fn retained_outcome(mut value: Value) -> Value {
+        value.as_object_mut().unwrap().remove("status_observation");
+        value
+    }
     fn spec(value: Value) -> gate::Spec {
         gate::check(value.as_object().unwrap()).unwrap()
     }
@@ -443,7 +457,8 @@ mod tests {
         assert_eq!(loader.client_commands().len(), 1);
         let journal_before_inventory = fs::read(fixture.0.join("journal.jsonl")).unwrap();
         let inventory = state.inventory(dir).unwrap();
-        assert_eq!(inventory["commands"], json!([queued.clone()]));
+        assert_eq!(inventory["commands"].as_array().unwrap().len(), 1);
+        assert_eq!(retained_outcome(inventory["commands"][0].clone()), queued);
         assert_eq!(inventory["commands_submitted"], false);
         assert_eq!(
             fs::read(fixture.0.join("journal.jsonl")).unwrap(),
@@ -552,7 +567,7 @@ mod tests {
                 let before = loader.client_commands().len();
                 assert_eq!(
                     state.run(request, input, dir, Instant::now()).unwrap(),
-                    report
+                    retained_outcome(report)
                 );
                 assert_eq!(loader.client_commands().len(), before);
                 fs::remove_dir(&journal).unwrap();
@@ -698,7 +713,7 @@ mod tests {
             state.observe(input, dir);
             assert_eq!(
                 state.run(request, input, dir, Instant::now()).unwrap(),
-                report
+                retained_outcome(report)
             );
             assert_eq!(loader.client_commands(), commands);
             assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
@@ -767,5 +782,101 @@ mod tests {
         assert!(loader.client_commands().is_empty());
         assert!(!fixture.0.join("client-commands").exists());
         assert!(!fixture.0.join("journal.jsonl").exists());
+    }
+
+    #[test]
+    fn status_distinguishes_never_polled_fresh_stalled_and_historical_terminal_results() {
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .install();
+        // SAFETY: these are this test module's framework-generated exports.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+        let input = *INPUT.lock().unwrap();
+        loader.set_client_snapshot(snapshot(9, "InGame", ""));
+        let fixture = Fixture::new();
+        fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+        let dir = Some(fixture.0.as_path());
+        let mut state = State::default();
+        let preview = state
+            .run(dry("freshness"), input, dir, Instant::now())
+            .unwrap();
+        state
+            .run(real(dry("freshness"), &preview), input, dir, Instant::now())
+            .unwrap();
+        let never = state.report("freshness", dir).unwrap();
+        assert!(never["status_observation"]["age_ms"].is_null());
+        assert_eq!(never["status_observation"]["stale"], true);
+        state.observe(input, dir);
+        let fresh = state.report("freshness", dir).unwrap();
+        assert_eq!(
+            fresh["status_observation"]["stale"],
+            fresh["status_observation"]["age_ms"].as_u64().unwrap() > 1000
+        );
+        assert_eq!(fresh["status_observation"]["polling_finished"], false);
+        state.operations.get_mut("freshness").unwrap().observed_at =
+            Some(Instant::now() - std::time::Duration::from_secs(2));
+        let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        let stale = state.report("freshness", dir).unwrap();
+        assert_eq!(stale["native_state"], "pending");
+        assert_eq!(stale["status_observation"]["stale"], true);
+        assert!(stale["status_observation"]["age_ms"].as_u64().unwrap() >= 2000);
+        assert_eq!(
+            state.inventory(dir).unwrap()["commands"][0]["status_observation"]["stale"],
+            true
+        );
+        assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
+        let id = loader.client_commands()[0].0;
+        loader.set_command_status(id, Status::OBSERVED, 0);
+        state.observe(input, dir);
+        state.operations.get_mut("freshness").unwrap().observed_at =
+            Some(Instant::now() - std::time::Duration::from_secs(2));
+        let done = state.report("freshness", dir).unwrap();
+        assert_eq!(done["native_state"], "observed");
+        assert_eq!(done["status_observation"]["polling_finished"], true);
+        assert_eq!(done["status_observation"]["stale"], true);
+        assert_eq!(done["rendered_verified"], false);
+        let terminal_journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+        state.observe(input, dir);
+        assert_eq!(
+            state.report("freshness", dir).unwrap()["status_observation"]["stale"],
+            true
+        );
+        assert_eq!(
+            fs::read(fixture.0.join("journal.jsonl")).unwrap(),
+            terminal_journal
+        );
+        let prior = State::default().report("freshness", dir).unwrap();
+        assert!(prior["status_observation"]["age_ms"].is_null());
+        assert!(prior["status_observation"]["polling_finished"].is_null());
+        assert_eq!(prior["status_observation"]["stale"], true);
+        assert_eq!(loader.client_commands().len(), 1);
+        let preview = state
+            .run(dry("poll-error"), input, dir, Instant::now())
+            .unwrap();
+        state
+            .run(
+                real(dry("poll-error"), &preview),
+                input,
+                dir,
+                Instant::now(),
+            )
+            .unwrap();
+        // Model an SDK identity no longer available in its native status store.
+        state.operations.get_mut("poll-error").unwrap().id = Some(CommandId::new(999));
+        state.observe(input, dir);
+        let unknown = state.report("poll-error", dir).unwrap();
+        assert_eq!(unknown["native_state"], "unknown");
+        assert!(unknown["native_error"].is_string());
+        assert!(unknown["status_observation"]["age_ms"].is_number());
+        assert_eq!(unknown["status_observation"]["polling_finished"], true);
+        assert_eq!(
+            unknown["status_observation"]["current_context_verified"],
+            false
+        );
+        assert_eq!(loader.client_commands().len(), 2);
     }
 }
