@@ -2,7 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
-- Companion 0.20.2 source returns polling freshness consistently on command submissions/replays and cancellation outcomes, including dry last_outcome. Retained reads do not refresh observations or change execution, journals or retry gates. Candidate is not installed; current-boot native acceptance remains open.
+- Companion 0.20.2 source returns polling freshness consistently on command submissions/replays and cancellation outcomes, including dry last_outcome. Retained reads do not refresh observations or change execution, journals or retry gates. Matched 0.43.0/0.20.2 native read-only/prior-boot regression now passes; joined/current-boot reply behavior remains unverified.
 
 - Server 0.43.0 adds read-only active buff observations for one server entity, with bounded output, preserved SDK errors and exact projected game-time durations. No mutation or safety claim. Installed native missing-entity/error, strict refusal and full read-only preservation checks pass; positive holder and UI/countdown semantics remain unverified.
 
