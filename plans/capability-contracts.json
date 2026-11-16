@@ -1,6 +1,6 @@
 {
   "date": "2026-11-16",
-  "status": "contract inventory verified; historical per-tool acceptance reconciliation in progress",
+  "status": "all 49 tools have explicit contract/evidence assessments and next checks; workflow acceptance remains open",
   "profiles": {
     "product": {
       "server_version": "0.45.0",
@@ -70,7 +70,15 @@
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Correlate one point with independent weather evidence.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/weather_read.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -112,7 +120,15 @@
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Observe one bounded countdown with independent value/time evidence.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/buff_read.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -149,7 +165,15 @@
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Correlate a present station and its independently observed production state.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/factory_station.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -166,16 +190,27 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Read-only shared journal accounting; no reservation or spend.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Zero-owner native readback qualified; nonzero native owners not qualified.",
+      "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
+      "persistence_acceptance": "No durable recovery authority is inferred.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Observe nonzero retained recovery credit in a tiny accepted/reverse-undo fixture.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No mutation; reports budget math rather than native undo capacity.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/mcp/src/journal.rs",
+        "crates/policy/src/construction.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -212,16 +247,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Raw world/player knowledge IDs preserve unknown, row scope and flags; not eligibility.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Installed read probes exist; independently valued present world/player entries remain unqualified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Not a persistence or unlock-retention test.",
+      "freshness_completeness": "Scheduled raw observations preserve per-row scope/unknowns; player query may return shared world-scoped values. No eligibility inference.",
+      "next_missing_check": "Correlate one observed knowledge value and scope with an independent in-game prerequisite.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No progression change or craftability proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/knowledge_read.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -247,16 +292,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Server prompt/combat target namespaces remain distinct from client entities or scene raycasts.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Source adapter cases and installed probes; independent present-target coverage remains incomplete.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Session-local entity identity only.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Correlate one present prompt target with a visible known object without moving the avatar.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No interaction, hit, collision or navigation execution.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/interaction_target.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -305,16 +360,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Explicit ordered site box only; persistence/build-rights results are not an item footprint or authorization.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Installed bounded reads; complete altar boundary and representative actor-rights coverage remain unqualified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "SDK persistence answer does not prove cold reload.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Check a predefined inside/outside boundary and actor-rights case independently.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No placement, collision or terrain-contact effect.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/building_access.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -354,17 +419,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Fresh write flag/confirmation for real requests; sole living selected actor, exact active-session/account/entity/generation/current/max preview; positive maximum only; no durable caller-ID replay contract.",
+      "evidence_summary": "Positive-only administrative restoration; exact current actor/generation/health preview, no caller operation ID.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical 2026-11-15 isolated 17/100 to 100/100 fixture qualified; later configurations not universally certified.",
+      "rendered_acceptance": "Historical visible health bar qualified for the one restoration fixture; broader configuration remains open.",
+      "persistence_acceptance": "No native undo or general health persistence claim.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "On naturally needed recovery, qualify actor/session invalidation and preserved readback; never lower health to manufacture a test.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Independent native readback and visible full bar in that historical fixture; no resurrection or combat-safety proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/health_recovery.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -468,16 +544,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Bounded raw cells and explicit-box rights/persistence; foundation preview is not rendered ground height.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Complete isolated voxel baselines and bounded source surveys preserved; broader terrain/ground-contact acceptance open.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Historical baseline preservation is not complete built-structure persistence.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Correlate one fresh visible terrain seam with a bounded survey and independent contact evidence.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Existing platform standing correspondence is narrow; grass/rock occlusion and fill semantics remain unresolved.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/building_survey.rs"
+      ],
+      "observation_side_effects": "May trigger SDK chunk loading; bounded cells do not imply no engine work.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -515,17 +601,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. No arguments reads only. A setter defaults dry; real requires fresh flag/confirmation, active session, exact expected current boolean and durable intent. Expected-state guard, not durable once-only identity.",
+      "evidence_summary": "Observed read or expected-boolean/session guarded setter; no durable caller operation identity.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Repeated isolated on/off readbacks and original false restoration qualified in joined fixtures.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "SDK warns runtime changes may be saved; no automatic restart restoration.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Independently qualify a representative enemy behavior without exposing the actor to harm.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Setting equality observed; invulnerability, hazard protection and comprehensive enemy behavior unverified.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/pacification.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -557,16 +654,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Bounded raw item-ID registry mapping; identity is not placement/crafting permission.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical item and workshop/station ID correlations qualified; full registry/effective-definition coverage open.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Content definitions, not world persistence.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Correlate a new bounded definition with independent vanilla metadata and preserve missing/collision cases.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Definition identity agreement only; no instance or equipment-effect proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/item_lookup.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -581,16 +688,25 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Compiled version/provenance and resolved handles; availability flags are not executors or live certification.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Current installed profile observed; native provider fidelity remains separately qualified.",
+      "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
+      "persistence_acceptance": "No persistence claim.",
+      "freshness_completeness": "Compiled strings and initialization-time resolved handles, not a live provider ABI or a current World observation.",
+      "next_missing_check": "Reconcile a changed provider/install against exact compiled provenance before adoption.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No action or World mutation.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -644,10 +760,18 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "One counts result uses the same SDK slot read as its page; pages are independent snapshots. Virtual-link/alias coverage and crafting eligibility are not established.",
       "next_missing_check": "Qualify linked-slot aliases and eligible-stock scope.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/inspection.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -670,16 +794,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Vanilla/debug-name metadata through inventory API; missing data is not complete vanilla equipment effects.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical bounded item metadata reads; complete effective/base-game modifier interpretation unverified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Definition observation only.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Independently correlate one supported property; keep unavailable vanilla effects explicit.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No item grant, equipment use or effective-stat proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/inspection.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -719,16 +853,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Bounded nearest placed entities with typed NetworkHealth; absent differs from read error.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical enemy health decrease has independent UI evidence; broader entity kinds/read-error branches remain bounded.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Session-local entities; no persistence claim.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Correlate a representative supported entity meter and distinguish absent/unreadable cases.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Narrow health observation only; no damage or restoration executor.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/inspection.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -741,18 +885,27 @@
         "crates/mcp/src/tools.rs"
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
-      "thread": "server game-thread scheduler (including delegated controllers)",
+      "thread": "listener host-readiness metadata precheck; hosted World/save/roster/clock reads on server scheduler",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Host readiness precheck then scheduled save/roster/clock observations; save metadata is not causal completion.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Installed hosted and lifecycle observations; no full loading-peer coverage.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Save timestamps/size do not establish exact persisted contents.",
+      "freshness_completeness": "Listener host readiness may differ by the later scheduled observation. Save metadata and clock are not causal completion proof.",
+      "next_missing_check": "Correlate a causal save result in a disposable controlled fixture with independent content verification.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Clock/save metadata does not prove lighting, progression or final disk save.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -767,16 +920,25 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Published character roster with pose/vitals; empty does not prove no peer is loading.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Joined pose/health and empty-roster observations qualified on isolated configurations.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Account and session entity namespaces remain distinct; entity IDs expire.",
+      "freshness_completeness": "One scheduled SDK character-roster observation; excludes proof about loading peers or an admission lock. Reacquire session entities.",
+      "next_missing_check": "Qualify loading/disconnect roster timing without new automatic movement.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Independent pose/distance correlation exists; no arrival/contact or connection-admission lock.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -807,16 +969,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "One raw grid cell; preserve material and fill without an invented density/mesh equation.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Complete isolated baselines include building fill 7 despite older zero-fill documentation.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Historical baseline/reload fixtures are narrow, not arbitrary construction persistence.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Resolve fill-to-visible-surface semantics with a new independent discriminator.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Raw cell correspondence does not prove complete physical surface/collision.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/bounds.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -859,16 +1031,27 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Bounded spatial output with item/template and label presence; no complete held-state or ownership read.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical player-built container discovery qualified; world-loot and complete stateful-prop coverage differ.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Label presence is not verified stable ownership across reload.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Qualify a known functional prop and exact ownership/state correspondence before recovery use.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No removal safety, label-text identity, collision or functional-workshop proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/bounds.rs",
+        "crates/policy/src/inspection.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -912,16 +1095,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Bounded returned rows over SDK discovery; namespaces and missing component/item/template values stay explicit.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Installed spatial probes and historical nearby-entity observations; exhaustive discovery unverified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Session-local observations only.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Correlate a known included/excluded entity and output truncation without claiming exhaustive search cost.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No interaction, targeting, pathfinding or collision executor.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/bounds.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -960,16 +1153,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Lists only configured/resolved reflected component types on bounded supplied session entities.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Installed bounded probes; complete component universe is not observed.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Session-local reflection only.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Check one known reflected component and a deliberately unresolved type with independent source evidence.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Presence/readability is not decoded mechanics or mutation authority.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/inspection.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -1024,17 +1227,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Required bounded caller operation/player/item, count 1..100, dry default; real flag/confirmation/exact actor-item-session preview; durable exclusive identity and callback journal; no blind retry or undo.",
+      "evidence_summary": "Caller-identified administrative grant, dry default, exact actor/item/session preview; no native undo.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Replay-safe source callbacks qualified; current caller-identity positive native grant/readback remains deferred.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "No inventory rollback/persistence acceptance for this route.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "One disposable deliberate grant: full eligible inventory baseline, same-ID reconciliation and exact independent readback.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Commit callback is not independent inventory content or survival consumption.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/give_item.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -1074,16 +1288,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener; pure planning/search; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Pure search of build-time embedded claims; applicability and uncertainty do not authorize writes.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Endpoint/search contracts exercised; no native mechanic is verified by retrieval.",
+      "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
+      "persistence_acceptance": "Not applicable to pure computation/retrieval; no World mutation or persistence proof.",
+      "freshness_completeness": "Build-time embedded claims; current applicability must be independently checked. Editing catalogue needs rebuilding.",
+      "next_missing_check": "Validate one retrieved claim against its independently observed build/configuration before using it as a mechanic.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No World read or gameplay effect.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/knowledge.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "pure retrieval/planning; no World access",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -1344,12 +1568,20 @@
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "partial; see evidence_summary",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "rendered_acceptance": "Not applicable to pure computation itself; any resulting built/crafted workflow needs separate native/rendered acceptance.",
+      "persistence_acceptance": "Not applicable to pure computation/retrieval; no World mutation or persistence proof.",
+      "freshness_completeness": "Pure supplied-data arithmetic. No implicit fresh stock, station, unlock, category or actual coproduct observation.",
       "next_missing_check": "Verify one game recipe dependency chain with eligible stock.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/recipe_plan.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "pure retrieval/planning; no World access",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -1961,12 +2193,20 @@
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "partial; see evidence_summary",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "rendered_acceptance": "Not applicable to pure computation itself; any resulting built/crafted workflow needs separate native/rendered acceptance.",
+      "persistence_acceptance": "Not applicable to pure computation/retrieval; no World mutation or persistence proof.",
+      "freshness_completeness": "Pure declared geometry/clearances/routes, not observed occupancy, actor dimensions, traversal, structure or contact.",
       "next_missing_check": "Qualify a tiny two-stage fixture before the full workshop.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/building_plan.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "pure retrieval/planning; no World access",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2054,17 +2294,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Real flag/confirmation plus active preview session, source building voxel, target air, sole actor/rights/persistence, exclusive durable operation and complete-cycle audit/recovery headroom.",
+      "evidence_summary": "One source building voxel into guarded air; session-bound durable operation, journal and retained native receipt.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical single-cell apply/readback/undo fixtures qualified; concurrency and general terrain acceptance open.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Historical baseline-after-undo reload qualified; applied-state arbitrary persistence remains open.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Repeat only with a new discriminator in a quiescent tiny staged fixture and explicit reverse recovery.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Whole touched-brick comparisons are narrow; no placement CAS or general ground-contact proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated administrative geometry mutation/recovery",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2349,17 +2600,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Same construction gates as single cell; policy validates plan parts/cells/bricks, exact captures and sole unsettled-operation interlock. Retained native receipt never reconstructed after reload.",
+      "evidence_summary": "Bounded source-material overlay with at most 256 cells, eight bricks and 64 cells per brick; no survival debit.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical bounded frame/gap and multi-brick native fixtures; current full 947-cell benchmark not executed as one accepted workflow.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Historical single-floor placed-state cold reload preserves the exact 512-cell capture; its old native receipt remains stale. This does not qualify arbitrary accepted workshop persistence.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Tiny two-stage fixture must close geometry, rendered/function, persistence and reverse recovery before full workshop.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Native receipt plus exact capture is separate from rendered geometry, traversal and prop function.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated administrative geometry mutation/recovery",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2385,16 +2647,26 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Status reads retained receipt/current captures; verified Undone baseline can settle local state and release owned recovery credit.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Historical terminal capture/status and prior-boot refusal fixtures qualified; nonzero retained-credit native lifecycle open.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Never reconstructs expired/session-local transaction IDs.",
+      "freshness_completeness": "Native receipt and fresh capture are separate; terminal comparison may settle owned accounting. Expired/stale IDs remain unknown, never reconstructed.",
+      "next_missing_check": "Observe nonzero recovery credit before and after exact reverse undo and status settlement.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No new native transaction; may change companion accounting after proven undo.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs"
+      ],
+      "observation_side_effects": "May mark a retained operation settled and release only its own in-memory recovery credit after native Undone plus exact baseline verification; no native transaction is submitted.",
+      "effect_kind": "World observation with guarded local settlement/accounting",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2429,17 +2701,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Dry default; real flag/confirmation, active retained Applied receipt, exact captures and current actor/rights/persistence; synced acceptance before local settlement. Recovery credit stays reserved.",
+      "evidence_summary": "Gated local receipt/journal acceptance after exact applied capture; preserves guarded undo and recovery credit.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical gap-frame accept/replay/interlock/reverse-order undo fixture qualified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Historical post-undo cold baseline only; acceptance does not prove kept-build persistence.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Qualify accepted overlapping tiny stages with nonzero recovery credit and independent rendered/function checks.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Acceptance is local bookkeeping, not a new voxel write or proof of workshop usability.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated local receipt/journal acceptance; no new native voxel transaction",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2474,17 +2757,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Dry default; real flag/confirmation, current retained receipt, required expected-image guards and reverse-order/unsettled interlocks. Native uncertainty never authorizes retry.",
+      "evidence_summary": "Gated undo of retained current-session receipt with capture guards and reverse-order interlocks; quiescent site required.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Historical exact reverse undo and cold baseline fixtures qualified; stateful prop and connected fault recovery remain open.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Prior-session IDs never regain undo authority; cold restore is a separate procedure.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Close tiny accepted-stage reverse recovery, including deliberate conflict refusal and retained audit credit.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Baseline capture comparison verifies narrow restoration; no generic safe prop deletion or atomic apply/undo claim.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated administrative geometry mutation/recovery",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2559,8 +2853,17 @@
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Define a new discriminator and explicit recovery plan before any movement retry.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Independent server pose and operator safe altar-side confirmation; exact return still failed."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Independent server pose and operator safe altar-side confirmation; exact return still failed.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/reposition.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2594,10 +2897,18 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Current bound actor/session/generation/health and raw distance differ from immutable native outcome; no threshold, contact or safe-arrival verdict.",
       "next_missing_check": "Qualify session invalidation/disconnect without new movement.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Independent pose/distance arithmetic agrees; no arrival or contact proof."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Independent pose/distance arithmetic agrees; no arrival or contact proof.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/reposition.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2647,17 +2958,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Operation-only reads retained state. Targets default dry; real flag/confirmation, active session, observed-hours guard, empty character roster and bounded forward interval; durable identity/deadline rechecks.",
+      "evidence_summary": "Operation-only retained read or gated bounded forward target; empty character roster is not a peer-admission lock.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Source scheduling/identity/deadline fixtures qualified; independent native progression/lighting scope incomplete.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Forward time has no native undo; returning to an hour advances another cycle.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Predefined empty-roster forward-time fixture needs cold rollback and independent clock/progression observations.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Near-target clock readback cannot prove causal progression or rendered lighting.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/clock_control.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2708,8 +3030,17 @@
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Establish causal save/exit evidence in a disposable fixture.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Exact process exit code 0 independently observed; final-save causality unverified."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Exact process exit code 0 independently observed; final-save causality unverified.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/server_shutdown.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2743,10 +3074,18 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Retained native acceptance and separately advancing lifecycle flags; no fresh World/process/save proof, and busy remains explicitly unavailable.",
       "next_missing_check": "Qualify native busy/disconnect retention with bounded fault scheduling.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/server_shutdown.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "server",
@@ -2786,17 +3125,28 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "admission": "Strict named arguments and tool-specific policy. Dry default; real flag/confirmation, active session and rechecked empty character roster, bounded durable identity and intent/outcome headroom. Submission/acceptance differs from causal completion.",
+      "evidence_summary": "Gated deliberate save request with durable identity and empty character roster; no forced save or causal token.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Bounded alpha.17 native acceptance/retained/reopened identity and cold preservation qualified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Exact causal final contents remain unverified; older full baselines do not identify which save wrote them.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Establish causal persisted content in a disposable fixture while distinguishing already-running saves.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Accepted request or WorldSaved event does not prove causal completion of this request.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/server_save.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "gated server administrative mutation/lifecycle",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -2837,8 +3187,16 @@
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Correlate a present station with applicability and unlocks.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_workshop.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -2927,7 +3285,16 @@
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Qualify pending cancellation/stall/disconnect; do not automatically repeat movement.",
       "refusal_acceptance": "Native dry Map-open request refuses with the exact context error while UI frames are fresh at Menu and copied context is Never. Installed 0.45.0/0.20.2; command inventory, 88 ledger files, 12 installed hashes and absent flags preserved. Not native pending cancellation acceptance.",
-      "independent_effect_acceptance": "Independent visible Map open/close; other actions have separate limits."
+      "independent_effect_acceptance": "Independent visible Map open/close; other actions have separate limits.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_control.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "read/dry branch or gated client UI/native command",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -2952,10 +3319,18 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Retained memory plus bounded durable caller filenames; prior-boot identities do not reconstruct SDK IDs or regain execution authority.",
       "next_missing_check": "Correlate inventory with a bounded pending/terminal fault fixture.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_control.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -2989,10 +3364,18 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Historical native outcome and last frame-poll age remain separate. Terminal age continues to advance; no current UI or arrival proof.",
       "next_missing_check": "Qualify a pending command with an actual callback stall.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_control.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3040,8 +3423,17 @@
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Qualify actual pending native cancellation and disconnect with bounded independent observations; distinguish audit-path admission from append/sync failures.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_control.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "read/dry branch or gated client UI/native command",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3065,10 +3457,17 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Copied SDK state plus per-part availability/age/session. Never, Off, Stale and missing fields differ from observed empty; not server identity or rendered proof.",
       "next_missing_check": "Qualify stale/disconnected subparts without inferring authority.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs"
+      ],
+      "observation_side_effects": "Copied-state read can enable SDK sampling interest; it does not submit a command or certify snapshot freshness.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3139,10 +3538,19 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Read branch reports submitted mod-owned cache, not current renderer visibility; real branch uses its existing fresh epoch/revision guard.",
       "next_missing_check": "Use a new independently visible fixture with predefined visibility limits.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_markers.rs",
+        "crates/policy/src/write_gate.rs"
+      ],
+      "observation_side_effects": "Read/dry/replay branches differ from gated mutation branches; consult admission and description. No automatic retry after unknown outcome.",
+      "effect_kind": "read/dry branch or gated client UI/native command",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3157,16 +3565,25 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Compiled provenance, resolved native/UI handles and declared gaps; hardcoded verification flags are not live outcomes.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Current installed companion/provenance observed; per-request applicability remains separate.",
+      "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
+      "persistence_acceptance": "No persistence claim.",
+      "freshness_completeness": "Compiled strings/resolved handles only. Fresh UI frames can coexist with copied state Never; no executor inferred from a getter.",
+      "next_missing_check": "For a changed provider, correlate resolved handles with targeted native behavior rather than infer executors.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No command execution, rendered evidence or server authority.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3189,10 +3606,17 @@
       "native_acceptance": "Bounded fresh Menu UI observation qualified; copied-client freshness is separate.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Copied UI-frame age/stale state; fresh Menu frames do not imply fresh copied client context or rendered panels.",
       "next_missing_check": "Reconcile historical screen/prompt/host evidence and qualify stale frame behavior separately from copied snapshot readiness.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3218,16 +3642,26 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "Bounded UI screen/HUD/host change history with cursor/overwrite fields; not a complete gameplay stream.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "native_acceptance": "Historical frame/screen observations and fixed probes; every overwrite/cursor native case unqualified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "History is in-memory and bounded, not persistent replay authority.",
+      "freshness_completeness": "Bounded in-memory change history with overwritten/cursor metadata; not complete events, current inner selection or render verification.",
+      "next_missing_check": "Correlate an intentional UI change with history and verify cursor-gap behavior in a bounded fixture.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "Events do not establish current inner selection or rendered panels.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3261,10 +3695,19 @@
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Bounded named client-event requests; historical event IDs/choices do not establish applied current selection or server entity authority.",
       "next_missing_check": "Correlate one event with independently observed current selection.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client.rs",
+        "crates/policy/src/client_selection.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3287,16 +3730,26 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "client UI frame; SDK commands execute in later native client phase",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source checks pass; per-tool historical native/refusal/effect/persistence evidence still needs reconciliation.",
-      "evidence_references": [],
+      "evidence_summary": "One vanilla archive debug name/GUID/item identity and localized text; no effective mod/instance semantics.",
+      "evidence_references": [
+        "plans/decisions/0065-complete-capability-evidence-pass.md"
+      ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "historical evidence not yet reconciled per tool",
-      "rendered_acceptance": "not established by this inventory",
-      "persistence_acceptance": "not established by this inventory",
+      "native_acceptance": "Bounded archive probes; complete localization/effective-definition agreement unqualified.",
+      "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
+      "persistence_acceptance": "Content/localization observation only.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Reconcile dated acceptance evidence and select one missing independent behavior check.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "next_missing_check": "Correlate one displayed localized item name and definition identity with independent UI evidence.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "independent_effect_acceptance": "No grant, consumption or crafting eligibility.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     },
     {
       "scope": "client",
@@ -3348,8 +3801,17 @@
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Verify one displayed recipe cost and eligible stock.",
-      "refusal_acceptance": "Per-tool native refusal evidence not yet reconciled.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled."
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client.rs",
+        "crates/policy/src/client_recipe.rs"
+      ],
+      "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
     }
   ]
 }
