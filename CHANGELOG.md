@@ -2,7 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
-- Companion 0.20.0 reports last frame status-poll age/staleness and polling-finished state for command status and inventory. Distinguish never-polled, stalled and historical terminal results without refreshing age on reads or changing native dispatch, receipts or journals. Native acceptance remains unverified.
+- Companion 0.20.0 reports last frame status-poll age/staleness and polling-finished state for command status and inventory. Distinguish never-polled, stalled and historical terminal results without refreshing age on reads or changing native dispatch, receipts or journals. Matched 0.41.0/0.20.0 native Menu acceptance verifies unknown/stale metadata for all 18 prior-boot identities and read-only preservation. Current-boot SDK polling and callback-stall behavior remain unverified.
 
 - Companion 0.19.0 adds a bounded read-only command inventory for recovering caller operation identities and retained outcomes after lost replies or reloads. It never decodes old SDK IDs or dispatches input. Invalid reservation entries refuse; terminal cancellation/unavailability and unchanged replay/audit behavior have regression coverage. Matched 0.41.0/0.19.0 native Menu inventory acceptance passes, with 18 prior-boot identities, exact status agreement, strict refusals and unchanged client ledgers. Connected fault/rendered acceptance remains unverified.
 

@@ -20,4 +20,4 @@ Four exact rollback DLLs, all 12 installed hashes, eight official framework/sign
 
 Fresh native Menu is separate from a joined command context. Current-boot live inventory outcomes, real disconnect timing, rendering and crafting remain unverified. Windows MCP/capture remain off. The SDK placement proposal stays inactive and upstream submission authorization remains pending.
 
-Companion 0.20.0 source adds per-read status-observation age without changing retained outcome or identity semantics; ages can differ between otherwise matching status/inventory reads. See decision 0044. Native freshness acceptance remains pending.
+Companion 0.20.0 source adds per-read status-observation age without changing retained outcome or identity semantics; ages can differ between otherwise matching status/inventory reads. See decision 0044. Native prior-boot unknown/stale freshness metadata passes; current-boot polling and callback-stall acceptance remain pending.
