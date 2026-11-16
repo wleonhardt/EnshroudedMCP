@@ -2,7 +2,7 @@
 
 ## Open
 
-- Which published error-bearing item-affix observation can distinguish unavailable data from no modifiers and retain unknown operations? At exact SDK 6a151a95, the inspected safe Affixes::lines wrapper returns an empty vector on non-OK status and filters unknown modifier operations. Do not expose it as complete equipment evidence or infer that an empty result means no effects. The existing inventory durability/meter reads remain separate.
+- What published native equipment read can independently expose base-game effects and preserve missing or malformed instance data? Published Host::api().item_lines already supplies status/capacity and raw modifier operations, but the inspected 6a151a95 provider reads the framework custom ItemStats record, substitutes default on missing/failed decode, and expands registered affixes. Raw ABI access therefore does not establish complete vanilla equipment effects. Do not expose a narrower custom-modifier reader as complete equipment knowledge.
 
 - Why do official local held-input observations remain null in the tested joined-world fixture?
 - Can a supported interface provide a causal arrival receipt or a bound on engine best-spawn correction? Existing later position reads cannot supply that proof.

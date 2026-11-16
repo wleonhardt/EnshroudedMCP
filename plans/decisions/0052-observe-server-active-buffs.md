@@ -15,3 +15,7 @@ Source checks pass 365 Rust test executions, 71 Python tests, Clippy, formatting
 ## Native qualification
 
 Matched server 0.43.0 / companion 0.20.1 is installed after a verified 143-member cold archive and four exact rollback DLLs. All 32 fixed server and 13 client probes pass. Missing-entity buff errors remain errors at limits 1/32/64, and twelve invalid buff requests refuse. Eighteen prior-boot command identities, five command selectors, six Menu dry refusals and prior recipe/workshop correlations pass. Complete world baselines, source closure, twelve installed hashes, immutable ledgers and absent write flags pass. One independently observed native server shutdown exited 0, adding exactly four audit rows and one marker under two aliases while preserving old prefixes. This is not causal final-save proof. Eight official framework/signature files are unchanged. Client process launch and graceful Menu close remain lifecycle capability gaps; Windows MCP/capture stayed off. No gameplay, join, buff application or removal was submitted. Positive native holder values, countdown and rendered UI agreement remain unverified.
+
+## Joined positive read checkpoint
+
+One active buff is returned for an actor selected through the server player/inventory route. SDK identity and lifetime remain equal across reads; remaining time also stays equal. This exercises a positive provider response without qualifying independent value fidelity, countdown, effects, resting or UI interpretation. No buff is applied or removed. See decision 0054.
