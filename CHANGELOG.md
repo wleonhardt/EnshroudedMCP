@@ -1,5 +1,10 @@
 # Changelog
 
+## Workshop planning milestone (documentation)
+
+- Independently check a revised two-storey enclosure with eleven requested clearance volumes and a bounded support survey. Decompose 947 distinct foundation/enclosure targets into 16 admitted non-overlapping phases; verify exact full-brick reverse restoration in a read-only model.
+- Keep native staged recovery, rendered contact, traversal and functional door/storage/workstation acceptance open. No construction, gameplay mutation or product behavior change is claimed.
+
 ## Server 0.35.0 (explicit planned-volume clearance)
 
 - Extend pure building_plan with optional absolute half-metre-grid clearance boxes. Check one to eight world-bounded boxes and at most 1,024 requested cells; refuse malformed and unknown nested fields.
