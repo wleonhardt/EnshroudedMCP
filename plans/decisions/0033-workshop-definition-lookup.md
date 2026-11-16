@@ -1,0 +1,11 @@
+# 0033: Bounded native workshop definition lookup
+
+Date: 2026-11-16. Status: implemented; private/public source verified (336 Rust executions, including 18 shared module checks, 53 Python tests, Clippy, formatting and release builds); matched native acceptance pending.
+
+Recipe observations now expose raw workshop definition IDs but cannot explain their declared station relationship. Use the pinned published WorkshopLayout and WORKSHOP_REGISTRY resource through the existing native frame request queue. Add client_workshops with exactly workshop_id and optional limit, preserving zero through the full u32 range and one to eight returned matches. Keep it separate from item/entity selectors and from recipe queries so unavailable workshop metadata does not invalidate otherwise valid recipe reads.
+
+Copy workshop GUID, raw name tag, declared station item ID/GUID and the NPC-workshop flag from admitted fields. Do not derive identities from GUIDs or infer localization, current availability, active survivors, unlocks or crafting feasibility. Preserve matching-record collisions and total/truncated results; no match means absent from this vanilla observation, not globally unavailable. Only nonzero returned station item IDs can be correlated through item lookup.
+
+Security admission is game-free in policy::client_workshop: strict fields and numeric types, one-to-eight output limit, 16 MiB byte cap, 4,096-entry cap, bounded strides and checked complete field/array spans. The SDK's whole resource allocation precedes these post-read caps. Decode matching records only and refuse nonzero/nonone boolean bytes. Report vanilla provenance, effective_definition_verified false, current_station_available null and current_availability_verified false.
+
+Tests cover missing/foreign-namespace arguments, zero/full-u32 IDs, malformed types, unknown confirmation, complete spans and overflow, array/workload bounds, duplicate IDs/truncation, exact station identity and refusal to promote availability. Live acceptance must match recipe workshop ID/GUID pairs, independently resolve declared station item ID/GUID pairs and preserve unknown current availability with complete runtime preservation. No World access, new SDK patch, gameplay write or Windows input path is introduced.

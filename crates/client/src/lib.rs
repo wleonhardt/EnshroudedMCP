@@ -7,13 +7,14 @@ mod recipe_types;
 mod recipes;
 mod requirements;
 mod selection;
+mod workshops;
 
 use policy::write_gate::PendingWrite;
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex, mpsc};
 use std::time::{Duration, Instant};
 
-use enshwick::content::{items, recipes::RecipeLayout, types, vanilla};
+use enshwick::content::{items, recipes::RecipeLayout, types, vanilla, workshops::WorkshopLayout};
 use enshwick::{Host, Load, Mod, Off};
 use policy::mcp::{Tool, Tools};
 use serde_json::{Map, Value, json};
@@ -85,6 +86,7 @@ enum Request {
     Cancel(policy::client_control::CancelSpec, Instant),
     Item(String),
     Recipe(policy::client::RecipeSelector, usize),
+    Workshop(u32, usize),
     Markers(policy::client_markers::Spec),
 }
 
@@ -108,6 +110,7 @@ struct ClientTools {
     list: Vec<Tool>,
     input: bool,
     recipes: bool,
+    workshops: bool,
     selection_sources: [bool; 2],
     mod_dir: Option<std::path::PathBuf>,
     marker_ui: bool,
@@ -120,11 +123,17 @@ impl ClientTools {
             shared,
             input,
             recipes,
+            workshops: false,
             selection_sources: [false; 2],
             mod_dir: None,
             marker_ui: false,
             native_input: None,
             list: vec![
+                Tool {
+                    name: "client_workshops",
+                    description: "Read bounded vanilla workshop definitions by raw workshop_id (zero preserved), at most 8 matches. Returns workshop GUID, name tag, declared station item ID/GUID and NPC-workshop flag. Collisions and truncation remain explicit. Workshop IDs are not item or entity selectors. No World access, current station availability, unlock or crafting eligibility claim. Whole archive allocation precedes parser byte admission.",
+                    schema: policy::client_workshop::schema(),
+                },
                 Tool {
                     name: "client_command",
                     description: "Deliberate native client action: open/close in-game screen, choose tab, bounded look/move or highlight recipe (never craft). Caller operation identity required; dry default. Real requests require exact current session/screen/tab preview, companion ALLOW_WRITES and confirm: server-write. Once-only durable identity: inspect client_command_status after lost replies; never retry a new identity blindly. Frame queues to SDK's later client execution phase, no server World access. SDK observed movement means hold completed, not arrival; look acceptance is not rendered proof. No join, credentials, logout, arbitrary input or offsets.",
@@ -278,7 +287,7 @@ impl Tools for ClientTools {
                 self.request(Request::Markers(spec))
             }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -312,6 +321,10 @@ impl Tools for ClientTools {
                 let (item, limit) = policy::client::recipe(args)?;
                 self.request(Request::Recipe(item, limit))
             }
+            "client_workshops" => {
+                let (id, limit) = policy::client_workshop::check(args)?;
+                self.request(Request::Workshop(id, limit))
+            }
             _ => Err("unknown client tool".into()),
         }
     }
@@ -320,10 +333,12 @@ impl Tools for ClientTools {
 fn resolve(
     host: Host,
     layout: Option<RecipeLayout>,
+    workshop_layout: Option<WorkshopLayout>,
     input_type: Option<u32>,
     request: Request,
 ) -> Result<Value, String> {
     match request {
+        Request::Workshop(id, limit) => workshops::read(host, workshop_layout, id, limit),
         Request::Item(name) => {
             let guid = vanilla::item(&name).map_err(|error| error.to_string())?;
             let language = host.language();
@@ -380,6 +395,7 @@ impl Mod for ResearchClient {
         let frame_dir = mod_dir.clone();
         let selection_sources = selection::register(load, &shared);
         let layout = RecipeLayout::resolve(load).ok();
+        let workshop_layout = WorkshopLayout::resolve(load).ok();
         let input_type =
             enshwick::typed::ResourceType::<enshwick::typed::RecipeInputResource>::resolve(load)
                 .ok()
@@ -405,7 +421,7 @@ impl Mod for ResearchClient {
                     Request::Command(spec,queued)=>frames.control.lock().map_err(|_|"client command state poisoned".to_owned()).and_then(|mut state|state.run(spec,input,frame_dir.as_deref(),queued)),
                     Request::Cancel(spec,queued)=>frames.control.lock().map_err(|_|"client command state poisoned".to_owned()).and_then(|mut state|state.cancel(spec,input,frame_dir.as_deref(),queued)),
                     Request::Markers(spec)=>frames.markers.lock().map_err(|_|"marker state poisoned".to_owned()).and_then(|mut state|state.run(spec,frame_dir.as_deref(),|list|markers::submit(marker_ui.as_ref(),list))),
-                    request=>resolve(host,layout,input_type,request),
+                    request=>resolve(host,layout,workshop_layout,input_type,request),
                 };
                 let _=job.reply.send(result);
             }
@@ -416,6 +432,7 @@ impl Mod for ResearchClient {
             layout.is_some() && input_type.is_some(),
         );
         tools.selection_sources = selection_sources;
+        tools.workshops = workshop_layout.is_some();
         tools.mod_dir = mod_dir;
         tools.marker_ui = marker_available;
         tools.native_input = input;
@@ -603,6 +620,32 @@ side = "both""#
     }
 
     #[test]
+    fn workshop_lookup_admission_preserves_namespace_and_never_queues_invalid_requests() {
+        let tools = ClientTools::new(Arc::default(), false, false);
+        let tool = tools
+            .list()
+            .iter()
+            .find(|t| t.name == "client_workshops")
+            .expect("native workshop lookup tool");
+        assert_eq!(tool.schema["properties"]["workshop_id"]["minimum"], 0);
+        for args in [
+            json!({}),
+            json!({"item_id":7}),
+            json!({"workshop_id":-1}),
+            json!({"workshop_id":4294967296_u64}),
+            json!({"workshop_id":0,"limit":9}),
+            json!({"workshop_id":7,"confirm":"server-write"}),
+        ] {
+            assert!(
+                tools
+                    .call("client_workshops", args.as_object().unwrap())
+                    .is_err()
+            );
+            assert!(tools.shared.pending.lock().unwrap().is_none());
+        }
+    }
+
+    #[test]
     fn snapshots_are_unavailable_before_first_frame_and_history_reports_overwrite() {
         let mut observation = Observation::default();
         assert_eq!(observation.snapshot()["stale"], true);
@@ -621,7 +664,7 @@ side = "both""#
     #[test]
     fn unavailable_marker_control_and_invalid_selectors_never_enqueue() {
         let tools = ClientTools::new(Arc::default(), false, false);
-        assert_eq!(tools.list().len(), 11);
+        assert_eq!(tools.list().len(), 12);
         for (name, args) in [
             ("client_item", json!({"item":""})),
             ("client_recipes", json!({"item":"wood","limit":9})),

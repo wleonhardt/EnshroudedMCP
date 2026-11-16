@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.16.0; no actions."""
+"""Fixed read-only probes for native client companion 0.17.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("client_capabilities", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes"))
+READS = frozenset(("client_capabilities", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes", "client_workshops"))
 GUID = re.compile(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\Z")
 
 
@@ -25,14 +25,14 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.16.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.17.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
             value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == (["client_command.look", "client_command.move"] if value.get("native_client_commands") else []) and
             type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and value.get("native_command_live_verified") is False and
             value.get("semantic_ui_actions") == ((["client_map_markers"] if value["native_map_marker_ui"] else []) + (["client_command"] if value.get("native_client_commands") else [])) and
-            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "live_verified", "native_client_snapshot", "native_client_commands", "native_command_live_verified")))
+            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "workshop_layout", "live_verified", "native_client_snapshot", "native_client_commands", "native_command_live_verified")))
     sources = value.get("client_event_sources")
     require(isinstance(sources, dict) and all(type(sources.get(key)) is bool for key in ("open_hud_screen", "station_recipe_selection")))
     return {"compiled_framework_revision": value["compiled_framework_revision"], "compiled_framework_abi": value["compiled_framework_abi"],
@@ -182,6 +182,25 @@ def recipes(value):
             "raw_stack_semantics": "unverified; zero GUID/count remains unresolved"}
 
 
+def workshops(value):
+    rows=value.get("matches")
+    require(value.get("mode")=="report_only" and value.get("source")=="vanilla_archive_workshop_registry"
+            and value.get("identity_scope")=="recipe_workshop_definition" and value.get("effective_definition_verified") is False
+            and value.get("current_availability_verified") is False and value.get("current_station_available") is None)
+    require(type(value.get("workshop_id")) is int and value["workshop_id"]==0
+            and integer(value.get("registry_entries")) and value["registry_entries"]<=4096
+            and integer(value.get("total_matches")) and value["total_matches"]<=value["registry_entries"]
+            and isinstance(rows,list) and len(rows)==min(2,value["total_matches"])
+            and value.get("truncated") is (value["total_matches"]>len(rows)))
+    require(value.get("state")==("not_found" if value["total_matches"]==0 else "single_match" if value["total_matches"]==1 else "multiple_matches"))
+    for row in rows:
+        require(type(row.get("workshop_id")) is int and row["workshop_id"]==0
+                and all(integer(row.get(k)) and row[k]<=0xFFFFFFFF for k in ("name_tag","station_item_id"))
+                and all(isinstance(row.get(k),str) and GUID.fullmatch(row[k]) for k in ("workshop_guid","station_item_guid"))
+                and type(row.get("npc_workshop")) is bool)
+    return {"returned":len(rows),"total_matches":value["total_matches"],"current_availability_verified":False}
+
+
 class Probe:
     def __init__(self, client, pause=time.sleep):
         self.client, self.pause = client, pause
@@ -216,11 +235,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.16.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.17.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.16.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.17.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):
@@ -232,6 +251,7 @@ class Probe:
         self.tool("selection_event_evidence", "client_selection_events", {"after": 0, "limit": 2}, selection_events)
         self.tool("storage_box_localization", "client_item", {"item": "Prop_Storage_24_T1_Box"}, item)
         self.tool("workbench_raw_recipes", "client_recipes", {"item": "Craftingstation_Workbench", "limit": 2}, recipes)
+        self.tool("workshop_definition_shape", "client_workshops", {"workshop_id":0,"limit":2}, workshops)
         self.tool("unknown_argument_refused", "client_state", {"probe_unknown": True}, refusal="unknown argument")
         self.tool("invalid_recipe_limit_refused", "client_recipes", {"item": "Craftingstation_Workbench", "limit": 9}, refusal="argument 'limit' must be at most 8")
         outcomes = {check["outcome"] for check in self.checks}

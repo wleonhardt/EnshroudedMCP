@@ -11,6 +11,7 @@ pub mod client_control;
 pub mod client_markers;
 pub mod client_recipe;
 pub mod client_selection;
+pub mod client_workshop;
 pub mod clock_control;
 pub mod construction;
 pub mod health_recovery;

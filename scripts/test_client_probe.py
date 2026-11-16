@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from client_probe import Probe, READS, state, recipes, native_snapshot
+from client_probe import Probe, READS, state, recipes, native_snapshot, workshops
 
 
 VERSION = next(
@@ -35,11 +35,15 @@ class Fixture:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
             value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.17",
-                     "native_client_snapshot": True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "live_verified": False,
+                     "native_client_snapshot": True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "workshop_layout":True, "live_verified": False,
                      "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9", "compiled_framework_abi": "12.1",
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
                      "semantic_gameplay_actions": ["client_command.look", "client_command.move"], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers", "client_command"]}
+        elif name == "client_workshops":
+            value={"mode":"report_only","source":"vanilla_archive_workshop_registry","identity_scope":"recipe_workshop_definition",
+                "effective_definition_verified":False,"current_availability_verified":False,"current_station_available":None,
+                "workshop_id":0,"registry_entries":1,"total_matches":0,"truncated":False,"state":"not_found","matches":[]}
         elif name == "client_snapshot":
             value = {"source":"published_native_client_snapshot", "state":"fresh", "session":789, "age_ms":0,
                      "reads":{key:True for key in ("screens","menu_tab","held","player","recipe")},
@@ -99,6 +103,8 @@ class Fixture:
                 value["events"][0]["scope"] = "server_world"
             elif name == "client_recipes":
                 value["recipes"][0]["feasible"] = True
+            elif name == "client_workshops":
+                value["current_availability_verified"] = True
             elif name == "client_state":
                 value["stale"] = "false"
             elif name == "client_item":
@@ -109,6 +115,17 @@ class Fixture:
 
 
 class ClientProbeTests(unittest.TestCase):
+    def test_workshop_definitions_preserve_unknown_availability_and_identity_types(self):
+        value=json.loads(Fixture().call("tools/call",{"name":"client_workshops","arguments":{"workshop_id":0}})["content"][0]["text"])
+        workshops(value)
+        value.update(total_matches=1,state="single_match",matches=[{"workshop_id":0,"workshop_guid":"11111111-1111-1111-1111-111111111111",
+            "name_tag":73,"station_item_id":991,"station_item_guid":"22222222-2222-2222-2222-222222222222","npc_workshop":False}])
+        self.assertNotIn("11111111",json.dumps(workshops(value)))
+        for field,bad in [("current_station_available",True),("current_availability_verified",True),("effective_definition_verified",True),("identity_scope","server_entity"),("workshop_id",False)]:
+            with self.subTest(field=field),self.assertRaises(ValueError):workshops({**value,field:bad})
+        for field,bad in [("workshop_id",False),("station_item_id",-1),("name_tag",0x100000000),("npc_workshop",1)]:
+            with self.subTest(field=field),self.assertRaises(ValueError):workshops({**value,"matches":[{**value['matches'][0],field:bad}]})
+
     def test_native_snapshot_refuses_scope_availability_and_zero_identity_claims(self):
         value = json.loads(Fixture().call("tools/call", {"name":"client_snapshot", "arguments":{}})["content"][0]["text"])
         for key, invalid in (("entity_world", "server"), ("player", 0), ("highlighted_recipe_id", 0),
@@ -164,7 +181,7 @@ class ClientProbeTests(unittest.TestCase):
         client = Fixture()
         report = Probe(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 10)
+        self.assertEqual(len(report["checks"]), 11)
         self.assertTrue(all(check["outcome"] == "pass" for check in report["checks"]))
         serialized = json.dumps(report)
         self.assertNotIn("private-", serialized)

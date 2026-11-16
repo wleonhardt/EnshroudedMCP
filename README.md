@@ -2,6 +2,8 @@
 
 # Enshrouded MCP
 
+Companion 0.17.0 source adds bounded `client_workshops` definition lookup, preserving raw IDs, collisions and unknown station availability. Matched live acceptance is pending; installed companion remains 0.16.0.
+
 Companion 0.16.0 adds raw input/output stack item IDs and workshop definition IDs to `client_recipes`. Matched isolated deployment verifies both recipe selection routes and eleven item identities without deriving IDs. Category/scaling interpretation, eligible stock and crafting feasibility remain unverified.
 
 Construction regression coverage now exercises native-receipt/postimage disagreement through the production adapter and SDK fake host. It verifies refusal and replay/lifecycle guards, not successful native placement or staged recovery. See [fixture scope](plans/decisions/0031-isolated-construction-regression.md).
@@ -18,11 +20,11 @@ Server 0.36.0 integrates shared retained-undo journal reservations. Private/publ
 
 Server 0.35.0 adds explicit planned-volume clearance checks to pure `building_plan`. Matched isolated DLL installation and server 0.35.0 transport acceptance pass. Companion 0.15.0 relaunch/connected checks of the rebuilt bundle remain unverified. A planned-clear box proves no live world or avatar clearance.
 
-Current source targets server **0.39.0** / companion **0.16.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed isolated research runtime now matches alpha.17. The migration itself added no executor; companion 0.15.0 now wraps supported native commands. Bounded native client-control and server lifecycle/recovery acceptance pass; broader gameplay and public-namespace installation remain unverified. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
+Current source targets server **0.39.0** / companion **0.17.0**, official alpha.17 revision `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**. Cargo uses the exact unmodified Git dependency; no SDK patch is active. Installed isolated research runtime now matches alpha.17. The migration itself added no executor; companion 0.15.0 now wraps supported native commands. Bounded native client-control and server lifecycle/recovery acceptance pass; broader gameplay and public-namespace installation remain unverified. See [framework qualification](plans/decisions/0024-alpha17-native-control-foundation.md).
 
 Inspect a running Enshrouded world, preview bounded building plans, and carry out deliberate administrative edits through MCP.
 
-This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.39.0** and **optional companion 0.16.0** against ABI 12.1. The matched 0.34.0/0.15.0 research pair passes cold readiness and bounded native screen/tab/recipe/look/move/cancel fixtures with exact preservation and client reload refusal. Broader gameplay writes and public-namespace installation remain unverified.
+This unofficial research project connects an MCP client to [enshwick](https://github.com/enshwick/enshwick)'s published native API. It combines loopback transport, game-thread execution, tested write gates and journaled operation identities. This branch targets **server 0.39.0** and **optional companion 0.17.0** against ABI 12.1. The matched 0.34.0/0.15.0 research pair passes cold readiness and bounded native screen/tab/recipe/look/move/cancel fixtures with exact preservation and client reload refusal. Broader gameplay writes and public-namespace installation remain unverified.
 
 [Setup](docs/setup.md) · [30 server tools](docs/tool-reference.md) · [Architecture and safety](docs/architecture.md) · [Evidence and roadmap](docs/research-status.md) · [Contributing](docs/contributing.md)
 
