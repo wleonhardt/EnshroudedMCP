@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.15.0; no actions."""
+"""Fixed read-only probes for native client companion 0.16.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -25,7 +25,7 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.15.0" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.16.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
@@ -141,6 +141,7 @@ def recipes(value):
     require(isinstance(value.get("selected_output_guid"), str) and GUID.fullmatch(value["selected_output_guid"]))
     for entry in entries:
         require(integer(entry.get("recipe_id")) and entry["recipe_id"] <= 0xFFFFFFFF)
+        require(integer(entry.get("workshop_id")) and entry["workshop_id"] <= 0xFFFFFFFF)
         require(all(isinstance(entry.get(key), str) and GUID.fullmatch(entry[key]) for key in ("recipe_guid", "workshop_guid")))
         require(isinstance(entry.get("debug_name"), str) and len(entry["debug_name"].encode()) <= 128)
         require(all(key in entry and entry[key] is None for key in
@@ -149,6 +150,7 @@ def recipes(value):
             stacks = entry.get(key)
             require(isinstance(stacks, list) and len(stacks) <= cap and all(
                 isinstance(stack.get("item_guid"), str) and GUID.fullmatch(stack["item_guid"]) and
+                integer(stack.get("item_id")) and stack["item_id"] <= 0xFFFFFFFF and
                 integer(stack.get("count")) for stack in stacks))
         require(any(stack["item_guid"] == value["selected_output_guid"] for stack in entry["outputs"]))
         requirements = entry.get("requirement_observations")
@@ -214,11 +216,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.15.0"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.16.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.15.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.16.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):

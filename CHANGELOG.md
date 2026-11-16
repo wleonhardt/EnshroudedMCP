@@ -1,5 +1,10 @@
 # Changelog
 
+## Companion 0.16.0 (recipe stack and workshop identities)
+
+- Add the raw item_id to every client_recipes input/output stack and the raw workshop_id beside workshop_guid. Copy the published archive fields; preserve zero and full u32 values without deriving IDs from GUIDs.
+- Keep matching, collision/truncation reporting, all parser limits and unknown recipe/category/eligibility semantics. Stack item IDs can be correlated through item lookup; workshop definition IDs are not inventory item or entity selectors. Extend the fixed client probe with strict u32 identity checks. Private/public 331 Rust executions (including 18 shared module checks), 52 Python tests, Clippy, formatting and release builds pass. Matched deployment and native catalogue correlation remain pending.
+
 ## Construction adapter regression coverage
 
 - Add an isolated SDK fake-host integration fixture for the production construction and journal adapters. A native Applied receipt with unchanged voxels must remain a verification conflict and cannot authorize acceptance, progression or multi-cell undo. Replay stays once-only, failed guards preserve audit bytes/recovery credit, and lifecycle changes invalidate retained handles.

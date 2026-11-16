@@ -40,14 +40,17 @@ fn stacks(
     field: usize,
     maximum: usize,
     stride: usize,
+    item_offset: usize,
     count_offset: usize,
-) -> Result<Vec<(Guid, u32)>, String> {
+) -> Result<Vec<(Guid, u32, u32)>, String> {
     let (start, count) = array(blob, field, maximum, stride)?;
     (0..count)
         .map(|i| {
             let at = start + i * stride; // the complete span and field offsets are admitted first
             Ok((
                 guid(blob, at)?,
+                blob.read_u32(at + item_offset)
+                    .ok_or("malformed recipe stack item id")?,
                 blob.read_u32(at + count_offset)
                     .ok_or("malformed recipe stack count")?,
             ))
@@ -55,10 +58,10 @@ fn stacks(
         .collect()
 }
 
-fn values(stacks: &[(Guid, u32)]) -> Vec<Value> {
+fn values(stacks: &[(Guid, u32, u32)]) -> Vec<Value> {
     stacks
         .iter()
-        .map(|(item, count)| json!({"item_guid":item.to_string(),"count":count}))
+        .map(|(item, id, count)| json!({"item_guid":item.to_string(),"item_id":id,"count":count}))
         .collect()
 }
 
@@ -153,6 +156,7 @@ fn parse_with_requirements(
             at + layout.input,
             gate::MAX_INPUTS,
             layout.input_size,
+            layout.stack_item,
             layout.stack_count,
         )?;
         let outputs = stacks(
@@ -160,11 +164,12 @@ fn parse_with_requirements(
             at + layout.output,
             gate::MAX_OUTPUTS,
             layout.stack_size,
+            layout.stack_item,
             layout.stack_count,
         )?;
         let recipe_id = blob.read_u32(at + layout.id).ok_or("malformed recipe id")?;
         let matches = match selection {
-            Selection::Output(output) => outputs.iter().any(|(item, _)| *item == output),
+            Selection::Output(output) => outputs.iter().any(|(item, _, _)| *item == output),
             Selection::Id(id) => recipe_id == id,
         };
         if matches {
@@ -185,6 +190,7 @@ fn parse_with_requirements(
                 results.push(
                     json!({"recipe_guid":guid(&blob,at+layout.guid)?.to_string(),"recipe_id":recipe_id,"debug_name":name,
                     "workshop_guid":guid(&blob,at+layout.workshop_guid)?.to_string(),
+                    "workshop_id":blob.read_u32(at+layout.workshop).ok_or("malformed recipe workshop id")?,
                     "inputs":values(&inputs),"input_observations":input_observations,"outputs":values(&outputs),
                     "ingredient_category_semantics":null,"catalyst_semantics":null,
                     "required_props":null,"unlock":null,"feasible":null,
@@ -286,6 +292,30 @@ mod tests {
             assert!(blob.set_array(at + 80, name, 14));
         }
         (blob.into_bytes(), selected)
+    }
+
+    #[test]
+    fn stack_ids_preserve_zero_and_full_u32_values_separately_from_guids() {
+        let (bytes, selected) = registry(1);
+        let mut blob = Blob::new(&bytes);
+        let (start, _) = blob.array(layout().recipes).unwrap();
+        let (input, _) = blob.array(start + layout().input).unwrap();
+        let (output, _) = blob.array(start + layout().output).unwrap();
+        assert!(blob.write(input + layout().stack_item, &73u32.to_le_bytes()));
+        assert!(blob.write(start + layout().workshop, &991u32.to_le_bytes()));
+        assert!(blob.write(output + layout().stack_item, &0u32.to_le_bytes()));
+        assert!(blob.write(
+            output + layout().stack_size + layout().stack_item,
+            &u32::MAX.to_le_bytes()
+        ));
+        let result = parse(layout(), blob.bytes(), selected, 8).unwrap();
+        let row = &result["recipes"][0];
+        assert_eq!(row["inputs"][0]["item_id"], 73);
+        assert_eq!(row["workshop_id"], 991);
+        assert_eq!(row["outputs"][0]["item_id"], 0);
+        assert_eq!(row["outputs"][1]["item_id"], u32::MAX);
+        assert_eq!(row["outputs"][1]["item_guid"], selected.to_string());
+        assert_ne!(row["outputs"][1]["item_id"], selected.fnv1a());
     }
 
     #[test]

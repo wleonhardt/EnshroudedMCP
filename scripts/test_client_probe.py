@@ -78,15 +78,15 @@ class Fixture:
             guid = "11111111-1111-1111-1111-111111111111"
             value = {"mode": "report_only", "source": "vanilla_archive_recipe_registry", "effective_definition_verified": False,
                      "selected_output_guid": guid, "total_matches": 1, "truncated": False, "unverified": ["fixture"],
-                     "recipes": [{"recipe_guid": guid, "recipe_id":0, "workshop_guid": guid, "debug_name": "private-recipe",
-                                  "inputs": [{"item_guid": "00000000-0000-0000-0000-000000000000", "count": 0}],
+                     "recipes": [{"recipe_guid": guid, "recipe_id":0, "workshop_id":0, "workshop_guid": guid, "debug_name": "private-recipe",
+                                  "inputs": [{"item_guid": "00000000-0000-0000-0000-000000000000", "item_id":0, "count": 0}],
                                   "requirement_observations": {"state": "observed", "source": "vanilla_archive_recipe_requirements",
                                       "required_prop_ids": [], "requires_shelter": False, "full_requirements_verified": False, "eligibility_verified": False},
                                   "input_observations": [{"category_id": 7, "category_membership": {
                                       "state": "observed", "source": "vanilla_archive_recipe_input_categories",
                                       "total_members": 1, "truncated": False, "scaling_semantics_verified": False,
                                       "members": [{"item_id": 1, "scaling": 0.5, "scaling_bits": 1056964608, "scaling_finite": True}]}}],
-                                  "outputs": [{"item_guid": guid, "count": 1}], "ingredient_category_semantics": None,
+                                  "outputs": [{"item_guid": guid, "item_id":213939880, "count": 1}], "ingredient_category_semantics": None,
                                   "catalyst_semantics": None, "required_props": None, "unlock": None, "feasible": None}]}
         if self.broken == name:
             if error:
@@ -127,12 +127,24 @@ class ClientProbeTests(unittest.TestCase):
     def test_native_recipe_id_preserves_zero_and_refuses_malformed_values(self):
         value=json.loads(Fixture().call("tools/call", {"name":"client_recipes","arguments":{}})["content"][0]["text"])
         recipes(value)
-        for recipe_id in [None,False,-1,1.5,0x100000000]:
-            value["recipes"][0]["recipe_id"]=recipe_id
-            with self.assertRaises(ValueError):
-                recipes(value)
-        value["recipes"][0]["recipe_id"]=0xFFFFFFFF
+        for field in ("recipe_id", "workshop_id"):
+            for recipe_id in [None,False,-1,1.5,0x100000000]:
+                value["recipes"][0][field]=recipe_id
+                with self.assertRaises(ValueError):
+                    recipes(value)
+            value["recipes"][0][field]=0xFFFFFFFF
         self.assertNotIn("private-",json.dumps(recipes(value)))
+
+    def test_stack_item_ids_require_exact_u32_values(self):
+        for key in ("inputs", "outputs"):
+            for item_id in (None, True, -1, 1.5, "1", 0x100000000):
+                value = json.loads(Fixture().call("tools/call", {"name":"client_recipes", "arguments":{}})["content"][0]["text"])
+                value["recipes"][0][key][0]["item_id"] = item_id
+                with self.subTest(key=key,item_id=item_id), self.assertRaises(ValueError):
+                    recipes(value)
+            for item_id in (0, 0xFFFFFFFF):
+                value["recipes"][0][key][0]["item_id"] = item_id
+                recipes(value)
 
     def test_prompt_localization_is_bounded_explicit_and_not_persisted(self):
         value = json.loads(Fixture().call("tools/call", {"name":"client_state", "arguments":{}})["content"][0]["text"])
