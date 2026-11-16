@@ -1,0 +1,11 @@
+# 0031: Isolated construction adapter regression fixture
+
+Date: 2026-11-16. Status: implemented; private/public source checks pass (330 Rust executions, including 18 shared module checks, and 51 Python tests; Clippy, formatting and release builds); native staged recovery remains unverified.
+
+Exercise the production construction adapter and shared journal against the published pinned SDK fake host in a separate Cargo integration-test binary. The SDK resolves World reflection once per process; the isolated binary can provide the exact synthetic metadata its capture API requires without depending on other probes' initialization order. Include the production source files directly. The test context supplies only the exact World and Voxels SDK handle types that construction uses; it does not replace construction or journal behavior. Move the generic GameTools journal assertion into its owning tools module, preserving that coverage without coupling the low-level journal tests to their caller.
+
+The fake transaction runner advances statuses and emits voxel events, but does not mutate the voxel store. Do not manufacture successful placement/undo acceptance from those receipts. Use that disagreement deliberately: submit a two-cell operation, observe native Applied with unchanged baseline and mismatched expected postimage, then require refusal of dry/real acceptance, further placement and multi-cell undo. Verify one native transaction across replay and payload conflict; unchanged audit bytes and retained recovery allowance; no native undo request; missing-flag refusal; and epoch invalidation after shutdown/reload.
+
+Run this target through cargo test --workspace and Clippy --all-targets. The target also runs shared source-module unit tests; report those repeated executions separately from new coverage. No runtime behavior, MCP surface, SDK pin or installed DLL is changed. A rebuilt test-source server candidate can have a different binary hash and is not claimed installed. The qualified 0.39.0 runtime remains intact.
+
+The required live accepted A/B same-brick placement, newest-first undo, nonzero recovery allowance observation and exact baseline/cold recovery are still pending manual isolated join. This fixture strengthens fail-stop regression coverage; it does not satisfy those live milestones.

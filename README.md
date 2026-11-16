@@ -2,6 +2,8 @@
 
 # Enshrouded MCP
 
+Construction regression coverage now exercises native-receipt/postimage disagreement through the production adapter and SDK fake host. It verifies refusal and replay/lifecycle guards, not successful native placement or staged recovery. See [fixture scope](plans/decisions/0031-isolated-construction-regression.md).
+
 Server 0.39.0 adds optional same-read inventory item counts with physical-slot deduplication and explicit unknown completeness/eligibility. Matched isolated installation and empty-result/admission checks pass; nonempty counts, native alias cases and eligible stock remain unverified. See [inventory count scope](plans/decisions/0030-same-read-inventory-counts.md).
 
 Server 0.38.0 adds explicit recipe alternatives. Matched isolated installation, synthetic selection/arithmetic/refusal checks and full read-only preservation pass. This does not validate live eligible stock, game recipe applicability or a complete production chain. See [explicit alternatives](plans/decisions/0029-explicit-recipe-alternatives.md).

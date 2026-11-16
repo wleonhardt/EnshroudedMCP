@@ -185,9 +185,6 @@ mod tests {
         f.set_len(policy::construction::JOURNAL_MAX_BYTES as u64 - 100)
             .unwrap();
         drop(f);
-        assert!(
-            crate::tools::GameTools::journal(Some(&d), "test", &serde_json::json!({}), 0).is_err()
-        );
         assert!(append(&d, b"x", 0, Some("unknown")).is_err());
         append(&d, b"x", 0, Some("a")).unwrap();
         assert!(append(&d, b"x", 0, None).is_err());

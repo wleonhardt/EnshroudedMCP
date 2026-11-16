@@ -864,6 +864,37 @@ fn on_game_thread<T: Send + 'static>(
 mod tests {
     use super::*;
     #[test]
+    fn generic_journal_preserves_construction_recovery_allowance() {
+        use std::{
+            fs,
+            time::{SystemTime, UNIX_EPOCH},
+        };
+        let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../target")
+            .canonicalize()
+            .unwrap();
+        let dir = base.join(format!(
+            "generic-journal-reservation-{}-{}",
+            std::process::id(),
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        fs::create_dir(&dir).unwrap();
+        crate::journal::reserve(&dir, "a", 100, 0).unwrap();
+        let file = fs::File::create(dir.join("journal.jsonl")).unwrap();
+        let size = policy::construction::JOURNAL_MAX_BYTES as u64 - 100;
+        file.set_len(size).unwrap();
+        drop(file);
+        assert!(GameTools::journal(Some(&dir), "test", &json!({}), 0).is_err());
+        assert_eq!(fs::metadata(dir.join("journal.jsonl")).unwrap().len(), size);
+        crate::journal::reset(&dir).unwrap();
+        let resolved = dir.canonicalize().unwrap();
+        assert!(resolved.starts_with(&base) && resolved != base);
+        fs::remove_dir_all(resolved).unwrap();
+    }
+    #[test]
     fn give_gate_refuses_directory_and_future_flag_but_allows_valid_preview() {
         use std::{
             fs,

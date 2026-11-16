@@ -1,5 +1,10 @@
 # Changelog
 
+## Construction adapter regression coverage
+
+- Add an isolated SDK fake-host integration fixture for the production construction and journal adapters. A native Applied receipt with unchanged voxels must remain a verification conflict and cannot authorize acceptance, progression or multi-cell undo. Replay stays once-only, failed guards preserve audit bytes/recovery credit, and lifecycle changes invalidate retained handles.
+- Preserve generic journal reservation coverage in the caller module. The SDK fake host does not mutate its voxel store, so this fixture is not successful placement or reverse-undo evidence. Runtime behavior, SDK pin and installed 0.39.0 DLLs are unchanged; source verification and live staged recovery remain separate.
+
 ## Server 0.39.0 (same-read inventory item counts)
 
 - Extend inventory_read with optional item_ids (one to eight unique nonzero IDs). Count each physical slot once over the same SDK slot read, independently of the returned page. Existing calls retain their page response.
