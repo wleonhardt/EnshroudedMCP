@@ -149,13 +149,13 @@ diff --git a/Cargo.toml b/Cargo.toml
 --- a/Cargo.toml
 +++ b/Cargo.toml
 @@ -4,12 +4,12 @@
- 
+
  [workspace.package]
  edition = "2024"
 -rust-version = "1.99"
 +rust-version = "1.100"
  license = "MIT"
- 
+
  [workspace.dependencies]
 -# Pin the exact official alpha.17 release qualified with its matching signed loader.
 -enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" }
