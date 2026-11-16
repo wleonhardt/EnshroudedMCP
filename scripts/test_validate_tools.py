@@ -30,6 +30,10 @@ class Fixture:
         error = False
         if "validation_unknown" in args:
             error, value = True, "unknown argument"
+        elif name == "player_reposition_status":
+            error = True
+            value = ("unknown argument 'confirm'" if "confirm" in args else
+                     "operation must contain 1 to 64 ASCII letters, digits, underscores or hyphens" if "/" in args.get("operation","") else "unknown reposition operation")
         elif name == "entity_buffs_read":
             error = True
             value = ("argument 'entity' must be at least 1" if args.get("entity") == 0 else
@@ -222,7 +226,7 @@ class ValidationTests(unittest.TestCase):
                 self.assertEqual(check["outcome"], "fail")
 
     def test_unrelated_errors_do_not_prove_specific_refusals(self):
-        for label in ("buff_missing_entity_read_error", "buff_zero_entity_refused", "buff_write_argument_refused", "invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
+        for label in ("reposition_unknown_operation", "reposition_status_path_refused", "reposition_status_write_refused", "buff_missing_entity_read_error", "buff_zero_entity_refused", "buff_write_argument_refused", "invalid_item_refused", "missing_inventory_selector", "invalid_inventory_selector", "invalid_lookup_id_refused",
                       "survey_off_grid_refused", "survey_write_argument_refused", "knowledge_write_argument_refused", "unknown_construction_operation_refused"):
             client = Fixture()
             original = client.call
@@ -230,7 +234,10 @@ class ValidationTests(unittest.TestCase):
             def reply(method, params=None):
                 if method == "tools/call":
                     name, args = params["name"], params["arguments"]
-                    target = ((label == "buff_missing_entity_read_error" and name == "entity_buffs_read" and args.get("entity") == 0xFFFFFFFF) or
+                    target = ((label == "reposition_unknown_operation" and name == "player_reposition_status" and args.get("operation") == "_validation_absent_reposition_044") or
+                              (label == "reposition_status_path_refused" and name == "player_reposition_status" and "/" in args.get("operation","")) or
+                              (label == "reposition_status_write_refused" and name == "player_reposition_status" and "confirm" in args) or
+                              (label == "buff_missing_entity_read_error" and name == "entity_buffs_read" and args.get("entity") == 0xFFFFFFFF) or
                               (label == "buff_zero_entity_refused" and name == "entity_buffs_read" and args.get("entity") == 0) or
                               (label == "buff_write_argument_refused" and name == "entity_buffs_read" and "confirm" in args) or
                               (label == "invalid_item_refused" and name == "item_info" and args["item"].startswith("Not_")) or
@@ -253,7 +260,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 32)
+        self.assertEqual(len(report["checks"]), 35)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -323,7 +330,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 34)
+        self.assertEqual(len(SERVER_TOOLS), 35)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

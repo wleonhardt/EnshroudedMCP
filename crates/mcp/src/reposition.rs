@@ -29,11 +29,21 @@ pub(crate) struct Reposition {
     generation: Arc<AtomicU64>,
     operations: Arc<Mutex<BTreeMap<String, Operation>>>,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Operation {
     request: Value,
     session: String,
+    actor: ActorContext,
+    target: [f64; 3],
     outcome: Value,
+}
+
+pub(crate) fn status_tool() -> policy::mcp::Tool {
+    policy::mcp::Tool {
+        name: "player_reposition_status",
+        description: "Read a retained current-boot reposition request separately from fresh server actor position and distance to its requested point. No tolerance or arrival verdict. World session, roster generation and bound actor must still match; absent/stale/unavailable observations have null position/distance. Prior-boot identities are unavailable without decoding or reconstructing them. Game-thread read only; no teleport, retry, journal append, collision or safe-return proof.",
+        schema: reposition::status_schema(),
+    }
 }
 
 fn bytes(value: &Value) -> Result<Vec<u8>, String> {
@@ -104,6 +114,66 @@ fn record_outcome(
 }
 
 impl Reposition {
+    pub(crate) fn observe(&self, game: Game, operation: &str) -> Result<Value, String> {
+        let retained = self
+            .operations
+            .lock()
+            .map_err(|_| "reposition state poisoned")?
+            .get(operation)
+            .cloned();
+        let mut report = json!({"operation":operation,"source":"server_game_thread_reposition_observation",
+            "state":"prior_boot_unavailable","native_outcome":null,"requested_position_m":null,
+            "before_position_m":null,"observation":null,"read_only":true,
+            "automatic_retry":false,"native_identity_reconstructed":false,"arrival_verified":false,
+            "collision_verified":false,"safe_recovery_verified":false});
+        let Some(retained) = retained else {
+            if self
+                .dir
+                .join("reposition-operations")
+                .join(format!("{operation}.json"))
+                .exists()
+            {
+                return Ok(report);
+            }
+            return Err("unknown reposition operation".into());
+        };
+        let mut facts = reposition::ObservationFacts {
+            session: self.construction.active_session().ok(),
+            generation: self.generation.load(Ordering::SeqCst),
+            ..Default::default()
+        };
+        if reposition::observation_scope(
+            &retained.actor,
+            facts.session.as_deref(),
+            facts.generation,
+        )
+        .is_none()
+        {
+            if let Some(actor) = game
+                .world
+                .player_by_key(enshwick::PlayerKey::new(retained.actor.account))
+            {
+                facts.account = Some(actor.key.0);
+                facts.entity = Some(actor.entity.0);
+                if actor.entity.0 == retained.actor.entity {
+                    facts.health = game
+                        .world
+                        .vitals(actor.entity)
+                        .map(|value| value.health.current);
+                    facts.position = game.world.position(actor.entity);
+                }
+            }
+            facts.session = self.construction.active_session().ok();
+            facts.generation = self.generation.load(Ordering::SeqCst);
+        }
+        report["state"] = json!("retained");
+        report["native_outcome"] = retained.outcome;
+        report["requested_position_m"] = json!(retained.target);
+        report["before_position_m"] = json!(retained.actor.position);
+        report["observation"] =
+            reposition::observe_position(&retained.actor, retained.target, facts);
+        Ok(report)
+    }
     pub(crate) fn new(load: &mut Load<'_>, construction: Construction) -> Result<Self, Off> {
         let generation = Arc::new(AtomicU64::new(0));
         let joined = generation.clone();
@@ -201,6 +271,8 @@ impl Reposition {
         let mut op = Operation {
             request,
             session: context.session.clone(),
+            actor: context.clone(),
+            target: spec.target,
             outcome: json!({"state":"not_issued_unknown","operation":spec.operation,"automatic_retry":false,"arrival_verified":false}),
         };
         // Remember even a partial reservation or failed append. No path retries native input.
@@ -341,6 +413,14 @@ side = "server""#
         let mut op = Operation {
             request: request.clone(),
             session: "session".into(),
+            actor: ActorContext {
+                session: "session".into(),
+                actor_generation: 0,
+                entity: 1,
+                account: 1,
+                position: [0.; 3],
+            },
+            target: [1., 2., 3.],
             outcome: json!({"state":"issued_unknown","arrival_verified":false,"automatic_retry":false}),
         };
         let result = record_outcome(&dir, "refused", &mut op, Err(enshwick::WorldError::Refused));
@@ -445,6 +525,45 @@ side = "server""#
             loader.teleports()[0].flags,
             enshwick::abi::TeleportRequest::BEST_SPAWN
         );
+        fs::remove_file(dir.join(write_gate::FLAG)).unwrap();
+        let (tx, rx) = std::sync::mpsc::channel();
+        let reader = adapter.clone();
+        game.scheduler.next_tick(move || {
+            tx.send(reader.observe(game, "once")).unwrap();
+        });
+        assert!(matches!(
+            rx.try_recv(),
+            Err(std::sync::mpsc::TryRecvError::Empty)
+        ));
+        let _ = loader.tick(std::time::Duration::from_millis(100));
+        let observed = rx.try_recv().unwrap().unwrap();
+        assert_eq!(observed["native_outcome"], outcome);
+        assert_eq!(observed["observation"]["state"], "observed");
+        assert_eq!(observed["observation"]["distance_to_requested_m"], 1.0);
+        assert_eq!(observed["arrival_verified"], false);
+        let moved: Vec<u8> = [120i64 << 32, 20i64 << 32, 100i64 << 32]
+            .into_iter()
+            .flat_map(i64::to_le_bytes)
+            .collect();
+        assert!(loader.set_component(Entity(7), transform, &moved));
+        let moved_observation = adapter.observe(game, "once").unwrap();
+        assert_eq!(
+            moved_observation["observation"]["distance_to_requested_m"],
+            19.0
+        );
+        assert_eq!(moved_observation["native_outcome"], outcome);
+        assert_eq!(fs::read(dir.join("journal.jsonl")).unwrap(), audit);
+        assert_eq!(loader.teleports().len(), 1);
+        assert!(adapter.observe(game, "never-created").is_err());
+        assert!(loader.set_component(Entity(7), transform, &standing));
+        let mut dead_health = health.clone();
+        dead_health[8..12].copy_from_slice(&0i32.to_le_bytes());
+        assert!(loader.set_component(Entity(7), 1, &dead_health));
+        let dead_observation = adapter.observe(game, "once").unwrap();
+        assert_eq!(dead_observation["observation"]["state"], "unavailable");
+        assert!(dead_observation["observation"]["current_position_m"].is_null());
+        assert!(loader.set_component(Entity(7), 1, &health));
+        fs::write(dir.join(write_gate::FLAG), []).unwrap();
         // Exercise the production recorder after the once marker is retained.
         // These synthetic native results do not dispatch additional commands.
         fs::remove_file(dir.join("journal.jsonl")).unwrap();
@@ -458,6 +577,8 @@ side = "server""#
             let mut marker = Operation {
                 request: reposition::canonical_request(&replay),
                 session: adapter.construction.active_session().unwrap(),
+                actor: adapter.operations.lock().unwrap()["once"].actor.clone(),
+                target: replay.target,
                 outcome: json!({"state":"issued_unknown","arrival_verified":false,"automatic_retry":false}),
             };
             reserve(
@@ -474,6 +595,9 @@ side = "server""#
                 .lock()
                 .unwrap()
                 .insert(operation.into(), marker);
+            let observed_unknown = adapter.observe(game, operation).unwrap();
+            assert_eq!(observed_unknown["native_outcome"], recorded);
+            assert_eq!(observed_unknown["observation"]["state"], "observed");
             assert_eq!(adapter.run(game, replay.clone()).unwrap(), recorded);
             assert_eq!(adapter.run(game, replay).unwrap(), recorded);
             assert!(
@@ -497,6 +621,21 @@ side = "server""#
             key: enshwick::PlayerKey::new(9),
         };
         assert!(loader.raise::<enshwick::events::PlayerLeft>(&left) > 0);
+        let changed_context = adapter.observe(game, "once").unwrap();
+        assert_eq!(
+            changed_context["observation"]["state"],
+            "actor_context_changed"
+        );
+        assert!(changed_context["observation"]["current_position_m"].is_null());
+        assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+        assert_eq!(
+            adapter.observe(game, "once").unwrap()["observation"]["state"],
+            "inactive_session"
+        );
+        assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+        let stale_observation = adapter.observe(game, "once").unwrap();
+        assert_eq!(stale_observation["observation"]["state"], "stale_session");
+        assert!(stale_observation["observation"]["distance_to_requested_m"].is_null());
         assert!(adapter.run(game, stale).is_err());
         assert_eq!(loader.teleports().len(), 1);
         assert!(
@@ -505,6 +644,10 @@ side = "server""#
         );
         // Losing the in-memory receipt never permits durable identity reuse.
         adapter.operations.lock().unwrap().clear();
+        let prior = adapter.observe(game, "once").unwrap();
+        assert_eq!(prior["state"], "prior_boot_unavailable");
+        assert!(prior["native_outcome"].is_null());
+        assert!(prior["observation"].is_null());
         assert!(adapter.run(game, spec).is_err());
         assert_eq!(loader.teleports().len(), 1);
         health[8..12].copy_from_slice(&0i32.to_le_bytes());

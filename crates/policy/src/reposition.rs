@@ -6,6 +6,32 @@ pub const MAX_PREVIEW_BYTES: usize = 1024;
 pub const MAX_OPERATIONS: usize = 64;
 pub const MAX_RECORD_BYTES: usize = 4096;
 
+pub fn status_schema() -> Value {
+    json!({"type":"object","additionalProperties":false,"properties":{
+        "operation":{"type":"string","minLength":1,"maxLength":64}},"required":["operation"]})
+}
+
+fn check_operation(operation: &str) -> Result<(), String> {
+    if operation.is_empty()
+        || operation.len() > 64
+        || !operation
+            .bytes()
+            .all(|c| c.is_ascii_alphanumeric() || c == b'_' || c == b'-')
+    {
+        return Err(
+            "operation must contain 1 to 64 ASCII letters, digits, underscores or hyphens".into(),
+        );
+    }
+    Ok(())
+}
+
+pub fn check_status(args: &Map<String, Value>) -> Result<String, String> {
+    crate::args::check(&status_schema(), args)?;
+    let operation = args["operation"].as_str().unwrap();
+    check_operation(operation)?;
+    Ok(operation.to_owned())
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Spec {
     pub operation: String,
@@ -40,16 +66,7 @@ fn text_ok(value: &str, max: usize) -> bool {
 pub fn check(args: &Map<String, Value>) -> Result<Spec, String> {
     crate::args::check(&schema(), args)?;
     let operation = args["operation"].as_str().unwrap();
-    if operation.is_empty()
-        || operation.len() > 64
-        || !operation
-            .bytes()
-            .all(|c| c.is_ascii_alphanumeric() || c == b'_' || c == b'-')
-    {
-        return Err(
-            "operation must contain 1 to 64 ASCII letters, digits, underscores or hyphens".into(),
-        );
-    }
+    check_operation(operation)?;
     let player = args["player"].as_str().unwrap();
     if !text_ok(player, 128) {
         return Err("player must contain 1 to 128 bytes without control characters".into());
@@ -85,6 +102,67 @@ pub struct ActorContext {
     pub entity: u32,
     pub account: u64,
     pub position: [f64; 3],
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct ObservationFacts {
+    pub session: Option<String>,
+    pub generation: u64,
+    pub account: Option<u64>,
+    pub entity: Option<u32>,
+    pub health: Option<i32>,
+    pub position: Option<[f64; 3]>,
+}
+
+pub fn observation_scope(
+    expected: &ActorContext,
+    session: Option<&str>,
+    generation: u64,
+) -> Option<&'static str> {
+    match session {
+        None => Some("inactive_session"),
+        Some(session) if session != expected.session => Some("stale_session"),
+        _ if generation != expected.actor_generation => Some("actor_context_changed"),
+        _ => None,
+    }
+}
+
+pub fn observe_position(
+    expected: &ActorContext,
+    target: [f64; 3],
+    facts: ObservationFacts,
+) -> Value {
+    let measured = facts
+        .position
+        .map(|position| {
+            let distance = position
+                .into_iter()
+                .zip(target)
+                .fold(0.0_f64, |distance, (a, b)| distance.hypot(a - b));
+            (position, distance)
+        })
+        .filter(|(position, distance)| {
+            position.iter().all(|value| value.is_finite()) && distance.is_finite()
+        });
+    let state = observation_scope(expected, facts.session.as_deref(), facts.generation)
+        .unwrap_or_else(|| {
+            if facts.account.is_none() {
+                "actor_not_observed"
+            } else if facts.account != Some(expected.account)
+                || facts.entity != Some(expected.entity)
+            {
+                "actor_context_changed"
+            } else if !facts.health.is_some_and(|value| value > 0) || measured.is_none() {
+                "unavailable"
+            } else {
+                "observed"
+            }
+        });
+    let measured = measured.filter(|_| state == "observed");
+    let position = measured.map(|(position, _)| position);
+    let distance = measured.map(|(_, distance)| distance);
+    json!({"state":state,"current_position_m":position,"distance_to_requested_m":distance,
+        "health_current":facts.health.filter(|_|state=="observed")})
 }
 
 /// # Errors
@@ -190,6 +268,123 @@ pub fn check_journal_headroom(current: u64) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn status_admits_only_a_bounded_existing_operation_selector() {
+        assert_eq!(
+            check_status(json!({"operation":"Platform_01"}).as_object().unwrap()).unwrap(),
+            "Platform_01"
+        );
+        for value in [
+            json!({}),
+            json!({"operation":"../other"}),
+            json!({"operation":true}),
+            json!({"operation":"x".repeat(65)}),
+            json!({"operation":"once","confirm":"server-write"}),
+            json!({"operation":"once","player":"actor"}),
+            json!({"operation":"once","dry":true}),
+        ] {
+            assert!(check_status(value.as_object().unwrap()).is_err());
+        }
+    }
+
+    #[test]
+    fn observation_preserves_distance_without_an_arrival_threshold() {
+        let expected = ActorContext {
+            session: "s".into(),
+            actor_generation: 4,
+            entity: 7,
+            account: 9,
+            position: [100., 20., 100.],
+        };
+        let facts = ObservationFacts {
+            session: Some("s".into()),
+            generation: 4,
+            account: Some(9),
+            entity: Some(7),
+            health: Some(150),
+            position: Some([120., 20., 100.]),
+        };
+        let result = observe_position(&expected, [101., 20., 100.], facts.clone());
+        assert_eq!(result["state"], "observed");
+        assert_eq!(result["distance_to_requested_m"], 19.0);
+        let exact = observe_position(&expected, [120., 20., 100.], facts);
+        assert_eq!(exact["distance_to_requested_m"], 0.0);
+        assert!(exact.get("arrival_verified").is_none());
+        // Write admission bounds do not turn a finite read into unavailable data.
+        for position in [[-1., 20., 100.], [100., 1025., 100.]] {
+            let facts = ObservationFacts {
+                session: Some("s".into()),
+                generation: 4,
+                account: Some(9),
+                entity: Some(7),
+                health: Some(150),
+                position: Some(position),
+            };
+            let observed = observe_position(&expected, [101., 20., 100.], facts);
+            assert_eq!(observed["state"], "observed");
+            assert_eq!(observed["current_position_m"], json!(position));
+        }
+    }
+
+    #[test]
+    fn changed_context_or_missing_actor_data_never_exposes_a_current_position() {
+        let expected = ActorContext {
+            session: "s".into(),
+            actor_generation: 4,
+            entity: 7,
+            account: 9,
+            position: [100., 20., 100.],
+        };
+        let good = ObservationFacts {
+            session: Some("s".into()),
+            generation: 4,
+            account: Some(9),
+            entity: Some(7),
+            health: Some(150),
+            position: Some([100., 20., 100.]),
+        };
+        let mut cases = Vec::new();
+        let mut value = good.clone();
+        value.session = None;
+        cases.push((value, "inactive_session"));
+        let mut value = good.clone();
+        value.session = Some("other".into());
+        cases.push((value, "stale_session"));
+        let mut value = good.clone();
+        value.generation += 1;
+        cases.push((value, "actor_context_changed"));
+        let mut value = good.clone();
+        value.account = None;
+        value.entity = None;
+        cases.push((value, "actor_not_observed"));
+        let mut value = good.clone();
+        value.account = Some(10);
+        cases.push((value, "actor_context_changed"));
+        let mut value = good.clone();
+        value.entity = Some(8);
+        cases.push((value, "actor_context_changed"));
+        for health in [None, Some(0), Some(-1)] {
+            let mut value = good.clone();
+            value.health = health;
+            cases.push((value, "unavailable"));
+        }
+        for position in [
+            None,
+            Some([f64::NAN, 20., 100.]),
+            Some([f64::INFINITY, 20., 100.]),
+        ] {
+            let mut value = good.clone();
+            value.position = position;
+            cases.push((value, "unavailable"));
+        }
+        for (facts, state) in cases {
+            let result = observe_position(&expected, [101., 20., 100.], facts);
+            assert_eq!(result["state"], state);
+            assert!(result["current_position_m"].is_null());
+            assert!(result["distance_to_requested_m"].is_null());
+        }
+    }
     use serde_json::json;
 
     fn request() -> serde_json::Map<String, serde_json::Value> {

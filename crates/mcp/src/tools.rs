@@ -246,6 +246,7 @@ impl GameTools {
             description: "ADMIN WRITE, dry by default. Submit one bounded server teleport request for the sole connected living player, using engine free-spot search. Requested target must be within 16 m of observed position. Exact actor/session preview, fresh write flag and confirmation required. Durable same-ID replay never dispatches again. Submission is not arrival; spawn adjustment is unbounded by this interface. No walking, camera, menu, native undo or automatic retry. Observe players separately; return requires a new gated request.",
             schema: policy::reposition::schema(),
         });
+        list.push(crate::reposition::status_tool());
         list.push(crate::clock_control::tool());
         list.push(crate::server_shutdown::tool());
         list.push(crate::server_save::tool());
@@ -425,6 +426,15 @@ impl Tools for GameTools {
                     .as_ref()
                     .ok_or("clock control lifecycle unavailable")?
                     .call(self.game, spec)
+            }
+            "player_reposition_status" => {
+                let operation = policy::reposition::check_status(a)?;
+                let reposition = self
+                    .reposition
+                    .clone()
+                    .ok_or("native reposition unavailable")?;
+                let game = self.game;
+                on_game_thread(scheduler, move || reposition.observe(game, &operation))?
             }
             "player_reposition" => {
                 let spec = policy::reposition::check(a)?;
