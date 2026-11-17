@@ -345,3 +345,8 @@ MCP PNG presentation is source-qualified with exact legacy JSON behavior retaine
 ## Native terrain_image (source 0.46.0; deployment pending)
 
 The server now registers a bounded diagnostic PNG read, with JSON metadata first and an image/png block second. For example, call terrain_image with `{"x":10,"y":20,"z":30,"width":1,"height":1.5,"depth":2,"view":"xy","slice":30,"pins":[{"label":"Reference","position":[10.25,20.75,30.25]}]}`. Choose coordinates in the intended world. The native voxel read runs on the game thread; raster/PNG encoding uses copied data afterward. At most 4,096 half-metre cells, sixteen pins and an 8 m box side; no writes or game-frame capture. Installed 0.46.1 now passes empty-server native image, corrected-axis, refusal and preservation checks. Connected-client and engine-surface/contact acceptance remain open. See [scope, axes, unknowns and deployment gates](plans/decisions/0073-native-terrain-image.md).
+
+
+### Optional process-handoff qualification
+
+[Process-handoff qualification](qualification/process-handoff/README.md) checks held launcher facts, exact identity/linkage and owned loopback observations with Python-only fixtures. The helper starts and stops nothing; it is separate from native game lifecycle control. Real Steam handoff, provider/Menu qualification and a fresh runtime exception remain required.

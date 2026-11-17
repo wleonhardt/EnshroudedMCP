@@ -1,0 +1,17 @@
+# Process handoff qualification
+
+Optional Windows-only, standard-library Python qualification for ordinary process observation around a client launch. It is separate from the game SDK and MCP dispatch. The helper never starts or stops a process. Only the fixtures start their own Python processes; they never select a game, access credentials, use desktop input or capture a screen.
+
+From the repository root:
+
+```powershell
+python -B -m unittest discover -s qualification/process-handoff -p test_*.py -v
+```
+
+The caller must retain the `Popen` object it created while `launcher_facts` reads the process. Windows creation time is read at full FILETIME precision through that exact held CreateProcess handle, with no PID reselection after exit. This Windows-only qualification borrows CPython Popen's handle as supplied by the tested Python 3.15 implementation; it is not a portable launcher API. [Win32 documents that process handles remain valid until closed, including after termination](https://learn.microsoft.com/en-us/windows/win32/procthread/process-handles-and-identifiers). A successful exit has an explicit exit code, including actual exit 259; it is not inferred from a PID disappearing. Querying the image of an already exited process can fail even while creation time remains available. Requested and independently observed executable paths are separate fields. A missing exited image stays null; a live image query failure refuses. The existing strict live-process observer is unchanged.
+
+The direct path requires the live identity to match the initial PID, creation time and requested executable. A handoff requires initial exit 0, an unchanged preexisting parent identity and expected parent image, a distinct new child at the expected image within the bounded creation interval, and independently observed parent linkage. CIM contributes PID, parent PID and path only. Its datetime representation never replaces or supplies a tolerance for exact Win32 creation comparisons. A separate listener check requires one matching loopback address, port and owner PID. These observations cannot authenticate a remote peer or prove game state.
+
+The actual fixture starts one Python launcher whose output triggers an already running owned Python parent to start one child. The launcher object stays retained through exit and observation. The child opens a disposable loopback listener and waits for owned stdin closure. Win32 identities, CIM linkage and kernel listener ownership are observed independently. All owned processes exit normally; waits are bounded and fixtures use hidden windows. Direct and exited-launcher cases run separately. Refusals include a one-tick parent change, wrong parent/image, stale or late child, unsuccessful initial exit, non-loopback binding, duplicate listeners, wrong port and wrong owner.
+
+Six optional test methods include actual exited children with codes 0, 7 and 259. The module uses the project's existing `scripts/process_exit.py` Win32 query functions and changes none of its callers. Python and OS behavior are qualified on the tested Windows host only. No real Steam handoff, game launch, provider load, Menu, MCP read, Join/Leave, character identity, inventory, rendering or adoption is accepted by this fixture. A game trial still needs its separately reviewed source/binary/rollback closure and explicit runtime exception. Decision 0103 remains consumed after the stopped trial in decision 0104.

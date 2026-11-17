@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Optional process-handoff qualification now observes an exact held launcher handle, full-precision identity/linkage and sole loopback ownership (decision 0106). Six Python-only cases include direct/handoff branches and actual exits 0/7/259. Missing exited image remains unknown. No MCP capability, game launch, Steam/Menu acceptance or installed change is added.
+
 Decision 0105 qualifies explicit unknown grant acknowledgement, same-ID dry reconciliation and independent SDK-fake attempt counts. Failed grant fixtures now retain exact synthetic evidence during panic. Private checks pass 406 Rust/97 Python and required checks; production code and signed runtime remain unchanged. Organic latency and positive native inventory/readback remain open.
 
 Decision 0104 records the approved 0103 Menu trial stopping on a private Steam handoff identity-oracle precision error. One launch and exact-process exit 0 precede verified restoration of all five originals, twelve installed hashes and durable namespaces. Neither phase is accepted; the SDK 12.11 companion is never installed or executed. The consumed review cannot be replayed. Current signed server 0.48.0 / companion 0.21.1 remains unchanged.

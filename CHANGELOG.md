@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add optional read-only process-handoff qualification using the held launcher handle, full-precision identities and independent loopback ownership. Owned Python fixtures preserve unknown exited images and exact exit codes. No game launcher, MCP executor or runtime change.
+
 - Correct the grant source fixture to require and reconcile a deliberately withheld acknowledgement through the same identity without extra submission. Retain failed grant fixture bytes during unwinding. Runtime code and deadlines remain unchanged; organic latency remains unexplained.
 
 - Add an inactive current-base command timing probe with explicit synthetic request provenance and deferred output for fast intervals. Unknown origin stays null and truncation remains visible. Controlled/source checks pass; six same-area trials do not resolve organic expiry. Product runtime and deadlines remain unchanged.

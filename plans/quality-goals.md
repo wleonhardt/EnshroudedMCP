@@ -104,3 +104,8 @@ Decision 0104 records a failed private handoff identity oracle after one approve
 ## Grant acknowledgement and failure evidence — 2026-11-17
 
 Decision 0105 advances goal 4 with a deterministic SDK-fake withheld acknowledgement: the caller returns unknown, same-ID dry reconciliation observes the accepted request and independent submit counts remain exact. A failing fixture-retention reproduction is repaired with unchanged normal cleanup. Private checks pass 406 Rust/97 Python and required checks. Runtime code, deadlines and signed installation remain unchanged. The earlier organic latency cause is unresolved; retained controlled bytes do not reconstruct the lost natural-failure evidence. Native inventory readback and the stopped Menu review remain separate gates.
+
+
+## Held launcher and process handoff — 2026-11-17
+
+Decision 0106 advances the goal 2 qualification path and the process-observation prerequisites for goal 3. Six owned-Python cases verify exact held launcher facts, direct/handoff identity and loopback ownership while preserving unknown exited images. This does not implement a native game lifecycle executor or qualify Steam. Integrate the witness into the private controller and prepare a fresh concrete Menu review before runtime use; original review 0103 stays consumed.
