@@ -8,7 +8,7 @@
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "server 0.45.0 / companion 0.20.2; new source server 0.46.0 is not deployed yet",
+      "installed": "server 0.46.1 / companion 0.20.2 DLLs installed on SDK 6a151a95 / ABI 12.1; empty-server image acceptance passed, client closed",
       "game_build": "not observed by capability getter; do not infer from framework version",
       "installed_server_version": "0.46.1",
       "installed_client_version": "0.20.2"
@@ -28,6 +28,22 @@
       "native_client_qualified": false,
       "physical_geometry_verified": false,
       "release_provider_qualified": false,
+      "primary_installation_changed": false
+    },
+    "lifecycle_candidate": {
+      "sdk_revision": "6a5966ee6683fde480ac9dd3654f91e73da6e2a5",
+      "abi": "12.11",
+      "rust": "1.100.0",
+      "source_only": true,
+      "status": "whole-product candidate and clean replay source-qualified; not adopted",
+      "source_base": "813fe58f7b4795ce3cc616d4d12dc37406ed8ecb",
+      "source_patch": "qualification/sdk-lifecycle/consumer-candidate.patch",
+      "patch_sha256": "a9978fd8d605d28579165e9caf22fbc4cb1716f5733ff32a689cc4e29ff2c3ec",
+      "source_tree": "b727eccea31031d012f608d7bf4f9f3ce74a9e0b",
+      "source_evidence": "plans/decisions/0077-replayable-lifecycle-sdk-candidate.md",
+      "native_provider_qualified": false,
+      "native_client_qualified": false,
+      "credential_resolver_implemented": false,
       "primary_installation_changed": false
     }
   },

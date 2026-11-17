@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **ABI 12.11 whole-product candidate and clean replay source-qualified** Exact thirteen-file migration against corrected public 813fe58 preserves 0.46.1 caption regression and all production gates. Candidate/replay each pass 391 Rust/94 Python, lint, format, releases and index checks. All 237 normalized tracked files and independently reconstructed Git trees agree. No installed change or lifecycle route; next qualify a matching provider and native client/credential workflows. See decision 0077.
+
 - **native terrain images and 0.46.1 caption correction qualified** Cold 0.46.0 deployment, three native images, 172,215 pixel checks, all forty fixed reads and 19,312 protected observations pass. Visual inspection finds top header Y UP while raster/metadata use Z. Failing decoded-PNG reproduction now passes after deriving the caption from its actual vertical axis. Private/public 391 Rust/94 Python and required checks pass; corrected cold/native image, eighteen exact refusals and full preservation pass. Client remains closed; connected/engine/capture-error acceptance remains open. SDK unchanged. See decision 0076.
 
 - **native join/leave API now published; consumer source/model qualification passed** Upstream #1150 merge 6a5966ee adds address-based Join/Leave/cancel and copied peer/status at ABI 12.11. Optional six-case consumer suite pins that revision; debug/optimized tests, strict Clippy and formatting pass. Product SDK 6a151a95 / ABI 12.1 and installed pair remain unchanged; no lifecycle tool or credential resolver is exposed. Qualify whole-product compatibility and provider provenance before native isolated acceptance. See decision 0075.

@@ -28,3 +28,5 @@ Decision 0074 adds an optional real-filesystem journal qualification: 128 concur
 Decision 0075 qualifies six consumer model cases for published unstable Join/Leave at exact upstream 6a5966ee / ABI 12.11. Installed product remains ABI 12.1; provider, credential resolution, whole-product compatibility and live intended-peer/character/leave acceptance remain open.
 
 Decision 0076 qualifies installed 0.46.1 empty-server terrain PNGs after a visible-axis defect was reproduced and fixed. Three native views, 172,215 independent pixel checks, eighteen exact image refusals and complete preservation pass. Connected-client consumption, capture-time error presentation and engine mesh/contact remain open.
+
+2026-11-16 SDK qualification increment: decision 0077 preserves an inactive ABI 12.11 whole-product migration with a clean source replay. Both copies pass 391 Rust/94 Python and all required checks while active ABI 12.1 and installed files remain unchanged. Matching-provider and actual lifecycle acceptance remain open.
