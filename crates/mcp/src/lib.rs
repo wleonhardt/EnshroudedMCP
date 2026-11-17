@@ -83,7 +83,7 @@ impl Mod for Mcp {
                 .map_err(|error| enshwick::warn!("health recovery unavailable: {error}"))
                 .ok()
         });
-        let tools = tools::GameTools::new(
+        let mut tools = tools::GameTools::new(
             game,
             components,
             load.mod_dir().ok(),
@@ -91,6 +91,7 @@ impl Mod for Mcp {
             reposition,
             recovery,
         );
+        tools.provider_header = Some(load.host().api().header);
         tools.register_shutdown_events(load);
         Ok(Self { tools })
     }
@@ -111,3 +112,46 @@ enshwick::declare_mod!(Mcp);
 mod server_shutdown;
 
 mod server_save;
+
+#[cfg(test)]
+mod provider_tests {
+    use super::*;
+    use policy::mcp::Tools;
+
+    struct Recorder;
+    impl Mod for Recorder {
+        fn init(load: &mut Load<'_>) -> Result<Self, Off> {
+            let mcp = Mcp::init(load)?;
+            let header = load.host().api().header;
+            let value = mcp
+                .tools
+                .call("capabilities", &serde_json::Map::new())
+                .unwrap();
+            assert_eq!(value["runtime_framework"]["state"], "observed");
+            assert_eq!(value["runtime_framework"]["abi_major"], header.abi_major);
+            assert_eq!(value["runtime_framework"]["abi_minor"], header.abi_minor);
+            assert_eq!(value["runtime_framework"]["api_table_bytes"], header.size);
+            assert_eq!(value["compiled_framework_abi"], "12.1");
+            assert_eq!(value["new_inspection_tools_live_verified"], false);
+            Ok(Self)
+        }
+    }
+    enshwick::test::declare_mod!(
+        Recorder,
+        r#"id = "test.provider-header"
+side = "server""#
+    );
+
+    #[test]
+    fn initialization_copies_published_header_without_starting_listener_or_world_reads() {
+        let loader = enshwick::test::FakeHost::new()
+            .side(enshwick::abi::Side::SERVER)
+            .world()
+            .install();
+        // SAFETY: exports belong to the test recorder; its ready starts no listener.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+    }
+}

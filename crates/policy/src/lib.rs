@@ -15,6 +15,7 @@ pub mod client_workshop;
 pub mod clock_control;
 pub mod construction;
 pub mod factory_station;
+pub mod framework;
 pub mod health_recovery;
 pub mod http;
 pub mod inspection;

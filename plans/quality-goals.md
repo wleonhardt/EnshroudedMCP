@@ -36,3 +36,7 @@ Decision 0076 qualifies installed 0.46.1 empty-server terrain PNGs after a visib
 Decision 0080 adds actual graceful child-process journal reopen: exact bytes persist, while recovery reservations remain session-local. This does not reconstruct gameplay authority or establish crash, power-loss, partial-write or sync-fault recovery.
 
 Decision 0081 exercises actual journal bytes before injected partial-write and sync errors. Retained-capacity accounting and exact-byte refusals pass; real OS faults, power loss, native callback handling and gameplay recovery remain unverified.
+
+Decision 0082 adds actual immutable runtime header metadata to both capability reports and the contract checker. This advances goals 1 and 2 without SDK adoption or trust/gameplay inference. Matched native acceptance remains pending.
+
+Decision 0083 completes an explicitly approved temporary ABI12.11 client Menu/header/legacy-read experiment and exact rollback. General provider trust, native Join/Leave, profile/credential resolution, character/peer/roster and rendered workflow acceptance remain open.

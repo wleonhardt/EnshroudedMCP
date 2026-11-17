@@ -107,6 +107,7 @@ struct Shared {
 }
 
 struct ClientTools {
+    provider_header: Option<enshwick::abi::Header>,
     shared: Arc<Shared>,
     list: Vec<Tool>,
     input: bool,
@@ -121,6 +122,7 @@ struct ClientTools {
 impl ClientTools {
     fn new(shared: Arc<Shared>, input: bool, recipes: bool) -> Self {
         Self {
+            provider_header: None,
             shared,
             input,
             recipes,
@@ -299,7 +301,7 @@ impl Tools for ClientTools {
                 self.request(Request::Markers(spec))
             }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -444,6 +446,7 @@ impl Mod for ResearchClient {
             layout.is_some() && input_type.is_some(),
         );
         tools.selection_sources = selection_sources;
+        tools.provider_header = Some(load.host().api().header);
         tools.workshops = workshop_layout.is_some();
         tools.mod_dir = mod_dir;
         tools.marker_ui = marker_available;
@@ -498,6 +501,18 @@ mod tests {
     impl Mod for Recorder {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             let companion = ResearchClient::init(load)?;
+            let header = load.host().api().header;
+            let metadata = companion
+                .tools
+                .call("client_capabilities", &Map::new())
+                .unwrap();
+            assert_eq!(metadata["runtime_framework"]["state"], "observed");
+            assert_eq!(metadata["runtime_framework"]["abi_major"], header.abi_major);
+            assert_eq!(metadata["runtime_framework"]["abi_minor"], header.abi_minor);
+            assert_eq!(
+                metadata["runtime_framework"]["api_table_bytes"],
+                header.size
+            );
             *FRAME_INPUT.lock().unwrap() = companion.tools.native_input;
             *FRAME_STATE.lock().unwrap() = Some(companion.tools.shared);
             Ok(Self)
@@ -737,7 +752,10 @@ side = "both""#
             // Exercise the registered production frame handler, withholding only its reply.
             let _ = loader.draw_frame();
             let reply = received.try_recv().unwrap().unwrap();
-            assert_eq!(reply["native_submitted"], true);
+            assert_eq!(
+                reply["native_submitted"], true,
+                "synthetic frame reply: {reply}"
+            );
             assert_eq!(reply["native_state"], "pending");
             assert_eq!(loader.client_commands().len(), 1);
             let error = waiter.join().unwrap().unwrap_err();
@@ -793,7 +811,7 @@ side = "both""#
 
     #[test]
     fn compiled_framework_provenance_is_separate_from_live_verification() {
-        let tools = ClientTools::new(Arc::default(), false, false);
+        let mut tools = ClientTools::new(Arc::default(), false, false);
         let value = tools.call("client_capabilities", &Map::new()).unwrap();
         assert_eq!(value["enshwick"], "1.0.0-alpha.17");
         assert_eq!(
@@ -806,6 +824,19 @@ side = "both""#
         assert_eq!(value["semantic_gameplay_actions"], json!([]));
         assert_eq!(value["native_map_marker_ui"], false);
         assert_eq!(value["semantic_ui_actions"], json!([]));
+        assert_eq!(value["runtime_framework"]["state"], "unavailable");
+        assert!(value["runtime_framework"]["abi_major"].is_null());
+        tools.provider_header = Some(enshwick::abi::Header {
+            abi_major: 42,
+            abi_minor: 99,
+            size: 4096,
+        });
+        let value = tools.call("client_capabilities", &Map::new()).unwrap();
+        assert_eq!(value["runtime_framework"]["abi_major"], 42);
+        assert_eq!(value["runtime_framework"]["abi_minor"], 99);
+        assert_eq!(value["runtime_framework"]["api_table_bytes"], 4096);
+        assert_eq!(value["compiled_framework_abi"], "12.1");
+        assert_eq!(value["live_verified"], false);
     }
 
     #[test]

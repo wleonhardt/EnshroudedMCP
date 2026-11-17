@@ -30,3 +30,9 @@ The provider reports ABI 12.11 and a 1,744-byte table, matching the compiled tab
 One native stop is accepted and independently exits 0, with exactly four rows and one identity. All twenty-three copied asset hashes, staged modules and header-report bytes remain exact. The primary twelve hashes, all primary durable namespaces, original pacification and absent flags remain unchanged; the client stays closed. Native SDK per-source logging preserves the unofficial classification. The SDK's empty startup crash-note file is not treated as a crash merely because it exists.
 
 This is bounded server/header/read evidence only. It does not certify general provider fidelity, native client callbacks, real Join/Leave/cancellation, credential resolution, physical geometry, save causality, cold recovery or release provenance. The unsigned provider is not adopted; the working SDK remains ABI 12.1.
+
+## Temporary client Menu result
+
+After explicit operator approval of exact candidate/rollback files, one temporary client launch at Menu reports ABI12.11 and table1744. Four loaded module hashes and the owned loopback companion listener agree. The unchanged 0.20.2 companion, compiled with ABI12.1, passes thirteen historical fixed read/refusal probes and its complete advertised contract. Fresh copied Menu remains separate from rendered proof. Same-launch SDK logging preserves the unofficial classifier.
+
+One ordinary window-close request independently exits0 before the four signed originals are restored. All twelve original installed hashes, durable namespaces, original setting and absent flags remain exact; the new probe is removed and client closed. This is bounded legacy Menu/header/read evidence, without Join/Leave, credential access, movement, gameplay, character or rendering acceptance. OS launch/close remain native lifecycle gaps. See [decision0083](../../plans/decisions/0083-native-client-provider-menu-qualification.md).

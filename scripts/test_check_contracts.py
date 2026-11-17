@@ -25,6 +25,9 @@ class Endpoint:
             "mod_version" if scope == "server" else "version": profile[scope + "_version"],
             "compiled_framework_revision": profile["sdk_revision"],
             "compiled_framework_abi": profile["abi"],
+            "runtime_framework": {"source":"published_host_api_immutable_header", "state":"observed",
+                                  "abi_major":12, "abi_minor":1, "api_table_bytes":4096,
+                                  "scope":"header metadata only; signatures, API-call fidelity and gameplay are not verified"},
         }
         self.error = False
 
@@ -39,6 +42,30 @@ class Endpoint:
 
 
 class ContractTests(unittest.TestCase):
+    def test_runtime_header_remains_separate_from_compiled_provenance_and_trust(self):
+        endpoint = Endpoint("server")
+        endpoint.capabilities["runtime_framework"].update(abi_major=42, abi_minor=99, api_table_bytes=8192)
+        observed = compare_live(INDEX, "server", endpoint)
+        self.assertEqual((observed["abi_major"], observed["abi_minor"], observed["api_table_bytes"]), (42, 99, 8192))
+        endpoint.capabilities["runtime_framework"].update(state="unavailable", abi_major=None, abi_minor=None, api_table_bytes=None)
+        self.assertEqual(compare_live(INDEX, "server", endpoint)["state"], "unavailable")
+
+    def test_missing_malformed_or_contradictory_runtime_header_refuses_without_echo(self):
+        cases = [None, {}, {"state":"unavailable"}]
+        valid = Endpoint("client").capabilities["runtime_framework"]
+        for key, wrong in (("source", "untrusted marker"), ("state", "unknown"), ("abi_major", True),
+                           ("abi_minor", -1), ("abi_minor", 65536), ("api_table_bytes", 4294967296),
+                           ("scope", "verified"), ("api_table_bytes", None)):
+            cases.append({**valid, key:wrong})
+        cases.append({**valid, "state":"unavailable"})
+        for value in cases:
+            with self.subTest(value=value):
+                endpoint = Endpoint("client")
+                endpoint.capabilities["runtime_framework"] = value
+                with self.assertRaisesRegex(ValueError, "runtime framework header") as error:
+                    compare_live(INDEX, "client", endpoint)
+                self.assertNotIn("untrusted marker", str(error.exception))
+
     def test_current_index_profiles_references_and_human_table_are_consistent(self):
         validate_index(INDEX, ROOT)
 

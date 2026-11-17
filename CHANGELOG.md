@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Server 0.47.0 / companion 0.21.0 adds copied actual provider header metadata to capability reports, separately from compiled provenance. The contract checker preserves unavailable/different values without granting compatibility or trust. SDK and installed files remain unchanged pending matched cold/native qualification.
+
 - Qualify partial-write and failed-sync outcomes through a private production journal test seam. Real file-byte changes preserve both recovery owners and conservative capacity refusal; the normal write-all/sync-all path is unchanged. Injected errors do not claim real disk-full, power-loss or native callback acceptance.
 
 - Add a separate optional journal restart check using two real child processes and the unchanged production adapter. Debug/release runs preserve exact synced bytes and prove recovery reservations remain session-local; no gameplay recovery or crash/power-loss claim is made.

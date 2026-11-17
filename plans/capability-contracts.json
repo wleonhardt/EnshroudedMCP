@@ -1,10 +1,10 @@
 {
   "date": "2026-11-16",
-  "status": "all 50 source tools have explicit contracts; new terrain_image native acceptance pending",
+  "status": "all 50 source contracts indexed; 0.47.0/0.21.0 runtime-header native acceptance pending; installed pair remains 0.46.1/0.20.2",
   "profiles": {
     "product": {
-      "server_version": "0.46.1",
-      "client_version": "0.20.2",
+      "server_version": "0.47.0",
+      "client_version": "0.21.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
@@ -35,7 +35,7 @@
       "abi": "12.11",
       "rust": "1.100.0",
       "source_only": false,
-      "status": "bounded isolated provider-header and native server read experiment passed; not adopted",
+      "status": "bounded native server and temporary client Menu/header/legacy-read experiments passed; exact client rollback complete; not adopted",
       "source_base": "813fe58f7b4795ce3cc616d4d12dc37406ed8ecb",
       "source_patch": "qualification/sdk-lifecycle/consumer-candidate.patch",
       "patch_sha256": "a9978fd8d605d28579165e9caf22fbc4cb1716f5733ff32a689cc4e29ff2c3ec",
@@ -53,8 +53,17 @@
         "four loaded DLL hashes and loopback binding ownership",
         "forty fixed server reads and one item/template correspondence",
         "three tiny diagnostic images with independent raw-cell/pixel/caption checks",
-        "one gated native shutdown and independent exit 0"
-      ]
+        "one gated native shutdown and independent exit 0",
+        "temporary client actual ABI12.11/table1744 and four loaded module hashes",
+        "fresh copied Menu and thirteen historical legacy companion read/refusal probes",
+        "one observed ordinary window-close exit0 and exact signed-file restoration"
+      ],
+      "native_client_header_qualified": true,
+      "native_client_legacy_menu_reads_qualified": true,
+      "native_client_lifecycle_qualified": false,
+      "temporary_primary_client_test_performed": true,
+      "primary_installation_restored": true,
+      "native_client_evidence": "plans/decisions/0083-native-client-provider-menu-qualification.md"
     }
   },
   "counts": {
@@ -854,21 +863,23 @@
         "type": "object"
       },
       "source_definitions": [
-        "crates/mcp/src/tools.rs"
+        "crates/mcp/src/tools.rs",
+        "crates/policy/src/framework.rs"
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Compiled version/provenance and resolved handles; availability flags are not executors or live certification.",
+      "evidence_summary": "Source adds copied actual provider header metadata separately from compiled SDK provenance; matched native acceptance remains pending.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0082-runtime-provider-header.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "Current installed profile observed; native provider fidelity remains separately qualified.",
       "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
       "persistence_acceptance": "No persistence claim.",
       "freshness_completeness": "Compiled strings and initialization-time resolved handles, not a live provider ABI or a current World observation.",
-      "next_missing_check": "Reconcile a changed provider/install against exact compiled provenance before adoption.",
+      "next_missing_check": "Correlate runtime header fields with exact loaded signed-provider files on both matched endpoints; header equality is not signature or gameplay verification.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "No action or World mutation.",
       "admission_sources": [
@@ -3734,21 +3745,23 @@
         "type": "object"
       },
       "source_definitions": [
-        "crates/client/src/lib.rs"
+        "crates/client/src/lib.rs",
+        "crates/policy/src/framework.rs"
       ],
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Compiled provenance, resolved native/UI handles and declared gaps; hardcoded verification flags are not live outcomes.",
+      "evidence_summary": "Source adds copied actual provider header metadata separately from compiled SDK provenance; matched native acceptance remains pending.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0082-runtime-provider-header.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "Current installed companion/provenance observed; per-request applicability remains separate.",
       "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
       "persistence_acceptance": "No persistence claim.",
       "freshness_completeness": "Compiled strings/resolved handles only. Fresh UI frames can coexist with copied state Never; no executor inferred from a getter.",
-      "next_missing_check": "For a changed provider, correlate resolved handles with targeted native behavior rather than infer executors.",
+      "next_missing_check": "Correlate runtime header fields with exact loaded signed-provider files on both matched endpoints; header equality is not signature or gameplay verification.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "No command execution, rendered evidence or server authority.",
       "admission_sources": [

@@ -104,6 +104,7 @@ pub(crate) struct Game {
 
 #[derive(Debug)]
 pub(crate) struct GameTools {
+    pub(crate) provider_header: Option<enshwick::abi::Header>,
     game: Game,
     components: Components,
     /// The mod's folder: the write flag and the journal live there.
@@ -269,6 +270,7 @@ impl GameTools {
             .zip(construction.clone())
             .map(|(dir, lifecycle)| crate::clock_control::ClockControl::new(dir, lifecycle));
         Self {
+            provider_header: None,
             game,
             components,
             mod_dir,
@@ -591,6 +593,7 @@ impl Tools for GameTools {
                 "enshwick":"1.0.0-alpha.17",
                 "compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
+                "runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),
                 "game_build":null,
                 "game_build_status":"not_observed",
                 "offline_tools":offline_tools().iter().map(|tool|tool.name).collect::<Vec<_>>(),

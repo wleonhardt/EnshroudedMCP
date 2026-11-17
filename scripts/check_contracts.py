@@ -50,6 +50,18 @@ def validate_index(data, root):
         require(profile[key] == value, f"source profile {key} mismatch")
 
 
+def runtime_header(value):
+    require(isinstance(value, dict) and value.get("source") == "published_host_api_immutable_header"
+            and value.get("state") in ("observed", "unavailable")
+            and value.get("scope") == "header metadata only; signatures, API-call fidelity and gameplay are not verified",
+            "invalid runtime framework header")
+    for key, maximum in (("abi_major", 65535), ("abi_minor", 65535), ("api_table_bytes", 4294967295)):
+        field = value.get(key)
+        require(key in value and (field is None if value["state"] == "unavailable"
+                else type(field) is int and 0 <= field <= maximum), "invalid runtime framework header")
+    return {key: value[key] for key in ("source", "state", "abi_major", "abi_minor", "api_table_bytes", "scope")}
+
+
 def compare_live(data, scope, client):
     require(scope in SCOPES, "invalid endpoint scope")
     expected = {t["name"]: t for t in data["tools"] if t["scope"] == scope}
@@ -82,6 +94,7 @@ def compare_live(data, scope, client):
     }
     for key, expected_value in fields.items():
         require(observed.get(key) == expected_value, f"{scope} {key} mismatch")
+    return runtime_header(observed.get("runtime_framework"))
 
 
 def main(argv=None):
@@ -93,12 +106,13 @@ def main(argv=None):
     if any(port is not None and not 1 <= port <= 65535 for _, port in ports):
         parser.error("ports must be 1..65535")
     checked = []
+    headers = {}
     try:
         data = json.loads((ROOT / "plans/capability-contracts.json").read_text(encoding="utf-8"))
         validate_index(data, ROOT)
         for scope, port in ports:
             if port is not None:
-                compare_live(data, scope, Client(port))
+                headers[scope] = compare_live(data, scope, Client(port))
                 checked.append(scope)
     except (ValueError, KeyError, TypeError) as error:
         print(json.dumps({"verdict": "drift", "error": str(error), "live_contracts_checked": checked}))
@@ -108,6 +122,7 @@ def main(argv=None):
         return 2
     print(json.dumps({"verdict": "consistent", "index_consistent": True, "source_profile_checked": True,
                       "live_contracts_checked": checked, "native_behavior_verified": False,
+                      "runtime_framework_headers": headers,
                       "runtime_provider_verified": False}))
     return 0
 
