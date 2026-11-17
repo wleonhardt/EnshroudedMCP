@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **staged; recorded-launcher Menu review** Decision 0115 freezes 0d14d59 helpers/probes, thirteen controller models, eight owned-process methods, four candidates and five originals. Every completed launcher poll is recorded before nonzero refusal; write failure stops admission. Fresh preflight and stale-copy refusal pass. Archived SDK405/97 and current product409/100 stay distinct. No installation or launch. Fresh explicit exception required; consumed 0103/0107 cannot be reused.
+
 - **source/process qualified; retain launcher samples before refusal** Decision 0114 reproduces lost nonzero facts in a disposable copy and repairs recording order without relaxing admission. Eight optional owned-process methods include actual exits 0/7/259 and write-collision refusal; thirteen private controller models pass. Exact normalized inactive patch replay is verified. Consumed review 0107 and original controller remain immutable. No game retry or native cause/compatibility claim; future runtime closure needs fresh review.
 
 - **native attempt stopped; signed rollback verified** Decision 0113 records one explicitly approved 0107 phase-one launch stopping on a nonzero initial-launcher exit. Final failed exit sample was not persisted, so numerical code/cause stay unknown. Remaining owned fresh-Menu child was closed only for cleanup, with exact held exit 0. All five originals, twelve hashes and durable namespace restored; phase two never starts. Review 0107 is consumed and refuses preflight. Next qualify failure-evidence retention without another game launch.
