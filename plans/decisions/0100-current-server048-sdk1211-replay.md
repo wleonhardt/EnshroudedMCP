@@ -1,0 +1,31 @@
+# 0100: Refresh SDK 12.11 qualification against server 0.48.0
+
+Date: 2026-11-17. Status: candidate and independent clean replay source-qualified; timing intermittency remains open. No native candidate execution or installed change.
+
+Use the already qualified lifecycle revision 6a5966ee6683fde480ac9dd3654f91e73da6e2a5, ABI 12.11 and Rust/Cargo 1.100.0. It supplies the published Join/Leave API needed by goal 3; the separate ABI 12.13 respawn prototype does not need to be bundled into this migration. Product SDK, compiler and signed installation remain unchanged. Preserve historical 0.46.1 and 0.47.0 migration artifacts and the retired Menu review rather than reusing their old runtime closures.
+
+The new qualification/sdk-lifecycle/consumer-server048-candidate.patch targets exact public 3f647e1d5e6f3499894a1ff1c8278cc878ba965c, server 0.48.0 / companion 0.21.1. Fourteen paths port SDK/compiler provenance and the previously qualified fake-snapshot warm-ups/bootstrap response onto current source. The current baseline lock graph differs from the older baseline only by server version; independently verify that before porting the qualified SDK lock. Canonical profile output uses LF, with whitespace errors refused. Production command control before cfg(test), including final permission/deadline checks, remains byte-identical after newline normalization. The entire pin-column implementation and its three cases, journal process coverage, all policies, fifty tool schemas and product versions remain unchanged.
+
+## Pre-existing timing evidence
+
+Before any SDK edit, the clean current base fails two positive command fixtures: native_cancellation_and_unavailability_remain_terminal_without_redispatch and native_dispatch_replay_cancel_reload_and_audit_failures_never_duplicate_input. Both retained outcomes report the existing pre-submission deadline error with native_submitted false. Preserve the cold failure; do not call a later passing run a fix. The client harness records 43 passes/two failures over 63.34 seconds. No game or installed endpoint participates.
+
+The existing complete-interval probe applies to byte-identical control source. Its full instrumented cohort passes 405 Rust executions with 128 reports, 1,059 rows and zero drops. The maximum reserve duration among intervals whose rows remain below the two-second threshold is 14,288 microseconds. These data do not identify the phase or cause of the earlier failure, and wall duration is not intrinsic storage service time.
+
+A second fresh source/build copy defers report serialization/output for complete intervals below that threshold; slow or truncated intervals still emit. Its cold cohort also passes 405 executions and emits three slow reports with zero drops. Slow patterns match the deliberately delayed getter, manually aged request and injected post-sync wait. No organic refusal is measured under either probe. This private extension is not a product tracing option or a separately published qualified artifact. Merged test-harness labels do not reliably attribute reports because stdout/stderr ordering differs; a parser that attempts that association is not attribution evidence. Future reports need explicit bounded request provenance.
+
+Restore the exact uninstrumented source and deliberately compare a warm cohort: 404 Rust executions and 97 Python tests pass. Only then port the SDK candidate. No wait, clock, deadline, admission or replay rule changes. The candidate passes 404 Rust/97 Python, strict lint/format, both releases and offline contracts. Passing compatibility cohorts do not resolve the original timing issue. Code inspection shows unconditional fixture cleanup; panic-time evidence retention is unverified and not implemented. Add failure preservation and explicit trace provenance before making storage-cause claims.
+
+## Reconstruction and remaining gates
+
+Patch SHA-256 is b5d87a7de40aa64a0c32d1c5748607c64576498573eef4d9383c3f20f34abb43. A clean exact-base application with whitespace errors refused matches all 274 normalized tracked files and index tree ac2172f8177d5d4984afa1bb3be85d168fb5a835. Candidate and replay use separate targets and sequential builds with two jobs and one Rust test thread. Clean replay execution is recorded before publication; source correspondence alone is not an execution claim.
+
+The signed 0.48.0/0.21.1 runtime guard remains exact, with empty roster, closed client, absent flags and original setting. SDK qualification checkout stays at 6a151a95. No new provider is installed or queried in a game. Unit transport fixtures can open owned ephemeral loopback ports; that is not native candidate execution. Source compatibility cannot qualify provider provenance/fidelity, current client context, selected character/peer, credentials, Join/Leave, rendered effects or gameplay. The old Menu review remains retired; prepare a fresh source-matched namespace variant, provider/probe/rollback closure and explicit decision-0059 exception before any temporary provider swap.
+
+Raw source copies, failures, trace logs, comparison cohorts and proof remain private under gamedata/sdk-current101 and gamedata/timing-organic102. Publication contains the canonical inactive artifact and neutral documentation only. The complete development/workshop objective remains open.
+
+Candidate and clean replay each pass 404 Rust executions, 97 Python tests, strict lint/format, both release builds and offline contracts with Rust/Cargo 1.100.0. All 274 normalized files and the canonical index tree remain equal. This does not erase the earlier unmodified cold failure or qualify a deterministic latency bound. The signed installation and original SDK checkout remain unchanged.
+
+The unchanged product retains its qualified 404-Rust cohort. Updated private/public helper/index checks pass 97 Python tests, strict lint/format, both release builds and live server contract comparison. Active SDK/compiler pins and all twelve signed-runtime hashes remain unchanged.
+
+The publication diff check catches five blank unified-context prefix lines as trailing whitespace. Normalize only those prefixes in the artifact, retaining strict source/publication checks. An exclusively owned alternate Git index independently applies the new canonical bytes to the exact base and reconstructs the same tested tree. No tested source file changes.

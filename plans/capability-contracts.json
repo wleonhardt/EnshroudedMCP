@@ -112,6 +112,24 @@
       "primary_installation_changed": false,
       "scope": "read-only future respawn target; no session admission, setter, revival or arrival proof",
       "next_check": "matching provider and independently observed current-player target; SDK 12.11 Menu review is separate"
+    },
+    "lifecycle_server048_candidate": {
+      "sdk_revision": "6a5966ee6683fde480ac9dd3654f91e73da6e2a5",
+      "abi": "12.11",
+      "rust": "1.100.0",
+      "server_version": "0.48.0",
+      "client_version": "0.21.1",
+      "source_only": true,
+      "source_base": "3f647e1d5e6f3499894a1ff1c8278cc878ba965c",
+      "source_patch": "qualification/sdk-lifecycle/consumer-server048-candidate.patch",
+      "patch_sha256": "b5d87a7de40aa64a0c32d1c5748607c64576498573eef4d9383c3f20f34abb43",
+      "source_tree": "ac2172f8177d5d4984afa1bb3be85d168fb5a835",
+      "source_evidence": "plans/decisions/0100-current-server048-sdk1211-replay.md",
+      "native_candidate_qualified": false,
+      "primary_installation_changed": false,
+      "status": "candidate and clean replay each pass 404 Rust/97 Python, strict checks/releases/contracts; exact 274-file reconstruction; not installed",
+      "timing_limit": "original unmodified cold cohort has two positive-fixture deadline refusals; passing warm/instrumented/candidate cohorts do not resolve their cause",
+      "native_review_status": "not staged; retired review 0093 cannot execute; prepare a fresh exact current-runtime closure and temporary exception review"
     }
   },
   "counts": {
@@ -3511,7 +3529,7 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "client UI frame; SDK commands execute in later native client phase",
       "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified. Source frame timeout/reply-loss contracts pass; real pending cancellation/disconnect remains open. Installed 0.21.1 passes six dry Menu context refusals and one absent-flag request refusal; native delayed-getter/revocation timing remains open.",
+      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified. Source frame timeout/reply-loss contracts pass; real pending cancellation/disconnect remains open. Installed 0.21.1 passes six dry Menu context refusals and one absent-flag request refusal; native delayed-getter/revocation timing remains open. Clean current-base cold fixtures also expose pre-submission expiry with native_submitted false; timing cause remains unresolved (0100).",
       "evidence_references": [
         "plans/decisions/0058-native-menu-tab-observations.md",
         "plans/decisions/0062-client-frame-timeout-fault-contracts.md",
@@ -3519,9 +3537,10 @@
         "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md",
         "plans/decisions/0088-post-intent-client-context-recheck.md",
         "plans/decisions/0090-final-client-admission-recheck.md",
-        "plans/decisions/0091-signed-companion-menu-deployment.md"
+        "plans/decisions/0091-signed-companion-menu-deployment.md",
+        "plans/decisions/0100-current-server048-sdk1211-replay.md"
       ],
-      "source_checks": "Workspace checks pass. Detached-before-begin, lost-reply and initial-context fixtures remain qualified. Post-intent applicability/preview mutations pass decision 0088; delayed final getter and flag removal each reproduce prohibited SDK attempts before decision 0090 and exact policy refusals after it. No native fault-timing claim.",
+      "source_checks": "Workspace checks pass. Detached-before-begin, lost-reply and initial-context fixtures remain qualified. Post-intent applicability/preview mutations pass decision 0088; delayed final getter and flag removal each reproduce prohibited SDK attempts before decision 0090 and exact policy refusals after it. No native fault-timing claim. Decision 0100 preserves two unmodified cold positive-fixture deadline failures; later passing cohorts do not establish a timing fix.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "Map open/close only; other command actions remain separately unverified",
       "persistence_acceptance": "not established by this inventory",

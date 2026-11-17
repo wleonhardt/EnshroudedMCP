@@ -2,9 +2,13 @@
 
 ## Queue
 
+- **source qualified; current 0.48 SDK migration** A distinct 0.48.0/0.21.1 SDK 12.11 source candidate now reproduces exact public base 3f647e1, retaining full pin columns and final client admission (decision 0100). Candidate and clean replay each pass 404 Rust/97 Python plus required checks; all 274 normalized files reconstruct the same tree. Earlier unmodified cold command fixtures expire before native submission; warm and traced passes do not resolve that intermittency. No installed change or new native candidate acceptance.
+
+- **next; attributed failure evidence before timing conclusions** Preserve synthetic command-fixture directories when unwinding and add bounded request provenance to deferred timing reports. Merged harness labels cannot identify individual reports. Capture an organic expiry interval without changing production waits or weakening submission checks.
+
 - **installed; signed server pin-column acceptance** Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 
-- **next; refresh current SDK migration and Menu review** Preserve historical 0.47.0 exact-base candidates and retired review 0093. Qualify a current 0.48.0 source closure retaining complete columns and final client admission, then prepare a fresh provider/rollback review. Delayed approval for the old runtime cannot execute.
+- **source refresh done in decision 0100; native review still needed** Preserve historical 0.47.0 exact-base candidates and retired review 0093. Qualify a current 0.48.0 source closure retaining complete columns and final client admission, then prepare a fresh provider/rollback review. Delayed approval for the old runtime cannot execute.
 
 - **historical source checkpoint; deployed and native-qualified in decision 0099** Source server 0.48.0 now returns complete sampled Y-band metadata for each terrain_image reference pin (decision 0098). All raw kinds/IDs/fill and half-open boundaries survive independently of section projection. Three behavior cases and fresh 32-band native-data replay pass. Installed server remains 0.47.0; actual 0.48.0 endpoint acceptance is pending. Capture count, PNG drawing, companion, SDK and write authority remain unchanged.
 

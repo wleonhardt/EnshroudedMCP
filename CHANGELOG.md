@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add a distinct, replayable SDK 12.11 source migration for current server 0.48.0 / companion 0.21.1, preserving full columns and final client admission. Candidate and clean replay pass required checks. Pre-existing cold fixture deadline failures remain unresolved; product dependencies and installed files stay unchanged.
+
 - Install signed-SDK server 0.48.0 with complete terrain_image pin columns. Empty-server native checks verify 720 raw bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Cold recovery, protected geometry and durable namespaces pass; client and engine/contact acceptance remain separate.
 
 - Add an inactive, read-only SDK 12.13 respawn-target consumer with seven synthetic behavior cases. Preserve missing observations, typed errors and raw finite transforms. No registered tool, setter, native qualification or installed change.

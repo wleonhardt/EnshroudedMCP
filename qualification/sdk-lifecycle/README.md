@@ -94,3 +94,13 @@ git -C ../enshrouded-mcp-admission-sdk-check apply --whitespace=error-all $admis
 ```
 
 No candidate is installed or native-qualified. The current signed 0.47.0/0.21.1 runtime stays on ABI 12.1. The old native-review closure is stale after that signed update; prepare a fresh matching provider/consumer/rollback review before any native experiment. Source tests do not establish native timing, rendered behavior, credentials or Join/Leave acceptance. See [decision 0092](../../plans/decisions/0092-admission-preserving-sdk1211-replay.md).
+
+## Current server 0.48.0 source candidate
+
+The distinct [0.48.0 migration](consumer-server048-candidate.patch) applies to exact public `3f647e1d5e6f3499894a1ff1c8278cc878ba965c`, server 0.48.0 / companion 0.21.1. It pins SDK `6a5966ee6683fde480ac9dd3654f91e73da6e2a5`, ABI 12.11 and Rust 1.100.0. Preserve all older exact-base artifacts. This candidate retains complete terrain pin columns, journal process coverage and the entire final-admission production control prefix. It adds no Join/Leave route, credential resolver, provider adoption or native acceptance.
+
+Apply the new patch outside a clean checkout of that exact base, using the reproduction procedure above and separate candidate/replay targets. Verify installed `cargo +stable` and `rustc +stable` are exactly 1.100.0 before using that moving alias. Candidate and independent clean replay each pass 404 Rust executions, 97 Python tests, strict lint/format, both releases and offline contracts. All 274 normalized tracked files and index tree `ac2172f8177d5d4984afa1bb3be85d168fb5a835` agree. Patch SHA-256: `b5d87a7de40aa64a0c32d1c5748607c64576498573eef4d9383c3f20f34abb43`.
+
+An initial unmodified cold baseline fails two positive command fixtures with the existing deadline error and native_submitted false. Two instrumented cohorts and an unmodified warm cohort later pass; they do not fix or identify the original cause. Production waits and guards are unchanged. Merged test-harness labels are not reliable attribution for fixture-local timing sequences. Preserve failed fixture evidence and add explicit bounded request provenance before storage/timing conclusions. See [source proof and limitations](../../plans/decisions/0100-current-server048-sdk1211-replay.md).
+
+The actual signed 0.48.0/0.21.1 installation remains on SDK 6a151a95/ABI12.1. Old native review 0093 is retired. A fresh source-matched consumer, provider/probe/rollback closure and explicit temporary exception under decision 0059 are required before an unsigned Menu test. No clean-source pass authorizes that swap or validates character, peer, Join/Leave, credentials, rendered or gameplay behavior.
