@@ -159,3 +159,8 @@ Decision 0115 stages a new source/controller/probe/binary/rollback closure after
 ## Retained native exit and selection measurement — 2026-11-17
 
 Decision 0116 records native initial exit53 before refusal, no phase acceptance and exact signed rollback. Its meaning remains unknown; inspect a supported published launch route before another trial. Decision 0117 advances technical scene inspection by measuring captured cell minima and proposed targets from references without losing observation/planning labels. Expanded DOM scenarios pass within 100 Python methods; six outputs over 4,096 fresh native cells agree with independent arithmetic. Browser visual acceptance remains pending.
+
+
+## Supported launch-route source and browser viewer acceptance — 2026-11-17
+
+Decision 0118 advances goals2/3 with explicit launcher/effective-image observation and ten owned-process/refusal methods. Documented Steam startup is a candidate only; native launch and exit53 meaning remain unqualified. Decision 0119 closes one bounded desktop BrowserOS viewer acceptance fixture: real controls, 32 independent raw-band matches, cell/reference arithmetic and PNG export. Broader responsive interaction, engine rendering/contact and traversal remain open. No game or installed action occurs.

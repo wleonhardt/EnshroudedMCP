@@ -1,4 +1,4 @@
-"""Actual owned Python process/loopback checks and synthetic refusal cases."""
+"""Actual owned process/loopback checks and synthetic refusal cases."""
 from contextlib import contextmanager
 from dataclasses import replace
 import json
@@ -52,6 +52,34 @@ def owned(role):
 
 @unittest.skipUnless(os.name == "nt", "Windows process/loopback observation")
 class ActualProcesses(unittest.TestCase):
+    def test_different_launcher_image_requires_explicit_effective_image(self):
+        launcher = str(Path(os.environ["SystemRoot"]) / "System32/cmd.exe")
+        with owned("parent") as parent:
+            before = capture_identity(parent.pid)
+            initial = subprocess.Popen([launcher, "/d", "/c", "echo", "launch"],
+                                       stdin=subprocess.DEVNULL, stdout=parent.stdin, stderr=subprocess.DEVNULL,
+                                       creationflags=subprocess.CREATE_NO_WINDOW)
+            try:
+                self.assertEqual(initial.wait(timeout=5), 0)
+                facts = launcher_facts(initial, launcher)
+                report = json.loads(line(parent.stdout))
+                child = capture_identity(report["pid"])
+                now = capture_identity(parent.pid)
+                metadata = powershell(f"Get-CimInstance Win32_Process -Filter \"ProcessId={child.pid}\" | Select-Object ProcessId,ParentProcessId,ExecutablePath | ConvertTo-Json -Compress")
+                with self.assertRaisesRegex(ObservationRefused, "effective_image_mismatch"):
+                    handoff_identity(facts, before, now, child, metadata, sys.executable)
+                result = handoff_identity(facts, before, now, child, metadata, sys.executable,
+                                          expected_effective_executable=sys.executable)
+                self.assertTrue(result["parent_identity_verified"])
+                listener_identity(child, self.bindings(report["port"]), report["port"])
+                with self.assertRaisesRegex(ObservationRefused, "launcher_exit_not_successful"):
+                    handoff_identity({**facts, "exit_code": 53}, before, now, child, metadata, sys.executable,
+                                     expected_effective_executable=sys.executable)
+            finally:
+                if initial.poll() is None:
+                    initial.kill()  # Only this test's exclusively owned command process.
+                    initial.wait(timeout=5)
+
     def test_checked_exit_sample_is_written_before_refusal_and_survives_handle_release(self):
         with retained_samples() as folder:
             for exit_code in (0, 7, 259):
@@ -171,6 +199,23 @@ class Refusals(unittest.TestCase):
         ]:
             with self.subTest(parent=parent, metadata=metadata), self.assertRaises(ObservationRefused):
                 self.check(parent=parent, metadata=metadata)
+
+    def test_explicit_effective_image_is_absolute_exact_and_keeps_existing_guards(self):
+        initial = {**self.initial, "requested_executable": "C:/fixture/launcher.exe"}
+        for expected in ("child.exe", "", 0):
+            with self.subTest(expected=expected), self.assertRaisesRegex(ObservationRefused, "invalid_effective_executable"):
+                handoff_identity(initial, self.parent, self.parent, self.child, self.metadata, self.parent.executable,
+                                 expected_effective_executable=expected)
+        cases = [
+            (self.parent, self.child, self.metadata, "C:/fixture/wrong.exe"),
+            (replace(self.parent, creation_time=101), self.child, self.metadata, self.child.executable),
+            (self.parent, replace(self.child, creation_time=200), self.metadata, self.child.executable),
+            (self.parent, self.child, {**self.metadata, "ParentProcessId": 99}, self.child.executable),
+        ]
+        for parent, child, metadata, expected in cases:
+            with self.subTest(parent=parent, child=child, expected=expected), self.assertRaises(ObservationRefused):
+                handoff_identity(initial, self.parent, parent, child, metadata, self.parent.executable,
+                                 expected_effective_executable=expected)
 
     def test_stale_late_wrong_image_and_unsuccessful_launch_refuse(self):
         cases = [

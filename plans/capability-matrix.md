@@ -15,7 +15,7 @@ This is the operational product-version checkpoint. The tables below are checked
 | `abi` | `12.1` |
 | `rust` | `1.99.1` |
 
-The signed product remains installed. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Review 0115 is also consumed after one observed initial exit53 and complete signed rollback (decision 0116). Its meaning remains unknown; no phase is accepted or retry authorized. Join/Leave and private profile resolution remain unavailable in the product. Client stays closed; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. Browser acceptance for the external viewer remains pending. See [next-up.md](next-up.md) for the latest source verification and next actions.
+The signed product remains installed. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Review 0115 is also consumed after one observed initial exit53 and complete signed rollback (decision 0116). Its meaning remains unknown; no phase is accepted or retry authorized. Join/Leave and private profile resolution remain unavailable in the product. Client stays closed; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. One native desktop BrowserOS viewer fixture now passes interaction, raw-profile and PNG-export acceptance (decision 0119); game rendering/contact and broader responsive interaction remain unverified. See [next-up.md](next-up.md) for the latest source verification and next actions.
 
 ## Inactive damage-hook coverage consumer
 
@@ -27,7 +27,11 @@ Decision 0114 adds an optional record-before-refusal helper and inactive control
 
 ## Selection measurement correspondence
 
-Decision 0117 fixes reference measurements for selected pins, captured cell minima and proposed target minima. Origin switching/clearing preserves observed/planned labels. Expanded DOM tests and six independent Python arithmetic checks over 4,096 fresh native cells pass. Browser visual acceptance remains pending; no MCP schema, installed behavior or native control changes.
+Decision 0117 fixes reference measurements for selected pins, captured cell minima and proposed target minima. Origin switching/clearing preserves observed/planned labels. Expanded DOM tests and six independent Python arithmetic checks over 4,096 fresh native cells pass. One desktop BrowserOS fixture now passes visual/input/export acceptance with 32 independent native-band checks (decision 0119). Broader responsive interaction and game rendering/contact remain unverified; no MCP schema, installed behavior or native control changes.
+
+## Explicit process image roles
+
+Decision 0118 qualifies an optional absolute expected effective image with ten owned-process/refusal methods. Default same-image behavior and nonzero-exit/identity gates remain. A documented Steam launch parameter motivates a candidate route; no Steam/game orchestration, exit53 meaning or native executor is accepted.
 
 ## Historical development checkpoints
 

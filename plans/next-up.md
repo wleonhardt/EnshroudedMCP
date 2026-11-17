@@ -2,6 +2,10 @@
 
 ## Queue
 
+- **browser fixture accepted; technical terrain viewer** Decision 0119 verifies real BrowserOS pin/cell/proposed-target interaction, exact sections, origin changes/clear, outside disabling, 32 independently matched raw profile bands and PNG export. Screenshots and export inspected at native desktop viewport. Emulated-viewport interaction remains unverified. Retained 4096-cell data is historical; game rendering/contact and lifecycle remain unaccepted. Owned browser tabs closed; no game launch or installed change.
+
+- **source/process qualified; explicit handoff image roles** Decision 0118 adds an optional absolute expected effective image, retaining the old default and all exit/parent/order/linkage gates. Ten methods pass, including real owned cmd-to-Python handoff and continued code53 refusal. Valve documentation supports a candidate Steam launch parameter; no Steam/game request or exit53 interpretation is qualified. Next stage and model supported orchestration before any new runtime review.
+
 - **source/native-data replay verified; measure all viewer selections** Decision 0117 fixes reference measurements for captured cell minima and proposed target minima while preserving existing pin behavior and observation/planning labels. Origin changes and None update/clear exactly once. All 16 terrain cases pass; Python remains 100 methods with expanded event scenarios. Six outputs over a fresh 4096-cell native survey match independent Python arithmetic. Browser visual acceptance remains pending; no mod/schema/version or installed change.
 
 - **native attempt stopped; initial exit53 retained** Decision 0116 consumes approved review 0115 after one phase-one launch. Two held-handle samples retain running then exited53; refusal stops binding, retry and phase two. Cleanup-only readiness reobservation leads to one exact held close/exit0, then all five originals, twelve hashes and durable namespace are restored. Numerical code is known; its meaning/cause remains unknown. Next inspect a published supported launch route, not another unchanged trial.

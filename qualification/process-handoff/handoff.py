@@ -73,7 +73,8 @@ def direct_identity(initial, current):
     return {"mode": "direct", "effective_pid": current.pid, "full_precision_identity_verified": True}
 
 
-def handoff_identity(initial, parent_before, parent_now, child, metadata, expected_parent_executable):
+def handoff_identity(initial, parent_before, parent_now, child, metadata, expected_parent_executable,
+                     *, expected_effective_executable=None):
     require(initial["state"] == "exited" and initial["exit_code"] == 0, "launcher_exit_not_successful")
     require(parent_before.pid == parent_now.pid and parent_before.creation_time == parent_now.creation_time,
             "parent_identity_changed")
@@ -82,7 +83,9 @@ def handoff_identity(initial, parent_before, parent_now, child, metadata, expect
     require(child.pid not in (initial["pid"], parent_now.pid), "handoff_pid_not_distinct")
     require(parent_before.creation_time < initial["creation_time"] < child.creation_time
             <= initial["creation_time"] + 30 * 10000000, "handoff_creation_order_invalid")
-    require(same_path(child.executable, initial["requested_executable"]), "effective_image_mismatch")
+    expected = initial["requested_executable"] if expected_effective_executable is None else expected_effective_executable
+    require(isinstance(expected, str) and ntpath.isabs(expected), "invalid_effective_executable")
+    require(same_path(child.executable, expected), "effective_image_mismatch")
     require(metadata["ProcessId"] == child.pid and metadata["ParentProcessId"] == parent_now.pid,
             "child_parent_link_mismatch")
     require(same_path(metadata["ExecutablePath"], child.executable), "child_metadata_image_mismatch")
