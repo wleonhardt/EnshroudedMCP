@@ -168,3 +168,7 @@ Decision 0118 advances goals2/3 with explicit launcher/effective-image observati
 ## Signed Steam Menu checkpoint — 2026-11-17
 
 Decision 0120 advances goals2/3 with one original-signed startup, owned fresh Menu, three loaded hashes, native header, thirteen reads/refusals, client contract and exact exit0/preservation. Twenty-two controller models pass. This is ordinary Steam orchestration, not native Join/Leave or an MCP process executor. Next freeze a fresh provider review around this route; provider replacement still requires an explicit exception. Simulation snapshot never/session0, rendering and earlier exit53 meaning remain unresolved.
+
+## Fresh Steam provider-review checkpoint — 2026-11-17
+
+Decision0121 stages goals2/3 next discriminator: exact two-phase Menu closure using the signed-baseline Steam route. Thirty controller model methods, ten owned-process helper methods, candidate/rollback/source closure and stale-copy refusal pass. No installation or game launch. Fresh explicit provider exception is required before execution; native compatibility, Join/Leave and credentials stay unqualified.

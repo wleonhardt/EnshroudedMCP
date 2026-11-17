@@ -21,6 +21,10 @@ The signed product remains installed. Decision 0099 verifies server columns/read
 
 Decision 0120 verifies one original-signed Steam startup: initial exit0, independently owned child/listener and fresh copied Menu, three loaded hashes, ABI12.1/table1680, thirteen fixed read/refusal checks and full client contract. One exact close exits0; twelve installed hashes and durable baseline remain unchanged. Native simulation snapshot stays never/session0, broad verdict incomplete. No environment-forwarding, native lifecycle, unsigned-provider, rendered or exit53-cause claim. Twenty-two private controller models pass; new cleanup metadata is model-only. Next freeze a fresh provider review; consumed approvals remain unusable.
 
+## Fresh Steam provider review
+
+Decision0121 stages a new two-phase Menu-only closure around decision0120 signed startup. Thirty private controller methods cover both-phase launch/refusal, cleanup and transitions; ten actual owned-process helper methods pass. Four candidates/five rollback originals, frozen probes and archived405/97 source closure are verified. Fresh preflight/stale-copy refusal pass. No approval, installed change or game launch; fresh explicit decision0059 exception required. Prior reviews remain consumed. Header/read acceptance, lifecycle and rendering remain unqualified for this candidate.
+
 ## Inactive damage-hook coverage consumer
 
 Decision 0112 qualifies an independent read-only SDK e8dc967 / ABI 12.14 / Rust 1.100.0 consumer. Private/public debug and optimized cohorts each pass seven cases, strict lint and formatting; they preserve unavailable/init errors, grouped missing sites and exact integer cause codes. This is a hook-coverage diagnostic, not health, damage protection, pacification or quiet-condition proof. Product private/public cohorts each pass 409 Rust/100 Python and required checks; these remain separate from native acceptance. No product tool, provider adoption or installation changes; native correspondence and a scheduled game-thread route remain prerequisites.
