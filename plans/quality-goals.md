@@ -72,3 +72,8 @@ Goals 1, 2 and 4 gain complete request-scoped source diagnostics under decision 
 ## Sampled column-profile checkpoint — 2026-11-17
 
 Goals 1 and 5 gain a source-verified complete vertical profile at selected snapshot points under decision 0095. Exact raw bands and outside/half-open behavior pass 97 Python cases and fresh 16-band native-data DOM correspondence. Current MCP image production is observed independently. Browser visual/layout acceptance remains pending a disconnected BrowserOS link; source DOM checks do not close it. No engine surface/contact claim, gameplay command or installed change occurs.
+
+
+## Controlled journal-termination checkpoint — 2026-11-17
+
+Goals 1 and 4 now distinguish forced process death from graceful reopen and injected return errors under decision 0096. Controlled one/full-record progress uses actual owned-worker termination, independent file comparison and fresh-process zero-credit/old-owner refusal. SDK-free debug/release and private 401 Rust/97 Python checks pass. Production code and current runtime remain unchanged. Actual storage sync failure, power loss, higher-level/native recovery, browser visual acceptance and the Menu exception remain open.

@@ -278,3 +278,7 @@ mod tests {
         fs::remove_dir_all(other).unwrap();
     }
 }
+
+#[cfg(test)]
+#[path = "journal_process_tests.rs"]
+mod process_tests;

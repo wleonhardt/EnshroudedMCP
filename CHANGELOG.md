@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add controlled process-termination coverage for the existing journal adapter. Owned workers stop after partial/full progress before explicit sync; independent reopen preserves exact observed bytes, loses session credit and refuses the old owner. No runtime behavior, hardware durability or native recovery claim changes.
+
 - Add complete sampled vertical column profiles to the external terrain inspector when selecting pins, cells or proposed targets. Preserve raw bands and half-open/outside semantics without new reads or gameplay control. Source/native-data DOM checks pass; browser visual acceptance remains pending.
 
 - Add a distinct current-base optional timing probe that preserves companion 0.21.1 final admission checks and retains each complete request interval. Forty-two controlled/ordinary intervals have zero dropped rows; historical latency causes and native timing remain unverified. No installed or product behavior changes.
