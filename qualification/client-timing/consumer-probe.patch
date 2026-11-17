@@ -1,0 +1,299 @@
+--- a/crates/client/src/control.rs
++++ b/crates/client/src/control.rs
+@@ -52,6 +52,7 @@
+     confirm: Option<&str>,
+     dir: Option<&Path>,
+ ) -> Result<(), String> {
++    let _trace = timing::Scope::new("admission_total");
+     write_gate::check(
+         dry,
+         true,
+@@ -60,6 +61,7 @@
+     )
+ }
+ fn journal_size(dir: &Path) -> Result<u64, String> {
++    let _trace = timing::Scope::new("journal_metadata");
+     match fs::metadata(dir.join("journal.jsonl")) {
+         Ok(meta) if meta.is_file() => Ok(meta.len()),
+         Ok(_) => Err("client command journal must be a regular file".into()),
+@@ -70,13 +72,15 @@
+ fn append(dir: &Path, value: &Value) -> Result<(), String> {
+     let line = json!({"tool":"client_command","result":value}).to_string() + "\n";
+     write_gate::journal_budget(journal_size(dir)?, line.len(), 0)?;
+-    let mut file = OpenOptions::new()
+-        .create(true)
+-        .append(true)
+-        .open(dir.join("journal.jsonl"))
+-        .map_err(|e| e.to_string())?;
+-    file.write_all(line.as_bytes())
+-        .and_then(|()| file.sync_all())
++    let mut file = timing::timed("journal_open", || {
++        OpenOptions::new()
++            .create(true)
++            .append(true)
++            .open(dir.join("journal.jsonl"))
++    })
++    .map_err(|e| e.to_string())?;
++    timing::timed("journal_write", || file.write_all(line.as_bytes()))
++        .and_then(|()| timing::timed("journal_sync", || file.sync_all()))
+         .map_err(|e| e.to_string())
+ }
+ fn path(dir: &Path, operation: &str) -> std::path::PathBuf {
+@@ -85,7 +89,7 @@
+ }
+ fn reserve(dir: &Path, operation: &str, intent: &Value) -> Result<(), String> {
+     let namespace = dir.join("client-commands");
+-    match fs::read_dir(&namespace) {
++    match timing::timed("namespace_read_dir", || fs::read_dir(&namespace)) {
+         Ok(entries) => {
+             for (index, entry) in entries.enumerate() {
+                 entry.map_err(|e| e.to_string())?;
+@@ -98,19 +102,24 @@
+     gate::journal_headroom(journal_size(dir)?, 3)?;
+     let bytes = serde_json::to_vec(intent).map_err(|e| e.to_string())?;
+     write_gate::journal_budget(0, bytes.len(), 0)?;
+-    fs::create_dir_all(namespace).map_err(|e| e.to_string())?;
+-    let mut file = OpenOptions::new()
+-        .write(true)
+-        .create_new(true)
+-        .open(path(dir, operation))
++    timing::timed("namespace_create", || fs::create_dir_all(namespace))
+         .map_err(|e| e.to_string())?;
+-    file.write_all(&bytes)
+-        .and_then(|()| file.sync_all())
++    let mut file = timing::timed("marker_open", || {
++        OpenOptions::new()
++            .write(true)
++            .create_new(true)
++            .open(path(dir, operation))
++    })
++    .map_err(|e| e.to_string())?;
++    timing::timed("marker_write", || file.write_all(&bytes))
++        .and_then(|()| timing::timed("marker_sync", || file.sync_all()))
+         .map_err(|e| e.to_string())?;
++    timing::after_marker_sync();
+     append(dir, intent)
+ }
+ fn context(input: Input) -> Result<gate::Context, String> {
+-    let snapshot = input.client_snapshot().map_err(|e| e.to_string())?;
++    let snapshot =
++        timing::timed("snapshot_getter", || input.client_snapshot()).map_err(|e| e.to_string())?;
+     Ok(gate::Context {
+         fresh: snapshot.state() == SnapshotState::Fresh,
+         age_ms: snapshot.age_ms(),
+@@ -193,6 +202,8 @@
+         dir: Option<&Path>,
+         queued: Instant,
+     ) -> Result<Value, String> {
++        let _trace = timing::Scope::new("run_total");
++        timing::age("entry", queued.elapsed());
+         admission(spec.dry, spec.confirm.as_deref(), dir)?;
+         let request = gate::payload(&spec.action);
+         if let Some(entry) = self.operations.get(&spec.operation) {
+@@ -230,7 +241,8 @@
+             observed_at: None,
+         };
+         let result = (|| {
+-            reserve(dir, &spec.operation, &intent)?;
++            timing::timed("reserve_total", || reserve(dir, &spec.operation, &intent))?;
++            timing::age("after_reserve", queued.elapsed());
+             admission(false, spec.confirm.as_deref(), Some(dir))?;
+             gate::deadline(queued.elapsed())?;
+             let now = context(input)?;
+@@ -240,7 +252,8 @@
+                 .on_screen(now.screen.as_deref().unwrap());
+             // Record uncertainty before the call. Never reconstruct an id or redispatch this identity.
+             entry.result["native_submitted"] = json!(true);
+-            let id = input.client_command(&command).map_err(|e| e.to_string())?;
++            let id = timing::timed("native_submit", || input.client_command(&command))
++                .map_err(|e| e.to_string())?;
+             entry.id = Some(id);
+             entry.terminal = false;
+             entry.result["state"] = json!("queued");
+@@ -361,6 +374,99 @@
+     }
+ }
+
++// Disposable source instrumentation. Never install this consumer.
++mod timing {
++    use std::{
++        cell::RefCell,
++        time::{Duration, Instant},
++    };
++    #[derive(Default)]
++    struct Trace {
++        rows: Vec<(&'static str, &'static str, Duration)>,
++        dropped: usize,
++        delay: bool,
++    }
++    thread_local! { static TRACE: RefCell<Trace> = RefCell::new(Trace::default()); }
++    #[cfg(test)]
++    pub(super) fn begin() {
++        TRACE.with(|t| {
++            *t.borrow_mut() = Trace {
++                rows: Vec::with_capacity(128),
++                ..Trace::default()
++            }
++        });
++    }
++    fn record(kind: &'static str, stage: &'static str, elapsed: Duration) {
++        TRACE.with(|t| {
++            let mut t = t.borrow_mut();
++            if t.rows.len() < 128 {
++                t.rows.push((kind, stage, elapsed));
++            } else {
++                t.dropped += 1;
++            }
++        });
++    }
++    pub(super) fn age(stage: &'static str, elapsed: Duration) {
++        record("queued_age", stage, elapsed);
++    }
++    pub(super) fn timed<T>(stage: &'static str, work: impl FnOnce() -> T) -> T {
++        let start = Instant::now();
++        let result = work();
++        record("duration", stage, start.elapsed());
++        result
++    }
++    pub(super) struct Scope(&'static str, Instant);
++    impl Scope {
++        pub(super) fn new(stage: &'static str) -> Self {
++            Self(stage, Instant::now())
++        }
++    }
++    impl Drop for Scope {
++        fn drop(&mut self) {
++            record("duration", self.0, self.1.elapsed());
++        }
++    }
++    #[cfg(test)]
++    pub(super) fn arm_delay() {
++        TRACE.with(|t| t.borrow_mut().delay = true);
++    }
++    pub(super) fn after_marker_sync() {
++        let delay = TRACE.with(|t| std::mem::take(&mut t.borrow_mut().delay));
++        if delay {
++            timed("injected_after_marker_sync_wait", || {
++                std::thread::sleep(policy::client_control::WAIT + Duration::from_millis(50))
++            });
++        }
++    }
++    #[cfg(test)]
++    pub(super) fn count(stage: &str) -> usize {
++        TRACE.with(|t| {
++            t.borrow()
++                .rows
++                .iter()
++                .filter(|(_, name, _)| *name == stage)
++                .count()
++        })
++    }
++    #[cfg(test)]
++    pub(super) fn injected_wait_exceeded_deadline() -> bool {
++        TRACE.with(|t| {
++            t.borrow().rows.iter().any(|(_, name, elapsed)| {
++                *name == "injected_after_marker_sync_wait"
++                    && *elapsed >= policy::client_control::WAIT
++            })
++        })
++    }
++    #[cfg(test)]
++    pub(super) fn report() {
++        TRACE.with(|t| {
++            let t = t.borrow();
++            let rows: Vec<_> = t.rows.iter().map(|(kind, stage, elapsed)| serde_json::json!({"kind":kind,"stage":stage,"elapsed_us":elapsed.as_micros()})).collect();
++            eprintln!("CLIENT_TIMING {}", serde_json::json!({"rows":rows,"dropped":t.dropped,"limit":128,"game_executed":false}));
++        });
++    }
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+@@ -379,6 +485,7 @@
+     struct Fixture(std::path::PathBuf);
+     impl Fixture {
+         fn new() -> Self {
++            timing::begin();
+             let parent =
+                 Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/client-control-tests");
+             fs::create_dir_all(&parent).unwrap();
+@@ -396,6 +503,7 @@
+     }
+     impl Drop for Fixture {
+         fn drop(&mut self) {
++            timing::report();
+             fs::remove_dir_all(&self.0).unwrap();
+         }
+     }
+@@ -426,6 +534,70 @@
+             ..Raw::EMPTY
+         }
+     }
++
++    #[test]
++    fn timed_post_sync_wait_refuses_before_native_and_retains_once_only_identity() {
++        let loader = enshwick::test::FakeHost::new()
++            .side(Side::CLIENT)
++            .player_input()
++            .install();
++        // SAFETY: these are this test module's generated fake-host exports.
++        assert_eq!(
++            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
++            enshwick::abi::Status::OK
++        );
++        let input = *INPUT.lock().unwrap();
++        loader.set_client_snapshot(snapshot(1, "InGame", ""));
++        let fixture = Fixture::new();
++        fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
++        let dir = Some(fixture.0.as_path());
++        let mut state = State::default();
++        let preview = state
++            .run(dry("timed-expiry"), input, dir, Instant::now())
++            .unwrap();
++        let write = real(dry("timed-expiry"), &preview);
++        timing::arm_delay();
++        let refused = state
++            .run(write.clone(), input, dir, Instant::now())
++            .unwrap();
++        assert_eq!(refused["state"], "refused_or_unknown", "{refused}");
++        assert_eq!(
++            refused["error"],
++            "client command deadline expired before native submission"
++        );
++        assert_eq!(refused["native_submitted"], false);
++        assert!(loader.client_commands().is_empty());
++        assert!(timing::injected_wait_exceeded_deadline());
++        let reservation = fs::read(path(&fixture.0, "timed-expiry")).unwrap();
++        let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
++        assert_eq!(
++            String::from_utf8(journal.clone()).unwrap().lines().count(),
++            2
++        );
++        assert_eq!(
++            retained_outcome(
++                state
++                    .run(write.clone(), input, dir, Instant::now())
++                    .unwrap()
++            ),
++            retained_outcome(refused)
++        );
++        assert!(
++            State::default()
++                .run(write, input, dir, Instant::now())
++                .unwrap_err()
++                .contains("prior boot")
++        );
++        assert!(loader.client_commands().is_empty());
++        assert_eq!(
++            fs::read(path(&fixture.0, "timed-expiry")).unwrap(),
++            reservation
++        );
++        assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
++        assert_eq!(timing::count("marker_sync"), 1);
++        assert_eq!(timing::count("injected_after_marker_sync_wait"), 1);
++    }
++
+     #[test]
+     fn native_dispatch_replay_cancel_reload_and_audit_failures_never_duplicate_input() {
+         let loader = enshwick::test::FakeHost::new()

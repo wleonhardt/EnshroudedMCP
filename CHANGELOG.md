@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add an optional, exact-base client timing qualification patch. Bounded synthetic traces separate queued age, reservation stages and a deliberate post-sync wait. The induced deadline refusal preserves once-only identity without native submission; historical latency causes and native scheduling remain unverified.
+
 - Add a scripted published-ABI fixture for context changes after durable command intent. Fresh valid context dispatches once; stale, changed-session and changed-HUD contexts refuse before native submission and retain once-only identity across replay/reopen. This is source fault coverage, not native timing or interruption acceptance.
 
 - Preserve retained synthetic results when two native-command fixtures fail before dispatch assertions. Test failures now expose refusal/audit details; production code, versions, deadlines and runtime behavior are unchanged. The original intermittent causes remain unresolved.
