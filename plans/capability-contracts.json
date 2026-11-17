@@ -64,6 +64,24 @@
       "temporary_primary_client_test_performed": true,
       "primary_installation_restored": true,
       "native_client_evidence": "plans/decisions/0083-native-client-provider-menu-qualification.md"
+    },
+    "lifecycle_current_candidate": {
+      "sdk_revision": "6a5966ee6683fde480ac9dd3654f91e73da6e2a5",
+      "abi": "12.11",
+      "rust": "1.100.0",
+      "server_version": "0.47.0",
+      "client_version": "0.21.0",
+      "source_only": true,
+      "source_base": "d745bc15c0f801d5a6fc601358935368f4c8afaf",
+      "source_patch": "qualification/sdk-lifecycle/consumer-current-candidate.patch",
+      "patch_sha256": "3d00f60209e05accfae9c76ab805c0c0c7a862e1d9655e3e516cb22e4ccd3127",
+      "source_tree": "a570197af25de6616d113771f6ea50554b952c1e",
+      "source_evidence": "plans/decisions/0085-current-base-lifecycle-sdk-replay.md",
+      "native_candidate_qualified": false,
+      "lifecycle_mcp_route_implemented": false,
+      "credential_resolver_implemented": false,
+      "primary_installation_changed": false,
+      "status": "current-base candidate and clean replay each pass 398 Rust/96 Python and required checks; not installed"
     }
   },
   "counts": {

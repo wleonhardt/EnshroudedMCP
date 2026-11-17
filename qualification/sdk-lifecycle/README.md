@@ -47,6 +47,23 @@ Use the compiler version described above. Source compilation and fake-model resu
 
 Candidate and clean replay each pass 391 Rust executions, 94 Python tests, strict Clippy, formatting, releases and offline contract checks. All 237 tracked files match after newline normalization and independently reconstruct Git tree `b727eccea31031d012f608d7bf4f9f3ce74a9e0b`. Patch SHA-256: `a9978fd8d605d28579165e9caf22fbc4cb1716f5733ff32a689cc4e29ff2c3ec`. See [decision 0077](../../plans/decisions/0077-replayable-lifecycle-sdk-candidate.md) for evidence limits.
 
+## Current-product migration candidate
+
+The separate [current-base patch](consumer-current-candidate.patch) applies only to public `d745bc15c0f801d5a6fc601358935368f4c8afaf`, server 0.47.0 / companion 0.21.0. It preserves the historical 0.46.1 patch above. Fourteen paths update exact SDK/compiler provenance, lock graph, five fake snapshot prerequisites, runtime-header compiled expectations, source profiles and fixed probes. No production guard, deadline, schema, tool inventory or lifecycle route changes.
+
+Candidate and clean replay each pass 398 Rust executions, 96 Python tests, strict Clippy, formatting, releases and contract checks with Rust/Cargo 1.100.0. All 250 normalized tracked files agree. Both source indices and a separately applied canonical patch reconstruct tree `a570197af25de6616d113771f6ea50554b952c1e`. Patch SHA-256: `3d00f60209e05accfae9c76ab805c0c0c7a862e1d9655e3e516cb22e4ccd3127`.
+
+Resolve this patch before checking out its exact base, then use the same locked check commands and explicit compiler verification above:
+
+```powershell
+$currentMigrationPatch = (Resolve-Path qualification/sdk-lifecycle/consumer-current-candidate.patch).Path
+git worktree add --detach ../enshrouded-mcp-current-sdk-check d745bc15c0f801d5a6fc601358935368f4c8afaf
+git -C ../enshrouded-mcp-current-sdk-check apply --check $currentMigrationPatch
+git -C ../enshrouded-mcp-current-sdk-check apply $currentMigrationPatch
+```
+
+Candidate DLLs are not installed or native-qualified. Their declared mod IDs, directory coherence, endpoint exclusivity and rollback require a separate concrete runtime procedure. The active signed SDK remains ABI 12.1 and the client remains closed. Earlier bounded provider and legacy-client Menu experiments do not qualify this current consumer, real Join/Leave, credentials or selected-character/peer identity. See [decision 0085](../../plans/decisions/0085-current-base-lifecycle-sdk-replay.md).
+
 ## Native provider-header probe
 
 The crate also builds `sdk_lifecycle_qualification.dll`, an opt-in diagnostic mod with side `both`. Its initialization copies the published immutable `Host::api().header` into one exclusively created `provider-observation.json` in its own mod directory. It records the actual provider ABI/table size separately from compiled SDK values. It acquires no World or Input handles and submits no command. This introduces no World-thread exception or MCP endpoint.

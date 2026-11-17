@@ -4,6 +4,8 @@ Updated: 2026-11-16. Status: all 50 source tools have explicit contract/evidence
 
 ## Profiles and evidence rules
 
+A distinct current-product SDK 12.11 migration now replays against exact public d745bc1 (0.47.0/0.21.0). Candidate and clean replay each pass 398 Rust/96 Python plus required checks; all 250 normalized files reconstruct the same Git tree. The fourteen-file artifact preserves the historical 0.46.1 patch. Current-candidate native execution, credentials, lifecycle and adoption remain open (decision 0085).
+
 Matched 0.47.0/0.21.0 now passes native runtime-header acceptance on signed ABI 12.1/table 1680. Forty server and thirteen client Menu probes, full contracts, two header-override refusals, exact loaded files and protected/cold/durable preservation pass. Client closes with independent exit 0; no Join/Leave, actor or rendered acceptance is inferred (decision 0084).
 
 An explicitly approved temporary client test now verifies actual ABI 12.11/table1744, fresh copied Menu, four loaded hashes and thirteen unchanged legacy companion read/refusal probes. One ordinary window-close exits 0; exact signed originals and durable baselines are restored. This is bounded Menu/header/read acceptance, not native Join/Leave, character, rendered or release qualification (decision 0083).

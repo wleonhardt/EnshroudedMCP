@@ -42,3 +42,5 @@ Decision 0082 adds actual immutable runtime header metadata to both capability r
 Decision 0083 completes an explicitly approved temporary ABI 12.11 client Menu/header/legacy-read experiment and exact rollback. General provider trust, native Join/Leave, profile/credential resolution, character/peer/roster and rendered workflow acceptance remain open.
 
 Decision 0084 qualifies matched 0.47.0/0.21.0 actual signed-provider headers, server reads, client Menu and exact preservation. Goal2 still requires a current-base SDK migration replay and separate lifecycle/provenance acceptance; broader gameplay, scene and workshop outcomes remain open.
+
+Decision 0085 qualifies a distinct current-product SDK 12.11 source migration and clean replay against 0.47.0/0.21.0. Required checks and independent tree reconstruction pass without changing the signed installation. Native new-consumer, lifecycle, selected-character/peer and credential gates remain open.
