@@ -160,6 +160,79 @@ mod tests {
         durability_failure(100);
     }
     #[test]
+    fn real_windows_write_lock_preserves_bytes_and_both_recovery_owners() {
+        let d = dir();
+        reserve(&d, "a", 100, 0).unwrap();
+        reserve(&d, "b", 100, 0).unwrap();
+        let path = d.join("journal.jsonl");
+        let mut file = fs::File::create(&path).unwrap();
+        file.write_all(b"independent-prefix\n").unwrap();
+        let initial = policy::construction::JOURNAL_MAX_BYTES as u64 - 200;
+        file.set_len(initial).unwrap();
+        file.sync_all().unwrap();
+        drop(file);
+        let before = fs::read(&path).unwrap();
+        let observation = report(&d, &serde_json::Map::new()).unwrap();
+        assert_eq!(observation["retained_recovery_bytes"], 200);
+        assert_eq!(observation["recovery_reservation_count"], 2);
+        assert_eq!(observation["unreserved_bytes"], 0);
+        assert_eq!(observation["over_capacity"], false);
+        assert_eq!(observation["write_authorized"], false);
+
+        let locked = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(&path)
+            .unwrap();
+        locked.try_lock().unwrap();
+        // A distinct append handle opens successfully; the kernel refuses its write.
+        let mut independent = OpenOptions::new().append(true).open(&path).unwrap();
+        let write_error = independent.write_all(b"x").unwrap_err();
+        assert_eq!(write_error.raw_os_error(), Some(33)); // ERROR_LOCK_VIOLATION
+        assert_eq!(independent.metadata().unwrap().len(), initial);
+        drop(independent);
+        assert_eq!(
+            append(&d, &[b'a'; 75], 0, Some("a")).unwrap_err(),
+            format!("journal durability failed: {write_error}")
+        );
+        assert_eq!(report(&d, &serde_json::Map::new()).unwrap(), observation);
+        locked.unlock().unwrap();
+        drop(locked);
+        assert_eq!(fs::read(&path).unwrap(), before);
+
+        // Deliberate adapter calls after unlocking spend only the named owner's credit.
+        append(&d, &[b'a'; 75], 0, Some("a")).unwrap();
+        assert_eq!(
+            report(&d, &serde_json::Map::new()).unwrap()["retained_recovery_bytes"],
+            125
+        );
+        recovery(&d, "b", 100, true).unwrap();
+        assert!(recovery(&d, "a", 100, true).is_err());
+        assert!(append(&d, b"x", 0, None).is_err());
+        append(&d, &[b'a'; 25], 0, Some("a")).unwrap();
+        append(&d, &[b'b'; 100], 0, Some("b")).unwrap();
+        let mut expected = before;
+        expected.extend_from_slice(&[b'a'; 100]);
+        expected.extend_from_slice(&[b'b'; 100]);
+        assert_eq!(fs::read(&path).unwrap(), expected);
+        assert_eq!(expected.len(), policy::construction::JOURNAL_MAX_BYTES);
+        assert_eq!(
+            report(&d, &serde_json::Map::new()).unwrap()["retained_recovery_bytes"],
+            0
+        );
+        reset(&d).unwrap();
+        assert!(
+            d.canonicalize().unwrap().starts_with(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("../..")
+                    .canonicalize()
+                    .unwrap()
+            )
+        );
+        fs::remove_file(path).unwrap();
+        fs::remove_dir(d).unwrap();
+    }
+    #[test]
     fn capacity_observes_synced_bytes_without_disclosing_or_changing_reservations() {
         let d = dir();
         reserve(&d, "private_owner", 100, 0).unwrap();

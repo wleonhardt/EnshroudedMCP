@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Real Windows write-boundary qualification now passes after successful append open (decision 0108). Kernel error 33 preserves all bytes and 200 retained recovery bytes; an isolated early-debit mutation fails at 125. Private product checks pass 408 Rust/97 Python and required checks; optional debug/release each pass 18. Production journal code, installed runtime and pending Menu review are unchanged. Physical sync and native recovery remain open.
+
 A fresh temporary Menu review now binds a held-launcher controller, frozen process/probe source, four candidates and five originals (decision 0107). Eleven model cases pass without a process launch; six owned-process fixtures separately qualify Windows observations. Current signed runtime is preserved. Explicit exception remains pending; real Steam/Menu/new-consumer acceptance and adoption remain open.
 
 Optional process-handoff qualification now observes an exact held launcher handle, full-precision identity/linkage and sole loopback ownership (decision 0106). Six Python-only cases include direct/handoff branches and actual exits 0/7/259. Missing exited image remains unknown. No MCP capability, game launch, Steam/Menu acceptance or installed change is added.

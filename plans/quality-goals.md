@@ -114,3 +114,8 @@ Decision 0106 advances the goal 2 qualification path and the process-observation
 ## Fresh held-launcher Menu review — 2026-11-17
 
 Decision 0107 advances goals 2 and 3 by integrating the held-handle witness into a source-hashed private controller before proposing another runtime attempt. Eleven controller models, frozen helpers/probes, four candidates, five originals and stale-copy refusal pass. Source cohorts remain distinct: frozen SDK variant 405/97, active product 406/97. No game launch, installation or new native acceptance occurs. The concrete two-phase Menu exception remains pending; consumed review 0103 cannot be reused. Lifecycle execution, credential ownership and adoption need separate qualification.
+
+
+## Real journal write-error boundary — 2026-11-17
+
+Decision 0108 advances goal 4 with an actual Windows write failure after successful open. Exact bytes, both owners' retained credit and named-owner spending remain correct; an isolated early-debit mutation is detected by the new case. Private checks pass 408 Rust/97 Python and required checks; optional debug/release each pass 18. Runtime code and signed installation remain unchanged. Real partial progress, physical sync/power loss and operation/native recovery remain separate. Pending Menu review 0107 stays byte-identical with its own staged source counts.

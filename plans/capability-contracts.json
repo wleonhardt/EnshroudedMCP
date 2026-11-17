@@ -333,9 +333,10 @@
         "plans/decisions/0069-native-staged-recovery-credit.md",
         "plans/decisions/0074-journal-pressure-qualification.md",
         "plans/decisions/0080-journal-process-boundary.md",
-        "plans/decisions/0096-controlled-journal-process-termination.md"
+        "plans/decisions/0096-controlled-journal-process-termination.md",
+        "plans/decisions/0108-real-journal-write-lock-refusal.md"
       ],
-      "source_checks": "Actual adapter pressure/open refusal and graceful process reopen pass decisions 0074/0080. Controlled pre-sync partial/full progress plus real owned-process termination passes decision 0096; fresh read-only reports preserve exact bytes and zero session credit, with old-owner refusal. No actual storage sync-failure or native interruption claim.",
+      "source_checks": "408-Rust source cohort includes real Windows write error 33 after successful open, exact bytes and both recovery allowances; isolated premature-debit mutation fails the new test. Read report still grants no write or native undo authority.",
       "native_acceptance": "Native owner lifecycle 0\u21921\u21922\u21921\u21920 and retained bytes 0\u2192196608\u2192393216\u2192196608\u21920 qualified; acceptance preserves credit.",
       "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
       "persistence_acceptance": "Graceful and controlled pre-sync forced-process reopen report exact observed file bytes and zero session recovery credit. No hardware durability or durable gameplay authority is inferred.",

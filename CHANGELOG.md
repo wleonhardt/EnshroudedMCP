@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Qualify a real Windows journal write-lock refusal after successful open, preserving exact bytes and both recovery owners. An isolated early-debit mutation fails the new case. Production adapter and runtime behavior remain unchanged; physical sync/power-loss recovery stays open.
+
 - Add optional read-only process-handoff qualification using the held launcher handle, full-precision identities and independent loopback ownership. Owned Python fixtures preserve unknown exited images and exact exit codes. No game launcher, MCP executor or runtime change.
 
 - Correct the grant source fixture to require and reconcile a deliberately withheld acknowledgement through the same identity without extra submission. Retain failed grant fixture bytes during unwinding. Runtime code and deadlines remain unchanged; organic latency remains unexplained.
