@@ -62,3 +62,8 @@ Goals 1, 2 and 4 now track the distinct 0.47.0/0.21.1 SDK 12.11 candidate. The f
 ## Current native-review staging checkpoint — 2026-11-17
 
 Goals 1, 2 and 4 now have a current-version Menu qualification review under decision 0093. The metadata-only consumer variant passes 399 Rust/96 Python and required checks. Current originals, candidate manifests, source-matched probes and stale-closure refusal are verified. No installed changes or launches occurred. The next runtime action requires the concrete temporary signed-provider exception; general lifecycle, credentials, rendering and native final-getter fault acceptance remain open.
+
+
+## Complete request-timing checkpoint — 2026-11-17
+
+Goals 1, 2 and 4 gain complete request-scoped source diagnostics under decision 0094. The current final-admission consumer retains 42 targeted intervals with zero dropped rows; controlled post-sync delay, getter delay and flag removal preserve once-only refusals. The optional copy passes 400 Rust/96 Python and strict checks; clean replay proves source correspondence only. No organic deadline refusal is observed. Native timing, historical latency cause and the pending Menu-review exception remain open.
