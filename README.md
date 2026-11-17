@@ -278,6 +278,8 @@ The request queues on the game thread, syncs exclusive `give-operations/grant-{o
 
 Repeat the original operation/player/item/count with `dry: true` to inspect retained same-session status. It never redispatches. Changed payload conflicts. Real replay still requires write admission and preview syntax; it only returns retained status. Reopened durable identities are unknown and cannot dispatch; old in-memory sessions refuse. Keep this namespace in cold archives and never remove identities to bypass capacity. A new ID is a new deliberate grant, not reconciliation or a hidden retry.
 
+Source regression qualification now withholds one SDK-fake acknowledgement until the caller returns the documented started/outcome-unknown response, then verifies same-ID dry reconciliation and exact submit counts (decision 0105). Failed grant fixtures retain exact marker/journal evidence during unwinding; normal cleanup remains. These checks do not establish organic latency causes or native inventory readback.
+
 `native_outcome_reported` and `given` report native commit/rollback, not independent inventory contents. `inventory_readback_verified` remains false. Late callbacks remain scoped to their original session; audit failures stay explicit in cache. There is no native undo, inventory-loss cleanup, automatic retry or survival accounting. Live inventory baseline/read-back, matched deployment and connected acceptance remain deferred while the client is unavailable.
 
 ## Copied native client state

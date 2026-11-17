@@ -271,10 +271,62 @@ mod tests {
     }
     impl Drop for Folder {
         fn drop(&mut self) {
+            if std::thread::panicking() {
+                eprintln!("retaining failed grant fixture: {}", self.0.display());
+                return;
+            }
             let dir = self.0.canonicalize().unwrap();
             assert!(dir.starts_with(&self.1) && dir != self.1);
             fs::remove_dir_all(dir).unwrap();
         }
+    }
+    #[test]
+    fn fixture_unwind_retains_exact_grant_evidence_while_success_cleans_up() {
+        let normal = Folder::new();
+        normal.enable();
+        let normal_path = normal.0.clone();
+        drop(normal);
+        assert!(!normal_path.exists());
+
+        let failed = Folder::new();
+        failed.enable();
+        reserve(
+            &failed.0,
+            "retention",
+            &json!({"kind":"give_item_intent","operation":"retention"}),
+            0,
+        )
+        .unwrap();
+        let dir = failed.0.clone();
+        let base = failed.1.clone();
+        let marker = path(&dir, "retention");
+        let marker_bytes = fs::read(&marker).unwrap();
+        let journal_bytes = fs::read(dir.join("journal.jsonl")).unwrap();
+        assert!(
+            std::panic::catch_unwind(move || {
+                let _owned = failed;
+                panic!("controlled grant fixture unwind");
+            })
+            .is_err()
+        );
+        assert_eq!(fs::read(&marker).unwrap(), marker_bytes);
+        assert_eq!(fs::read(dir.join("journal.jsonl")).unwrap(), journal_bytes);
+        assert_eq!(
+            fs::read_dir(&dir)
+                .unwrap()
+                .map(|entry| entry.unwrap().file_name())
+                .collect::<std::collections::BTreeSet<_>>(),
+            ["ALLOW_WRITES", "give-operations", "journal.jsonl"]
+                .into_iter()
+                .map(std::ffi::OsString::from)
+                .collect()
+        );
+        assert!(dir.canonicalize().unwrap().starts_with(base));
+        fs::remove_file(marker).unwrap();
+        fs::remove_file(dir.join("journal.jsonl")).unwrap();
+        fs::remove_file(dir.join(write_gate::FLAG)).unwrap();
+        fs::remove_dir(dir.join("give-operations")).unwrap();
+        fs::remove_dir(dir).unwrap();
     }
     fn actor(key: u64, entity: u32, label: &str) -> PlayerInfo {
         let mut name = [0; 128];
@@ -357,6 +409,45 @@ side = "server""#
     }
     #[test]
     fn native_grants_reconcile_pending_and_late_outcomes_without_replay_or_stale_dispatch() {
+        use enshwick::abi::{HostApi, InventoryRequest, InventoryResultFn, ModHandle};
+        use std::{cell::RefCell, ffi::c_void};
+        type Submit = extern "system" fn(
+            ModHandle,
+            *const InventoryRequest,
+            Option<InventoryResultFn>,
+            *mut c_void,
+        ) -> Status;
+        struct Script {
+            submit: Submit,
+            finished: Option<mpsc::Receiver<()>>,
+            calls: usize,
+            caller_finished_before_ack: bool,
+        }
+        thread_local! {
+            static SCRIPT: RefCell<Option<Script>> = const { RefCell::new(None) };
+        }
+        extern "system" fn delayed_submit(
+            me: ModHandle,
+            request: *const InventoryRequest,
+            done: Option<InventoryResultFn>,
+            user: *mut c_void,
+        ) -> Status {
+            SCRIPT.with(|slot| {
+                let mut slot = slot.borrow_mut();
+                let script = slot.as_mut().unwrap();
+                script.calls += 1;
+                let status = (script.submit)(me, request, done, user);
+                if script.calls == 1 {
+                    script.caller_finished_before_ack = script
+                        .finished
+                        .as_ref()
+                        .unwrap()
+                        .recv_timeout(grant::WAIT + Duration::from_secs(3))
+                        .is_ok();
+                }
+                status
+            })
+        }
         let f = Folder::new();
         f.enable();
         let loader = enshwick::test::FakeHost::new()
@@ -370,14 +461,37 @@ side = "server""#
             .player(actor(11, 9, "9"))
             .mod_dir(f.0.to_str().unwrap())
             .install();
-        // SAFETY: this module's Probe generates the init export.
-        assert_eq!(unsafe { loader.init(enshwick_mod_init) }, Status::OK);
+        // SAFETY: this installed fake supplies a full published API table.
+        let mut api: HostApi = unsafe { *loader.api() };
+        SCRIPT.with(|slot| {
+            *slot.borrow_mut() = Some(Script {
+                submit: api.inventory_submit,
+                finished: None,
+                calls: 0,
+                caller_finished_before_ack: false,
+            });
+        });
+        api.inventory_submit = delayed_submit;
+        let api = Box::leak(Box::new(api));
+        // SAFETY: the generated export receives its fake handle and an immutable
+        // process-lifetime table; only the fake submit acknowledgement is delayed.
+        assert_eq!(
+            unsafe { enshwick_mod_init(api, loader.handle()) },
+            Status::OK
+        );
+        // SAFETY: this fake's matching init just succeeded.
+        assert_eq!(unsafe { loader.ready(enshwick_mod_ready) }, Status::OK);
         assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
         let (control, game) = ADAPTER.lock().unwrap().as_ref().unwrap().clone();
         let drive = |request: Value| {
             let adapter = control.clone();
-            let worker =
-                std::thread::spawn(move || adapter.call(game, request.as_object().unwrap()));
+            let (finished, receiver) = mpsc::sync_channel(1);
+            SCRIPT.with(|slot| slot.borrow_mut().as_mut().unwrap().finished = Some(receiver));
+            let worker = std::thread::spawn(move || {
+                let result = adapter.call(game, request.as_object().unwrap());
+                let _ = finished.send(());
+                result
+            });
             let deadline = Instant::now() + Duration::from_secs(8);
             while !worker.is_finished() {
                 assert!(Instant::now() < deadline);
@@ -411,8 +525,11 @@ side = "server""#
         );
         let _ = loader.tick(Duration::from_millis(50));
         assert!(loader.inventory_requests().is_empty() && f.records().is_empty());
-        // Discard the submission acknowledgement, then reconcile the original caller identity.
-        let _ = drive(request.clone()).unwrap();
+        // The fake accepts once but withholds acknowledgement until the caller times out.
+        assert_eq!(
+            drive(request.clone()).unwrap_err(),
+            "grant started; outcome unknown; query the same operation dry and inspect inventory/journal, never blindly retry"
+        );
         let pending = drive(dry.clone()).unwrap();
         assert_eq!(pending["state"], "submitted_outcome_pending");
         assert!(pending["given"].is_null());
@@ -481,6 +598,12 @@ side = "server""#
         assert!(drive(real(stale, &stale_preview)).is_err());
         assert!(!path(&f.0, "stale").exists());
         assert!(loader.inventory_requests().is_empty());
+        SCRIPT.with(|slot| {
+            let slot = slot.borrow();
+            let script = slot.as_ref().unwrap();
+            assert!(script.caller_finished_before_ack);
+            assert_eq!(script.calls, 3);
+        });
         fs::remove_file(f.0.join(write_gate::FLAG)).unwrap();
     }
     #[test]

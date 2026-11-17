@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Correct the grant source fixture to require and reconcile a deliberately withheld acknowledgement through the same identity without extra submission. Retain failed grant fixture bytes during unwinding. Runtime code and deadlines remain unchanged; organic latency remains unexplained.
+
 - Add an inactive current-base command timing probe with explicit synthetic request provenance and deferred output for fast intervals. Unknown origin stays null and truncation remains visible. Controlled/source checks pass; six same-area trials do not resolve organic expiry. Product runtime and deadlines remain unchanged.
 
 - Retain synthetic client-command fixture directories and report their paths when tests unwind, preserving exact reservation/journal evidence for diagnosis. Normal cleanup remains. This test-only correction changes no runtime behavior or deadline and does not resolve prior timing intermittency.

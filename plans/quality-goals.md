@@ -99,3 +99,8 @@ Goals 1, 2 and 4 now have current-version source, binary and rollback closure st
 ## Stopped Menu trial and exact rollback — 2026-11-17
 
 Decision 0104 records a failed private handoff identity oracle after one approved launch. The trial stops, the effective client exits 0 and all five originals/twelve installed hashes and durable namespaces are restored. The new companion is not executed. The corrected full-precision witness passes owned Python-child checks; actual Steam handoff and both Menu phases remain unqualified and need a fresh review. Goal 4 also retains a new unmodified grant-fixture started/outcome-unknown failure. A later passing cohort does not fix it; deterministic acknowledgement/reconciliation and failure-evidence retention remain next work.
+
+
+## Grant acknowledgement and failure evidence — 2026-11-17
+
+Decision 0105 advances goal 4 with a deterministic SDK-fake withheld acknowledgement: the caller returns unknown, same-ID dry reconciliation observes the accepted request and independent submit counts remain exact. A failing fixture-retention reproduction is repaired with unchanged normal cleanup. Private checks pass 406 Rust/97 Python and required checks. Runtime code, deadlines and signed installation remain unchanged. The earlier organic latency cause is unresolved; retained controlled bytes do not reconstruct the lost natural-failure evidence. Native inventory readback and the stopped Menu review remain separate gates.

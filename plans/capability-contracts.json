@@ -1507,9 +1507,10 @@
       "admission": "Strict named arguments and tool-specific policy. Required bounded caller operation/player/item, count 1..100, dry default; real flag/confirmation/exact actor-item-session preview; durable exclusive identity and callback journal; no blind retry or undo.",
       "evidence_summary": "Caller-identified administrative grant, dry default, exact actor/item/session preview; no native undo.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0105-grant-unknown-reconciliation-and-fixture-retention.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "406-Rust workspace: controlled withheld SDK-fake acknowledgement, exact unknown response, same-ID dry reconciliation and independent submit counts; panic-retained fixture bytes; organic latency cause and native inventory readback remain unverified",
       "native_acceptance": "Replay-safe source callbacks qualified; current caller-identity positive native grant/readback remains deferred.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "No inventory rollback/persistence acceptance for this route.",
