@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+The current 0.21.1 SDK 12.11 consumer has a source-matched namespace variant and fresh rollback closure staged for a two-phase Menu-only review (decision 0093). Variant checks pass 399 Rust/96 Python and required lint/format/releases/contracts; a stale rollback copy is rejected. No runtime change or new native acceptance occurred. The explicit signed-provider exception remains pending.
+
 The admission-preserving SDK 12.11 candidate targets exact public 8a9de10 (0.47.0/0.21.1). Its fourteen-file patch preserves the final permission/deadline checks and handles an unknown synthetic bootstrap read. All 259 normalized sources match a clean application; candidate and clean replay each pass 399 Rust/96 Python and required lint/format/releases/contracts. It is inactive and not native-qualified (decision 0092). Older migration results below remain historical exact-base evidence.
 
 Matched signed-SDK 0.47.0/0.21.1 is installed and passes bounded native Menu/read/refusal, cold-file and loaded-file correspondence checks. The separate SDK snapshot remains never at Menu; native late-getter/revocation behavior and rendering remain unverified (decision 0091).

@@ -97,7 +97,9 @@
       "source_evidence": "plans/decisions/0092-admission-preserving-sdk1211-replay.md",
       "native_candidate_qualified": false,
       "primary_installation_changed": false,
-      "status": "candidate and clean replay each pass 399 Rust/96 Python, required lint/format/releases/contracts and exact 259-file tree reconstruction; not installed"
+      "status": "candidate and clean replay each pass 399 Rust/96 Python, required lint/format/releases/contracts and exact 259-file tree reconstruction; not installed",
+      "native_review": "plans/decisions/0093-current-admission-consumer-menu-review.md",
+      "native_review_status": "current-version source-matched namespace variant and rollback closure staged; explicit temporary exception pending; no installation or launch"
     }
   },
   "counts": {

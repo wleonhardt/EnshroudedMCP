@@ -57,3 +57,8 @@ Decision 0091 installs signed-SDK companion 0.21.1 and qualifies bounded native 
 ## Admission-preserving SDK checkpoint — 2026-11-17
 
 Goals 1, 2 and 4 now track the distinct 0.47.0/0.21.1 SDK 12.11 candidate. The final permission/deadline guard is preserved; the synthetic initialization failure is retained and the fixture returns unknown bootstrap context. Canonical replay matches 259 normalized files. Full candidate and clean replay each pass 399 Rust/96 Python and required lint/format/releases/contracts. Installed signed runtime and older exact-base artifacts stay unchanged. Next qualify the matching native provider/consumer/rollback closure under a fresh concrete review. See decision 0092.
+
+
+## Current native-review staging checkpoint — 2026-11-17
+
+Goals 1, 2 and 4 now have a current-version Menu qualification review under decision 0093. The metadata-only consumer variant passes 399 Rust/96 Python and required checks. Current originals, candidate manifests, source-matched probes and stale-closure refusal are verified. No installed changes or launches occurred. The next runtime action requires the concrete temporary signed-provider exception; general lifecycle, credentials, rendering and native final-getter fault acceptance remain open.
