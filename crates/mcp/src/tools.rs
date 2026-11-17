@@ -171,6 +171,7 @@ impl GameTools {
                 schema: policy::health_recovery::schema(),
             },
             crate::building_survey::tool(),
+            crate::terrain_image::tool(),
             Tool {
                 name: "enemy_pacification",
                 description: "Read or explicitly set only server enemy pacification. Dry by default; real changes require expected current value, active session, fresh write flag and confirmation. Not invulnerability or combat safety. Configuration saves may persist changes; restore explicitly.",
@@ -286,6 +287,18 @@ impl GameTools {
 impl Tools for GameTools {
     fn list(&self) -> &[Tool] {
         &self.list
+    }
+
+    fn present(
+        &self,
+        name: &str,
+        value: Value,
+    ) -> Result<policy::presentation::Presentation, String> {
+        if name == "terrain_image" {
+            policy::terrain_image::present(value)
+        } else {
+            Ok(policy::presentation::Presentation::Json(value))
+        }
     }
 
     fn call(&self, name: &str, a: &Map<String, Value>) -> Result<Value, String> {
@@ -546,6 +559,14 @@ impl Tools for GameTools {
                 let game = self.game;
                 on_game_thread(scheduler, move || crate::building_survey::read(game, spec))?
             }
+            "terrain_image" => {
+                let spec = policy::terrain_image::check(a)?;
+                let request = Value::Object(a.clone());
+                let game = self.game;
+                on_game_thread(scheduler, move || {
+                    crate::terrain_image::capture(game, spec, request)
+                })?
+            }
             "item_lookup" => {
                 let ids = policy::item_lookup::check(a)?;
                 let layout = item_layout.ok_or("vanilla item registry layout unavailable")?;
@@ -579,6 +600,7 @@ impl Tools for GameTools {
                 "item_info":inventories.is_some(),
                 "item_lookup":item_layout.is_some(),
                 "building_survey":true,
+                "terrain_image":true,
                 "construction_available":self.construction.is_some(),
                 "typed_network_health":network_health.is_some(),
                 "typed_factory_station":factory_station.is_some(),

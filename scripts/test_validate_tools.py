@@ -42,6 +42,8 @@ class Fixture:
             error = True
             value = ("argument 'entity' must be at least 1" if args.get("entity") == 0 else
                      "unknown argument 'confirm'" if "confirm" in args else "active buffs read failed: fixture missing holder")
+        elif name == "terrain_image":
+            error, value = True, "unknown argument 'confirm'" if "confirm" in args else "section requires slice"
         elif name == "weather_read":
             error="confirm" in args or args["y"]>1024
             value=("unknown argument 'confirm'" if "confirm" in args else "argument 'y' must be at most 1024") if error else {
@@ -267,7 +269,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 38)
+        self.assertEqual(len(report["checks"]), 40)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -337,7 +339,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 36)
+        self.assertEqual(len(SERVER_TOOLS), 37)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

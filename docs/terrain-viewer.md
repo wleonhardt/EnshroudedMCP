@@ -50,4 +50,6 @@ Fourteen behavior tests cover an asymmetric coordinate fixture, precise pins/raw
 
 ## Direct MCP image integration status
 
-The shared protocol now has a bounded typed PNG presentation foundation, qualified with synthetic RGB, HTTP and independent browser checks. Existing tools still use JSON text and no native terrain-image tool is registered or deployed. Continue using this external viewer until the separately versioned native producer and matched installation pass decision 0072. This does not add game-frame capture or an engine rendering API.
+The shared protocol now has a bounded typed PNG presentation foundation, qualified with synthetic RGB, HTTP and independent browser checks. The installed 0.45.0 tools still use JSON text. Server source 0.46.0 now registers terrain_image in decision 0073; native deployment acceptance remains pending. This external viewer remains usable independently. This does not add game-frame capture or an engine rendering API.
+
+Native server source 0.46.0 now registers terrain_image; installed 0.45.0 still lacks it until cold deployment. The tool returns metadata text plus a diagnostic PNG directly through MCP, without opening this external viewer. Use view top with no slice, view xy with a Z slice minimum, or view zy with an X slice minimum. Captions and metadata distinguish raw occupancy from actual engine rendering. See decision 0073 for complete bounds, reference-pin semantics and pending native/client acceptance.

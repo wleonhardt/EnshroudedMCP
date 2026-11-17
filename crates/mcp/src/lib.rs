@@ -22,6 +22,7 @@ mod prop_observation;
 mod recipe_plan;
 mod reposition;
 mod server;
+mod terrain_image;
 mod tools;
 mod weather_read;
 mod world_clock;

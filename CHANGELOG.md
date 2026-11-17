@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Server source 0.46.0 registers terrain_image: bounded native voxel capture followed by game-free top/section PNG encoding and exact coordinate/raw-material/reference-pin metadata. Strict complete-capture and request gates preserve unknowns and refuse writes. Source/replay qualification is separate from pending matched deployment and live native acceptance.
+
 - Add explicit bounded PNG presentation for successful MCP read results, retaining exact legacy JSON text by default. Game-free RGB encoding, strict size limits and error/no-retry contracts pass source, loopback and independent synthetic browser checks. No native image tool or installed update is introduced yet.
 
 - Add bounded geometry-preview overlays to the terrain inspector with separate sampled/unobserved target classes, toggle/inspection and no execution authority. Fix exported section PNGs to identify their exact interval. Correct an invalid failed-import mutation audit and verify specific assertion failures in complete dependency copies.

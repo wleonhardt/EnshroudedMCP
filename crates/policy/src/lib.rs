@@ -28,6 +28,7 @@ pub mod presentation;
 pub mod recipe_plan;
 pub mod reposition;
 pub mod request;
+pub mod terrain_image;
 pub mod weather_read;
 pub mod write_gate;
 

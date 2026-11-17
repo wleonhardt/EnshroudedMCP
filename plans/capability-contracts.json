@@ -1,15 +1,17 @@
 {
   "date": "2026-11-16",
-  "status": "all 49 tools have explicit contract/evidence assessments and next checks; workflow acceptance remains open",
+  "status": "all 50 source tools have explicit contracts; new terrain_image native acceptance pending",
   "profiles": {
     "product": {
-      "server_version": "0.45.0",
+      "server_version": "0.46.0",
       "client_version": "0.20.2",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "same versions; qualification/test assets have since changed",
-      "game_build": "not observed by capability getter; do not infer from framework version"
+      "installed": "server 0.45.0 / companion 0.20.2; new source server 0.46.0 is not deployed yet",
+      "game_build": "not observed by capability getter; do not infer from framework version",
+      "installed_server_version": "0.45.0",
+      "installed_client_version": "0.20.2"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -30,7 +32,7 @@
     }
   },
   "counts": {
-    "server": 36,
+    "server": 37,
     "client": 13
   },
   "tools": [
@@ -576,6 +578,136 @@
       "observation_side_effects": "May trigger SDK chunk loading; bounded cells do not imply no engine work.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
       "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
+    },
+    {
+      "scope": "server",
+      "name": "terrain_image",
+      "description": "Read at most 4096 half-metre voxels in an 8 m box and return diagnostic top/section PNG plus exact JSON coordinates, raw materials/fill and optional caller reference pins. Native capture runs on the game thread; encoding uses copies. May load chunks. No game-frame capture, camera, props, collision, surface-height, support or movement proof. Air is not clearance; not an executor.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "depth": {
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "height": {
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "pins": {
+            "description": "Caller-provided reference positions, never entity selectors or movement requests. Labels use ASCII letters/digits/spaces/_/-.",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "maxLength": 24,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "position": {
+                  "items": {
+                    "type": "number"
+                  },
+                  "maxItems": 3,
+                  "minItems": 3,
+                  "type": "array"
+                }
+              },
+              "required": [
+                "label",
+                "position"
+              ],
+              "type": "object"
+            },
+            "maxItems": 16,
+            "type": "array"
+          },
+          "slice": {
+            "description": "Required for sections, forbidden for top; half-open half-metre interval minimum in metres.",
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "view": {
+            "description": "Top X/Z, or vertical X/Y at Z slice, or Z/Y at X slice. Diagnostic occupancy only.",
+            "enum": [
+              "top",
+              "xy",
+              "zy"
+            ],
+            "type": "string"
+          },
+          "width": {
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "x": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1024.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          },
+          "z": {
+            "maximum": 10240.0,
+            "minimum": 0,
+            "multipleOf": 0.5,
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "z",
+          "width",
+          "height",
+          "depth"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/terrain_image.rs",
+        "crates/policy/src/terrain_image.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread capture; listener renders copied data",
+      "admission": "Strict named args; bounded survey box, explicit section, up to 16 caller reference pins. Read-only; no write flag or execution authority.",
+      "evidence_summary": "Source-qualified diagnostic PNG from complete copied cells; native producer not yet installed.",
+      "evidence_references": [
+        "plans/decisions/0072-bounded-mcp-png-presentation.md",
+        "plans/decisions/0073-native-terrain-image.md"
+      ],
+      "source_checks": "Private/public 390 Rust executions and 94 Python tests, strict Clippy, formatting and releases pass. Eight new renderer cases; native-data replay is offline only.",
+      "native_acceptance": "Not installed or executed. Replay of earlier native data qualifies offline rendering only.",
+      "rendered_acceptance": "Diagnostic raster only; no game-frame, camera, interpolated surface or contact proof.",
+      "persistence_acceptance": "No write or save/recovery authority.",
+      "freshness_completeness": "One queued voxel capture; host timestamp after read, native session unavailable. Caller pins are references, not live selectors. A timeout does not cancel the queued read.",
+      "next_missing_check": "Stage matched files, qualify native image/capture correspondence and client visibility, and preserve world/ledgers after cold deployment.",
+      "refusal_acceptance": "Source policy rejects invalid boxes/sections/pins and incomplete copied captures before image output; native refusal matrix remains unverified.",
+      "independent_effect_acceptance": "PNG encoding is game-free; reference pins do not move or select anything.",
+      "admission_sources": [
+        "crates/policy/src/args.rs",
+        "crates/policy/src/bounds.rs",
+        "crates/policy/src/building_survey.rs",
+        "crates/policy/src/terrain_image.rs",
+        "crates/policy/src/presentation.rs",
+        "crates/policy/src/mcp.rs"
+      ],
+      "observation_side_effects": "Voxel reads can load chunks and may run after a response timeout. Encoding uses copies and no World access.",
+      "effect_kind": "scheduled bounded voxel read and diagnostic PNG; no gameplay mutation",
+      "evidence_applicability": "Source server 0.46.0 on unchanged SDK 6a151a95/ABI 12.1. Installed server remains 0.45.0 pending matched cold deployment."
     },
     {
       "scope": "server",
