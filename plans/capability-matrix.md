@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+A fresh temporary Menu review now binds a held-launcher controller, frozen process/probe source, four candidates and five originals (decision 0107). Eleven model cases pass without a process launch; six owned-process fixtures separately qualify Windows observations. Current signed runtime is preserved. Explicit exception remains pending; real Steam/Menu/new-consumer acceptance and adoption remain open.
+
 Optional process-handoff qualification now observes an exact held launcher handle, full-precision identity/linkage and sole loopback ownership (decision 0106). Six Python-only cases include direct/handoff branches and actual exits 0/7/259. Missing exited image remains unknown. No MCP capability, game launch, Steam/Menu acceptance or installed change is added.
 
 Decision 0105 qualifies explicit unknown grant acknowledgement, same-ID dry reconciliation and independent SDK-fake attempt counts. Failed grant fixtures now retain exact synthetic evidence during panic. Private checks pass 406 Rust/97 Python and required checks; production code and signed runtime remain unchanged. Organic latency and positive native inventory/readback remain open.

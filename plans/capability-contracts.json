@@ -129,9 +129,10 @@
       "primary_installation_changed": false,
       "status": "candidate and clean replay each pass 404 Rust/97 Python, strict checks/releases/contracts; exact 274-file reconstruction; not installed",
       "timing_limit": "original unmodified cold cohort has two positive-fixture deadline refusals; passing warm/instrumented/candidate cohorts do not resolve their cause",
-      "native_review_status": "approved 0103 trial consumed; phase-one handoff oracle fails; exact signed rollback verified; phase two not started; native candidate remains unqualified; no automatic retry",
-      "native_review": "plans/decisions/0103-current-server048-menu-review.md",
-      "native_review_evidence": "plans/decisions/0104-stopped-menu-handoff-and-signed-rollback.md"
+      "native_review_status": "Fresh held-launcher closure staged; eleven controller models pass. Archived SDK variant (405 tests) and active product (406 tests) remain distinct. Fresh temporary exception pending; no installation or launch. Consumed review 0103 cannot be reused.",
+      "native_review": "plans/decisions/0107-held-launcher-current-menu-review.md",
+      "previous_native_review": "plans/decisions/0103-current-server048-menu-review.md",
+      "previous_native_review_evidence": "plans/decisions/0104-stopped-menu-handoff-and-signed-rollback.md"
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",

@@ -109,3 +109,8 @@ Decision 0105 advances goal 4 with a deterministic SDK-fake withheld acknowledge
 ## Held launcher and process handoff — 2026-11-17
 
 Decision 0106 advances the goal 2 qualification path and the process-observation prerequisites for goal 3. Six owned-Python cases verify exact held launcher facts, direct/handoff identity and loopback ownership while preserving unknown exited images. This does not implement a native game lifecycle executor or qualify Steam. Integrate the witness into the private controller and prepare a fresh concrete Menu review before runtime use; original review 0103 stays consumed.
+
+
+## Fresh held-launcher Menu review — 2026-11-17
+
+Decision 0107 advances goals 2 and 3 by integrating the held-handle witness into a source-hashed private controller before proposing another runtime attempt. Eleven controller models, frozen helpers/probes, four candidates, five originals and stale-copy refusal pass. Source cohorts remain distinct: frozen SDK variant 405/97, active product 406/97. No game launch, installation or new native acceptance occurs. The concrete two-phase Menu exception remains pending; consumed review 0103 cannot be reused. Lifecycle execution, credential ownership and adoption need separate qualification.
