@@ -1,6 +1,6 @@
 # 0081: Inject journal durability errors around actual file writes
 
-Date: 2026-11-16. Status: private/public source and injected-fault checks passed; publication audit pending.
+Date: 2026-11-16. Status: private/public source and injected-fault checks passed; publication audits passed; native fault acceptance open.
 
 Advance quality goal 4 without changing installed files. The existing game-free reservation arithmetic already models a failed partial append, and decision 0074 verifies an actual open refusal. Neither exercises the production adapter after bytes have changed but before durability succeeds.
 
@@ -13,3 +13,5 @@ Five pre-change adapter tests pass; all seven pass after the extraction and new 
 The product SDK remains 6a151a95 / ABI 12.1. Installed server 0.46.1 and companion 0.20.2 remain unchanged; rebuilt artifacts are not installed. Decision 0077's migration patch remains qualified against its exact historical public base, without being relabeled as a migration of later source changes. Native actor/scene/lifecycle acceptance and the full workshop objective remain open.
 
 Private/public checks pass 395 Rust executions and 94 Python tests, strict Clippy, formatting, release builds and contract checks; optional adapter suites pass fourteen executions in each debug/release copy with strict Clippy. A normalized common-body comparison preserves the prior admission/accounting path after restoring the extracted write expression; this is source correspondence, not native behavior proof.
+
+Sanitized implementation commit 880211d3269b5e24ea6c5632073324ca433c78d0 is pushed with matching remote main, GitHub-verified signature and exact 246-file plus committed-history secret audits. No native or installed acceptance is inferred.
