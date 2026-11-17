@@ -457,7 +457,7 @@ mod tests {
         let queued = state
             .run(write.clone(), input, dir, Instant::now())
             .unwrap();
-        assert_eq!(queued["state"], "queued");
+        assert_eq!(queued["state"], "queued", "synthetic submission: {queued}");
         assert_eq!(loader.client_commands().len(), 1);
         let journal_before_inventory = fs::read(fixture.0.join("journal.jsonl")).unwrap();
         let inventory = state.inventory(dir).unwrap();
@@ -680,9 +680,13 @@ mod tests {
                 .run(request.clone(), input, dir, Instant::now())
                 .unwrap();
             let request = real(request, &preview);
-            state
+            let queued = state
                 .run(request.clone(), input, dir, Instant::now())
                 .unwrap();
+            assert_eq!(
+                queued["state"], "queued",
+                "synthetic terminal submission: {queued}"
+            );
             let commands = loader.client_commands();
             let id = commands.last().unwrap().0;
             loader.set_command_status(id, Status::APPLIED, 0);

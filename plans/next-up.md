@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source qualified; retain command-fixture refusal diagnostics** Two existing command fixtures now preserve the retained synthetic submission before dispatch assertions. Baseline and updated workspace each pass 398 Rust executions; updated strict lint/format, releases and 96 Python checks pass. Production prefix, versions and deadlines are unchanged. Earlier intermittent refusal causes remain unresolved; no native test or installed change. See decision 0087.
+
 - **next: stage coherent native current-consumer qualification** Resolve declared mod IDs/folder coherence and one companion endpoint before any runtime test. Prepare exact current SDK 12.11 consumer/provider artifacts, a separately verified installation/rollback closure and bounded Menu/read checks. The earlier temporary test kept product DLLs unchanged; it does not qualify this new consumer. Preserve signed-provider policy and obtain the applicable concrete runtime exception before installed changes. No Join/Leave, credential access or actor movement is implied.
 
 - **current-base SDK 12.11 candidate and replay source-qualified** Distinct fourteen-file patch targets exact public d745bc1, server 0.47.0 / companion 0.21.0. Both copies pass 398 Rust/96 Python, strict lint/format/releases/index checks. All 250 normalized sources and independently applied canonical patch reconstruct tree a570197af25de6616d113771f6ea50554b952c1e. Historical patch, current signed installation, twelve hashes, durable namespaces, exact server and SDK checkout are preserved; client closed. New-consumer native/lifecycle/credential/adoption acceptance remains open. See decision 0085.
