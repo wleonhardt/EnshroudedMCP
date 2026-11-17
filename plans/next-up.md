@@ -2,11 +2,13 @@
 
 ## Queue
 
+- **source qualified; attributed slow command intervals** A new inactive current-base timing probe adds explicit operation/fixture/thread provenance and defers output for fast complete intervals (decision 0102). Controlled identity, null-origin and truncation checks pass; instrumented source passes 408 Rust/97 Python and required checks. Six bounded same-area trials pass without capturing organic expiry; previous timing cause remains open. Active product and signed runtime stay unchanged.
+
 - **source verified; panic fixture evidence retained** Client command test fixtures now retain their generated reservation/journal directory during Rust unwinding and report its path (decision 0101). A failing reproduction proves the earlier evidence loss; the corrected case verifies exact bytes, membership and normal cleanup. Production control prefix, versions and installed files remain unchanged. This preserves future failure evidence; it does not fix the unresolved deadline intermittency.
 
 - **source qualified; current 0.48 SDK migration** A distinct 0.48.0/0.21.1 SDK 12.11 source candidate now reproduces exact public base 3f647e1, retaining full pin columns and final client admission (decision 0100). Candidate and clean replay each pass 404 Rust/97 Python plus required checks; all 274 normalized files reconstruct the same tree. Earlier unmodified cold command fixtures expire before native submission; warm and traced passes do not resolve that intermittency. No installed change or new native candidate acceptance.
 
-- **fixture retention qualified; attributed timing still next** Controlled unwind retention now passes decision 0101. Add bounded request provenance to deferred timing reports. Merged harness labels cannot identify individual reports. Capture an organic expiry interval without changing production waits or weakening submission checks.
+- **retention and attribution qualified; organic capture still open** Controlled retention passes decision 0101 and explicit report provenance passes decision 0102. Use them for the next naturally failing cohort. Merged harness labels cannot identify individual reports. Capture an organic expiry interval without changing production waits or weakening submission checks.
 
 - **installed; signed server pin-column acceptance** Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 

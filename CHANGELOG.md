@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add an inactive current-base command timing probe with explicit synthetic request provenance and deferred output for fast intervals. Unknown origin stays null and truncation remains visible. Controlled/source checks pass; six same-area trials do not resolve organic expiry. Product runtime and deadlines remain unchanged.
+
 - Retain synthetic client-command fixture directories and report their paths when tests unwind, preserving exact reservation/journal evidence for diagnosis. Normal cleanup remains. This test-only correction changes no runtime behavior or deadline and does not resolve prior timing intermittency.
 
 - Add a distinct, replayable SDK 12.11 source migration for current server 0.48.0 / companion 0.21.1, preserving full columns and final client admission. Candidate and clean replay pass required checks. Pre-existing cold fixture deadline failures remain unresolved; product dependencies and installed files stay unchanged.

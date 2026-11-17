@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+A new inactive current-base timing probe adds explicit operation/fixture/thread provenance and defers output for fast complete intervals (decision 0102). Controlled identity, null-origin and truncation checks pass; instrumented source passes 408 Rust/97 Python and required checks. Six bounded same-area trials pass without capturing organic expiry; previous timing cause remains open. Active product and signed runtime stay unchanged.
+
 Client command test fixtures now retain their generated reservation/journal directory during Rust unwinding and report its path (decision 0101). A failing reproduction proves the earlier evidence loss; the corrected case verifies exact bytes, membership and normal cleanup. Production control prefix, versions and installed files remain unchanged. This preserves future failure evidence; it does not fix the unresolved deadline intermittency.
 
 A distinct 0.48.0/0.21.1 SDK 12.11 source candidate now reproduces exact public base 3f647e1, retaining full pin columns and final client admission (decision 0100). Candidate and clean replay each pass 404 Rust/97 Python plus required checks; all 274 normalized files reconstruct the same tree. Earlier unmodified cold command fixtures expire before native submission; warm and traced passes do not resolve that intermittency. No installed change or new native candidate acceptance.
