@@ -933,6 +933,165 @@ mod tests {
     }
 
     #[test]
+    fn changed_context_after_durable_intent_refuses_without_dispatch_or_replay() {
+        use enshwick::abi::{HostApi, ModHandle, Status};
+        use std::cell::RefCell;
+        struct Script {
+            calls: usize,
+            initial: Raw,
+            changed: Raw,
+            dir: std::path::PathBuf,
+            operation: String,
+            intent_seen: bool,
+        }
+        thread_local! {
+            static SCRIPT: RefCell<Option<Script>> = const { RefCell::new(None) };
+        }
+        extern "system" fn read_snapshot(_me: ModHandle, out: *mut Raw) -> Status {
+            if out.is_null() {
+                return Status::BAD_ARGS;
+            }
+            SCRIPT.with(|slot| {
+                let mut slot = slot.borrow_mut();
+                let script = slot.as_mut().unwrap();
+                script.calls += 1;
+                let value = if script.calls == 1 {
+                    script.initial
+                } else {
+                    script.intent_seen = path(&script.dir, &script.operation).is_file()
+                        && fs::read_to_string(script.dir.join("journal.jsonl"))
+                            .is_ok_and(|journal| journal.contains("client_command_intent"));
+                    script.changed
+                };
+                // SAFETY: the SDK getter supplies a writable, full-size Raw output.
+                unsafe { out.write(value) };
+                Status::OK
+            })
+        }
+        let loader = enshwick::test::FakeHost::new()
+            .side(Side::CLIENT)
+            .player_input()
+            .install();
+        // SAFETY: api() points to this installed fake's complete published table.
+        let mut api: HostApi = unsafe { *loader.api() };
+        api.client_snapshot = read_snapshot;
+        let api = Box::leak(Box::new(api));
+        // SAFETY: our generated init receives an immutable process-lifetime fake
+        // table and its own fake handle. Only the copied-snapshot getter changes.
+        assert_eq!(
+            unsafe { enshwick_mod_init(api, loader.handle()) },
+            Status::OK
+        );
+        // SAFETY: this mod's matching init just succeeded on this fake.
+        assert_eq!(unsafe { loader.ready(enshwick_mod_ready) }, Status::OK);
+        let input = *INPUT.lock().unwrap();
+        let initial = snapshot(8, "InGame", "");
+        for (name, changed, error) in [
+            ("valid", initial, None),
+            (
+                "stale",
+                Raw {
+                    state: Raw::STALE,
+                    ..initial
+                },
+                Some("client command requires a fresh nonzero session and readable HUD screen"),
+            ),
+            (
+                "session",
+                snapshot(9, "InGame", ""),
+                Some("client preview changed; inspect current session/screen and preview again"),
+            ),
+            (
+                "screen",
+                snapshot(8, "Backpack", ""),
+                Some("client preview changed; inspect current session/screen and preview again"),
+            ),
+        ] {
+            let fixture = Fixture::new();
+            fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+            let operation = format!("recheck-{name}");
+            let mut state = State::default();
+            let request = dry(&operation);
+            let preview = gate::preview(
+                &state.boot,
+                &request,
+                &gate::Context {
+                    fresh: true,
+                    age_ms: Some(0),
+                    session: 8,
+                    screens_read: true,
+                    screen: Some("InGame".into()),
+                    tab_read: true,
+                    tab: None,
+                },
+            );
+            SCRIPT.with(|slot| {
+                *slot.borrow_mut() = Some(Script {
+                    calls: 0,
+                    initial,
+                    changed,
+                    dir: fixture.0.clone(),
+                    operation: operation.clone(),
+                    intent_seen: false,
+                })
+            });
+            let request = real(request, &json!({"preview":preview}));
+            let dir = Some(fixture.0.as_path());
+            let before = loader.client_commands().len();
+            let result = state
+                .run(request.clone(), input, dir, Instant::now())
+                .unwrap();
+            SCRIPT.with(|slot| {
+                let slot = slot.borrow();
+                let script = slot.as_ref().unwrap();
+                assert_eq!(script.calls, 2, "{name}: {result}");
+                assert!(script.intent_seen, "second read must follow durable intent");
+            });
+            assert_eq!(
+                result["state"],
+                if error.is_some() {
+                    "refused_or_unknown"
+                } else {
+                    "queued"
+                },
+                "{result}"
+            );
+            assert_eq!(
+                result["native_submitted"],
+                error.is_none(),
+                "{name}: {result}"
+            );
+            assert_eq!(
+                loader.client_commands().len(),
+                before + usize::from(error.is_none())
+            );
+            if let Some(error) = error {
+                assert_eq!(result["error"], error);
+                let reservation = fs::read(path(&fixture.0, &operation)).unwrap();
+                let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
+                assert_eq!(
+                    retained_outcome(
+                        state
+                            .run(request.clone(), input, dir, Instant::now())
+                            .unwrap()
+                    ),
+                    retained_outcome(result)
+                );
+                assert_eq!(loader.client_commands().len(), before);
+                assert_eq!(fs::read(path(&fixture.0, &operation)).unwrap(), reservation);
+                assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
+                assert!(
+                    State::default()
+                        .run(request, input, dir, Instant::now())
+                        .unwrap_err()
+                        .contains("prior boot")
+                );
+                assert_eq!(fs::read(fixture.0.join("journal.jsonl")).unwrap(), journal);
+            }
+        }
+    }
+
+    #[test]
     fn retained_replies_expose_poll_age_without_refreshing_or_redispatching() {
         let loader = enshwick::test::FakeHost::new()
             .side(Side::CLIENT)

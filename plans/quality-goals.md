@@ -44,3 +44,5 @@ Decision 0083 completes an explicitly approved temporary ABI 12.11 client Menu/h
 Decision 0084 qualifies matched 0.47.0/0.21.0 actual signed-provider headers, server reads, client Menu and exact preservation. Goal2 still requires a current-base SDK migration replay and separate lifecycle/provenance acceptance; broader gameplay, scene and workshop outcomes remain open.
 
 Decision 0085 qualifies a distinct current-product SDK 12.11 source migration and clean replay against 0.47.0/0.21.0. Required checks and independent tree reconstruction pass without changing the signed installation. Native new-consumer, lifecycle, selected-character/peer and credential gates remain open.
+
+Decision 0088 adds a scripted published-ABI fixture for post-intent context changes. Valid context submits once; stale, changed-session and changed-HUD contexts refuse before a native call and preserve replay/reopen identity. Separate-target mutations detect removal of each later guard even when the SDK refuses the prohibited attempt. Initial inconclusive failures and the original intermittent refusal causes remain unresolved; native interruption timing is not qualified.
