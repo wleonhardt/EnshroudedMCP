@@ -75,3 +75,22 @@ cargo +stable build --locked --release --manifest-path qualification/sdk-lifecyc
 ```
 
 Stage that DLL only with an explicitly paired provider in a new disposable runtime. An existing diagnostic refuses overwrite and disables this probe's new initialization rather than retrying. See [the native procedure and bounded result](NATIVE.md). The native server result does not qualify client callbacks or real Join/Leave.
+
+## Admission-preserving migration candidate
+
+The separate [admission-current patch](consumer-admission-candidate.patch) applies only to public `8a9de10f4971903e878c721224bdf58f878bbee2`, server 0.47.0 / companion 0.21.1. It preserves both older artifacts above and the complete production control prefix, including final permission and deadline rechecks after copied-snapshot preparation. The SDK/compiler pins remain exact revision `6a5966ee6683fde480ac9dd3654f91e73da6e2a5`, ABI 12.11 and Rust/Cargo 1.100.0.
+
+The newer scripted snapshot fixture initially aborts because SDK initialization calls its getter before the script exists. The fixture now returns `Raw::EMPTY` while unarmed and explicitly checks Never/session-zero/unknown-age before the six command cases. The failed run is retained; no game process is involved. Production gates, deadlines, versions, tools and schemas remain unchanged.
+
+The fourteen-file canonical patch cleanly applies with whitespace errors refused. All 259 normalized tracked files match and reconstruct tree `5f304b27847ce718628cd22267aad00b40feecc5`. Patch SHA-256: `977cfd382b8d495545c2a377f8a111e9e63426265a860bf3fc61a8aec47be3b1`. Candidate and clean replay each pass 399 Rust executions, 96 Python tests, strict Clippy, formatting, both releases and offline contracts.
+
+Resolve this patch before checking out its exact base, then run the locked check commands above with the explicitly verified compiler:
+
+```powershell
+$admissionMigrationPatch = (Resolve-Path qualification/sdk-lifecycle/consumer-admission-candidate.patch).Path
+git worktree add --detach ../enshrouded-mcp-admission-sdk-check 8a9de10f4971903e878c721224bdf58f878bbee2
+git -C ../enshrouded-mcp-admission-sdk-check apply --check --whitespace=error-all $admissionMigrationPatch
+git -C ../enshrouded-mcp-admission-sdk-check apply --whitespace=error-all $admissionMigrationPatch
+```
+
+No candidate is installed or native-qualified. The current signed 0.47.0/0.21.1 runtime stays on ABI 12.1. The old native-review closure is stale after that signed update; prepare a fresh matching provider/consumer/rollback review before any native experiment. Source tests do not establish native timing, rendered behavior, credentials or Join/Leave acceptance. See [decision 0092](../../plans/decisions/0092-admission-preserving-sdk1211-replay.md).

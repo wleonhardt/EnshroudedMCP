@@ -82,6 +82,22 @@
       "credential_resolver_implemented": false,
       "primary_installation_changed": false,
       "status": "current-base candidate and clean replay each pass 398 Rust/96 Python and required checks; not installed"
+    },
+    "lifecycle_admission_candidate": {
+      "sdk_revision": "6a5966ee6683fde480ac9dd3654f91e73da6e2a5",
+      "abi": "12.11",
+      "rust": "1.100.0",
+      "server_version": "0.47.0",
+      "client_version": "0.21.1",
+      "source_only": true,
+      "source_base": "8a9de10f4971903e878c721224bdf58f878bbee2",
+      "source_patch": "qualification/sdk-lifecycle/consumer-admission-candidate.patch",
+      "patch_sha256": "977cfd382b8d495545c2a377f8a111e9e63426265a860bf3fc61a8aec47be3b1",
+      "source_tree": "5f304b27847ce718628cd22267aad00b40feecc5",
+      "source_evidence": "plans/decisions/0092-admission-preserving-sdk1211-replay.md",
+      "native_candidate_qualified": false,
+      "primary_installation_changed": false,
+      "status": "candidate and clean replay each pass 399 Rust/96 Python, required lint/format/releases/contracts and exact 259-file tree reconstruction; not installed"
     }
   },
   "counts": {

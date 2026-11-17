@@ -52,3 +52,8 @@ Decision 0089 adds an optional bounded reservation-timing patch. A deliberate po
 Decision 0090 fixes two final-admission gaps in companion source 0.21.1. Controlled getter delay and write-flag removal reproduce SDK attempts before the fix and policy refusals afterward, with retained identity. Installed 0.21.0 and native timing acceptance remain separate.
 
 Decision 0091 installs signed-SDK companion 0.21.1 and qualifies bounded native Menu/read/refusal behavior with cold/ledger preservation and observed cleanup. Native delayed-getter/revocation timing remains source-only; the old unsigned review baseline is stale.
+
+
+## Admission-preserving SDK checkpoint — 2026-11-17
+
+Goals 1, 2 and 4 now track the distinct 0.47.0/0.21.1 SDK 12.11 candidate. The final permission/deadline guard is preserved; the synthetic initialization failure is retained and the fixture returns unknown bootstrap context. Canonical replay matches 259 normalized files. Full candidate and clean replay each pass 399 Rust/96 Python and required lint/format/releases/contracts. Installed signed runtime and older exact-base artifacts stay unchanged. Next qualify the matching native provider/consumer/rollback closure under a fresh concrete review. See decision 0092.

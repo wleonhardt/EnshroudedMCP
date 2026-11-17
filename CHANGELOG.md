@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add a distinct SDK 12.11 migration against exact 0.47.0/0.21.1 source, preserving the final permission/deadline recheck. A synthetic bootstrap callback failure is reproduced and fixed with unknown context; candidate and clean replay each pass 399 Rust/96 Python, strict lint/format/releases and contracts. Production guards, installed files and historical patches remain unchanged.
+
 - Install matched server 0.47.0 / companion 0.21.1 while retaining the signed provider. Two companion copies, a verified 179-member cold archive, one observed native stop, native server/Menu read/refusal checks and an independently observed client exit pass. The separate SDK snapshot remains never at Menu; native final-getter fault timing, rendering and broader gameplay stay unverified.
 
 - Companion source 0.21.1 rechecks write permission and deadline after the final copied-snapshot getter and command construction. Controlled getter delay and flag removal each reproduce a prohibited SDK attempt before the fix, then refuse without submission and preserve once-only replay/reopen bytes. Installed 0.21.0 is unchanged; native timing acceptance remains pending.
