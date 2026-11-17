@@ -1,0 +1,13 @@
+# 0080: Qualify journal reservations across a real process boundary
+
+Date: 2026-11-16. Status: graceful process-boundary check passed; gameplay recovery and interruption faults remain open.
+
+Advance quality goal 4 without changing installed files. Extend the existing optional journal-pressure workspace with a separate `restart` executable that compiles the unchanged production journal adapter directly. Preserve the original default executable and commands through Cargo's `default-run` setting. No new dependency, product version or runtime gate is introduced.
+
+The parent creates a private disposable journal with a seven-byte prefix. A real child process reserves 200 bytes, appends and syncs a thirteen-byte owner record through the production adapter, then reports one reservation and 187 retained bytes before a successful exit. Only after awaiting that child does the parent start a second process. The second must observe the same twenty file bytes, zero reservations and zero retained credit. Read-only reports continue to deny write authorization and native undo-storage observation. The parent independently compares every journal byte after each child; process lifetimes establish the boundary without assuming Windows cannot reuse numeric PIDs.
+
+Debug and optimized executions pass. Scoped strict Clippy and formatting pass. Reports use exclusive creation and refuse existing evidence or fixture reuse. Successful cleanup removes only the named journal and empty fixture directory beneath the canonical project root. Raw reports remain private. The executable does not access a game, provider, MCP endpoint, credential or installed file.
+
+This verifies that actual synced bytes remain observable after normal process exit and that the adapter's in-memory recovery reservations are session-local. It does not implement or qualify restoration of gameplay execution authority. Operation-store prior-boot admission, real undo capacity, forced termination, crashes, power loss, partial writes, sync faults and native callback timing remain separate gates. Do not describe this normal-exit result as crash recovery or a durable reservation store.
+
+The unchanged product baseline passes 391 Rust executions and 94 Python tests before the increment. Private/public product checks pass 391 Rust executions and 94 Python tests, strict Clippy, formatting, release builds and contract checks. Both copies pass actual debug/release process-boundary execution and optional strict Clippy/formatting. Existing-report refusal preserves private evidence. Exact 245-file managed hashes and secret/history audits pass before commit. The SDK and installed product versions remain unchanged.

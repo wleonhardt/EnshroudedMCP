@@ -16,3 +16,15 @@ The executable asserts behavior; a successful compilation alone is not a pass. A
 Reports live under ignored `gamedata/journal-pressure-qualification/`, separately for debug and release. The suite refuses an existing report or fixture rather than overwriting evidence or repeating an ambiguous run. Successful runs remove only the explicitly named disposable journal and empty fixture directory. Preserve reports before deliberately preparing another run.
 
 This proves actual adapter serialization, capacity accounting, open-refusal behavior and filesystem byte preservation on the tested Windows filesystem. It does not inject partial writes or sync failures, establish power-loss durability, prove native undo capacity, test game callbacks or establish recovery across process restart. Those remain separate acceptance gates. The inherited adapter's existing tests can also compile under Clippy; they are not counted as newly added tests.
+
+## Graceful process restart
+
+```powershell
+cargo run --locked --manifest-path qualification/journal-pressure/Cargo.toml --bin restart
+cargo run --locked --release --manifest-path qualification/journal-pressure/Cargo.toml --bin restart
+rustfmt --edition 2024 --check --config skip_children=true qualification/journal-pressure/src/bin/restart.rs
+```
+
+This separate executable starts and awaits two real child processes against the same disposable journal. The first reserves 200 bytes and durably appends a thirteen-byte owner record, retaining 187 bytes. After that process exits successfully, the second must observe the exact twenty journal bytes with zero reservations and zero retained credit. Both observations remain report-only and confer no write authorization. The parent independently compares the complete file after each child. Reports are exclusively created under ignored `gamedata/journal-restart-qualification/`; existing reports/fixtures refuse reuse. Cleanup removes only the named journal and empty fixture directory.
+
+This establishes graceful process-boundary behavior of the unchanged production journal adapter. Its reservations are deliberately session-local; it does not recover them or establish gameplay recovery authority from journal bytes. It does not test construction-operation replay admission, forced termination, power loss, partial writes or sync failures. The earlier pressure experiment's process-restart limit remains accurate for that experiment alone. The default executable remains the original pressure check.
