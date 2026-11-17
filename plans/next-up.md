@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source verified; shutdown failure evidence retained** Decision 0109 repairs panic cleanup that deleted shutdown marker/journal evidence. A failing reproduction now preserves exact bytes and membership for a controlled post-intent deadline refusal; normal cleanup remains. The positive SDK-stop assertion now prints its cached receipt without accepting refusal as success. Private 409 Rust/97 Python and required checks pass; runtime prefix and installation unchanged. Organic timing cause remains open; pending review 0107 stays immutable.
+
 - **source/filesystem qualified; real journal write refusal** Decision 0108 adds an actual Windows write error after successful append open. Error33 leaves exact bytes and both owners' 200 bytes intact; deliberate post-unlock writes spend only the named allowance. Moving only the debit before durability in an isolated copy makes the new case fail at 125 versus 200. Private 408 Rust/97 Python and required checks pass; SDK-free debug/release each pass 18. Runtime prefix and signed installation unchanged. Pending review 0107 is preserved exactly with its historical source counts; no game launch or gameplay recovery claim.
 
 - **staged; held-launcher current Menu review** Decision 0107 stages a fresh four-candidate/five-original closure with source-hashed controller and frozen 14aa78d helpers/probes. Eleven modeled controller cases pass; six actual owned-process cases remain separate. Archived SDK variant is 405 Rust/97 Python; active product is 406 Rust/97 Python, with unchanged client production/dependencies. Preflight verifies signed runtime, Steam/port/source conditions and stale-copy refusal. No installation or game launch. Fresh explicit temporary exception required; consumed 0103 cannot be reused.

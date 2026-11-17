@@ -350,3 +350,6 @@ The server now registers a bounded diagnostic PNG read, with JSON metadata first
 ### Optional process-handoff qualification
 
 [Process-handoff qualification](qualification/process-handoff/README.md) checks held launcher facts, exact identity/linkage and owned loopback observations with Python-only fixtures. The helper starts and stops nothing; it is separate from native game lifecycle control. Real Steam handoff, provider/Menu qualification and a fresh runtime exception remain required.
+
+
+Shutdown source fixtures retain their generated marker/journal directory on panic and report the cached receipt if native-stop acceptance is missing (decision 0109). A controlled deadline-refusal case verifies exact retained files and unchanged successful cleanup. This improves failure diagnosis without changing runtime shutdown or proving the earlier organic timing cause.

@@ -1,0 +1,15 @@
+# 0109: Retain failed shutdown-fixture files and report the cached receipt
+
+Date: 2026-11-17. Status: failing retention reproduction repaired; source verification passed privately. Organic shutdown timing cause remains open.
+
+Decision 0106 records a scheduled shutdown fixture failing because the SDK fake's stop flag is false. Its assertion prints no retained receipt, and its Fixture destructor deletes the generated marker and journal during unwinding. The lost bytes cannot establish whether final admission, durable I/O or another boundary caused that earlier failure. Follow the existing client/grant fixture retention pattern; do not change shutdown runtime behavior or deadlines.
+
+An unmodified baseline passes 408 Rust executions. Add one behavior case that verifies normal fixture cleanup, then drives the real game-free shutdown controller to a controlled post-intent deadline refusal. The first elapsed value is zero; a later value reaches the existing deadline. Native stop must never be called. Require cached not_submitted, stop_request_accepted false, the exact deadline refusal, an exclusive marker and two real journal rows. Catch a controlled unwind and require complete marker/journal bytes and exact directory membership to survive. The original destructor fails with missing files.
+
+While unwinding, the corrected test destructor prints its generated fixture path and retains the directory. Normal cleanup remains unchanged. The corrected case verifies exact retained bytes and membership, then removes only its explicitly owned files and empty directories after canonical containment checks. It uses a scripted elapsed function already supported by run_with; no production clock, timer or fault option changes.
+
+The scheduled positive fixture still requires actual SDK-fake stop acceptance. Add its cached receipt to that critical failed assertion so a future failure exposes refusal/unknown details instead of only a false flag. Do not relax the native-stop assertion or accept refusal as success. The controlled deadline sample is not a reproduction or diagnosis of the lost organic failure's timing phase.
+
+Private checks pass 409 Rust executions, 97 Python tests, strict Clippy, formatting, both release builds and live server contracts. The added case runs once in the server library; other source cases remain unchanged. The normalized production prefix before cfg(test) is byte-identical. Versions, compiler/SDK, schemas, actual installed files and runtime stay unchanged. Public checks and publication audits are recorded separately.
+
+This preserves future source-fixture failure evidence; it does not establish native interruption, actual shutdown, process exit, final save, physical durability or a timing fix. No game launch, world mutation, installed change, live write flag, credential access, Windows MCP or capture occurs. Pending review 0107 remains exact with its own historical staged source counts; no client dependency or reviewed action changes. Retain the earlier failing log and use future naturally retained receipts/files to choose a bounded diagnostic rather than weakening admission or blindly repeating game actions.

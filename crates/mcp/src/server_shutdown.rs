@@ -362,10 +362,82 @@ mod tests {
     }
     impl Drop for Fixture {
         fn drop(&mut self) {
+            if std::thread::panicking() {
+                eprintln!("retaining failed shutdown fixture: {}", self.0.display());
+                return;
+            }
             let p = self.0.canonicalize().unwrap();
             assert!(p.starts_with(&self.1) && p != self.1);
             fs::remove_dir_all(p).unwrap();
         }
+    }
+    #[test]
+    fn fixture_unwind_preserves_shutdown_marker_and_refused_outcome() {
+        let normal = Fixture::new();
+        normal.enable();
+        let normal_path = normal.0.clone();
+        drop(normal);
+        assert!(!normal_path.exists());
+
+        let failed = Fixture::new();
+        failed.enable();
+        let mut state = State::default();
+        let reads = Cell::new(0);
+        let result = run_with(
+            &failed.0,
+            &mut state,
+            &spec(),
+            "active",
+            read,
+            || panic!("expired fixture must not request native stop"),
+            || {
+                reads.set(reads.get() + 1);
+                if reads.get() == 1 {
+                    Duration::ZERO
+                } else {
+                    shutdown::WAIT
+                }
+            },
+        );
+        assert!(result.is_err());
+        let receipt = state.operations["con"].1.clone();
+        assert_eq!(receipt["state"], "not_submitted");
+        assert_eq!(receipt["stop_request_accepted"], false);
+        assert_eq!(
+            receipt["refusal"],
+            "shutdown request deadline expired before dispatch"
+        );
+        let dir = failed.0.clone();
+        let base = failed.1.clone();
+        let marker = path(&dir, "con");
+        let marker_bytes = fs::read(&marker).unwrap();
+        let journal_bytes = fs::read(dir.join("journal.jsonl")).unwrap();
+        assert_eq!(failed.records(), 2);
+        assert!(
+            std::panic::catch_unwind(move || {
+                let _owned = failed;
+                panic!("controlled shutdown fixture unwind");
+            })
+            .is_err()
+        );
+        assert_eq!(fs::read(&marker).unwrap(), marker_bytes);
+        assert_eq!(fs::read(dir.join("journal.jsonl")).unwrap(), journal_bytes);
+        assert_eq!(
+            fs::read_dir(&dir)
+                .unwrap()
+                .map(|entry| entry.unwrap().file_name())
+                .collect::<std::collections::BTreeSet<_>>(),
+            ["ALLOW_WRITES", "server-shutdown", "journal.jsonl"]
+                .into_iter()
+                .map(std::ffi::OsString::from)
+                .collect()
+        );
+        assert!(dir.canonicalize().unwrap().starts_with(base));
+        fs::remove_file(marker).unwrap();
+        fs::remove_file(dir.join("journal.jsonl")).unwrap();
+        fs::remove_file(dir.join(write_gate::FLAG)).unwrap();
+        fs::remove_dir(dir.join("server-shutdown")).unwrap();
+        fs::remove_dir(dir).unwrap();
     }
     fn spec() -> shutdown::Spec {
         shutdown::check(
@@ -853,7 +925,10 @@ side = "server""#
                 reconciled["native_outcome"].clone()
             }
         };
-        assert!(loader.stop_asked());
+        assert!(
+            loader.stop_asked(),
+            "expected native stop request; retained receipt: {receipt}"
+        );
         assert_eq!(receipt["stop_request_accepted"], true);
         assert_eq!(receipt["process_exit_verified"], false);
         assert_eq!(receipt["final_save_verified"], false);

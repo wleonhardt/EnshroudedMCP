@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Retain shutdown test fixtures during unwinding and include the cached receipt when the positive native-stop assertion fails. Exact controlled refusal evidence and normal cleanup are checked. Runtime behavior/deadlines and unresolved organic timing remain unchanged.
+
 - Qualify a real Windows journal write-lock refusal after successful open, preserving exact bytes and both recovery owners. An isolated early-debit mutation fails the new case. Production adapter and runtime behavior remain unchanged; physical sync/power-loss recovery stays open.
 
 - Add optional read-only process-handoff qualification using the held launcher handle, full-precision identities and independent loopback ownership. Owned Python fixtures preserve unknown exited images and exact exit codes. No game launcher, MCP executor or runtime change.

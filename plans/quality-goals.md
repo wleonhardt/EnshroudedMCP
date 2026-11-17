@@ -119,3 +119,8 @@ Decision 0107 advances goals 2 and 3 by integrating the held-handle witness into
 ## Real journal write-error boundary — 2026-11-17
 
 Decision 0108 advances goal 4 with an actual Windows write failure after successful open. Exact bytes, both owners' retained credit and named-owner spending remain correct; an isolated early-debit mutation is detected by the new case. Private checks pass 408 Rust/97 Python and required checks; optional debug/release each pass 18. Runtime code and signed installation remain unchanged. Real partial progress, physical sync/power loss and operation/native recovery remain separate. Pending Menu review 0107 stays byte-identical with its own staged source counts.
+
+
+## Retained shutdown failure evidence — 2026-11-17
+
+Decision 0109 advances goal 4 by preserving exact shutdown fixture files during panic and exposing the cached receipt at the positive stop assertion. A controlled post-intent deadline refusal verifies evidence retention without native submission. Normal cleanup and production code remain unchanged. Private checks pass 409 Rust/97 Python and required checks. The original organic failure cause remains open; preserve pending review 0107 and its staged counts rather than rewriting the reviewed artifact.

@@ -3305,9 +3305,10 @@
       "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
       "evidence_summary": "Native requests and independently observed exit code 0; causal final-save proof open.",
       "evidence_references": [
-        "plans/decisions/0018-native-dedicated-shutdown.md"
+        "plans/decisions/0018-native-dedicated-shutdown.md",
+        "plans/decisions/0109-retain-shutdown-failure-evidence.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "409-Rust source cohort includes panic-retained shutdown fixture bytes and cached receipt diagnostics; controlled post-intent refusal never calls stop. Organic timing cause, native interruption and causal exit/save remain unverified.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
@@ -3351,9 +3352,10 @@
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
       "evidence_summary": "16 retained samples including 15 after ShutdownStarted; native busy branch unobserved.",
       "evidence_references": [
-        "plans/decisions/0057-retained-shutdown-status.md"
+        "plans/decisions/0057-retained-shutdown-status.md",
+        "plans/decisions/0109-retain-shutdown-failure-evidence.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "409-Rust source cohort includes panic-retained shutdown fixture bytes and cached receipt diagnostics; controlled post-intent refusal never calls stop. Organic timing cause, native interruption and causal exit/save remain unverified.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",

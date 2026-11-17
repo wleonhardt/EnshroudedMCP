@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Shutdown fixture failure evidence now survives Rust unwinding, and the positive stop assertion includes its cached receipt (decision 0109). A controlled refusal retains exact marker/journal bytes; normal cleanup remains. Private 409 Rust/97 Python and required checks pass. Runtime, native acceptance, organic timing uncertainty and pending Menu review are unchanged.
+
 Real Windows write-boundary qualification now passes after successful append open (decision 0108). Kernel error 33 preserves all bytes and 200 retained recovery bytes; an isolated early-debit mutation fails at 125. Private product checks pass 408 Rust/97 Python and required checks; optional debug/release each pass 18. Production journal code, installed runtime and pending Menu review are unchanged. Physical sync and native recovery remain open.
 
 A fresh temporary Menu review now binds a held-launcher controller, frozen process/probe source, four candidates and five originals (decision 0107). Eleven model cases pass without a process launch; six owned-process fixtures separately qualify Windows observations. Current signed runtime is preserved. Explicit exception remains pending; real Steam/Menu/new-consumer acceptance and adoption remain open.
