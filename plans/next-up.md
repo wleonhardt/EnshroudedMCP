@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source/replay verified; selection-aligned terrain sections** Decision 0110 adds exact X/Y and Z/Y sections through a selected pin, clicked cell or proposed target. All half-open bounds are checked; outside selections stay disabled without clamping. Private 409 Rust/98 Python and required checks pass. Archived native replay preserves 4,096 cells and 16 pins with 6,688 comparisons. Browser visual acceptance remains pending because BrowserOS is unavailable. Signed runtime and immutable pending Menu review 0107 stay unchanged.
+
 - **source verified; shutdown failure evidence retained** Decision 0109 repairs panic cleanup that deleted shutdown marker/journal evidence. A failing reproduction now preserves exact bytes and membership for a controlled post-intent deadline refusal; normal cleanup remains. The positive SDK-stop assertion now prints its cached receipt without accepting refusal as success. Private 409 Rust/97 Python and required checks pass; runtime prefix and installation unchanged. Organic timing cause remains open; pending review 0107 stays immutable.
 
 - **source/filesystem qualified; real journal write refusal** Decision 0108 adds an actual Windows write error after successful append open. Error33 leaves exact bytes and both owners' 200 bytes intact; deliberate post-unlock writes spend only the named allowance. Moving only the debit before durability in an isolated copy makes the new case fail at 125 versus 200. Private 408 Rust/97 Python and required checks pass; SDK-free debug/release each pass 18. Runtime prefix and signed installation unchanged. Pending review 0107 is preserved exactly with its historical source counts; no game launch or gameplay recovery claim.

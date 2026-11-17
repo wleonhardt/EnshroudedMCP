@@ -26,6 +26,10 @@
     const x = Math.floor(position[0]*2), z = Math.floor(position[2]*2);
     return cells.filter(c => c[0] === x && c[2] === z).sort((a,b) => b[1]-a[1]);
   }
+  function sectionIndex(position, view, min, max) {
+    if (!["xy","zy"].includes(view) || position.some((v,i) => !Number.isFinite(v) || v < min[i] || v >= max[i])) return null;
+    return Math.floor(position[view === "xy" ? 2 : 0]*2);
+  }
   const normals = [[-1,0,0],[1,0,0],[0,-1,0],[0,1,0],[0,0,-1],[0,0,1]];
   const corners = [
     [[0,0,0],[0,0,1],[0,1,1],[0,1,0]], [[1,0,0],[1,1,0],[1,1,1],[1,0,1]],
@@ -47,7 +51,7 @@
     }
     return faces;
   }
-  globalThis.TerrainGeometry = {project, section, topCells, column, exposedFaces};
+  globalThis.TerrainGeometry = {project, section, topCells, column, sectionIndex, exposedFaces};
   if (typeof document === "undefined") return;
 
   const data = JSON.parse(document.getElementById("terrain-data").textContent);
@@ -58,6 +62,16 @@
   const proposal = data.plan || null, showPlan=document.getElementById("show-plan"), planTarget=document.getElementById("plan-target");
   const colors = {air: "#253347", terrain: "#b5986b", building: "#63b7d0", unknown: "#be97e8"};
   let pick = [], selected = null, selectedTarget = null;
+  let selectedPosition = null;
+  const sectionButtons = {xy:document.getElementById("section-xy"),zy:document.getElementById("section-zy")};
+  for (const [view, button] of Object.entries(sectionButtons)) {
+    button.disabled = true;
+    button.addEventListener("click", () => {
+      const index = selectedPosition === null ? null : sectionIndex(selectedPosition,view,data.min_m,data.max_m);
+      if (index === null) return;
+      controls.view.value = view;setupSlice();controls.slice.value = String(index);draw();
+    });
+  }
   const center = data.min_m.map((v,i) => (v + data.max_m[i])/2);
   const local = p => p.map((v,i) => v-center[i]);
   const bounds = [];
@@ -65,6 +79,11 @@
     bounds.push([x?data.max_m[0]:data.min_m[0],y?data.max_m[1]:data.min_m[1],z?data.max_m[2]:data.min_m[2]]);
   }
   function describeColumn(position, label) {
+    selectedPosition = position.slice();
+    for (const [view, button] of Object.entries(sectionButtons)) {
+      button.disabled = sectionIndex(position,view,data.min_m,data.max_m) === null;
+      button.title = button.disabled ? "Selection is outside the captured box; no section selected." : "Open the exact containing half-metre section.";
+    }
     document.getElementById("column-profile").hidden = false;
     document.getElementById("column-title").textContent = `Observed column at ${label}`;
     const rows = column(data.cells, position), body = document.getElementById("column-rows");

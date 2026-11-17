@@ -180,6 +180,29 @@ class TerrainViewTests(unittest.TestCase):
             self.assertEqual(json.loads(payload)["pins"][0]["label"], "__TERRAIN_SCRIPT__")
 
     @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer geometry checks")
+    def test_selection_sections_use_half_open_bounds_without_clamping_or_mutation(self):
+        script = r'''
+const assert = require('node:assert/strict');
+require(process.argv[1]);
+const sectionIndex = globalThis.TerrainGeometry.sectionIndex;
+const min = Object.freeze([10,20,30]), max = Object.freeze([11,21.5,32]);
+const point = Object.freeze([10.75,20.5,31.75]);
+assert.equal(sectionIndex(point,'xy',min,max),63);
+assert.equal(sectionIndex(point,'zy',min,max),21);
+assert.equal(sectionIndex(min,'xy',min,max),60);
+assert.equal(sectionIndex(min,'zy',min,max),20);
+assert.equal(sectionIndex([.25,.25,.25],'xy',[0,0,0],[.5,.5,.5]),0);
+for (const p of [[11,20,30],[10,21.5,30],[10,20,32],[9.999,20,30],[10,19.999,30],[10,20,29.999],[NaN,20,30]]) {
+  assert.equal(sectionIndex(p,'xy',min,max),null);
+  assert.equal(sectionIndex(p,'zy',min,max),null);
+}
+assert.equal(sectionIndex(point,'top',min,max),null);
+'''
+        result = subprocess.run([shutil.which("node"), "-e", script,
+                                 str(Path(__file__).with_name("terrain_view.js"))], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer geometry checks")
     def test_column_profile_preserves_all_raw_bands_and_half_open_coordinates(self):
         script = r'''
 const assert = require('node:assert/strict');
@@ -244,7 +267,7 @@ class Element extends EventTarget {
 const ids=['terrain-data','terrain','view','yaw','pitch','zoom','slice','selection','measure','pins',
            'provenance','slice-control','yaw-control','pitch-control','slice-value','export',
            'show-plan','plan-target','plan-controls','plan-summary',
-           'column-profile','column-title','column-summary','column-rows'];
+           'column-profile','column-title','column-summary','column-rows','section-xy','section-zy'];
 const nodes=Object.fromEntries(ids.map(id=>[id,new Element()]));
 nodes['terrain-data'].textContent=process.argv[2];
 nodes.view.tagName='SELECT';nodes.view.value='orbit';nodes.yaw.value='320';
@@ -252,14 +275,33 @@ nodes.pitch.value='32';nodes.zoom.value='100';
 nodes['show-plan'].checked=true;
 nodes['column-profile'].hidden=true;
 nodes.terrain.clientWidth=800;nodes.terrain.clientHeight=520;
-const painted=[];
-nodes.terrain.getContext=()=>new Proxy({fillText:text=>painted.push(text)}, {get:(target,key)=>target[key]??(()=>{})});
+const painted=[],polygons=[];let polygon=[],closed=false;
+nodes.terrain.getContext=()=>new Proxy({fillText:text=>painted.push(text),
+  beginPath:()=>{polygon=[];closed=false;},moveTo:(x,y)=>polygon.push([x,y]),lineTo:(x,y)=>polygon.push([x,y]),
+  closePath:()=>{closed=true;},fill:()=>{if(closed&&polygon.length===4)polygons.push(polygon.slice());}
+}, {get:(target,key)=>target[key]??(()=>{})});
+nodes.terrain.getBoundingClientRect=()=>({left:0,top:0});
 globalThis.document={getElementById:id=>nodes[id],createElement:tag=>new Element(tag.toUpperCase())};
 globalThis.window={devicePixelRatio:1,addEventListener:()=>{}};
 require(process.argv[1]);
 assert.equal(nodes.terrain.dataset.view,'orbit');
 assert.equal(nodes['slice-control'].hidden,true);
 assert.equal(nodes['column-profile'].hidden,true);
+assert.equal(nodes['section-xy'].disabled,true);
+nodes['section-xy'].dispatchEvent(new Event('click'));
+assert.equal(nodes.terrain.dataset.view,'orbit');
+if(JSON.parse(process.argv[2]).pins.length===0){
+  const face=polygons.at(-1),x=face.reduce((s,p)=>s+p[0],0)/4,y=face.reduce((s,p)=>s+p[1],0)/4;
+  nodes.terrain.dispatchEvent(Object.assign(new Event('click'),{clientX:x,clientY:y}));
+  assert.equal(nodes['column-title'].textContent,'Observed column at selected cell minimum');
+  const cell=JSON.parse(nodes.selection.textContent.match(/Cell (\[[^\]]+\])/)[1]);
+  assert.ok(JSON.parse(process.argv[2]).cells.some(c=>c.slice(0,3).join(',')===cell.join(',')));
+  nodes['section-xy'].dispatchEvent(new Event('click'));
+  assert.equal(nodes.terrain.dataset.view,'xy');assert.equal(nodes.slice.value,String(cell[2]));
+  nodes['section-zy'].dispatchEvent(new Event('click'));
+  assert.equal(nodes.terrain.dataset.view,'zy');assert.equal(nodes.slice.value,String(cell[0]));
+  process.exit(0);
+}
 nodes.pins.children[0].dispatchEvent(new Event('click'));
 assert.equal(nodes['column-profile'].hidden,false);
 assert.equal(nodes['column-title'].textContent,'Observed column at Band boundary');
@@ -296,6 +338,25 @@ nodes.view.value='top';nodes.view.dispatchEvent(new Event('change'));
 assert.equal(nodes.terrain.dataset.view,'top');
 assert.equal(nodes.terrain.dataset.renderedFaces,'8');
 assert.equal(nodes['slice-control'].hidden,true);
+nodes.pins.children[0].dispatchEvent(new Event('click'));
+assert.equal(nodes['section-xy'].disabled,false);
+nodes['section-xy'].dispatchEvent(new Event('click'));
+assert.equal(nodes.terrain.dataset.view,'xy');
+assert.equal(nodes.slice.value,'60');
+assert.equal(nodes['slice-value'].textContent,'Z [30, 30.5) m');
+assert.ok(painted.some(text=>text.includes('Section Z [30, 30.5) m')));
+nodes.pins.children[3].dispatchEvent(new Event('click'));
+nodes['section-zy'].dispatchEvent(new Event('click'));
+assert.equal(nodes.terrain.dataset.view,'zy');
+assert.equal(nodes.slice.value,'21');
+assert.equal(nodes['slice-value'].textContent,'X [10.5, 11) m');
+nodes.pins.children[1].dispatchEvent(new Event('click'));
+assert.equal(nodes['section-xy'].disabled,true);
+assert.equal(nodes['section-zy'].disabled,true);
+nodes['section-xy'].dispatchEvent(new Event('click'));
+assert.equal(nodes.terrain.dataset.view,'zy');
+assert.equal(nodes.slice.value,'21');
+nodes.view.value='top';nodes.view.dispatchEvent(new Event('change'));
 if(hasPlan){
   assert.equal(nodes.terrain.dataset.proposedTargets,'3');
   const observed=nodes.terrain.dataset.renderedFaces;
@@ -307,6 +368,13 @@ if(hasPlan){
   nodes['plan-target'].value='3';nodes['plan-target'].dispatchEvent(new Event('change'));
   assert.ok(nodes.selection.textContent.includes('unobserved; outside capture, not drawn'));
   assert.ok(nodes.selection.textContent.includes('execution NOT authorized'));
+  assert.equal(nodes['section-xy'].disabled,true);
+  nodes['section-xy'].dispatchEvent(new Event('click'));
+  assert.equal(nodes.terrain.dataset.view,'top');
+  nodes['plan-target'].value='0';nodes['plan-target'].dispatchEvent(new Event('change'));
+  nodes['section-xy'].dispatchEvent(new Event('click'));
+  assert.equal(nodes.terrain.dataset.view,'xy');
+  assert.equal(nodes.slice.value,'60');
 }
 '''
         base=scene(survey(), [
@@ -316,7 +384,7 @@ if(hasPlan){
             {"label": "Partial building", "position": [10.75, 21.25, 31.75]},
             {"label": "Below capture", "position": [10.25, 19.5, 30.25]},
         ])
-        for value in [base,with_plan(base,preview([[20,40,60],[20,41,60],[21,42,63],[22,40,60]]))]:
+        for value in [base,with_plan(base,preview([[20,40,60],[20,41,60],[21,42,63],[22,40,60]])),scene(survey())]:
             result=subprocess.run([shutil.which("node"), "-e", script,
                                    str(Path(__file__).with_name("terrain_view.js")),
                                    json.dumps(value)], capture_output=True,text=True)

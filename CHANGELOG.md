@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Open exact X/Y or Z/Y terrain sections through the selected pin, clicked cell or proposed target. Outside-capture selections remain disabled without clamping. Source and archived native-data replay pass; browser visual acceptance remains pending.
+
 - Retain shutdown test fixtures during unwinding and include the cached receipt when the positive native-stop assertion fails. Exact controlled refusal evidence and normal cleanup are checked. Runtime behavior/deadlines and unresolved organic timing remain unchanged.
 
 - Qualify a real Windows journal write-lock refusal after successful open, preserving exact bytes and both recovery owners. An isolated early-debit mutation fails the new case. Production adapter and runtime behavior remain unchanged; physical sync/power-loss recovery stays open.

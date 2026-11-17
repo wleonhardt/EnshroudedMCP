@@ -353,3 +353,6 @@ The server now registers a bounded diagnostic PNG read, with JSON metadata first
 
 
 Shutdown source fixtures retain their generated marker/journal directory on panic and report the cached receipt if native-stop acceptance is missing (decision 0109). A controlled deadline-refusal case verifies exact retained files and unchanged successful cleanup. This improves failure diagnosis without changing runtime shutdown or proving the earlier organic timing cause.
+
+
+The standalone terrain viewer offers **X/Y through selection** and **Z/Y through selection** for a selected pin, clicked cell or proposed target inside the capture. Each opens the exact containing half-metre section; outside selections stay disabled. Geometry-only targets grant no clearance or execution authority. Decision 0110 records source/native-data replay checks; browser visual acceptance is pending.

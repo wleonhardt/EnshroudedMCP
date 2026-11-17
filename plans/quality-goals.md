@@ -124,3 +124,8 @@ Decision 0108 advances goal 4 with an actual Windows write failure after success
 ## Retained shutdown failure evidence — 2026-11-17
 
 Decision 0109 advances goal 4 by preserving exact shutdown fixture files during panic and exposing the cached receipt at the positive stop assertion. A controlled post-intent deadline refusal verifies evidence retention without native submission. Normal cleanup and production code remain unchanged. Private checks pass 409 Rust/97 Python and required checks. The original organic failure cause remains open; preserve pending review 0107 and its staged counts rather than rewriting the reviewed artifact.
+
+
+## Selection-aligned technical terrain inspection — 2026-11-17
+
+Decision 0110 makes selected pins, cells and proposed targets directly inspectable in exact X/Y and Z/Y sections. Half-open bounds preserve unknown space without clamping. Private checks pass 409 Rust/98 Python and required commands; archived native-data replay passes 6,688 comparisons across 4,096 cells and 16 pins. Browser visual acceptance remains pending while BrowserOS is unavailable. No game input or installed change occurs.
