@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Source server 0.47.0 / companion 0.21.0 adds `runtime_framework` to capability reports: copied actual provider ABI/table metadata, separately from compiled SDK provenance. This proves no signature trust, API-call fidelity or gameplay behavior. Installed versions remain 0.46.1 / 0.20.2; matched native acceptance is pending. Current source/installed distinctions are in the [capability matrix](plans/capability-matrix.md); dated checkpoints below remain historical.
+Installed server 0.47.0 / companion 0.21.0 now reports copied actual provider ABI 12.1/table 1680 separately from compiled SDK provenance. Matched server/Menu read, refusal, loaded-module and preservation checks pass on unchanged signed SDK 6a151a95. Header metadata verifies neither general API-call fidelity nor gameplay/rendering. See [native acceptance](plans/decisions/0084-matched-runtime-header-native-acceptance.md) and the [capability matrix](plans/capability-matrix.md); dated checkpoints below remain historical.
 
 An inactive [merged-SDK placement consumer probe](qualification/sdk-prop-placement/README.md) now checks copied identity/corners and unknown/error behavior on ABI 12.8. It supplies no MCP endpoint or native adoption; product remains SDK alpha.17/ABI 12.1. Whole-product migration and native metadata values remain unverified.
 

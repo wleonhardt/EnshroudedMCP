@@ -39,4 +39,6 @@ Decision 0081 exercises actual journal bytes before injected partial-write and s
 
 Decision 0082 adds actual immutable runtime header metadata to both capability reports and the contract checker. This advances goals 1 and 2 without SDK adoption or trust/gameplay inference. Matched native acceptance remains pending.
 
-Decision 0083 completes an explicitly approved temporary ABI12.11 client Menu/header/legacy-read experiment and exact rollback. General provider trust, native Join/Leave, profile/credential resolution, character/peer/roster and rendered workflow acceptance remain open.
+Decision 0083 completes an explicitly approved temporary ABI 12.11 client Menu/header/legacy-read experiment and exact rollback. General provider trust, native Join/Leave, profile/credential resolution, character/peer/roster and rendered workflow acceptance remain open.
+
+Decision 0084 qualifies matched 0.47.0/0.21.0 actual signed-provider headers, server reads, client Menu and exact preservation. Goal2 still requires a current-base SDK migration replay and separate lifecycle/provenance acceptance; broader gameplay, scene and workshop outcomes remain open.

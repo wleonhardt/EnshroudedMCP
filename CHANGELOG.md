@@ -2,7 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
-- Server 0.47.0 / companion 0.21.0 adds copied actual provider header metadata to capability reports, separately from compiled provenance. The contract checker preserves unavailable/different values without granting compatibility or trust. SDK and installed files remain unchanged pending matched cold/native qualification.
+- Server 0.47.0 / companion 0.21.0 adds copied actual provider header metadata to capability reports, separately from compiled provenance. The contract checker preserves unavailable/different values without granting compatibility or trust. Matched cold installation and bounded native server/client Menu header/refusal acceptance now pass on unchanged signed SDK12.1; general API fidelity, gameplay and rendering remain separate.
 
 - Qualify partial-write and failed-sync outcomes through a private production journal test seam. Real file-byte changes preserve both recovery owners and conservative capacity refusal; the normal write-all/sync-all path is unchanged. Injected errors do not claim real disk-full, power-loss or native callback acceptance.
 

@@ -1,6 +1,6 @@
 {
   "date": "2026-11-16",
-  "status": "all 50 source contracts indexed; 0.47.0/0.21.0 runtime-header native acceptance pending; installed pair remains 0.46.1/0.20.2",
+  "status": "all 50 source contracts indexed; matched installed 0.47.0/0.21.0 runtime-header native acceptance passed; broader workflows remain open",
   "profiles": {
     "product": {
       "server_version": "0.47.0",
@@ -8,10 +8,10 @@
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "server 0.46.1 / companion 0.20.2 DLLs installed on SDK 6a151a95 / ABI 12.1; empty-server image acceptance passed, client closed",
+      "installed": "server 0.47.0 / companion 0.21.0 installed on unchanged signed SDK 6a151a95/ABI 12.1; actual header/table 1680, server reads and client Menu acceptance passed; client closed",
       "game_build": "not observed by capability getter; do not infer from framework version",
-      "installed_server_version": "0.46.1",
-      "installed_client_version": "0.20.2"
+      "installed_server_version": "0.47.0",
+      "installed_client_version": "0.21.0"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -54,9 +54,9 @@
         "forty fixed server reads and one item/template correspondence",
         "three tiny diagnostic images with independent raw-cell/pixel/caption checks",
         "one gated native shutdown and independent exit 0",
-        "temporary client actual ABI12.11/table1744 and four loaded module hashes",
+        "temporary client actual ABI 12.11/table1744 and four loaded module hashes",
         "fresh copied Menu and thirteen historical legacy companion read/refusal probes",
-        "one observed ordinary window-close exit0 and exact signed-file restoration"
+        "one observed ordinary window-close exit 0 and exact signed-file restoration"
       ],
       "native_client_header_qualified": true,
       "native_client_legacy_menu_reads_qualified": true,
@@ -867,20 +867,21 @@
         "crates/policy/src/framework.rs"
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
-      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "thread": "listener; initialization-time copied immutable metadata; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source adds copied actual provider header metadata separately from compiled SDK provenance; matched native acceptance remains pending.",
+      "evidence_summary": "Matched 0.47.0/0.21.0 actual provider ABI 12.1/table 1680 and loaded-module correspondence pass; compiled provenance remains separate.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0082-runtime-provider-header.md"
+        "plans/decisions/0082-runtime-provider-header.md",
+        "plans/decisions/0084-matched-runtime-header-native-acceptance.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Current installed profile observed; native provider fidelity remains separately qualified.",
+      "native_acceptance": "Bounded native header, exact process/module/binding and full advertised contract comparison passed; general provider/API fidelity remains separate.",
       "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
       "persistence_acceptance": "No persistence claim.",
-      "freshness_completeness": "Compiled strings and initialization-time resolved handles, not a live provider ABI or a current World observation.",
-      "next_missing_check": "Correlate runtime header fields with exact loaded signed-provider files on both matched endpoints; header equality is not signature or gameplay verification.",
-      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "freshness_completeness": "Initialization-time actual immutable provider header is copied separately from compiled provenance and resolved handles. No current World or rendered UI completeness claim.",
+      "next_missing_check": "Qualify this product report with a deliberately paired different/newer provider and unavailable values; assess API fidelity and provenance separately without automatic upgrade.",
+      "refusal_acceptance": "Caller-supplied runtime_framework refuses with the exact unknown-argument message; subsequent replies preserve actual headers. No full native fault matrix is claimed.",
       "independent_effect_acceptance": "No action or World mutation.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -888,7 +889,7 @@
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
-      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
+      "evidence_applicability": "Installed server0.47.0/companion0.21.0 on unchanged signed SDK 6a151a95/ABI 12.1; empty isolated server and fresh copied client Menu; no gameplay or rendered fixture."
     },
     {
       "scope": "server",
@@ -3749,20 +3750,21 @@
         "crates/policy/src/framework.rs"
       ],
       "dispatch_source": "crates/client/src/lib.rs",
-      "thread": "listener; copied/retained state or filesystem budget; no World access",
+      "thread": "listener; initialization-time copied immutable metadata; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Source adds copied actual provider header metadata separately from compiled SDK provenance; matched native acceptance remains pending.",
+      "evidence_summary": "Matched 0.47.0/0.21.0 actual provider ABI 12.1/table 1680 and loaded-module correspondence pass; compiled provenance remains separate.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0082-runtime-provider-header.md"
+        "plans/decisions/0082-runtime-provider-header.md",
+        "plans/decisions/0084-matched-runtime-header-native-acceptance.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Current installed companion/provenance observed; per-request applicability remains separate.",
+      "native_acceptance": "Bounded native header, exact process/module/binding and full advertised contract comparison passed; general provider/API fidelity remains separate.",
       "rendered_acceptance": "Not applicable to metadata/accounting/pure retrieval; it does not certify rendered effects.",
       "persistence_acceptance": "No persistence claim.",
-      "freshness_completeness": "Compiled strings/resolved handles only. Fresh UI frames can coexist with copied state Never; no executor inferred from a getter.",
-      "next_missing_check": "Correlate runtime header fields with exact loaded signed-provider files on both matched endpoints; header equality is not signature or gameplay verification.",
-      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "freshness_completeness": "Initialization-time actual immutable provider header is copied separately from compiled provenance and resolved handles. No current World or rendered UI completeness claim.",
+      "next_missing_check": "Qualify this product report with a deliberately paired different/newer provider and unavailable values; assess API fidelity and provenance separately without automatic upgrade.",
+      "refusal_acceptance": "Caller-supplied runtime_framework refuses with the exact unknown-argument message; subsequent replies preserve actual headers. No full native fault matrix is claimed.",
       "independent_effect_acceptance": "No command execution, rendered evidence or server authority.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -3770,7 +3772,7 @@
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
-      "evidence_applicability": "Source contract uses current product profile. Historical native evidence is limited to its linked fixture/configuration; exact game build and broader selector coverage are not inferred."
+      "evidence_applicability": "Installed server0.47.0/companion0.21.0 on unchanged signed SDK 6a151a95/ABI 12.1; empty isolated server and fresh copied client Menu; no gameplay or rendered fixture."
     },
     {
       "scope": "client",

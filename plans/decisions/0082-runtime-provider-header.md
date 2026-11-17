@@ -1,6 +1,6 @@
 # 0082: Separate actual provider header metadata from compiled SDK provenance
 
-Date: 2026-11-16. Status: private/public source qualified; matched native acceptance pending.
+Date: 2026-11-16. Status: source and bounded matched native header/server/Menu acceptance passed (decision0084).
 
 Quality goals 1 and 2 require agents to distinguish the SDK a consumer was compiled against from the provider actually supplying its API. The optional decision 0078 probe obtains real header metadata, but the product capability reports previously exposed only compiled revision/ABI. Add a bounded `runtime_framework` observation to existing server `capabilities` and companion `client_capabilities`. Keep the 37/13 tool inventory and all input schemas unchanged.
 
@@ -19,3 +19,5 @@ Both endpoint initialization adapters pass published SDK fake checks. The server
 Private serial checks pass 398 Rust executions and 96 Python tests plus strict lint/format/release/index checks. The first simultaneous private/public cohort fails the existing lost-reply fixture before native submission, without retaining its refusal reason. Add synthetic-reply assertion diagnostics; three bounded targeted runs and the serialized private suite pass. The original refusal cause remains unproved; do not attribute it to resource contention or weaken any gate. The first public cohort was old source because export had stopped; it is preserved as baseline evidence only. Actual feature-public checks remain pending. The separately approved temporary legacy-companion client test and rollback now pass in decision 0083.
 
 Private/public source checks pass 398 Rust executions and 96 Python tests, strict Clippy, formatting, release builds and contract checks. Actual feature-public validation runs only after synchronization and passes; the earlier old-source public run remains baseline evidence. New source checker deliberately refuses the unchanged old installed server with server mod_version mismatch. Two DLL candidates and four exact product rollback copies are staged privately with all twelve original installed hashes preserved. No installation of this feature occurs yet. Decision 0083 separately completes the approved temporary legacy-companion provider test and exact signed rollback.
+
+Follow-up decision0084 completes matched native acceptance and installation on the unchanged signed provider. Historical source-only/staging paragraphs retain their scope; current installed versions are0.47.0/0.21.0.
