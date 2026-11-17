@@ -1,5 +1,7 @@
 # Quality goals
 
+Goals 2 and 5 now include decision 0097's independent read-only respawn-target consumer at SDK daffae39 / ABI 12.13. Seven synthetic cases preserve missing observations, typed errors and raw finite transforms. Next qualify a matching provider and independently observed current-player target before proposing a game-thread product read. No setter, movement, revival, native acceptance or installed change is implied. The staged SDK 12.11 Menu review remains separate.
+
 Date: 2026-11-16. Status: open. Close independently verified workflows rather than count tools or commits. Start with goals 1, 2 and 4. The capability matrix records current versions, contracts, evidence limits and missing checks.
 
 1. Reconcile every advertised tool into an authoritative capability and acceptance matrix.

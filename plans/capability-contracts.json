@@ -100,6 +100,18 @@
       "status": "candidate and clean replay each pass 399 Rust/96 Python, required lint/format/releases/contracts and exact 259-file tree reconstruction; not installed",
       "native_review": "plans/decisions/0093-current-admission-consumer-menu-review.md",
       "native_review_status": "current-version source-matched namespace variant and rollback closure staged; explicit temporary exception pending; no installation or launch"
+    },
+    "respawn_candidate": {
+      "sdk_revision": "daffae3937398f29939783adc5247d6e5bb75bbf",
+      "abi": "12.13",
+      "rust": "1.100.0",
+      "source_only": true,
+      "source_cases": 7,
+      "native_qualified": false,
+      "registered_product_tool": false,
+      "primary_installation_changed": false,
+      "scope": "read-only future respawn target; no session admission, setter, revival or arrival proof",
+      "next_check": "matching provider and independently observed current-player target; SDK 12.11 Menu review is separate"
     }
   },
   "counts": {

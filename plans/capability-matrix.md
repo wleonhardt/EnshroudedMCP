@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Source-only respawn-target qualification now uses exact SDK daffae39 / ABI 12.13 in an independent rlib workspace (decision 0097). Seven FakeHost cases preserve missing-versus-zero semantics, typed errors, finite raw transforms and explicit session limitations. No product tool, setter, native acceptance or installed change. Next qualify a matching provider and independently observed current-player target before proposing a game-thread read route. The SDK 12.11 Menu review remains separate.
+
 Controlled pre-sync journal termination now has source/filesystem evidence (decision 0096): owned workers are killed after one or 100 actual bytes; fresh processes see exact bytes, zero session credit and old-owner refusal. This test-only change preserves the production adapter and grants no native recovery authority or hardware-durability claim.
 
 The external terrain inspector now has a source-verified vertical column profile for selected pins/cells/targets (decision 0095). Raw native 16-band DOM correspondence passes; outside/half-open behavior is tested. Browser visual acceptance is pending a disconnected BrowserOS link. This adds no MCP tool, native executor, surface-height or contact proof.

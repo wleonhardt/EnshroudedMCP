@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add an inactive, read-only SDK 12.13 respawn-target consumer with seven synthetic behavior cases. Preserve missing observations, typed errors and raw finite transforms. No registered tool, setter, native qualification or installed change.
+
 - Add controlled process-termination coverage for the existing journal adapter. Owned workers stop after partial/full progress before explicit sync; independent reopen preserves exact observed bytes, loses session credit and refuses the old owner. No runtime behavior, hardware durability or native recovery claim changes.
 
 - Add complete sampled vertical column profiles to the external terrain inspector when selecting pins, cells or proposed targets. Preserve raw bands and half-open/outside semantics without new reads or gameplay control. Source/native-data DOM checks pass; browser visual acceptance remains pending.
