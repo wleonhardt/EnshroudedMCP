@@ -33,3 +33,5 @@ Write a failing reproduction before fixing a bug. Test observable behavior and b
 Update the changelog, tool reference and relevant plans for behavior changes. Before a live experiment, define a tiny disposable fixture, an independent expected result, recovery boundaries and a clear pause for observation. Never experiment on a shared world by treating an empty-player snapshot as exclusive access.
 
 Original SVG branding is code-native artwork under the project MIT license. Keep it self-contained, accessible and free of game imagery, external scripts and embedded identifiers.
+
+The optional [journal pressure qualification](../qualification/journal-pressure/README.md) executes real concurrent appends and Windows lock refusal against a disposable journal. Run its debug/release executables and scoped checks separately; workspace tests do not execute this independent suite.

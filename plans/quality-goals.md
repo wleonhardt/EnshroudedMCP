@@ -22,3 +22,5 @@ Decision 0071 qualifies bounded proposed-geometry inspection and exact section c
 Decision 0072 qualifies bounded typed MCP PNG presentation through synthetic source, HTTP and independent browser checks. No native terrain-image producer is registered or deployed. Goal 5 still requires native copied-cell renderer, matched installation and client acceptance; actual engine imagery/contact remains separate.
 
 Decision 0073 registers the bounded server terrain_image read in source 0.46.0, with eight new policy cases and native-data replay. Installed server remains 0.45.0 until matched cold deployment and native/client image checks. Actual engine rendering/contact remains unverified.
+
+Decision 0074 adds an optional real-filesystem journal qualification: 128 concurrent writers preserve two recovery owners, exact capacity and original bytes; a Windows sharing-lock refusal spends no credit. Debug/release assertions pass. Partial-write/sync faults, power loss, native callbacks and restart recovery remain open.

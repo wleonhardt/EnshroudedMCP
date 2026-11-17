@@ -1,0 +1,11 @@
+# 0074: Concurrent journal pressure and Windows open refusal
+
+Date: 2026-11-16. Status: optional filesystem qualification passed; native interruption and partial-write/sync faults remain open.
+
+Add an independent Windows-only qualification workspace that includes the unchanged production journal adapter and depends on the existing policy crate. It executes real file appends, synchronization and sharing locks against a disposable local journal. It does not load the SDK or touch a game, endpoint, installed binary or live ledger. Keep product source versions, ABI and the prepared terrain-image DLLs unchanged.
+
+Two owners each retain 100 bytes while a barrier releases 128 generic one-byte writers with exactly 64 unreserved bytes. Exactly 64 appends succeed and 64 refuse; the complete original file prefix and appended bytes remain exact. A real exclusive Windows file handle causes a 75-byte owner append to refuse without changing file bytes or spending either owner's credit. After unlock, that append succeeds and spends only its owner's credit. The owner cannot top back up under capacity pressure. Releasing its remaining 25 bytes admits exactly 25 generic bytes while retaining the other owner's 100-byte append. That final owner append reaches the exact 8 MiB journal cap. Unknown-owner and generic over-capacity appends refuse.
+
+Debug and optimized executable runs pass. Strict optional Clippy and formatting are required alongside unchanged product checks. Reports are ignored, distinct by compiler profile and never overwritten. Successful execution removes only the explicitly named disposable file and empty fixture directory. The assertion-driven executable must run; compiling it or running an empty test harness is not acceptance. Existing inherited module tests are not counted as new product tests.
+
+This proves the tested adapter's actual serialized capacity accounting, Windows open refusal, reservation ownership and byte preservation. It does not establish partial-write or sync-failure handling, power-loss durability, filesystem quotas, native transaction outcomes, callback timing or recovery across a process restart. In particular, a sharing lock fails before writing; it cannot be credited as a late I/O fault. Keep those tests and connected cancellation/disconnect acceptance queued.
