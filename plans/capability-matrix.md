@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+A current server 0.48.0 / companion 0.21.1 SDK 12.11 native-review variant is staged under decision 0103. Only the private namespace and current test-only evidence retention differ from the 274-file qualified source. Variant passes 405 Rust/97 Python and required checks; exact candidates, rollback copies, current probes and stale-closure refusal pass. Fresh temporary signed-provider exception remains pending. No installation, launch or new native acceptance.
+
 A new inactive current-base timing probe adds explicit operation/fixture/thread provenance and defers output for fast complete intervals (decision 0102). Controlled identity, null-origin and truncation checks pass; instrumented source passes 408 Rust/97 Python and required checks. Six bounded same-area trials pass without capturing organic expiry; previous timing cause remains open. Active product and signed runtime stay unchanged.
 
 Client command test fixtures now retain their generated reservation/journal directory during Rust unwinding and report its path (decision 0101). A failing reproduction proves the earlier evidence loss; the corrected case verifies exact bytes, membership and normal cleanup. Production control prefix, versions and installed files remain unchanged. This preserves future failure evidence; it does not fix the unresolved deadline intermittency.

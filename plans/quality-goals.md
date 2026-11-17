@@ -89,3 +89,8 @@ Goals 2 and 4 increment, 2026-11-17: decision 0100 qualifies a distinct current 
 Goal 4 increment, 2026-11-17: decision 0101 reproduces and fixes lost command-fixture evidence during Rust unwinding. Exact reservation/journal bytes and membership survive; completed fixtures clean up normally. No production prefix, wait or gate changes. Organic expiry attribution and native interruption remain open.
 
 Goal 4 increment, 2026-11-17: decision 0102 qualifies a disposable attributed slow-only probe with operation/fixture/thread origin, explicit unknowns and visible truncation. The instrumented cohort passes 408 Rust/97 Python. Six bounded same-area trials preserve earlier evidence but do not capture organic expiry. No active tracing option, deadline fix or native acceptance is added. Use a new discriminator before further equivalent trials.
+
+
+## Current 0.48 native review checkpoint — 2026-11-17
+
+Goals 1, 2 and 4 now have current-version source, binary and rollback closure staged in decision 0103. The two-file variant passes 405 Rust/97 Python and required checks without changing production control. Current signed-runtime preservation and stale-copy refusal are verified. Fresh explicit permission is required for the bounded two-phase Menu experiment; old review 0093 remains retired. No runtime action has occurred. Native lifecycle execution, credential ownership, rendered behavior, in-world operation and adoption still need separate qualification.

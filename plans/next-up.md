@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **staged; current 0.48 native Menu review** Decision 0103 stages four candidates and five current originals against the signed 0.48.0/0.21.1 runtime. All 274 qualified SDK 12.11 files reproduce before the private namespace and current test-only retention changes; production control remains exact. Variant passes 405 Rust/97 Python and required checks. Own-DLL manifest, frozen current probes and stale-rollback refusal pass. Two Menu-only phases with mandatory rollback require a fresh explicit temporary exception under decision 0059. Old review 0093 stays retired; prior completed approval 0079 does not cover this scope. Nothing installed or launched; no join, credentials, movement, capture or adoption.
+
 - **source qualified; attributed slow command intervals** A new inactive current-base timing probe adds explicit operation/fixture/thread provenance and defers output for fast complete intervals (decision 0102). Controlled identity, null-origin and truncation checks pass; instrumented source passes 408 Rust/97 Python and required checks. Six bounded same-area trials pass without capturing organic expiry; previous timing cause remains open. Active product and signed runtime stay unchanged.
 
 - **source verified; panic fixture evidence retained** Client command test fixtures now retain their generated reservation/journal directory during Rust unwinding and report its path (decision 0101). A failing reproduction proves the earlier evidence loss; the corrected case verifies exact bytes, membership and normal cleanup. Production control prefix, versions and installed files remain unchanged. This preserves future failure evidence; it does not fix the unresolved deadline intermittency.
