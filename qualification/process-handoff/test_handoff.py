@@ -6,8 +6,10 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import unittest
 
+import handoff
 from fixture import line
 from handoff import direct_identity, handoff_identity, launcher_facts, listener_identity
 from process_exit import Identity, ObservationRefused, capture_identity
@@ -17,6 +19,15 @@ FIXTURE = Path(__file__).with_name("fixture.py")
 
 def powershell(code):
     return json.loads(subprocess.check_output(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", code], text=True))
+
+
+@contextmanager
+def retained_samples():
+    base = Path(__file__).resolve().parents[2] / "target/process-handoff-samples"
+    base.mkdir(parents=True, exist_ok=True)
+    folder = Path(tempfile.mkdtemp(prefix="sample-", dir=base))
+    print(f"Retained handoff samples: {folder}", file=sys.stderr)
+    yield folder
 
 
 @contextmanager
@@ -41,6 +52,52 @@ def owned(role):
 
 @unittest.skipUnless(os.name == "nt", "Windows process/loopback observation")
 class ActualProcesses(unittest.TestCase):
+    def test_checked_exit_sample_is_written_before_refusal_and_survives_handle_release(self):
+        with retained_samples() as folder:
+            for exit_code in (0, 7, 259):
+                with self.subTest(exit_code=exit_code):
+                    path = Path(folder) / f"exit-{exit_code}.json"
+                    def record(facts):
+                        with path.open("x", encoding="utf-8") as stream:
+                            json.dump(facts, stream)
+                    with subprocess.Popen([sys.executable, "-B", "-c", "import sys;sys.exit(int(sys.argv[1]))", str(exit_code)],
+                                          stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                          creationflags=subprocess.CREATE_NO_WINDOW) as proc:
+                        self.assertEqual(proc.wait(timeout=5), exit_code)
+                        if exit_code:
+                            with self.assertRaisesRegex(ObservationRefused, "launcher_exit_not_successful"):
+                                handoff.checked_launcher_facts(proc, sys.executable, record)
+                        else:
+                            observed = handoff.checked_launcher_facts(proc, sys.executable, record)
+                            self.assertEqual(observed["exit_code"], 0)
+                        pid = proc.pid
+                    del proc
+                    raw = subprocess.check_output([sys.executable, "-B", "-c",
+                        "import pathlib,sys;sys.stdout.buffer.write(pathlib.Path(sys.argv[1]).read_bytes())", str(path)],
+                        creationflags=subprocess.CREATE_NO_WINDOW)
+                    retained = json.loads(raw)
+                    self.assertEqual(retained["pid"], pid)
+                    self.assertEqual(retained["state"], "exited")
+                    self.assertEqual(retained["exit_code"], exit_code)
+                    self.assertGreater(retained["creation_time"], 0)
+                    self.assertEqual(retained["image_observed"], retained["observed_executable"] is not None)
+
+    def test_checked_sample_write_collision_refuses_without_overwriting_prior_evidence(self):
+        with retained_samples() as folder:
+            path = Path(folder) / "sample.json"
+            before = b"prior owned sample\n"
+            path.write_bytes(before)
+            def record(facts):
+                with path.open("x", encoding="utf-8") as stream:
+                    json.dump(facts, stream)
+            with subprocess.Popen([sys.executable, "-B", "-c", "pass"], stdin=subprocess.DEVNULL,
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                  creationflags=subprocess.CREATE_NO_WINDOW) as proc:
+                self.assertEqual(proc.wait(timeout=5), 0)
+                with self.assertRaises(FileExistsError):
+                    handoff.checked_launcher_facts(proc, sys.executable, record)
+            self.assertEqual(path.read_bytes(), before)
+
     def bindings(self, port):
         rows = powershell(f"@(Get-NetTCPConnection -LocalPort {port} -State Listen -ErrorAction Stop | Select-Object LocalAddress,LocalPort,OwningProcess) | ConvertTo-Json -Compress")
         return [rows] if isinstance(rows, dict) else rows

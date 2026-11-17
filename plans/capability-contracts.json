@@ -135,7 +135,9 @@
       "previous_native_review_evidence": "plans/decisions/0104-stopped-menu-handoff-and-signed-rollback.md",
       "native_review_evidence": "plans/decisions/0113-stopped-held-launcher-menu-trial.md",
       "temporary_provider_test_attempted": true,
-      "primary_installation_restored": true
+      "primary_installation_restored": true,
+      "launcher_evidence_retention": "eight owned-process methods and thirteen private controller models qualify record-before-refusal and write-error refusal; inactive fragment only; consumed review and original controller unchanged",
+      "launcher_evidence_retention_reference": "plans/decisions/0114-retain-launcher-samples-before-refusal.md"
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",

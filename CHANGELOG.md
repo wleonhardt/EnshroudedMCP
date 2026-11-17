@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Record held-launcher facts before nonzero-exit refusal, and propagate evidence-write failure before returning a usable sample. Owned-process tests and an inactive controller fragment preserve future failure evidence; no game executor or retry is added.
+
 - Add an inactive read-only SDK 12.14 damage-hook coverage consumer with exact raw codes and typed unavailability. Hook coverage never becomes a damage-protection or quiet-condition claim. Product SDK, tools and installation remain unchanged.
 
 - Check the matrix current source/installed product checkpoint against contract profiles; reject missing, duplicate or historical substitute rows. Goal references use this authority while retaining historical evidence. Declared installation consistency does not replace runtime verification.

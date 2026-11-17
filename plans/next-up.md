@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source/process qualified; retain launcher samples before refusal** Decision 0114 reproduces lost nonzero facts in a disposable copy and repairs recording order without relaxing admission. Eight optional owned-process methods include actual exits 0/7/259 and write-collision refusal; thirteen private controller models pass. Exact normalized inactive patch replay is verified. Consumed review 0107 and original controller remain immutable. No game retry or native cause/compatibility claim; future runtime closure needs fresh review.
+
 - **native attempt stopped; signed rollback verified** Decision 0113 records one explicitly approved 0107 phase-one launch stopping on a nonzero initial-launcher exit. Final failed exit sample was not persisted, so numerical code/cause stay unknown. Remaining owned fresh-Menu child was closed only for cleanup, with exact held exit 0. All five originals, twelve hashes and durable namespace restored; phase two never starts. Review 0107 is consumed and refuses preflight. Next qualify failure-evidence retention without another game launch.
 
 - **source qualified; damage-hook coverage diagnostic** Decision 0112 adds an isolated read-only SDK 12.14 consumer at exact e8dc967. Private/public debug and optimized cohorts each pass seven cases plus strict lint/format. Product private/public cohorts each pass 409 Rust/100 Python and required checks. Unavailable/init errors, grouped missing sites and exact raw codes stay distinct from protection or quiet-condition proof. No product tool, provider adoption or native execution of this consumer. Separate Menu review 0107 is consumed after the stopped launch and exact signed rollback in decision 0113.

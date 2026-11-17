@@ -362,3 +362,6 @@ Current source and declared installed versions are maintained in the [checked pr
 
 
 An [inactive damage-hook coverage consumer](qualification/sdk-damage/README.md) qualifies the published ABI 12.14 diagnostic separately from the product. It preserves missing-hook causes and typed unavailability without inferring health, protection or quiet conditions. It adds no MCP tool or installed behavior.
+
+
+Optional [process handoff qualification](qualification/process-handoff/README.md) now records each checked launcher sample before refusing a nonzero exit. Evidence-write failures refuse too. Eight owned-process methods and thirteen separate private controller models qualify retention while preserving existing identity and once-only guards. The old Menu trial remains consumed; no game retry or launcher-cause diagnosis is claimed.

@@ -54,6 +54,18 @@ def launcher_facts(process, requested_executable):
             "state": "exited" if exited else "running", "exit_code": code}
 
 
+def checked_launcher_facts(process, requested_executable, record):
+    """Record each held-handle sample before refusing an unsuccessful exit.
+
+    The caller supplies the evidence writer. A write failure propagates before
+    any sample is returned; neither failure permits binding or another launch.
+    """
+    facts = launcher_facts(process, requested_executable)
+    record(facts.copy())
+    require(facts["state"] != "exited" or facts["exit_code"] == 0, "launcher_exit_not_successful")
+    return facts
+
+
 def direct_identity(initial, current):
     require(initial["state"] == "running" and initial["exit_code"] is None, "direct_launcher_not_running")
     require(initial["pid"] == current.pid and initial["creation_time"] == current.creation_time, "direct_identity_changed")

@@ -21,6 +21,10 @@ The signed product remains installed. Decision 0099 verifies server columns/read
 
 Decision 0112 qualifies an independent read-only SDK e8dc967 / ABI 12.14 / Rust 1.100.0 consumer. Private/public debug and optimized cohorts each pass seven cases, strict lint and formatting; they preserve unavailable/init errors, grouped missing sites and exact integer cause codes. This is a hook-coverage diagnostic, not health, damage protection, pacification or quiet-condition proof. Product private/public cohorts each pass 409 Rust/100 Python and required checks; these remain separate from native acceptance. No product tool, provider adoption or installation changes; native correspondence and a scheduled game-thread route remain prerequisites.
 
+## Launcher failure-evidence retention
+
+Decision 0114 adds an optional record-before-refusal helper and inactive controller fragment. Eight owned-process methods and thirteen separate private controller models verify exact sample retention, write-failure refusal and unchanged launch admission. Exact normalized fragment replay passes. This adds no product tool, native launch/compatibility acceptance or retry authority; review 0107 stays consumed and the original native failure cause remains unknown.
+
 ## Historical development checkpoints
 
 The following dated/versioned results describe their recorded scope. They do not override the current product tables or grant installation/control authority.

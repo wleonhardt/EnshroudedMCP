@@ -144,3 +144,8 @@ Decision 0112 advances goals 2 and 6 with an exact-revision inactive SDK 12.14 d
 ## Stopped approved Menu attempt — 2026-11-17
 
 Decision 0113 records the approved 0107 attempt stopping on a nonzero initial-launcher exit. No numerical final exit sample was retained; cause remains unknown. Cleanup-only fresh Menu and independently held exit 0 precede exact five-original/twelve-hash/durable restoration. Phase two never starts. Review 0107 is consumed; next qualify failed-launch evidence retention in a disposable model without another game launch. This stop and rollback are not native compatibility or lifecycle acceptance.
+
+
+## Launcher failure-evidence retention — 2026-11-17
+
+Decision 0114 advances goals 2 and 4 by recording held-handle samples before nonzero-exit refusal and refusing evidence-write failure before binding. Eight owned-process methods include real 0/7/259 exits; thirteen private controller models verify integration and once-only guards. The inactive fragment reconstructs exact normalized source. No game launch occurs; consumed review 0107, signed installation and unresolved native cause remain unchanged.
