@@ -1,0 +1,15 @@
+[package]
+name = "sdk-damage-coverage-qualification"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.100"
+publish = false
+
+[workspace]
+
+[dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "e8dc967ce7acb0a82bce9840c75aef8c54687cc9", features = ["unstable"] }
+serde_json = "=1.0.154"
+
+[dev-dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "e8dc967ce7acb0a82bce9840c75aef8c54687cc9", features = ["unstable", "test"] }

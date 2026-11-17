@@ -359,3 +359,6 @@ The standalone terrain viewer offers **X/Y through selection** and **Z/Y through
 
 
 Current source and declared installed versions are maintained in the [checked product checkpoint](plans/capability-matrix.md#current-product-checkpoint). `python scripts/check_contracts.py` checks both version tables and the declared SDK/ABI/compiler against the index, with source Cargo/toolchain checks retained. Installed metadata requires separate runtime evidence; an offline consistency verdict does not discover installation or verify provider fidelity.
+
+
+An [inactive damage-hook coverage consumer](qualification/sdk-damage/README.md) qualifies the published ABI 12.14 diagnostic separately from the product. It preserves missing-hook causes and typed unavailability without inferring health, protection or quiet conditions. It adds no MCP tool or installed behavior.

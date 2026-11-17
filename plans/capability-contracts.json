@@ -129,10 +129,13 @@
       "primary_installation_changed": false,
       "status": "candidate and clean replay each pass 404 Rust/97 Python, strict checks/releases/contracts; exact 274-file reconstruction; not installed",
       "timing_limit": "original unmodified cold cohort has two positive-fixture deadline refusals; passing warm/instrumented/candidate cohorts do not resolve their cause",
-      "native_review_status": "Fresh held-launcher closure staged; eleven controller models pass. Archived SDK variant (405 tests) and active product (406 tests) remain distinct. Fresh temporary exception pending; no installation or launch. Consumed review 0103 cannot be reused.",
+      "native_review_status": "Review 0107 explicitly approved and consumed: one phase-one launch stops on nonzero initial-launcher exit; numerical final code not retained. Cleanup-only fresh Menu and exact held exit0 precede complete signed rollback. No phase accepted; phase two never starts; no retry authorized.",
       "native_review": "plans/decisions/0107-held-launcher-current-menu-review.md",
       "previous_native_review": "plans/decisions/0103-current-server048-menu-review.md",
-      "previous_native_review_evidence": "plans/decisions/0104-stopped-menu-handoff-and-signed-rollback.md"
+      "previous_native_review_evidence": "plans/decisions/0104-stopped-menu-handoff-and-signed-rollback.md",
+      "native_review_evidence": "plans/decisions/0113-stopped-held-launcher-menu-trial.md",
+      "temporary_provider_test_attempted": true,
+      "primary_installation_restored": true
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",
@@ -153,6 +156,20 @@
       "native_behavior_verified": false,
       "primary_installation_changed": false,
       "status": "controlled provenance/null/truncation and required source checks pass; six same-area trials do not reproduce organic expiry; never install"
+    },
+    "damage_coverage_candidate": {
+      "sdk_revision": "e8dc967ce7acb0a82bce9840c75aef8c54687cc9",
+      "abi": "12.14",
+      "rust": "1.100.0",
+      "source_only": true,
+      "status": "private/public debug and release each pass seven cases plus strict lint/format; no native execution of this consumer",
+      "source_path": "qualification/sdk-damage",
+      "source_evidence": "plans/decisions/0112-read-only-damage-hook-coverage.md",
+      "native_candidate_qualified": false,
+      "product_tool_registered": false,
+      "primary_installation_changed": false,
+      "damage_prevention_verified": false,
+      "quiet_conditions_verified": false
     }
   },
   "counts": {

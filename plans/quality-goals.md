@@ -134,3 +134,13 @@ Decision 0110 makes selected pins, cells and proposed targets directly inspectab
 ## Authoritative current product checkpoint — 2026-11-17
 
 Goal 1 now uses [the checked product checkpoint](capability-matrix.md#current-product-checkpoint) for source and declared installed versions, SDK revision, ABI and compiler. Historical deployment and candidate evidence remain separate. The checker compares source metadata to Cargo/toolchain files and refuses table drift; this does not independently discover installation or derive the SDK ABI.
+
+
+## Read-only damage-hook coverage — 2026-11-17
+
+Decision 0112 advances goals 2 and 6 with an exact-revision inactive SDK 12.14 diagnostic consumer. Private/public debug and optimized cohorts each pass seven cases plus strict lint/format; they distinguish unavailability from empty observations and retain grouped missing causes and raw ABI codes. Hook availability does not establish protection or quiet conditions. Product private/public checks pass 409 Rust/100 Python and required commands; native provider correspondence remains separate. No product adoption or game action occurs for this SDK 12.14 consumer. Review 0107 bytes stay immutable; its separate approved attempt is consumed after the stopped launch and exact signed rollback in decision 0113.
+
+
+## Stopped approved Menu attempt — 2026-11-17
+
+Decision 0113 records the approved 0107 attempt stopping on a nonzero initial-launcher exit. No numerical final exit sample was retained; cause remains unknown. Cleanup-only fresh Menu and independently held exit 0 precede exact five-original/twelve-hash/durable restoration. Phase two never starts. Review 0107 is consumed; next qualify failed-launch evidence retention in a disposable model without another game launch. This stop and rollback are not native compatibility or lifecycle acceptance.

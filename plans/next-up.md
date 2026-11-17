@@ -2,6 +2,10 @@
 
 ## Queue
 
+- **native attempt stopped; signed rollback verified** Decision 0113 records one explicitly approved 0107 phase-one launch stopping on a nonzero initial-launcher exit. Final failed exit sample was not persisted, so numerical code/cause stay unknown. Remaining owned fresh-Menu child was closed only for cleanup, with exact held exit 0. All five originals, twelve hashes and durable namespace restored; phase two never starts. Review 0107 is consumed and refuses preflight. Next qualify failure-evidence retention without another game launch.
+
+- **source qualified; damage-hook coverage diagnostic** Decision 0112 adds an isolated read-only SDK 12.14 consumer at exact e8dc967. Private/public debug and optimized cohorts each pass seven cases plus strict lint/format. Product private/public cohorts each pass 409 Rust/100 Python and required checks. Unavailable/init errors, grouped missing sites and exact raw codes stay distinct from protection or quiet-condition proof. No product tool, provider adoption or native execution of this consumer. Separate Menu review 0107 is consumed after the stopped launch and exact signed rollback in decision 0113.
+
 - **source verified; one checked current product checkpoint** Decision 0111 removes competing stale operational versions from the goal/roadmap and puts checked source/installed tables before matrix history. Contradictory installed versions/ABI, missing or duplicate sections/rows and historical-row borrowing refuse. Thirteen contract cases pass; installation remains independently guarded rather than inferred from documentation. Pending review 0107 stays immutable.
 
 - **source/replay verified; selection-aligned terrain sections** Decision 0110 adds exact X/Y and Z/Y sections through a selected pin, clicked cell or proposed target. All half-open bounds are checked; outside selections stay disabled without clamping. Private 409 Rust/98 Python and required checks pass. Archived native replay preserves 4,096 cells and 16 pins with 6,688 comparisons. Browser visual acceptance remains pending because BrowserOS is unavailable. Signed runtime and immutable pending Menu review 0107 stay unchanged.

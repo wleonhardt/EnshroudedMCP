@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add an inactive read-only SDK 12.14 damage-hook coverage consumer with exact raw codes and typed unavailability. Hook coverage never becomes a damage-protection or quiet-condition claim. Product SDK, tools and installation remain unchanged.
+
 - Check the matrix current source/installed product checkpoint against contract profiles; reject missing, duplicate or historical substitute rows. Goal references use this authority while retaining historical evidence. Declared installation consistency does not replace runtime verification.
 
 - Open exact X/Y or Z/Y terrain sections through the selected pin, clicked cell or proposed target. Outside-capture selections remain disabled without clamping. Source and archived native-data replay pass; browser visual acceptance remains pending.
