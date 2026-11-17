@@ -50,3 +50,5 @@ Decision 0088 adds a scripted published-ABI fixture for post-intent context chan
 Decision 0089 adds an optional bounded reservation-timing patch. A deliberate post-sync wait qualifies once-only deadline refusal; ordinary traces remain incomplete after the explicit cap. Historical latency causes and native frame scheduling remain open. The active product and installed runtime are unchanged.
 
 Decision 0090 fixes two final-admission gaps in companion source 0.21.1. Controlled getter delay and write-flag removal reproduce SDK attempts before the fix and policy refusals afterward, with retained identity. Installed 0.21.0 and native timing acceptance remain separate.
+
+Decision 0091 installs signed-SDK companion 0.21.1 and qualifies bounded native Menu/read/refusal behavior with cold/ledger preservation and observed cleanup. Native delayed-getter/revocation timing remains source-only; the old unsigned review baseline is stale.

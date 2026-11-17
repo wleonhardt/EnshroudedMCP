@@ -1,6 +1,6 @@
 {
   "date": "2026-11-17",
-  "status": "all 50 source contracts indexed; source companion 0.21.1 fixes post-getter permission/expiry; installed 0.47.0/0.21.0 native evidence remains separate",
+  "status": "all 50 source contracts indexed; matched signed-SDK installed 0.47.0/0.21.1 Menu read/refusal acceptance passed; native final-getter faults and broader workflows remain open",
   "profiles": {
     "product": {
       "server_version": "0.47.0",
@@ -8,10 +8,10 @@
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "server 0.47.0 / companion 0.21.0 installed on unchanged signed SDK 6a151a95/ABI 12.1; actual header/table 1680, server reads and client Menu acceptance passed; client closed",
+      "installed": "server 0.47.0 / companion 0.21.1 installed on unchanged signed SDK 6a151a95/ABI 12.1; native Menu/read/refusal and exact-file acceptance passed; SDK snapshot never at Menu remains unknown; client closed",
       "game_build": "not observed by capability getter; do not infer from framework version",
       "installed_server_version": "0.47.0",
-      "installed_client_version": "0.21.0"
+      "installed_client_version": "0.21.1"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -887,11 +887,12 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener; initialization-time copied immutable metadata; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Matched 0.47.0/0.21.0 actual provider ABI 12.1/table 1680 and loaded-module correspondence pass; compiled provenance remains separate.",
+      "evidence_summary": "Matched 0.47.0/0.21.0 actual provider ABI 12.1/table 1680 and loaded-module correspondence pass; compiled provenance remains separate. Matched 0.47.0/0.21.1 header/module/file and Menu read acceptance also pass.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
         "plans/decisions/0082-runtime-provider-header.md",
-        "plans/decisions/0084-matched-runtime-header-native-acceptance.md"
+        "plans/decisions/0084-matched-runtime-header-native-acceptance.md",
+        "plans/decisions/0091-signed-companion-menu-deployment.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "Bounded native header, exact process/module/binding and full advertised contract comparison passed; general provider/API fidelity remains separate.",
@@ -3475,20 +3476,23 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "client UI frame; SDK commands execute in later native client phase",
       "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified. Source frame timeout/reply-loss contracts pass; real pending cancellation/disconnect remains open.",
+      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified. Source frame timeout/reply-loss contracts pass; real pending cancellation/disconnect remains open. Installed 0.21.1 passes six dry Menu context refusals and one absent-flag request refusal; native delayed-getter/revocation timing remains open.",
       "evidence_references": [
         "plans/decisions/0058-native-menu-tab-observations.md",
         "plans/decisions/0062-client-frame-timeout-fault-contracts.md",
         "plans/decisions/0063-specific-client-context-refusals.md",
-        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md",
+        "plans/decisions/0088-post-intent-client-context-recheck.md",
+        "plans/decisions/0090-final-client-admission-recheck.md",
+        "plans/decisions/0091-signed-companion-menu-deployment.md"
       ],
-      "source_checks": "Workspace source checks pass, including controlled detached-before-begin and post-dispatch reply-loss fixtures; no live interruption claim. Initial context refusal now requires the exact reason for seven snapshots across six action families and detects an isolated removed-gate mutation; post-reservation recheck has separate coverage limits.",
+      "source_checks": "Workspace checks pass. Detached-before-begin, lost-reply and initial-context fixtures remain qualified. Post-intent applicability/preview mutations pass decision 0088; delayed final getter and flag removal each reproduce prohibited SDK attempts before decision 0090 and exact policy refusals after it. No native fault-timing claim.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "Map open/close only; other command actions remain separately unverified",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Qualify pending cancellation/stall/disconnect; do not automatically repeat movement.",
-      "refusal_acceptance": "Native dry Map-open request refuses with the exact context error while UI frames are fresh at Menu and copied context is Never. Installed 0.45.0/0.20.2; command inventory, 88 ledger files, 12 installed hashes and absent flags preserved. Not native pending cancellation acceptance.",
+      "refusal_acceptance": "Native dry Map-open request refuses with the exact context error while UI frames are fresh at Menu and copied context is Never. Installed 0.45.0/0.20.2; command inventory, 88 ledger files, 12 installed hashes and absent flags preserved. Not native pending cancellation acceptance. Installed 0.21.1 repeats all six action-family dry Menu refusals and an absent-flag write refusal with unchanged durable bytes; no native final-getter fault acceptance.",
       "independent_effect_acceptance": "Independent visible Map open/close; other actions have separate limits.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -3652,10 +3656,11 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Copied InGame/HUD/tab fields observed historically. Current Menu UI frames are fresh while copied client state is Never; handle availability does not imply freshness. No rendered proof.",
+      "evidence_summary": "Copied InGame/HUD/tab fields observed historically. Current Menu UI frames are fresh while copied client state is Never; handle availability does not imply freshness. No rendered proof. Installed 0.21.1 fresh copied Menu and separate never/zero/unknown-age SDK stream are retained without current-world or rendered proof.",
       "evidence_references": [
         "plans/decisions/0058-native-menu-tab-observations.md",
-        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md",
+        "plans/decisions/0091-signed-companion-menu-deployment.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "partial; see evidence_summary",
@@ -3770,11 +3775,12 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; initialization-time copied immutable metadata; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Matched 0.47.0/0.21.0 actual provider ABI 12.1/table 1680 and loaded-module correspondence pass; compiled provenance remains separate.",
+      "evidence_summary": "Matched 0.47.0/0.21.0 actual provider ABI 12.1/table 1680 and loaded-module correspondence pass; compiled provenance remains separate. Matched 0.47.0/0.21.1 header/module/file and Menu read acceptance also pass.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
         "plans/decisions/0082-runtime-provider-header.md",
-        "plans/decisions/0084-matched-runtime-header-native-acceptance.md"
+        "plans/decisions/0084-matched-runtime-header-native-acceptance.md",
+        "plans/decisions/0091-signed-companion-menu-deployment.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "Bounded native header, exact process/module/binding and full advertised contract comparison passed; general provider/API fidelity remains separate.",
@@ -3805,9 +3811,10 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Current native UI callback yields fresh Menu observation while the separate copied client snapshot is Never. No server World authority or rendered-panel proof.",
+      "evidence_summary": "Current native UI callback yields fresh Menu observation while the separate copied client snapshot is Never. No server World authority or rendered-panel proof. Installed 0.21.1 fresh copied Menu and separate never/zero/unknown-age SDK stream are retained without current-world or rendered proof.",
       "evidence_references": [
-        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md"
+        "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md",
+        "plans/decisions/0091-signed-companion-menu-deployment.md"
       ],
       "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
       "native_acceptance": "Bounded fresh Menu UI observation qualified; copied-client freshness is separate.",
