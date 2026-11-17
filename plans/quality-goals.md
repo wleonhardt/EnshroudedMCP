@@ -24,3 +24,5 @@ Decision 0072 qualifies bounded typed MCP PNG presentation through synthetic sou
 Decision 0073 registers the bounded server terrain_image read in source 0.46.0, with eight new policy cases and native-data replay. Installed server remains 0.45.0 until matched cold deployment and native/client image checks. Actual engine rendering/contact remains unverified.
 
 Decision 0074 adds an optional real-filesystem journal qualification: 128 concurrent writers preserve two recovery owners, exact capacity and original bytes; a Windows sharing-lock refusal spends no credit. Debug/release assertions pass. Partial-write/sync faults, power loss, native callbacks and restart recovery remain open.
+
+Decision 0075 qualifies six consumer model cases for published unstable Join/Leave at exact upstream 6a5966ee / ABI 12.11. Installed product remains ABI 12.1; provider, credential resolution, whole-product compatibility and live intended-peer/character/leave acceptance remain open.

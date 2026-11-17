@@ -1,0 +1,11 @@
+[package]
+name = "sdk-lifecycle-qualification"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dev-dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a5966ee6683fde480ac9dd3654f91e73da6e2a5", features = ["unstable", "test"] }
+serde_json = "=1.0.154"

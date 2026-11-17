@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **native join/leave API now published; consumer source/model qualification passed** Upstream #1150 merge 6a5966ee adds address-based Join/Leave/cancel and copied peer/status at ABI 12.11. Optional six-case consumer suite pins that revision; debug/optimized tests, strict Clippy and formatting pass. Product SDK 6a151a95 / ABI 12.1 and installed pair remain unchanged; no lifecycle tool or credential resolver is exposed. Qualify whole-product compatibility and provider provenance before native isolated acceptance. See decision 0075.
+
 - **journal pressure filesystem qualification passed** Optional Windows workspace executes unchanged production adapter with 128 concurrent writers, 64 exact admissions, retained two-owner recovery, real sharing-lock refusal and exact prefix/suffix/cap checks in debug and release. Product source/runtime versions and prepared image DLLs remain unchanged. Partial-write/sync faults, power loss, native callback faults and process-restart recovery remain unverified. See decision 0074.
 
 - **native terrain-image source 0.46.0 in qualification** New server read captures bounded voxels on the game thread and renders top/X-Y/Z-Y PNG plus exact metadata from copies. Eight new model cases and native-data offline replay preserve axes, raw fill, unknowns, pins and complete-capture refusal. Source inventory is 37 server/13 companion; installed pair remains 0.45.0/0.20.2. Private/public 390 Rust/94 Python, lint, format and release checks pass. Two DLLs, four rollback copies, 12 current installed hashes and source closure are staged/verified; obtain manual closed-client/empty-roster prerequisite and qualify actual native images with complete preservation. Engine surface/contact remains unverified. See decision 0073.
