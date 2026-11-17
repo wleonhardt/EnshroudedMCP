@@ -8,10 +8,11 @@
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "server 0.48.0 / companion 0.21.1 on unchanged signed SDK 6a151a95/ABI 12.1; empty-server column/read/refusal and cold/protected preservation pass; client closed, prior 0.21.1 Menu acceptance retained without a new client launch",
+      "installed": "server 0.48.0 / companion 0.21.1 on unchanged signed SDK 6a151a95/ABI 12.1; empty-server column/read/refusal and cold/protected preservation pass; one original-signed Steam Menu/read/contract baseline passes with exact close0; client closed",
       "game_build": "not observed by capability getter; do not infer from framework version",
       "installed_server_version": "0.48.0",
-      "installed_client_version": "0.21.1"
+      "installed_client_version": "0.21.1",
+      "signed_steam_menu_baseline": "plans/decisions/0120-signed-steam-menu-baseline.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -140,8 +141,8 @@
       "launcher_evidence_retention_reference": "plans/decisions/0114-retain-launcher-samples-before-refusal.md",
       "initial_launcher_exit_code_observed": 53,
       "native_launcher_exit_meaning_known": false,
-      "launch_route_candidate": "Valve -applaunch documented; explicit expected child-image helper passes ten owned-process/refusal methods. No Steam/game invocation, environment-forwarding qualification or native exit53 meaning.",
-      "launch_route_evidence": "plans/decisions/0118-explicit-launcher-and-effective-images.md"
+      "launch_route_candidate": "Original-signed Steam route passes one owned fresh Menu/header/three-module/thirteen-read/full-contract baseline and exact close0/preservation. Twenty-two controller models pass. No unsigned-provider acceptance, environment-forwarding qualification, native MCP executor or exit53 meaning.",
+      "launch_route_evidence": "plans/decisions/0120-signed-steam-menu-baseline.md"
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",

@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **signed Menu baseline accepted; Steam startup route** Decision 0120 records one original-signed Steam request, retained initial exit0, independent parent/child/listener ownership and fresh copied Menu. Three loaded module hashes, ABI12.1/table1680, thirteen fixed reads/refusals and the full client contract pass. One exact held close exits0; all twelve installed hashes and durable namespace remain exact. Native simulation snapshot remains never/session0 and broader verdict incomplete. Twenty-two controller models pass. No provider swap, join, credentials, movement or game capture. Next freeze and model a fresh provider review using this route; unsigned trials still require a new explicit exception. Code53 meaning remains unknown.
+
 - **browser fixture accepted; technical terrain viewer** Decision 0119 verifies real BrowserOS pin/cell/proposed-target interaction, exact sections, origin changes/clear, outside disabling, 32 independently matched raw profile bands and PNG export. Screenshots and export inspected at native desktop viewport. Emulated-viewport interaction remains unverified. Retained 4096-cell data is historical; game rendering/contact and lifecycle remain unaccepted. Owned browser tabs closed; no game launch or installed change.
 
 - **source/process qualified; explicit handoff image roles** Decision 0118 adds an optional absolute expected effective image, retaining the old default and all exit/parent/order/linkage gates. Ten methods pass, including real owned cmd-to-Python handoff and continued code53 refusal. Valve documentation supports a candidate Steam launch parameter; no Steam/game request or exit53 interpretation is qualified. Next stage and model supported orchestration before any new runtime review.

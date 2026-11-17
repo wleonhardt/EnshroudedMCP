@@ -17,6 +17,10 @@ This is the operational product-version checkpoint. The tables below are checked
 
 The signed product remains installed. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Review 0115 is also consumed after one observed initial exit53 and complete signed rollback (decision 0116). Its meaning remains unknown; no phase is accepted or retry authorized. Join/Leave and private profile resolution remain unavailable in the product. Client stays closed; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. One native desktop BrowserOS viewer fixture now passes interaction, raw-profile and PNG-export acceptance (decision 0119); game rendering/contact and broader responsive interaction remain unverified. See [next-up.md](next-up.md) for the latest source verification and next actions.
 
+## Signed Steam Menu baseline
+
+Decision 0120 verifies one original-signed Steam startup: initial exit0, independently owned child/listener and fresh copied Menu, three loaded hashes, ABI12.1/table1680, thirteen fixed read/refusal checks and full client contract. One exact close exits0; twelve installed hashes and durable baseline remain unchanged. Native simulation snapshot stays never/session0, broad verdict incomplete. No environment-forwarding, native lifecycle, unsigned-provider, rendered or exit53-cause claim. Twenty-two private controller models pass; new cleanup metadata is model-only. Next freeze a fresh provider review; consumed approvals remain unusable.
+
 ## Inactive damage-hook coverage consumer
 
 Decision 0112 qualifies an independent read-only SDK e8dc967 / ABI 12.14 / Rust 1.100.0 consumer. Private/public debug and optimized cohorts each pass seven cases, strict lint and formatting; they preserve unavailable/init errors, grouped missing sites and exact integer cause codes. This is a hook-coverage diagnostic, not health, damage protection, pacification or quiet-condition proof. Product private/public cohorts each pass 409 Rust/100 Python and required checks; these remain separate from native acceptance. No product tool, provider adoption or installation changes; native correspondence and a scheduled game-thread route remain prerequisites.
@@ -31,7 +35,7 @@ Decision 0117 fixes reference measurements for selected pins, captured cell mini
 
 ## Explicit process image roles
 
-Decision 0118 qualifies an optional absolute expected effective image with ten owned-process/refusal methods. Default same-image behavior and nonzero-exit/identity gates remain. A documented Steam launch parameter motivates a candidate route; no Steam/game orchestration, exit53 meaning or native executor is accepted.
+Decision 0118 qualifies an optional absolute expected effective image with ten owned-process/refusal methods. Default same-image behavior and nonzero-exit/identity gates remain. A documented Steam launch parameter now has bounded original-signed Menu acceptance under decision 0120. Unsigned-provider orchestration, exit53 meaning and a native MCP executor remain unqualified.
 
 ## Historical development checkpoints
 
