@@ -1,0 +1,13 @@
+# 0111: Check one current source and installed product checkpoint
+
+Date: 2026-11-17. Status: contradictory-metadata reproduction repaired; full verification and publication recorded separately.
+
+Goal 1 requires current operational instructions to agree while preserving dated evidence. The capability index reports server 0.48.0 and companion 0.21.1, matching the signed runtime guard. The matrix's older product-profile paragraph and the goal/client roadmap's current checkpoints still name earlier versions. Existing checks validate tool rows and source Cargo metadata but accept contradictory declared installed versions or ABI without checking a current human checkpoint.
+
+Put one clearly headed current product checkpoint before the matrix history. Its component table names source and installed versions separately; its profile table names the exact SDK revision, declared ABI and compiler. The existing contract checker requires exactly one current section and exactly one matching row for each field inside that section. A matching row later in history cannot satisfy the check. Source Cargo/toolchain validation remains in place. No runtime, schema, SDK, version, installation or endpoint changes.
+
+The goal and private native-control roadmap link to this checkpoint instead of presenting stale competing current versions. Label historical paragraphs and retain their evidence and acceptance limits. Public goal wording remains the neutral administrative-construction scope; the private roadmap is not exported. Quality goal 1 records the current authority and the remaining duty to reconcile declared installation with independently verified deployments.
+
+A new behavior test fails on the old checker for contradictory server/client installed versions and declared ABI. After the correction these three cases refuse. Another case checks missing/duplicate current sections, duplicate component rows and rows moved to history. Thirteen contract tests pass. Existing discovery tests still restrict execution to metadata getters and preserve redacted errors and false native/provider-verification verdicts.
+
+This proves documentation/index consistency, not a fresh installation discovery or independent offline derivation of SDK ABI. The exact signed twelve-file/runtime guard independently confirms the currently declared installation, empty roster, closed client and disabled flags. Current Menu review 0107 stays immutable and pending. No game launch, credential access, world mutation, provider adoption, Windows MCP or capture occurs. Earlier source timing causes and native/rendered workflow acceptance remain open.

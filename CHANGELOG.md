@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Check the matrix current source/installed product checkpoint against contract profiles; reject missing, duplicate or historical substitute rows. Goal references use this authority while retaining historical evidence. Declared installation consistency does not replace runtime verification.
+
 - Open exact X/Y or Z/Y terrain sections through the selected pin, clicked cell or proposed target. Outside-capture selections remain disabled without clamping. Source and archived native-data replay pass; browser visual acceptance remains pending.
 
 - Retain shutdown test fixtures during unwinding and include the cached receipt when the positive native-stop assertion fails. Exact controlled refusal evidence and normal cleanup are checked. Runtime behavior/deadlines and unresolved organic timing remain unchanged.

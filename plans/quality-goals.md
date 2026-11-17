@@ -129,3 +129,8 @@ Decision 0109 advances goal 4 by preserving exact shutdown fixture files during 
 ## Selection-aligned technical terrain inspection — 2026-11-17
 
 Decision 0110 makes selected pins, cells and proposed targets directly inspectable in exact X/Y and Z/Y sections. Half-open bounds preserve unknown space without clamping. Private checks pass 409 Rust/98 Python and required commands; archived native-data replay passes 6,688 comparisons across 4,096 cells and 16 pins. Browser visual acceptance remains pending while BrowserOS is unavailable. No game input or installed change occurs.
+
+
+## Authoritative current product checkpoint — 2026-11-17
+
+Goal 1 now uses [the checked product checkpoint](capability-matrix.md#current-product-checkpoint) for source and declared installed versions, SDK revision, ABI and compiler. Historical deployment and candidate evidence remain separate. The checker compares source metadata to Cargo/toolchain files and refuses table drift; this does not independently discover installation or derive the SDK ABI.

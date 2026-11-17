@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source verified; one checked current product checkpoint** Decision 0111 removes competing stale operational versions from the goal/roadmap and puts checked source/installed tables before matrix history. Contradictory installed versions/ABI, missing or duplicate sections/rows and historical-row borrowing refuse. Thirteen contract cases pass; installation remains independently guarded rather than inferred from documentation. Pending review 0107 stays immutable.
+
 - **source/replay verified; selection-aligned terrain sections** Decision 0110 adds exact X/Y and Z/Y sections through a selected pin, clicked cell or proposed target. All half-open bounds are checked; outside selections stay disabled without clamping. Private 409 Rust/98 Python and required checks pass. Archived native replay preserves 4,096 cells and 16 pins with 6,688 comparisons. Browser visual acceptance remains pending because BrowserOS is unavailable. Signed runtime and immutable pending Menu review 0107 stay unchanged.
 
 - **source verified; shutdown failure evidence retained** Decision 0109 repairs panic cleanup that deleted shutdown marker/journal evidence. A failing reproduction now preserves exact bytes and membership for a controlled post-intent deadline refusal; normal cleanup remains. The positive SDK-stop assertion now prints its cached receipt without accepting refusal as success. Private 409 Rust/97 Python and required checks pass; runtime prefix and installation unchanged. Organic timing cause remains open; pending review 0107 stays immutable.

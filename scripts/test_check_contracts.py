@@ -4,6 +4,7 @@ import copy
 import io
 import json
 from contextlib import redirect_stdout
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 
@@ -92,6 +93,32 @@ class ContractTests(unittest.TestCase):
                 data["profiles"]["product"][key] = "different"
                 with self.assertRaisesRegex(ValueError, key):
                     validate_index(data, ROOT)
+
+    def test_installed_versions_and_abi_cannot_drift_from_current_human_checkpoint(self):
+        for key in ["installed_server_version", "installed_client_version", "abi"]:
+            with self.subTest(key=key):
+                data = copy.deepcopy(INDEX)
+                data["profiles"]["product"][key] = "different"
+                with self.assertRaisesRegex(ValueError, "current product checkpoint"):
+                    validate_index(data, ROOT)
+
+    def test_current_checkpoint_must_be_unique_and_cannot_borrow_historical_rows(self):
+        path = ROOT / "plans/capability-matrix.md"
+        original_read = Path.read_text
+        table = path.read_text()
+        heading = "## Current product checkpoint\n"
+        profile = INDEX["profiles"]["product"]
+        row = f"| Server | `{profile['server_version']}` | `{profile['installed_server_version']}` |"
+        cases = [table.replace(heading, "", 1), table + "\n" + heading,
+                 table.replace(row, row + "\n" + row, 1),
+                 table.replace(row, "", 1) + "\n" + row]
+        for changed in cases:
+            with self.subTest(checkpoint=changed[:100]):
+                def read(p, *args, **kwargs):
+                    return changed if p == path else original_read(p, *args, **kwargs)
+                with patch.object(Path, "read_text", read):
+                    with self.assertRaisesRegex(ValueError, "current product checkpoint"):
+                        validate_index(INDEX, ROOT)
 
     def test_discovery_order_is_irrelevant_and_only_metadata_executes(self):
         for scope in ["server", "client"]:

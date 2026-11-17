@@ -48,6 +48,15 @@ def validate_index(data, root):
     }
     for key, value in actual.items():
         require(profile[key] == value, f"source profile {key} mismatch")
+    sections = table.split("## Current product checkpoint\n")
+    require(len(sections) == 2, "missing or duplicate current product checkpoint")
+    checkpoint = sections[1].split("\n## ", 1)[0].splitlines()
+    for scope, label in (("server", "Server"), ("client", "Companion")):
+        row = f"| {label} | `{profile[scope + '_version']}` | `{profile['installed_' + scope + '_version']}` |"
+        require(checkpoint.count(row) == 1, f"current product checkpoint {scope} drift")
+    for key in ("sdk_revision", "abi", "rust"):
+        row = f"| `{key}` | `{profile[key]}` |"
+        require(checkpoint.count(row) == 1, f"current product checkpoint {key} drift")
 
 
 def runtime_header(value):

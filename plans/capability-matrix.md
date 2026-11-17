@@ -1,5 +1,26 @@
 # Capability and acceptance matrix
 
+## Current product checkpoint
+
+This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
+
+| Component | Source version | Installed version |
+|---|---|---|
+| Server | `0.48.0` | `0.48.0` |
+| Companion | `0.21.1` | `0.21.1` |
+
+| Product profile field | Value |
+|---|---|
+| `sdk_revision` | `6a151a9550ed7a6ade99c23fa817a91e25b71bc9` |
+| `abi` | `12.1` |
+| `rust` | `1.99.1` |
+
+The signed product remains installed. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Current fresh Menu review 0107 is pending and does not authorize execution. Join/Leave and private profile resolution remain unavailable in the product. Client stays closed; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. Browser acceptance for the external viewer remains pending. See [next-up.md](next-up.md) for the latest source verification and next actions.
+
+## Historical development checkpoints
+
+The following dated/versioned results describe their recorded scope. They do not override the current product tables or grant installation/control authority.
+
 Decision 0110 adds exact selection-aligned terrain viewer sections for pins, cells and proposed targets, with disabled outside-capture actions. Source checks pass 409 Rust/98 Python; archived native replay checks 4,096 cells and 16 pins. Browser appearance/input acceptance remains pending. No native capability or runtime change.
 
 Shutdown fixture failure evidence now survives Rust unwinding, and the positive stop assertion includes its cached receipt (decision 0109). A controlled refusal retains exact marker/journal bytes; normal cleanup remains. Private 409 Rust/97 Python and required checks pass. Runtime, native acceptance, organic timing uncertainty and pending Menu review are unchanged.
@@ -42,7 +63,7 @@ Source companion 0.21.1 fixes permission/expiry revalidation after the final cop
 
 Updated: 2026-11-16. Status: all 50 source tools have explicit contract/evidence assessments and missing checks; operational workflow acceptance remains open. This is the current version/scope index. Dated checkpoints elsewhere are historical evidence, not competing installation instructions.
 
-## Profiles and evidence rules
+## Historical profiles and evidence rules
 
 A distinct current-product SDK 12.11 migration now replays against exact public d745bc1 (0.47.0/0.21.0). Candidate and clean replay each pass 398 Rust/96 Python plus required checks; all 250 normalized files reconstruct the same Git tree. The fourteen-file artifact preserves the historical 0.46.1 patch. Current-candidate native execution, credentials, lifecycle and adoption remain open (decision 0085).
 
@@ -54,7 +75,7 @@ The ABI 12.11 candidate now also passes a bounded isolated server experiment: ac
 
 Inactive Join/Leave SDK candidate `6a5966ee6683fde480ac9dd3654f91e73da6e2a5` / ABI **12.11** / Rust **1.100.0** now passes whole-product source checks and an exact clean patch replay against corrected 0.46.1. It supplies no lifecycle MCP route and changes no installed file. Matching provider, credential resolution and actual client connection/leave acceptance remain open; see decision 0077.
 
-Product source versions are server **0.47.0** and companion **0.21.1**; installed versions are **0.47.0 / 0.21.1** after verified cold deployment, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** has separately qualified source contracts and a bounded, completed native server experiment. The unsigned development provider is not adopted; its dedicated experiment process has exited. Client and general provider fidelity remain open.
+Historical product profile at the 0.47.0 checkpoint: source versions were server **0.47.0** and companion **0.21.1**; installed versions are **0.47.0 / 0.21.1** after verified cold deployment, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** has separately qualified source contracts and a bounded, completed native server experiment. The unsigned development provider is not adopted; its dedicated experiment process has exited. Client and general provider fidelity remain open.
 
 [Machine-readable contracts](capability-contracts.json) preserve all 50 source input schemas, descriptions, definition/dispatch references, thread ownership, admission, evidence limits and next checks. The source inventory is 37 server and 13 companion tools. The installed server now advertises all 37 tools after cold deployment; 0.46.1 corrects the top-axis caption; empty-server image, refusal and preservation acceptance passes (decision 0076). Schemas describe argument bounds; policy checks add semantic bounds and reject unnamed arguments. Discovery does not prove an executor is currently available.
 

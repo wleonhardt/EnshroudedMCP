@@ -356,3 +356,6 @@ Shutdown source fixtures retain their generated marker/journal directory on pani
 
 
 The standalone terrain viewer offers **X/Y through selection** and **Z/Y through selection** for a selected pin, clicked cell or proposed target inside the capture. Each opens the exact containing half-metre section; outside selections stay disabled. Geometry-only targets grant no clearance or execution authority. Decision 0110 records source/native-data replay checks; browser visual acceptance is pending.
+
+
+Current source and declared installed versions are maintained in the [checked product checkpoint](plans/capability-matrix.md#current-product-checkpoint). `python scripts/check_contracts.py` checks both version tables and the declared SDK/ABI/compiler against the index, with source Cargo/toolchain checks retained. Installed metadata requires separate runtime evidence; an offline consistency verdict does not discover installation or verify provider fidelity.
