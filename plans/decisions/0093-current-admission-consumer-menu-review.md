@@ -27,3 +27,5 @@ Authorization is limited to these exact replacements, two signature removals/res
 Successful bounded Menu/header/read checks would establish only this exact consumer/provider combination at Menu. They cannot qualify native delayed-getter/revocation faults, rendered outcomes, in-world reads, character/peer identity, Join/Leave, credentials, interruption recovery or adoption. Preserve failure and uncertainty separately. Later lifecycle qualification needs a separate supported-API and credential-ownership plan; the complete workshop objective remains open.
 
 Exact local installation paths, candidate/rollback hashes and process identities are intentionally excluded from publication. The concrete operational approval refers to the private review, not this neutral summary.
+
+Current status: retired before normal signed-server update0099. The old runtime guard demonstrably refuses the new installation; preserve all candidates and rollback files. A delayed approval cannot execute. Prepare a fresh current-product source/provider review before any unsigned swap.

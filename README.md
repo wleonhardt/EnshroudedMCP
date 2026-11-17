@@ -1,9 +1,10 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Source server 0.48.0 now returns complete sampled Y-band metadata for each terrain_image reference pin (decision 0098). All raw kinds/IDs/fill and half-open boundaries survive independently of section projection. Three behavior cases and fresh 32-band native-data replay pass. Installed server remains 0.47.0; actual 0.48.0 endpoint acceptance is pending. Capture count, PNG drawing, companion, SDK and write authority remain unchanged.
+Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 
 
-Installed pair is now server **0.47.0 / companion 0.21.1** on unchanged signed SDK/ABI 12.1. Native Menu reads/refusals, matched files and cold preservation pass; the final-getter fault cases remain source-qualified only. Client is closed. See [matched native acceptance](plans/decisions/0091-signed-companion-menu-deployment.md).
+
+Earlier signed Menu checkpoint was server **0.47.0 / companion 0.21.1** on unchanged signed SDK/ABI 12.1. Native Menu reads/refusals, matched files and cold preservation pass; the final-getter fault cases remain source-qualified only. Client is closed. See [matched native acceptance](plans/decisions/0091-signed-companion-menu-deployment.md).
 
 Companion source **0.21.1** rechecks write permission and expiry after its final copied snapshot, before native submission. Controlled delayed-getter and flag-removal regressions pass. Matched signed-SDK Menu/read/refusal acceptance now passes; native delayed-getter/revocation timing remains pending. See [final admission checks](plans/decisions/0090-final-client-admission-recheck.md).
 

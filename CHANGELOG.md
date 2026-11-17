@@ -2,7 +2,7 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
-- Server source 0.48.0 returns each terrain_image pin's complete sampled vertical column alongside the existing PNG. Preserve raw bands, outside/half-open semantics and projection independence without extra world reads. Deployment/native endpoint acceptance remains pending.
+- Install signed-SDK server 0.48.0 with complete terrain_image pin columns. Empty-server native checks verify 720 raw bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Cold recovery, protected geometry and durable namespaces pass; client and engine/contact acceptance remain separate.
 
 - Add an inactive, read-only SDK 12.13 respawn-target consumer with seven synthetic behavior cases. Preserve missing observations, typed errors and raw finite transforms. No registered tool, setter, native qualification or installed change.
 

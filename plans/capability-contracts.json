@@ -1,6 +1,6 @@
 {
   "date": "2026-11-17",
-  "status": "all 50 source contracts indexed; source server 0.48.0 pin columns qualified by source/native-data replay; installed 0.47.0/0.21.1 unchanged; deployment and broader workflows open",
+  "status": "all 50 source contracts indexed; installed signed-SDK 0.48.0/0.21.1 empty-server pin-column/read/refusal acceptance passed; current SDK migration and broader workflows remain open",
   "profiles": {
     "product": {
       "server_version": "0.48.0",
@@ -8,9 +8,9 @@
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "server 0.47.0 / companion 0.21.1 installed on unchanged signed SDK 6a151a95/ABI 12.1; native Menu/read/refusal and exact-file acceptance passed; SDK snapshot never at Menu remains unknown; client closed",
+      "installed": "server 0.48.0 / companion 0.21.1 on unchanged signed SDK 6a151a95/ABI 12.1; empty-server column/read/refusal and cold/protected preservation pass; client closed, prior 0.21.1 Menu acceptance retained without a new client launch",
       "game_build": "not observed by capability getter; do not infer from framework version",
-      "installed_server_version": "0.47.0",
+      "installed_server_version": "0.48.0",
       "installed_client_version": "0.21.1"
     },
     "inactive_candidate": {
@@ -97,9 +97,9 @@
       "source_evidence": "plans/decisions/0092-admission-preserving-sdk1211-replay.md",
       "native_candidate_qualified": false,
       "primary_installation_changed": false,
-      "status": "candidate and clean replay each pass 399 Rust/96 Python, required lint/format/releases/contracts and exact 259-file tree reconstruction; not installed",
+      "status": "historical exact 0.47.0/0.21.1 source qualification; current product 0.48.0 needs a fresh source closure; not installed",
       "native_review": "plans/decisions/0093-current-admission-consumer-menu-review.md",
-      "native_review_status": "current-version source-matched namespace variant and rollback closure staged; explicit temporary exception pending; no installation or launch"
+      "native_review_status": "retired before normal signed-server update0099; old runtime guard refuses current installation; preserve artifacts and prepare fresh current-product source/provider review"
     },
     "respawn_candidate": {
       "sdk_revision": "daffae3937398f29939783adc5247d6e5bb75bbf",
@@ -770,19 +770,20 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread capture; listener renders copied data",
       "admission": "Strict named args; bounded survey box, explicit section, up to 16 caller reference pins. Read-only; no write flag or execution authority.",
-      "evidence_summary": "Native 0.46.1 top/section PNG, raw-cell/pin/timestamp correspondence and corrected visible axes qualified on empty isolated server. Source 0.48.0 complete pin columns pass three behavior cases and independent 32-band fresh native-data replay; not deployed.",
+      "evidence_summary": "Installed signed-SDK 0.48.0 empty-server acceptance verifies 720 complete pin-column bands, 170415 independent diagnostic pixels, five specific image refusals and protected/cold preservation.",
       "evidence_references": [
         "plans/decisions/0072-bounded-mcp-png-presentation.md",
         "plans/decisions/0073-native-terrain-image.md",
         "plans/decisions/0076-native-terrain-caption-acceptance.md",
-        "plans/decisions/0098-native-pin-column-metadata.md"
+        "plans/decisions/0098-native-pin-column-metadata.md",
+        "plans/decisions/0099-signed-server-pin-column-acceptance.md"
       ],
       "source_checks": "Private/public 404 Rust executions and 97 Python tests, strict lint/format/releases/contracts pass. Three new behavior cases reproduce absent metadata before implementation; independent fresh native-data replay matches all 32 bands. Native 0.48.0 endpoint acceptance remains pending.",
-      "native_acceptance": "Three native views pass 172215 independent interior pixel comparisons over 768 displayed cells, bracketing survey equality and timestamp/pin checks. All forty fixed reads, eighteen image refusals and 19312 protected observations pass after verified cold deployment. New 0.48.0 columns have only copied native-data replay, not endpoint acceptance.",
+      "native_acceptance": "Three actual projections with sixteen caller pins each match equal bracketing surveys; 720 bands and 170415 independent pixels agree. Five targeted refusals match their intended gate without PNG. Forty fixed probes, complete discovery and protected/cold preservation pass.",
       "rendered_acceptance": "Diagnostic raster only; no game-frame, camera, interpolated surface or contact proof.",
       "persistence_acceptance": "No write or save/recovery authority.",
       "freshness_completeness": "One queued voxel capture; host timestamp after read, native session unavailable. Caller pins are references, not live selectors. A timeout does not cancel the queued read.",
-      "next_missing_check": "Deploy matched signed-SDK 0.48.0 with cold rollback, then qualify actual endpoint columns and connected-client consumption; engine/contact and lifecycle remain separate.",
+      "next_missing_check": "Qualify connected-client consumption and capture-time error presentation; engine surface/contact, native world-session identity and lifecycle remain separate.",
       "refusal_acceptance": "Eighteen exact native argument refusals return only one error-text block, with no PNG or ledger changes. Native capture-time failure presentation remains separately unverified.",
       "independent_effect_acceptance": "PNG encoding is game-free; reference pins do not move or select anything.",
       "admission_sources": [
@@ -795,7 +796,7 @@
       ],
       "observation_side_effects": "Voxel reads can load chunks and may run after a response timeout. Encoding uses copies and no World access.",
       "effect_kind": "scheduled bounded voxel read and diagnostic PNG; no gameplay mutation",
-      "evidence_applicability": "Installed server 0.46.1, companion DLL 0.20.2 and unchanged SDK 6a151a95 / ABI 12.1. Client closed; empty-server acceptance only."
+      "evidence_applicability": "Installed server 0.48.0 / companion 0.21.1, unchanged signed SDK 6a151a95/ABI 12.1; empty isolated server and closed client. No client gameplay or engine mesh/contact proof."
     },
     {
       "scope": "server",
