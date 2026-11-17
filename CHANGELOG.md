@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Server source 0.48.0 returns each terrain_image pin's complete sampled vertical column alongside the existing PNG. Preserve raw bands, outside/half-open semantics and projection independence without extra world reads. Deployment/native endpoint acceptance remains pending.
+
 - Add an inactive, read-only SDK 12.13 respawn-target consumer with seven synthetic behavior cases. Preserve missing observations, typed errors and raw finite transforms. No registered tool, setter, native qualification or installed change.
 
 - Add controlled process-termination coverage for the existing journal adapter. Owned workers stop after partial/full progress before explicit sync; independent reopen preserves exact observed bytes, loses session credit and refuses the old owner. No runtime behavior, hardware durability or native recovery claim changes.

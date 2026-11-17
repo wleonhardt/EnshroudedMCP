@@ -1,9 +1,9 @@
 {
   "date": "2026-11-17",
-  "status": "all 50 source contracts indexed; matched signed-SDK installed 0.47.0/0.21.1 Menu read/refusal acceptance passed; native final-getter faults and broader workflows remain open",
+  "status": "all 50 source contracts indexed; source server 0.48.0 pin columns qualified by source/native-data replay; installed 0.47.0/0.21.1 unchanged; deployment and broader workflows open",
   "profiles": {
     "product": {
-      "server_version": "0.47.0",
+      "server_version": "0.48.0",
       "client_version": "0.21.1",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -770,18 +770,19 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread capture; listener renders copied data",
       "admission": "Strict named args; bounded survey box, explicit section, up to 16 caller reference pins. Read-only; no write flag or execution authority.",
-      "evidence_summary": "Native 0.46.1 top/section PNG, raw-cell/pin/timestamp correspondence and corrected visible axes qualified on empty isolated server.",
+      "evidence_summary": "Native 0.46.1 top/section PNG, raw-cell/pin/timestamp correspondence and corrected visible axes qualified on empty isolated server. Source 0.48.0 complete pin columns pass three behavior cases and independent 32-band fresh native-data replay; not deployed.",
       "evidence_references": [
         "plans/decisions/0072-bounded-mcp-png-presentation.md",
         "plans/decisions/0073-native-terrain-image.md",
-        "plans/decisions/0076-native-terrain-caption-acceptance.md"
+        "plans/decisions/0076-native-terrain-caption-acceptance.md",
+        "plans/decisions/0098-native-pin-column-metadata.md"
       ],
-      "source_checks": "Private/public 391 Rust executions and 94 Python tests, strict Clippy, formatting and releases pass. Decoded-PNG axis regression reproduces the old top caption defect.",
-      "native_acceptance": "Three native views pass 172215 independent interior pixel comparisons over 768 displayed cells, bracketing survey equality and timestamp/pin checks. All forty fixed reads, eighteen image refusals and 19312 protected observations pass after verified cold deployment.",
+      "source_checks": "Private/public 404 Rust executions and 97 Python tests, strict lint/format/releases/contracts pass. Three new behavior cases reproduce absent metadata before implementation; independent fresh native-data replay matches all 32 bands. Native 0.48.0 endpoint acceptance remains pending.",
+      "native_acceptance": "Three native views pass 172215 independent interior pixel comparisons over 768 displayed cells, bracketing survey equality and timestamp/pin checks. All forty fixed reads, eighteen image refusals and 19312 protected observations pass after verified cold deployment. New 0.48.0 columns have only copied native-data replay, not endpoint acceptance.",
       "rendered_acceptance": "Diagnostic raster only; no game-frame, camera, interpolated surface or contact proof.",
       "persistence_acceptance": "No write or save/recovery authority.",
       "freshness_completeness": "One queued voxel capture; host timestamp after read, native session unavailable. Caller pins are references, not live selectors. A timeout does not cancel the queued read.",
-      "next_missing_check": "Qualify connected-client consumption and capture-time error presentation; keep engine surface/contact, native world-session identity and lifecycle acceptance separate.",
+      "next_missing_check": "Deploy matched signed-SDK 0.48.0 with cold rollback, then qualify actual endpoint columns and connected-client consumption; engine/contact and lifecycle remain separate.",
       "refusal_acceptance": "Eighteen exact native argument refusals return only one error-text block, with no PNG or ledger changes. Native capture-time failure presentation remains separately unverified.",
       "independent_effect_acceptance": "PNG encoding is game-free; reference pins do not move or select anything.",
       "admission_sources": [

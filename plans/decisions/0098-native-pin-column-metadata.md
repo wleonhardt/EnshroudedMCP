@@ -1,0 +1,21 @@
+# 0098: Return complete sampled columns with native diagnostic pins
+
+Date: 2026-11-17. Status: source and native-data replay qualification; deployment pending.
+
+The external inspector already exposes vertical sampled columns, but direct terrain_image replies expose only the projected cells and caller pin coordinates. A top projection can hide lower structures. Give the native MCP consumer the same complete raw column evidence alongside its existing PNG, without requiring a browser or another world read.
+
+Server source becomes 0.48.0; companion 0.21.1, signed SDK revision 6a151a95 / ABI 12.1, request schemas, tool count, capture bounds and PNG drawing remain unchanged. Add a column object to each existing returned pin. Its X/Z containing cell uses floor(position * 2). Return every captured Y band highest first, including Air, unknown material, zero fill and partial fill. Preserve exact coordinates, raw kind/ID/fill and half-open contains_pin_y. An X/Z point outside capture has unobserved state and no bands. An above/below-Y reference still has an observed column, with no highlighted band. Section projection does not restrict this column.
+
+The renderer uses only its already validated complete copied capture. At most sixteen pins each return sixteen bands. Caller references remain neither live entities nor selectors. No inferred surface equation, support, clearance, contact, movement or write authority is introduced. Existing image metadata continues to state those limitations. The PNG drawing code is unchanged; the new data is JSON metadata rather than a second image or engine rendering.
+
+Baseline private checks pass 401 Rust executions and 97 Python tests with required lint/format/releases/contracts. Two new behavior cases first fail because column metadata is absent. The implementation then passes all twelve terrain-image cases, including a third sixteen-pin/full-height/projection case. Explicit expected rows cover unknown ID 255 with zero fill and partially filled terrain, missing versus observed columns, exact maximum edges, above/below Y and unchanged no-mutation/no-surface claims.
+
+One fresh native building_survey read copies 4,096 cells from the unchanged installed server. Caller reference pins are selected offline. An SDK-free private consumer runs the new presentation code on that copied survey. An independent Python oracle compares every field of all 32 returned bands, exact maximum-Y selection and the outside-X/Z result against the original cells. This is native-data replay, not execution of a deployed 0.48.0 endpoint or a new live acceptance claim. No player, prop, credential, game-log or gameplay read/write is needed.
+
+Next deploy the matched signed-SDK server build through the existing empty-roster cold archive/rollback procedure, then independently compare actual terrain_image columns with bracketing raw surveys and verify discovery, refusals and protected data. Keep the exact staged SDK 12.11 Menu review and ABI 12.13 respawn prototype separate. Browser layout, connected-client consumption, real terrain mesh and contact remain unqualified. No installed file or game process changes in this increment.
+
+The pending Menu review pins the current installed runtime. Resolve that review or explicitly prepare and review a fresh coherent closure before a later server deployment invalidates it. Never execute a delayed approval against stale runtime files.
+
+Full Rust checks pass 404 executions. The first Python run correctly rejects the stale validator's hard-coded 0.47.0 expectations after the source version bump. Update only the four exact validator version references and add previous-version refusal to the existing provenance case. Preserve the failed log; corrected Python checks pass all 97 cases. Strict Rust lint/format, both release builds and source contracts pass. Independent publication checks are recorded before publication.
+
+Private and independent public product checks pass 404 Rust executions, 97 Python tests, strict lint/format, both release builds and the contract index. The thirteen-file increment retains fifty schemas and all historical qualification artifacts. Installed discovery remains consistent against frozen 0.47.0 contracts; signed runtime and staged Menu review remain exact. No deployment or client launch occurs.

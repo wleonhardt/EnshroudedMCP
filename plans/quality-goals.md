@@ -79,3 +79,5 @@ Goals 1 and 5 gain a source-verified complete vertical profile at selected snaps
 ## Controlled journal-termination checkpoint — 2026-11-17
 
 Goals 1 and 4 now distinguish forced process death from graceful reopen and injected return errors under decision 0096. Controlled one/full-record progress uses actual owned-worker termination, independent file comparison and fresh-process zero-credit/old-owner refusal. SDK-free debug/release and private 401 Rust/97 Python checks pass. Production code and current runtime remain unchanged. Actual storage sync failure, power loss, higher-level/native recovery, browser visual acceptance and the Menu exception remain open.
+
+Goal 5 increment, 2026-11-17: decision 0098 adds complete raw vertical pin columns to source terrain_image metadata without another world read or browser. Three behavior cases and an independent fresh native-data replay pass. Matched 0.48.0 endpoint acceptance, connected-client consumption and engine/contact claims remain separate.

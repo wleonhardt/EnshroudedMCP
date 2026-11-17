@@ -61,3 +61,9 @@ Fifteen behavior tests cover an asymmetric coordinate fixture, precise pins/raw 
 The current server 0.47.0 exposes terrain_image and returns metadata text plus a diagnostic PNG directly through MCP, without opening this external viewer. Current native output is observed in decision 0095; the earlier bounded image/caption acceptance is decision 0076. Neither qualifies the new column's browser layout or actual engine terrain rendering.
 
 Use view top with no slice, view xy with a Z slice minimum, or view zy with an X slice minimum. Captions and metadata preserve the distinction between sampled classification and engine mesh, camera, contact or clearance. See decision 0073 for complete argument bounds and caller-reference pin semantics. The external inspector remains a separate saved snapshot with its own column/proposal controls; no game-frame capture or new native executor is added.
+
+## Direct MCP pin columns
+
+Source server 0.48.0 adds `column` to every `terrain_image` metadata pin. `xz_min_cells` gives its containing X/Z cell; `state` is `observed` or `unobserved`. `bands` lists every sampled half-metre Y interval highest first, with `min_cells`, `y_min_m`, `y_max_exclusive_m`, raw `kind`, `id`, `fill` and half-open `contains_pin_y`. Columns remain complete in section views, even for an off-section pin.
+
+Outside sampled X/Z returns no bands. Above/below sampled Y still returns the known column without a selected band. At most sixteen pins each contain sixteen bands. These are caller references and copied samples, not entity selectors, surface height, support, clearance or ground contact. No extra world read occurs. PNG drawing and request schema are unchanged. Installed 0.47.0 lacks this metadata until a separately qualified deployment; source/native-data replay is not endpoint acceptance. See decision 0098.

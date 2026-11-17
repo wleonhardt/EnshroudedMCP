@@ -184,7 +184,8 @@ class ValidationTests(unittest.TestCase):
             row.clear();row.update(original)
 
     def test_capabilities_refuse_wrong_framework_provenance(self):
-        for key, wrong in (("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
+        for key, wrong in (("mod_version", "0.47.0"),
+                           ("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
                            ("compiled_framework_abi", "11.20"), ("enshwick", "1.0.0-alpha.14"),
                            ("compiled_framework_revision", "acd5550c607a38c983433f9807cc95564244fe0b"),
                            ("compiled_framework_abi", "11.30"), ("compiled_framework_revision", "5436ffddcc623439c339a283a4dc2b45f924fe5b"), ("compiled_framework_abi", "12.0"), ("enshwick", "1.0.0-alpha.16"), ("mod_version", "0.36.0"), ("mod_version", "0.35.0"), ("mod_version", "0.34.0"), ("mod_version", "0.33.0"), ("enshwick", "1.0.0-alpha.15"), ("mod_version", "0.25.0"),

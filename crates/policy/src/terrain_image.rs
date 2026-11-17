@@ -132,6 +132,23 @@ struct Cell {
     id: Option<u8>,
     fill: u8,
 }
+fn pin_column(cells: &BTreeMap<[u32; 3], Cell>, pin: &Pin) -> Value {
+    let x = (pin.position[0] * 2.0).floor() as u32;
+    let z = (pin.position[2] * 2.0).floor() as u32;
+    let bands: Vec<_> = cells
+        .values()
+        .rev()
+        .filter(|cell| cell.min[0] == x && cell.min[2] == z)
+        .map(|cell| {
+            let low = f64::from(cell.min[1]) / 2.0;
+            json!({"min_cells":cell.min,"y_min_m":low,"y_max_exclusive_m":low+0.5,
+                "kind":cell.kind,"id":cell.id,"fill":cell.fill,
+                "contains_pin_y":pin.position[1]>=low && pin.position[1]<low+0.5})
+        })
+        .collect();
+    json!({"state":if bands.is_empty(){"unobserved"}else{"observed"},
+        "xz_min_cells":[x,z],"bands":bands})
+}
 fn coordinate(value: &Value) -> Result<[u32; 3], String> {
     let row = value
         .as_array()
@@ -466,7 +483,7 @@ pub fn present(value: Value) -> Result<Presentation, String> {
                 color,
             );
         }
-        pins.push(json!({"number":index+1,"label":pin.label,"position_m":pin.position,"in_capture":inside,"in_view":in_view,"pixel":pixel}));
+        pins.push(json!({"number":index+1,"label":pin.label,"position_m":pin.position,"in_capture":inside,"in_view":in_view,"pixel":pixel,"column":pin_column(&cells,pin)}));
     }
     raster.text(
         8,
@@ -528,6 +545,117 @@ mod tests {
     }
     fn pixel(pixels: &[u8], x: usize, y: usize) -> &[u8] {
         &pixels[(y * 448 + x) * 3..(y * 448 + x) * 3 + 3]
+    }
+
+    #[test]
+    fn pin_column_preserves_all_raw_bands_in_descending_y_order() {
+        let mut args = request();
+        args["pins"] = json!([{"label":"Probe","position":[10.25,20.5,30.25]}]);
+        let mut value = fixture(args);
+        let rows = value["survey"]["voxels"]["cells"].as_array_mut().unwrap();
+        let cell = rows
+            .iter_mut()
+            .find(|row| row["min_cells"] == json!([20, 41, 60]))
+            .unwrap();
+        cell["material"] = json!({"kind":"unknown","id":255});
+        cell["fill"] = json!(0);
+        value["survey"]["voxels"]["material_counts"] =
+            json!({"air":21,"terrain":1,"building":1,"unknown":1});
+        let (metadata, _) = decode(value);
+        let column = &metadata["pins"][0]["column"];
+        assert_eq!(column["state"], "observed");
+        assert_eq!(column["xz_min_cells"], json!([20, 60]));
+        assert_eq!(
+            column["bands"],
+            json!([
+                {"min_cells":[20,42,60],"y_min_m":21.0,"y_max_exclusive_m":21.5,"kind":"air","id":null,"fill":0,"contains_pin_y":false},
+                {"min_cells":[20,41,60],"y_min_m":20.5,"y_max_exclusive_m":21.0,"kind":"unknown","id":255,"fill":0,"contains_pin_y":true},
+                {"min_cells":[20,40,60],"y_min_m":20.0,"y_max_exclusive_m":20.5,"kind":"terrain","id":2,"fill":128,"contains_pin_y":false}
+            ])
+        );
+    }
+
+    #[test]
+    fn pin_columns_distinguish_outside_xz_from_outside_y_and_half_open_edges() {
+        let mut args = request();
+        args["pins"] = json!([
+            {"label":"Low","position":[10,20,30]},
+            {"label":"Below","position":[10,19.99,30]},
+            {"label":"Above","position":[10,21.5,30]},
+            {"label":"East","position":[11,20,30]},
+            {"label":"North","position":[10,20,32]},
+            {"label":"West","position":[9.99,20,30]}
+        ]);
+        let (metadata, _) = decode(fixture(args));
+        for index in 0..3 {
+            let column = &metadata["pins"][index]["column"];
+            assert_eq!(column["state"], "observed");
+            let bands = column["bands"].as_array().unwrap();
+            assert_eq!(bands.len(), 3);
+            assert_eq!(
+                bands
+                    .iter()
+                    .filter(|row| row["contains_pin_y"] == true)
+                    .count(),
+                usize::from(index == 0)
+            );
+        }
+        for index in 3..6 {
+            let column = &metadata["pins"][index]["column"];
+            assert_eq!(column["state"], "unobserved");
+            assert_eq!(column["bands"], json!([]));
+        }
+    }
+
+    #[test]
+    fn full_height_pin_columns_are_bounded_and_independent_of_section_projection() {
+        for (view, slice) in [("top", None), ("xy", Some(31.5)), ("zy", Some(10.5))] {
+            let mut args = request();
+            args["height"] = json!(8);
+            args["view"] = json!(view);
+            if let Some(slice) = slice {
+                args["slice"] = json!(slice);
+            }
+            args["pins"] = json!(
+                (0..16)
+                    .map(|i| json!({"label":format!("P{i}"),"position":[10.25,20.25,30.25]}))
+                    .collect::<Vec<_>>()
+            );
+            let mut value = fixture(args);
+            value["survey"]["region"]["size_cells"] = json!([2, 16, 4]);
+            value["survey"]["region"]["max_exclusive_cells"] = json!([22, 56, 64]);
+            value["survey"]["region"]["max_exclusive_m"] = json!([11, 28, 32]);
+            let cells = value["survey"]["voxels"]["cells"].as_array_mut().unwrap();
+            for x in 20..22 {
+                for y in 43..56 {
+                    for z in 60..64 {
+                        cells.push(json!({"min_cells":[x,y,z],"material":{"kind":"air","id":null},"fill":0}));
+                    }
+                }
+            }
+            value["survey"]["voxels"]["cell_count"] = json!(128);
+            value["survey"]["voxels"]["material_counts"]["air"] = json!(126);
+            let (metadata, _) = decode(value);
+            assert_eq!(metadata["pins"].as_array().unwrap().len(), 16);
+            for pin in metadata["pins"].as_array().unwrap() {
+                let bands = pin["column"]["bands"].as_array().unwrap();
+                assert_eq!(bands.len(), 16);
+                assert_eq!(bands[0]["min_cells"], json!([20, 55, 60]));
+                assert_eq!(bands[15]["min_cells"], json!([20, 40, 60]));
+                assert_eq!(
+                    bands
+                        .iter()
+                        .filter(|row| row["contains_pin_y"] == true)
+                        .count(),
+                    1
+                );
+                if view != "top" {
+                    assert_eq!(pin["in_view"], false);
+                }
+            }
+            assert_eq!(metadata["world_mutated"], false);
+            assert_eq!(metadata["surface_height_verified"], false);
+        }
     }
 
     #[test]

@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source verified; native pin-column metadata** Source server 0.48.0 now returns complete sampled Y-band metadata for each terrain_image reference pin (decision 0098). All raw kinds/IDs/fill and half-open boundaries survive independently of section projection. Three behavior cases and fresh 32-band native-data replay pass. Installed server remains 0.47.0; actual 0.48.0 endpoint acceptance is pending. Capture count, PNG drawing, companion, SDK and write authority remain unchanged.
+
 - **source qualified; future respawn target** Source-only respawn-target qualification now uses exact SDK daffae39 / ABI 12.13 in an independent rlib workspace (decision 0097). Seven FakeHost cases preserve missing-versus-zero semantics, typed errors, finite raw transforms and explicit session limitations. No product tool, setter, native acceptance or installed change. Next qualify a matching provider and independently observed current-player target before proposing a game-thread read route. The SDK 12.11 Menu review remains separate.
 
 - **qualified; owned-process journal interruption** One-byte and full-record progress are parked before explicit sync, then only the owned worker is forcibly terminated and awaited. Fresh processes preserve exact bytes, report zero session credit and refuse the old owner. Baseline 399 Rust/97 Python; final private checks 401/97. SDK-free debug/release suites each pass 16 executions and strict lint. First incorrect fixture expectation is preserved. No natural storage failure, power-loss, native gameplay recovery or installed change is claimed. See decision 0096.
