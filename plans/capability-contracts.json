@@ -3,14 +3,14 @@
   "status": "all 50 source tools have explicit contracts; new terrain_image native acceptance pending",
   "profiles": {
     "product": {
-      "server_version": "0.46.0",
+      "server_version": "0.46.1",
       "client_version": "0.20.2",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
       "installed": "server 0.45.0 / companion 0.20.2; new source server 0.46.0 is not deployed yet",
       "game_build": "not observed by capability getter; do not infer from framework version",
-      "installed_server_version": "0.45.0",
+      "installed_server_version": "0.46.1",
       "installed_client_version": "0.20.2"
     },
     "inactive_candidate": {
@@ -684,18 +684,19 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread capture; listener renders copied data",
       "admission": "Strict named args; bounded survey box, explicit section, up to 16 caller reference pins. Read-only; no write flag or execution authority.",
-      "evidence_summary": "Source-qualified diagnostic PNG from complete copied cells; native producer not yet installed.",
+      "evidence_summary": "Native 0.46.1 top/section PNG, raw-cell/pin/timestamp correspondence and corrected visible axes qualified on empty isolated server.",
       "evidence_references": [
         "plans/decisions/0072-bounded-mcp-png-presentation.md",
-        "plans/decisions/0073-native-terrain-image.md"
+        "plans/decisions/0073-native-terrain-image.md",
+        "plans/decisions/0076-native-terrain-caption-acceptance.md"
       ],
-      "source_checks": "Private/public 390 Rust executions and 94 Python tests, strict Clippy, formatting and releases pass. Eight new renderer cases; native-data replay is offline only.",
-      "native_acceptance": "Not installed or executed. Replay of earlier native data qualifies offline rendering only.",
+      "source_checks": "Private/public 391 Rust executions and 94 Python tests, strict Clippy, formatting and releases pass. Decoded-PNG axis regression reproduces the old top caption defect.",
+      "native_acceptance": "Three native views pass 172215 independent interior pixel comparisons over 768 displayed cells, bracketing survey equality and timestamp/pin checks. All forty fixed reads, eighteen image refusals and 19312 protected observations pass after verified cold deployment.",
       "rendered_acceptance": "Diagnostic raster only; no game-frame, camera, interpolated surface or contact proof.",
       "persistence_acceptance": "No write or save/recovery authority.",
       "freshness_completeness": "One queued voxel capture; host timestamp after read, native session unavailable. Caller pins are references, not live selectors. A timeout does not cancel the queued read.",
-      "next_missing_check": "Stage matched files, qualify native image/capture correspondence and client visibility, and preserve world/ledgers after cold deployment.",
-      "refusal_acceptance": "Source policy rejects invalid boxes/sections/pins and incomplete copied captures before image output; native refusal matrix remains unverified.",
+      "next_missing_check": "Qualify connected-client consumption and capture-time error presentation; keep engine surface/contact, native world-session identity and lifecycle acceptance separate.",
+      "refusal_acceptance": "Eighteen exact native argument refusals return only one error-text block, with no PNG or ledger changes. Native capture-time failure presentation remains separately unverified.",
       "independent_effect_acceptance": "PNG encoding is game-free; reference pins do not move or select anything.",
       "admission_sources": [
         "crates/policy/src/args.rs",
@@ -707,7 +708,7 @@
       ],
       "observation_side_effects": "Voxel reads can load chunks and may run after a response timeout. Encoding uses copies and no World access.",
       "effect_kind": "scheduled bounded voxel read and diagnostic PNG; no gameplay mutation",
-      "evidence_applicability": "Source server 0.46.0 on unchanged SDK 6a151a95/ABI 12.1. Installed server remains 0.45.0 pending matched cold deployment."
+      "evidence_applicability": "Installed server 0.46.1, companion DLL 0.20.2 and unchanged SDK 6a151a95 / ABI 12.1. Client closed; empty-server acceptance only."
     },
     {
       "scope": "server",

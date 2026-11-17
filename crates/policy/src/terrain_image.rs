@@ -358,7 +358,15 @@ pub fn present(value: Value) -> Result<Presentation, String> {
     let color = [225, 234, 244];
     let s = &spec.survey;
     raster.text(8, 8, &format!("VOXEL {} - DIAGNOSTIC", spec.view), color);
-    raster.text(8, 20, "0.5 M CELLS - Y UP - NO ENGINE MESH", color);
+    raster.text(
+        8,
+        20,
+        &format!(
+            "0.5 M CELLS - {} UP - NO ENGINE MESH",
+            "XYZ".chars().nth(vertical).unwrap()
+        ),
+        color,
+    );
     for (axis, y) in [(0, 32), (1, 44), (2, 56)] {
         raster.text(
             8,
@@ -520,6 +528,35 @@ mod tests {
     }
     fn pixel(pixels: &[u8], x: usize, y: usize) -> &[u8] {
         &pixels[(y * 448 + x) * 3..(y * 448 + x) * 3 + 3]
+    }
+
+    #[test]
+    fn caption_up_axis_matches_top_and_both_section_rasters() {
+        for (view, slice, axis, rows) in [
+            ("top", None, 2, [31_u8, 1, 2, 4, 8, 16, 31]),
+            ("xy", Some(30.0), 1, [17, 17, 10, 4, 4, 4, 4]),
+            ("zy", Some(10.5), 1, [17, 17, 10, 4, 4, 4, 4]),
+        ] {
+            let mut args = request();
+            args["view"] = json!(view);
+            if let Some(slice) = slice {
+                args["slice"] = json!(slice);
+            }
+            let (metadata, pixels) = decode(fixture(args));
+            assert_eq!(metadata["image"]["up_axis"], axis);
+            // Independently specified Z/Y bitmap at the public caption position.
+            let x = 8 + "0.5 M CELLS - ".len() * 6;
+            for (row, bits) in rows.into_iter().enumerate() {
+                for col in 0..5 {
+                    let expected = if bits & (1 << (4 - col)) != 0 {
+                        [225, 234, 244]
+                    } else {
+                        [24, 35, 50]
+                    };
+                    assert_eq!(pixel(&pixels, x + col, 20 + row), expected, "{view}");
+                }
+            }
+        }
     }
 
     #[test]

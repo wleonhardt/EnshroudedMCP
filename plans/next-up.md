@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **native terrain images and 0.46.1 caption correction qualified** Cold 0.46.0 deployment, three native images, 172,215 pixel checks, all forty fixed reads and 19,312 protected observations pass. Visual inspection finds top header Y UP while raster/metadata use Z. Failing decoded-PNG reproduction now passes after deriving the caption from its actual vertical axis. Private/public 391 Rust/94 Python and required checks pass; corrected cold/native image, eighteen exact refusals and full preservation pass. Client remains closed; connected/engine/capture-error acceptance remains open. SDK unchanged. See decision 0076.
+
 - **native join/leave API now published; consumer source/model qualification passed** Upstream #1150 merge 6a5966ee adds address-based Join/Leave/cancel and copied peer/status at ABI 12.11. Optional six-case consumer suite pins that revision; debug/optimized tests, strict Clippy and formatting pass. Product SDK 6a151a95 / ABI 12.1 and installed pair remain unchanged; no lifecycle tool or credential resolver is exposed. Qualify whole-product compatibility and provider provenance before native isolated acceptance. See decision 0075.
 
 - **journal pressure filesystem qualification passed** Optional Windows workspace executes unchanged production adapter with 128 concurrent writers, 64 exact admissions, retained two-owner recovery, real sharing-lock refusal and exact prefix/suffix/cap checks in debug and release. Product source/runtime versions and prepared image DLLs remain unchanged. Partial-write/sync faults, power loss, native callback faults and process-restart recovery remain unverified. See decision 0074.
