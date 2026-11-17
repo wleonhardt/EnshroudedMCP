@@ -67,3 +67,8 @@ Goals 1, 2 and 4 now have a current-version Menu qualification review under deci
 ## Complete request-timing checkpoint — 2026-11-17
 
 Goals 1, 2 and 4 gain complete request-scoped source diagnostics under decision 0094. The current final-admission consumer retains 42 targeted intervals with zero dropped rows; controlled post-sync delay, getter delay and flag removal preserve once-only refusals. The optional copy passes 400 Rust/96 Python and strict checks; clean replay proves source correspondence only. No organic deadline refusal is observed. Native timing, historical latency cause and the pending Menu-review exception remain open.
+
+
+## Sampled column-profile checkpoint — 2026-11-17
+
+Goals 1 and 5 gain a source-verified complete vertical profile at selected snapshot points under decision 0095. Exact raw bands and outside/half-open behavior pass 97 Python cases and fresh 16-band native-data DOM correspondence. Current MCP image production is observed independently. Browser visual/layout acceptance remains pending a disconnected BrowserOS link; source DOM checks do not close it. No engine surface/contact claim, gameplay command or installed change occurs.

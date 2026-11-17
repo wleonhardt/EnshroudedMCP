@@ -22,6 +22,10 @@
     }
     return [...columns.values()];
   }
+  function column(cells, position) {
+    const x = Math.floor(position[0]*2), z = Math.floor(position[2]*2);
+    return cells.filter(c => c[0] === x && c[2] === z).sort((a,b) => b[1]-a[1]);
+  }
   const normals = [[-1,0,0],[1,0,0],[0,-1,0],[0,1,0],[0,0,-1],[0,0,1]];
   const corners = [
     [[0,0,0],[0,0,1],[0,1,1],[0,1,0]], [[1,0,0],[1,1,0],[1,1,1],[1,0,1]],
@@ -43,7 +47,7 @@
     }
     return faces;
   }
-  globalThis.TerrainGeometry = {project, section, topCells, exposedFaces};
+  globalThis.TerrainGeometry = {project, section, topCells, column, exposedFaces};
   if (typeof document === "undefined") return;
 
   const data = JSON.parse(document.getElementById("terrain-data").textContent);
@@ -60,11 +64,31 @@
   for (let x=0;x<2;x++) for(let y=0;y<2;y++) for(let z=0;z<2;z++) {
     bounds.push([x?data.max_m[0]:data.min_m[0],y?data.max_m[1]:data.min_m[1],z?data.max_m[2]:data.min_m[2]]);
   }
+  function describeColumn(position, label) {
+    document.getElementById("column-profile").hidden = false;
+    document.getElementById("column-title").textContent = `Observed column at ${label}`;
+    const rows = column(data.cells, position), body = document.getElementById("column-rows");
+    body.replaceChildren();
+    const x = Math.floor(position[0]*2), z = Math.floor(position[2]*2);
+    const insideY = position[1] >= data.min_m[1] && position[1] < data.max_m[1];
+    document.getElementById("column-summary").textContent = rows.length
+      ? `X [${x/2}, ${(x+1)/2}) m; Z [${z/2}, ${(z+1)/2}) m; sampled Y [${data.min_m[1]}, ${data.max_m[1]}) m. Selected Y ${position[1]} m ${insideY ? "inside" : "OUTSIDE"} sampled Y.`
+      : "Outside sampled X/Z; column unobserved.";
+    for (const c of rows) {
+      const row = document.createElement("tr"), contains = position[1] >= c[1]/2 && position[1] < (c[1]+1)/2;
+      row.dataset.kind = c[3];row.dataset.containsPoint = String(contains);
+      for (const value of [`[${c[1]/2}, ${(c[1]+1)/2})`, `${c[3]} ${c[4]===null ? "(no ID)" : `ID ${c[4]}`}`, String(c[5]), contains ? "Selected Y" : ""]) {
+        const cell = document.createElement("td");cell.textContent = value;row.append(cell);
+      }
+      body.append(row);
+    }
+  }
   function describePin(index) {
     const pin = data.pins[index];
     selected = index;
     selectedTarget = null;
     const cell = pin.position.map(v => Math.floor(v*2));
+    describeColumn(pin.position, pin.label);
     info.textContent = `${index+1}. ${pin.label} · ${pin.kind} · XYZ metres [${pin.position.join(", ")}] · containing cell [${cell.join(", ")}] · ${pin.inside_capture ? "inside capture" : "OUTSIDE capture"}`;
     if(measure.value!==""){
       const origin=data.pins[Number(measure.value)],delta=pin.position.map((v,i)=>v-origin.position[i]);
@@ -83,6 +107,7 @@
   function describeTarget(index){
     const target=proposal.targets[index],observed=target.observed;
     selected=null;selectedTarget=index;planTarget.value=String(index);
+    describeColumn(target.min_cells.map(v=>v/2), "proposed target");
     info.textContent=`PROPOSED cell [${target.min_cells.join(", ")}] · minimum XYZ metres [${target.min_cells.map(v=>v/2).join(", ")}] · ${target.state}${observed?`; observed ID ${observed.id}, raw fill ${observed.fill}`:"; outside capture, not drawn"} · geometry only; clearance and execution NOT authorized`;
     draw();
   }
@@ -203,6 +228,7 @@
       else if(contains(item.points,x,y)){
         const c=item.cell;if(!c)continue;selected=null;selectedTarget=null;
         info.textContent=`Cell [${c.slice(0,3).join(", ")}] · minimum XYZ metres [${c.slice(0,3).map(v=>v/2).join(", ")}] · ${c[3]} ID ${c[4]===null?"unavailable":c[4]} · raw fill ${c[5]} · half-open 0.5 m cube`;
+        describeColumn(c.slice(0,3).map(v=>v/2), "selected cell minimum");
         draw();return;
       }
     }

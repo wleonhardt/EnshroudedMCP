@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add complete sampled vertical column profiles to the external terrain inspector when selecting pins, cells or proposed targets. Preserve raw bands and half-open/outside semantics without new reads or gameplay control. Source/native-data DOM checks pass; browser visual acceptance remains pending.
+
 - Add a distinct current-base optional timing probe that preserves companion 0.21.1 final admission checks and retains each complete request interval. Forty-two controlled/ordinary intervals have zero dropped rows; historical latency causes and native timing remain unverified. No installed or product behavior changes.
 
 - Add a distinct SDK 12.11 migration against exact 0.47.0/0.21.1 source, preserving the final permission/deadline recheck. A synthetic bootstrap callback failure is reproduced and fixed with unknown context; candidate and clean replay each pass 399 Rust/96 Python, strict lint/format/releases and contracts. Production guards, installed files and historical patches remain unchanged.

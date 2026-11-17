@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+The external terrain inspector now has a source-verified vertical column profile for selected pins/cells/targets (decision 0095). Raw native 16-band DOM correspondence passes; outside/half-open behavior is tested. Browser visual acceptance is pending a disconnected BrowserOS link. This adds no MCP tool, native executor, surface-height or contact proof.
+
 Optional source timing qualification now retains one complete bounded State::run interval per request against current 0.21.1 (decision 0094). Forty-two targeted intervals have zero drops and distinguish controlled post-sync/getter waits and revoked permission. No new product tool, organic failure cause or native timing acceptance is claimed.
 
 The current 0.21.1 SDK 12.11 consumer has a source-matched namespace variant and fresh rollback closure staged for a two-phase Menu-only review (decision 0093). Variant checks pass 399 Rust/96 Python and required lint/format/releases/contracts; a stale rollback copy is rejected. No runtime change or new native acceptance occurred. The explicit signed-provider exception remains pending.
