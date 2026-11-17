@@ -94,3 +94,8 @@ Goal 4 increment, 2026-11-17: decision 0102 qualifies a disposable attributed sl
 ## Current 0.48 native review checkpoint — 2026-11-17
 
 Goals 1, 2 and 4 now have current-version source, binary and rollback closure staged in decision 0103. The two-file variant passes 405 Rust/97 Python and required checks without changing production control. Current signed-runtime preservation and stale-copy refusal are verified. Fresh explicit permission is required for the bounded two-phase Menu experiment; old review 0093 remains retired. No runtime action has occurred. Native lifecycle execution, credential ownership, rendered behavior, in-world operation and adoption still need separate qualification.
+
+
+## Stopped Menu trial and exact rollback — 2026-11-17
+
+Decision 0104 records a failed private handoff identity oracle after one approved launch. The trial stops, the effective client exits 0 and all five originals/twelve installed hashes and durable namespaces are restored. The new companion is not executed. The corrected full-precision witness passes owned Python-child checks; actual Steam handoff and both Menu phases remain unqualified and need a fresh review. Goal 4 also retains a new unmodified grant-fixture started/outcome-unknown failure. A later passing cohort does not fix it; deterministic acknowledgement/reconciliation and failure-evidence retention remain next work.

@@ -1,6 +1,6 @@
 # Capability and acceptance matrix
 
-A current server 0.48.0 / companion 0.21.1 SDK 12.11 native-review variant is staged under decision 0103. Only the private namespace and current test-only evidence retention differ from the 274-file qualified source. Variant passes 405 Rust/97 Python and required checks; exact candidates, rollback copies, current probes and stale-closure refusal pass. Fresh temporary signed-provider exception remains pending. No installation, launch or new native acceptance.
+Decision 0104 records the approved 0103 Menu trial stopping on a private Steam handoff identity-oracle precision error. One launch and exact-process exit 0 precede verified restoration of all five originals, twelve installed hashes and durable namespaces. Neither phase is accepted; the SDK 12.11 companion is never installed or executed. The consumed review cannot be replayed. Current signed server 0.48.0 / companion 0.21.1 remains unchanged.
 
 A new inactive current-base timing probe adds explicit operation/fixture/thread provenance and defers output for fast complete intervals (decision 0102). Controlled identity, null-origin and truncation checks pass; instrumented source passes 408 Rust/97 Python and required checks. Six bounded same-area trials pass without capturing organic expiry; previous timing cause remains open. Active product and signed runtime stay unchanged.
 
