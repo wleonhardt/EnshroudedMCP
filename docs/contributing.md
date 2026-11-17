@@ -35,3 +35,9 @@ Update the changelog, tool reference and relevant plans for behavior changes. Be
 Original SVG branding is code-native artwork under the project MIT license. Keep it self-contained, accessible and free of game imagery, external scripts and embedded identifiers.
 
 The optional [journal pressure qualification](../qualification/journal-pressure/README.md) executes real concurrent appends and Windows lock refusal against a disposable journal. Run its debug/release executables and scoped checks separately; workspace tests do not execute this independent suite.
+
+## Retained command-fixture failures
+
+Client-command unit fixtures skip automatic cleanup while their test thread unwinds and print the generated directory path. Inspect and preserve that synthetic evidence before another experiment. The directory is under the source worktree's `target/client-control-tests`, independently of `CARGO_TARGET_DIR`. Completed tests still clean up; the controlled retention test explicitly removes its own files after verifying their bytes and membership.
+
+Keep retained fixtures, journals and logs private and outside commits or publication. This development aid does not preserve every process failure, fix real-time deadline intermittency or establish native gameplay recovery. Capture explicit request provenance before attributing timing reports; merged test-harness labels are insufficient. See [decision 0101](../plans/decisions/0101-retain-unwinding-client-fixture-evidence.md).

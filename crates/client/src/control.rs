@@ -399,8 +399,61 @@ mod tests {
     }
     impl Drop for Fixture {
         fn drop(&mut self) {
+            if std::thread::panicking() {
+                eprintln!(
+                    "client fixture cleanup skipped during panic: {}",
+                    self.0.display()
+                );
+                return;
+            }
             fs::remove_dir_all(&self.0).unwrap();
         }
+    }
+    #[test]
+    fn fixture_unwind_retains_exact_evidence_while_success_cleans_up() {
+        let completed = Fixture::new();
+        let parent = completed.0.parent().unwrap().canonicalize().unwrap();
+        let completed_path = completed.0.canonicalize().unwrap();
+        assert_eq!(completed_path.parent(), Some(parent.as_path()));
+        reserve(&completed.0, "completed", &json!({"operation":"completed"})).unwrap();
+        drop(completed);
+        assert!(!completed_path.exists());
+
+        let failed = Fixture::new();
+        let dir = failed.0.canonicalize().unwrap();
+        assert_eq!(dir.parent(), Some(parent.as_path()));
+        let operation = "retained-evidence";
+        reserve(
+            &dir,
+            operation,
+            &json!({"operation":operation,"synthetic":true}),
+        )
+        .unwrap();
+        let marker = path(&dir, operation);
+        let journal = dir.join("journal.jsonl");
+        let marker_before = fs::read(&marker).unwrap();
+        let journal_before = fs::read(&journal).unwrap();
+        let result = std::panic::catch_unwind(move || {
+            let _fixture = failed;
+            panic!("controlled fixture unwind");
+        });
+        assert!(result.is_err());
+        assert_eq!(fs::read(&marker).unwrap(), marker_before);
+        assert_eq!(fs::read(&journal).unwrap(), journal_before);
+        let mut names: Vec<_> = fs::read_dir(&dir)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect();
+        names.sort();
+        assert_eq!(names, vec!["client-commands", "journal.jsonl"]);
+        assert_eq!(
+            fs::read_dir(dir.join("client-commands")).unwrap().count(),
+            1
+        );
+        fs::remove_file(marker).unwrap();
+        fs::remove_dir(dir.join("client-commands")).unwrap();
+        fs::remove_file(journal).unwrap();
+        fs::remove_dir(dir).unwrap();
     }
     fn retained_outcome(mut value: Value) -> Value {
         value.as_object_mut().unwrap().remove("status_observation");

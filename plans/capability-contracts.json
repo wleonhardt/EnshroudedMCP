@@ -3529,7 +3529,7 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "client UI frame; SDK commands execute in later native client phase",
       "admission": "Strict named arguments plus tool-specific policy checks; write-bearing branch requires fresh regular ALLOW_WRITES and confirm server-write; dry where supported; journal/replay rules remain tool-specific",
-      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified. Source frame timeout/reply-loss contracts pass; real pending cancellation/disconnect remains open. Installed 0.21.1 passes six dry Menu context refusals and one absent-flag request refusal; native delayed-getter/revocation timing remains open. Clean current-base cold fixtures also expose pre-submission expiry with native_submitted false; timing cause remains unresolved (0100).",
+      "evidence_summary": "Native screen/tab/highlight/look/move receipts; Map open/close independently visible. Backpack tab rendering unverified. Source frame timeout/reply-loss contracts pass; real pending cancellation/disconnect remains open. Installed 0.21.1 passes six dry Menu context refusals and one absent-flag request refusal; native delayed-getter/revocation timing remains open. Clean current-base cold fixtures also expose pre-submission expiry with native_submitted false; timing cause remains unresolved (0100). Test-only panic retention now preserves exact synthetic reservation/journal evidence; original timing cause stays open (0101).",
       "evidence_references": [
         "plans/decisions/0058-native-menu-tab-observations.md",
         "plans/decisions/0062-client-frame-timeout-fault-contracts.md",
@@ -3538,9 +3538,10 @@
         "plans/decisions/0088-post-intent-client-context-recheck.md",
         "plans/decisions/0090-final-client-admission-recheck.md",
         "plans/decisions/0091-signed-companion-menu-deployment.md",
-        "plans/decisions/0100-current-server048-sdk1211-replay.md"
+        "plans/decisions/0100-current-server048-sdk1211-replay.md",
+        "plans/decisions/0101-retain-unwinding-client-fixture-evidence.md"
       ],
-      "source_checks": "Workspace checks pass. Detached-before-begin, lost-reply and initial-context fixtures remain qualified. Post-intent applicability/preview mutations pass decision 0088; delayed final getter and flag removal each reproduce prohibited SDK attempts before decision 0090 and exact policy refusals after it. No native fault-timing claim. Decision 0100 preserves two unmodified cold positive-fixture deadline failures; later passing cohorts do not establish a timing fix.",
+      "source_checks": "Workspace checks pass. Detached-before-begin, lost-reply and initial-context fixtures remain qualified. Post-intent applicability/preview mutations pass decision 0088; delayed final getter and flag removal each reproduce prohibited SDK attempts before decision 0090 and exact policy refusals after it. No native fault-timing claim. Decision 0100 preserves two unmodified cold positive-fixture deadline failures; later passing cohorts do not establish a timing fix. Decision 0101 adds a failing-then-passing controlled unwind and normal-cleanup case without changing production control. Private and subsequent public verification cohorts pass 405 Rust/97 Python and required checks. Earlier public deadline failures retain twelve exact synthetic files; timing cause remains unresolved.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "Map open/close only; other command actions remain separately unverified",
       "persistence_acceptance": "not established by this inventory",
