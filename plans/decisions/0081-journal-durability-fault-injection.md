@@ -1,0 +1,15 @@
+# 0081: Inject journal durability errors around actual file writes
+
+Date: 2026-11-16. Status: private/public source and injected-fault checks passed; publication audit pending.
+
+Advance quality goal 4 without changing installed files. The existing game-free reservation arithmetic already models a failed partial append, and decision 0074 verifies an actual open refusal. Neither exercises the production adapter after bytes have changed but before durability succeeds.
+
+Extract only the adapter's existing durable-write operation into a private callback parameter. The production entrypoint supplies exactly the existing `write_all` followed by `sync_all`. Both capacity checks, file-type checks, shared directory lock, error mapping and successful-sync-only reservation debit remain in the same common path. The callback is an internal test seam, not a configurable fault mode or MCP argument. No admission policy, product tool/schema, dependency, SDK pin or installed file changes.
+
+Add two tests against real disposable files. Both reserve 100 bytes for each of two owners and fill the journal to 200 bytes below its cap. The first writes one actual byte and returns an injected durability error. The second writes all 100 requested bytes and returns an injected sync error without a successful sync. The common adapter must propagate the error, preserve both reservations and all 200 retained bytes, report the observed file length and conservative over-capacity state, and refuse subsequent generic/owner appends and full recovery allowance checks. The complete original prefix and exact partial/full suffix must remain unchanged through those refusals. No history truncation, repair, retry, reservation release or gameplay action occurs.
+
+Five pre-change adapter tests pass; all seven pass after the extraction and new cases. These checks reproduce error outcomes deliberately: they do not induce an operating-system disk-full or FlushFileBuffers failure. The second case observes bytes through the filesystem but makes no durability claim for the failed sync. They qualify conservative accounting at the chosen retained-capacity boundary, not a general persistent fault latch, game callback handling, process crash, power loss or automatic recovery. Normal-path behavior is preserved; no production bug fix is claimed.
+
+The product SDK remains 6a151a95 / ABI 12.1. Installed server 0.46.1 and companion 0.20.2 remain unchanged; rebuilt artifacts are not installed. Decision 0077's migration patch remains qualified against its exact historical public base, without being relabeled as a migration of later source changes. Native actor/scene/lifecycle acceptance and the full workshop objective remain open.
+
+Private/public checks pass 395 Rust executions and 94 Python tests, strict Clippy, formatting, release builds and contract checks; optional adapter suites pass fourteen executions in each debug/release copy with strict Clippy. A normalized common-body comparison preserves the prior admission/accounting path after restoring the extracted write expression; this is source correspondence, not native behavior proof.

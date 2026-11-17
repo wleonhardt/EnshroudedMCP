@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Qualify partial-write and failed-sync outcomes through a private production journal test seam. Real file-byte changes preserve both recovery owners and conservative capacity refusal; the normal write-all/sync-all path is unchanged. Injected errors do not claim real disk-full, power-loss or native callback acceptance.
+
 - Add a separate optional journal restart check using two real child processes and the unchanged production adapter. Debug/release runs preserve exact synced bytes and prove recovery reservations remain session-local; no gameplay recovery or crash/power-loss claim is made.
 
 - Add an opt-in ABI 12.11 provider-header diagnostic to the independent lifecycle qualification crate. It copies immutable published provider ABI/table metadata into one exclusive own-mod report, without World/Input handles or commands. Eight source tests and a bounded isolated native server/header/read/image/shutdown experiment pass; client lifecycle and release adoption remain open.

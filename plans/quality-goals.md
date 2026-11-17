@@ -34,3 +34,5 @@ Decision 0076 qualifies installed 0.46.1 empty-server terrain PNGs after a visib
 2026-11-16 bounded provider result: decision 0078 qualifies actual ABI 12.11 header/table size and scoped isolated native server reads/images/shutdown while preserving the signed primary installation. Native client/Join/Leave, credentials, general provider fidelity and release adoption remain open.
 
 Decision 0080 adds actual graceful child-process journal reopen: exact bytes persist, while recovery reservations remain session-local. This does not reconstruct gameplay authority or establish crash, power-loss, partial-write or sync-fault recovery.
+
+Decision 0081 exercises actual journal bytes before injected partial-write and sync errors. Retained-capacity accounting and exact-byte refusals pass; real OS faults, power loss, native callback handling and gameplay recovery remain unverified.

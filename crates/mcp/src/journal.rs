@@ -75,6 +75,17 @@ pub(crate) fn append(
     outcome: usize,
     owner: Option<&str>,
 ) -> Result<(), String> {
+    append_with(dir, bytes, outcome, owner, |file, bytes| {
+        file.write_all(bytes).and_then(|()| file.sync_all())
+    })
+}
+fn append_with(
+    dir: &Path,
+    bytes: &[u8],
+    outcome: usize,
+    owner: Option<&str>,
+    durable: impl FnOnce(&mut fs::File, &[u8]) -> std::io::Result<()>,
+) -> Result<(), String> {
     state(dir, |s| {
         s.check(size(dir)?, bytes.len(), outcome, owner)?;
         let mut f = OpenOptions::new()
@@ -91,9 +102,7 @@ pub(crate) fn append(
             outcome,
             owner,
         )?;
-        f.write_all(bytes)
-            .and_then(|()| f.sync_all())
-            .map_err(|e| format!("journal durability failed: {e}"))?;
+        durable(&mut f, bytes).map_err(|e| format!("journal durability failed: {e}"))?;
         s.synced(owner, bytes.len());
         Ok(())
     })
@@ -102,6 +111,54 @@ pub(crate) fn append(
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn durability_failure(written: usize) {
+        let d = dir();
+        reserve(&d, "a", 100, 0).unwrap();
+        reserve(&d, "b", 100, 0).unwrap();
+        let mut file = fs::File::create(d.join("journal.jsonl")).unwrap();
+        file.write_all(b"original-prefix\n").unwrap();
+        let initial_size = policy::construction::JOURNAL_MAX_BYTES as u64 - 200;
+        file.set_len(initial_size).unwrap();
+        file.sync_all().unwrap();
+        drop(file);
+        let before = fs::read(d.join("journal.jsonl")).unwrap();
+        let error = append_with(&d, &[b'a'; 100], 0, Some("a"), |file, bytes| {
+            file.write_all(&bytes[..written])?;
+            Err(std::io::Error::other("injected durability failure"))
+        })
+        .unwrap_err();
+        assert_eq!(
+            error,
+            "journal durability failed: injected durability failure"
+        );
+        let mut expected = before;
+        expected.extend_from_slice(&vec![b'a'; written]);
+        assert_eq!(fs::read(d.join("journal.jsonl")).unwrap(), expected);
+        let observation = report(&d, &serde_json::Map::new()).unwrap();
+        assert_eq!(observation["journal_bytes"], initial_size + written as u64);
+        assert_eq!(observation["recovery_reservation_count"], 2);
+        assert_eq!(observation["retained_recovery_bytes"], 200);
+        assert_eq!(observation["over_capacity"], true);
+        assert_eq!(observation["unreserved_bytes"], 0);
+        assert_eq!(observation["write_authorized"], false);
+        assert!(check(&d, 1).is_err());
+        assert!(recovery(&d, "a", 100, false).is_err());
+        assert!(recovery(&d, "b", 100, false).is_err());
+        assert!(append(&d, b"x", 0, None).is_err());
+        assert!(append(&d, b"x", 0, Some("a")).is_err());
+        assert_eq!(report(&d, &serde_json::Map::new()).unwrap(), observation);
+        assert_eq!(fs::read(d.join("journal.jsonl")).unwrap(), expected);
+        reset(&d).unwrap();
+        fs::remove_dir_all(d).unwrap();
+    }
+    #[test]
+    fn partial_write_error_preserves_all_credit_and_actual_prefix_before_refusal() {
+        durability_failure(1);
+    }
+    #[test]
+    fn sync_error_after_full_write_preserves_all_credit_and_refuses_further_appends() {
+        durability_failure(100);
+    }
     #[test]
     fn capacity_observes_synced_bytes_without_disclosing_or_changing_reservations() {
         let d = dir();
