@@ -1,10 +1,10 @@
 {
-  "date": "2026-11-16",
-  "status": "all 50 source contracts indexed; matched installed 0.47.0/0.21.0 runtime-header native acceptance passed; broader workflows remain open",
+  "date": "2026-11-17",
+  "status": "all 50 source contracts indexed; source companion 0.21.1 fixes post-getter permission/expiry; installed 0.47.0/0.21.0 native evidence remains separate",
   "profiles": {
     "product": {
       "server_version": "0.47.0",
-      "client_version": "0.21.0",
+      "client_version": "0.21.1",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",

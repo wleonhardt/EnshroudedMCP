@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Companion source 0.21.1 rechecks write permission and deadline after the final copied-snapshot getter and command construction. Controlled getter delay and flag removal each reproduce a prohibited SDK attempt before the fix, then refuse without submission and preserve once-only replay/reopen bytes. Installed 0.21.0 is unchanged; native timing acceptance remains pending.
+
 - Add an optional, exact-base client timing qualification patch. Bounded synthetic traces separate queued age, reservation stages and a deliberate post-sync wait. The induced deadline refusal preserves once-only identity without native submission; historical latency causes and native scheduling remain unverified.
 
 - Add a scripted published-ABI fixture for context changes after durable command intent. Fresh valid context dispatches once; stale, changed-session and changed-HUD contexts refuse before native submission and retain once-only identity across replay/reopen. This is source fault coverage, not native timing or interruption acceptance.

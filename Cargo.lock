@@ -412,7 +412,7 @@ dependencies = [
 
 [[package]]
 name = "mcp-client"
-version = "0.21.0"
+version = "0.21.1"
 dependencies = [
  "enshwick",
  "mcp-transport",

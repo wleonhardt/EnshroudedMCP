@@ -238,6 +238,9 @@ impl State {
             gate::exact(Some(&preview), &gate::preview(&self.boot, &spec, &now))?;
             let command = ClientCommand::new(native(&spec.action), now.session)
                 .on_screen(now.screen.as_deref().unwrap());
+            // Snapshot collection can outlive the earlier admission checks.
+            admission(false, spec.confirm.as_deref(), Some(dir))?;
+            gate::deadline(queued.elapsed())?;
             // Record uncertainty before the call. Never reconstruct an id or redispatch this identity.
             entry.result["native_submitted"] = json!(true);
             let id = input.client_command(&command).map_err(|e| e.to_string())?;
@@ -940,6 +943,8 @@ mod tests {
             calls: usize,
             initial: Raw,
             changed: Raw,
+            delay_second: bool,
+            revoke_second: bool,
             dir: std::path::PathBuf,
             operation: String,
             intent_seen: bool,
@@ -961,6 +966,12 @@ mod tests {
                     script.intent_seen = path(&script.dir, &script.operation).is_file()
                         && fs::read_to_string(script.dir.join("journal.jsonl"))
                             .is_ok_and(|journal| journal.contains("client_command_intent"));
+                    if script.revoke_second {
+                        fs::remove_file(script.dir.join(write_gate::FLAG)).unwrap();
+                    }
+                    if script.delay_second {
+                        std::thread::sleep(gate::WAIT + std::time::Duration::from_millis(50));
+                    }
                     script.changed
                 };
                 // SAFETY: the SDK getter supplies a writable, full-size Raw output.
@@ -986,8 +997,8 @@ mod tests {
         assert_eq!(unsafe { loader.ready(enshwick_mod_ready) }, Status::OK);
         let input = *INPUT.lock().unwrap();
         let initial = snapshot(8, "InGame", "");
-        for (name, changed, error) in [
-            ("valid", initial, None),
+        for (name, changed, error, delay_second, revoke_second) in [
+            ("valid", initial, None, false, false),
             (
                 "stale",
                 Raw {
@@ -995,16 +1006,38 @@ mod tests {
                     ..initial
                 },
                 Some("client command requires a fresh nonzero session and readable HUD screen"),
+                false,
+                false,
             ),
             (
                 "session",
                 snapshot(9, "InGame", ""),
                 Some("client preview changed; inspect current session/screen and preview again"),
+                false,
+                false,
             ),
             (
                 "screen",
                 snapshot(8, "Backpack", ""),
                 Some("client preview changed; inspect current session/screen and preview again"),
+                false,
+                false,
+            ),
+            (
+                "late",
+                initial,
+                Some("client command deadline expired before native submission"),
+                true,
+                false,
+            ),
+            (
+                "revoked",
+                initial,
+                Some(
+                    "writes are off: create ALLOW_WRITES in the mod's folder (and remove it when done)",
+                ),
+                false,
+                true,
             ),
         ] {
             let fixture = Fixture::new();
@@ -1030,6 +1063,8 @@ mod tests {
                     calls: 0,
                     initial,
                     changed,
+                    delay_second,
+                    revoke_second,
                     dir: fixture.0.clone(),
                     operation: operation.clone(),
                     intent_seen: false,
@@ -1067,6 +1102,10 @@ mod tests {
             );
             if let Some(error) = error {
                 assert_eq!(result["error"], error);
+                if revoke_second {
+                    assert!(!fixture.0.join(write_gate::FLAG).exists());
+                    fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+                }
                 let reservation = fs::read(path(&fixture.0, &operation)).unwrap();
                 let journal = fs::read(fixture.0.join("journal.jsonl")).unwrap();
                 assert_eq!(

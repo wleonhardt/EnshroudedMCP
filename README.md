@@ -1,5 +1,7 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
+Companion source **0.21.1** rechecks write permission and expiry after its final copied snapshot, before native submission. Controlled delayed-getter and flag-removal regressions pass. Installed companion **0.21.0** remains unchanged; native acceptance of this fix is pending. See [final admission checks](plans/decisions/0090-final-client-admission-recheck.md).
+
 An optional [client timing qualification patch](qualification/client-timing/README.md) measures synthetic reservation stages and tests a deliberate post-sync deadline refusal. Production source, SDK pins and installed runtime remain unchanged; historical latency causes and native scheduling remain unverified.
 
 Installed server 0.47.0 / companion 0.21.0 now reports copied actual provider ABI 12.1/table 1680 separately from compiled SDK provenance. Matched server/Menu read, refusal, loaded-module and preservation checks pass on unchanged signed SDK 6a151a95. Header metadata verifies neither general API-call fidelity nor gameplay/rendering. See [native acceptance](plans/decisions/0084-matched-runtime-header-native-acceptance.md) and the [capability matrix](plans/capability-matrix.md); dated checkpoints below remain historical.

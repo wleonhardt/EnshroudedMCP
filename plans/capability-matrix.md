@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Source companion 0.21.1 fixes permission/expiry revalidation after the final copied snapshot. Installed 0.21.0 native evidence and the older 0.21.0 SDK12.11 candidate remain separate; new native acceptance and candidate requalification are pending (decision 0090).
+
 Updated: 2026-11-16. Status: all 50 source tools have explicit contract/evidence assessments and missing checks; operational workflow acceptance remains open. This is the current version/scope index. Dated checkpoints elsewhere are historical evidence, not competing installation instructions.
 
 ## Profiles and evidence rules
@@ -14,7 +16,7 @@ The ABI 12.11 candidate now also passes a bounded isolated server experiment: ac
 
 Inactive Join/Leave SDK candidate `6a5966ee6683fde480ac9dd3654f91e73da6e2a5` / ABI **12.11** / Rust **1.100.0** now passes whole-product source checks and an exact clean patch replay against corrected 0.46.1. It supplies no lifecycle MCP route and changes no installed file. Matching provider, credential resolution and actual client connection/leave acceptance remain open; see decision 0077.
 
-Product source versions are server **0.47.0** and companion **0.21.0**; installed versions are **0.47.0 / 0.21.0** after verified cold deployment, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** has separately qualified source contracts and a bounded, completed native server experiment. The unsigned development provider is not adopted; its dedicated experiment process has exited. Client and general provider fidelity remain open.
+Product source versions are server **0.47.0** and companion **0.21.1**; installed versions are **0.47.0 / 0.21.0** after verified cold deployment, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** has separately qualified source contracts and a bounded, completed native server experiment. The unsigned development provider is not adopted; its dedicated experiment process has exited. Client and general provider fidelity remain open.
 
 [Machine-readable contracts](capability-contracts.json) preserve all 50 source input schemas, descriptions, definition/dispatch references, thread ownership, admission, evidence limits and next checks. The source inventory is 37 server and 13 companion tools. The installed server now advertises all 37 tools after cold deployment; 0.46.1 corrects the top-axis caption; empty-server image, refusal and preservation acceptance passes (decision 0076). Schemas describe argument bounds; policy checks add semantic bounds and reject unnamed arguments. Discovery does not prove an executor is currently available.
 
