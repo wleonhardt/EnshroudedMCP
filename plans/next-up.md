@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **ABI 12.11 bounded native provider/server experiment passed; no adoption** Actual header reports 12.11/1744 bytes; four loaded hashes and owned loopback bindings agree. Forty reads, one item/template mapping and three tiny images (2205 independent pixel checks) pass. One gated stop exits 0 with four rows/one identity. All 23 copied assets, staged modules, primary twelve hashes/namespaces/settings and flags are preserved; client closed. Eight optional source tests and scoped checks pass. Native client/lifecycle, credential and release gates remain open. See decision 0078.
+
 - **ABI 12.11 whole-product candidate and clean replay source-qualified** Exact thirteen-file migration against corrected public 813fe58 preserves 0.46.1 caption regression and all production gates. Candidate/replay each pass 391 Rust/94 Python, lint, format, releases and index checks. All 237 normalized tracked files and independently reconstructed Git trees agree. No installed change or lifecycle route; next qualify a matching provider and native client/credential workflows. See decision 0077.
 
 - **native terrain images and 0.46.1 caption correction qualified** Cold 0.46.0 deployment, three native images, 172,215 pixel checks, all forty fixed reads and 19,312 protected observations pass. Visual inspection finds top header Y UP while raster/metadata use Z. Failing decoded-PNG reproduction now passes after deriving the caption from its actual vertical axis. Private/public 391 Rust/94 Python and required checks pass; corrected cold/native image, eighteen exact refusals and full preservation pass. Client remains closed; connected/engine/capture-error acceptance remains open. SDK unchanged. See decision 0076.

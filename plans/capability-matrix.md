@@ -4,6 +4,8 @@ Updated: 2026-11-16. Status: all 50 source tools have explicit contract/evidence
 
 ## Profiles and evidence rules
 
+The ABI 12.11 candidate now also passes a bounded isolated server experiment: actual header/table size, loaded-module hashes, forty reads, tiny diagnostic images and one observed graceful stop. Its unsigned provider remains unadopted; native client/Join/Leave, credential and general provider/release acceptance stay open (decision 0078).
+
 Inactive Join/Leave SDK candidate `6a5966ee6683fde480ac9dd3654f91e73da6e2a5` / ABI **12.11** / Rust **1.100.0** now passes whole-product source checks and an exact clean patch replay against corrected 0.46.1. It supplies no lifecycle MCP route and changes no installed file. Matching provider, credential resolution and actual client connection/leave acceptance remain open; see decision 0077.
 
 Product source versions are server **0.46.1** and companion **0.20.2**; installed versions are **0.46.1 / 0.20.2** after verified cold deployment, official SDK `6a151a9550ed7a6ade99c23fa817a91e25b71bc9`, ABI **12.1**, Rust **1.99.1**. Later test-only and qualification-document edits do not imply new installed DLLs. Inactive SDK `9f6efc821524df426991fb584a761eaa0e5ea898` / ABI **12.8** / Rust **1.100.0** has separately qualified source contracts and a bounded, completed native server experiment. The unsigned development provider is not adopted; its dedicated experiment process has exited. Client and general provider fidelity remain open.

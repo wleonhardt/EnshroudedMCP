@@ -34,8 +34,8 @@
       "sdk_revision": "6a5966ee6683fde480ac9dd3654f91e73da6e2a5",
       "abi": "12.11",
       "rust": "1.100.0",
-      "source_only": true,
-      "status": "whole-product candidate and clean replay source-qualified; not adopted",
+      "source_only": false,
+      "status": "bounded isolated provider-header and native server read experiment passed; not adopted",
       "source_base": "813fe58f7b4795ce3cc616d4d12dc37406ed8ecb",
       "source_patch": "qualification/sdk-lifecycle/consumer-candidate.patch",
       "patch_sha256": "a9978fd8d605d28579165e9caf22fbc4cb1716f5733ff32a689cc4e29ff2c3ec",
@@ -44,7 +44,17 @@
       "native_provider_qualified": false,
       "native_client_qualified": false,
       "credential_resolver_implemented": false,
-      "primary_installation_changed": false
+      "primary_installation_changed": false,
+      "native_evidence": "plans/decisions/0078-isolated-lifecycle-provider.md",
+      "native_provider_header_qualified": true,
+      "release_provider_qualified": false,
+      "native_scope": [
+        "actual provider ABI 12.11 and table bytes 1744",
+        "four loaded DLL hashes and loopback binding ownership",
+        "forty fixed server reads and one item/template correspondence",
+        "three tiny diagnostic images with independent raw-cell/pixel/caption checks",
+        "one gated native shutdown and independent exit 0"
+      ]
     }
   },
   "counts": {

@@ -1,6 +1,6 @@
-# Native lifecycle consumer qualification
+# Native lifecycle and provider qualification
 
-This inactive, independent workspace pins official commit `6a5966ee6683fde480ac9dd3654f91e73da6e2a5` from merged [PR #1150](https://github.com/enshwick/enshwick/pull/1150), ABI 12.11. It uses only the published SDK fake. It does not add an MCP endpoint, resolve a real profile, read a credential store, connect to a server or change the product SDK/installed files.
+This independent experimental workspace pins official commit `6a5966ee6683fde480ac9dd3654f91e73da6e2a5` from merged [PR #1150](https://github.com/enshwick/enshwick/pull/1150), ABI 12.11. It uses only the published SDK fake. It does not add an MCP endpoint, resolve a real profile, read a credential store, connect to a server or change the product SDK/installed files.
 
 The revision requires Rust 1.100. The qualification used installed `stable` at exactly Rust/Cargo 1.100.0, with Windows MSVC tools. Verify that version before reproducing; `stable` is not a permanent compiler pin. From the project root:
 
@@ -46,3 +46,15 @@ Pop-Location
 Use the compiler version described above. Source compilation and fake-model results cannot certify the provider, actual connection outcomes or a safe upgrade. The active product dependency and installed signed provider remain unchanged.
 
 Candidate and clean replay each pass 391 Rust executions, 94 Python tests, strict Clippy, formatting, releases and offline contract checks. All 237 tracked files match after newline normalization and independently reconstruct Git tree `b727eccea31031d012f608d7bf4f9f3ce74a9e0b`. Patch SHA-256: `a9978fd8d605d28579165e9caf22fbc4cb1716f5733ff32a689cc4e29ff2c3ec`. See [decision 0077](../../plans/decisions/0077-replayable-lifecycle-sdk-candidate.md) for evidence limits.
+
+## Native provider-header probe
+
+The crate also builds `sdk_lifecycle_qualification.dll`, an opt-in diagnostic mod with side `both`. Its initialization copies the published immutable `Host::api().header` into one exclusively created `provider-observation.json` in its own mod directory. It records the actual provider ABI/table size separately from compiled SDK values. It acquires no World or Input handles and submits no command. This introduces no World-thread exception or MCP endpoint.
+
+Two additional behavior tests distinguish supplied header values from compiled constants and verify exclusive/missing-directory file behavior. The suite now has eight tests: six lifecycle consumer models plus these two probe-helper cases. Native entrypoint execution is qualified separately in a disposable server; it is not driven by those helper tests.
+
+```powershell
+cargo +stable build --locked --release --manifest-path qualification/sdk-lifecycle/Cargo.toml
+```
+
+Stage that DLL only with an explicitly paired provider in a new disposable runtime. An existing diagnostic refuses overwrite and disables this probe's new initialization rather than retrying. See [the native procedure and bounded result](NATIVE.md). The native server result does not qualify client callbacks or real Join/Leave.

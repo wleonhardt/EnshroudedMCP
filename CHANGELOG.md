@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add an opt-in ABI 12.11 provider-header diagnostic to the independent lifecycle qualification crate. It copies immutable published provider ABI/table metadata into one exclusive own-mod report, without World/Input handles or commands. Eight source tests and a bounded isolated native server/header/read/image/shutdown experiment pass; client lifecycle and release adoption remain open.
+
 - Server source 0.46.1 fixes the terrain-image caption to name the actual up axis: Z for top, Y for both sections. A decoded-PNG bitmap regression first reproduces the wrong top caption, then checks all three views. Native 0.46.0 cell/raster acceptance exposed this caption defect; corrected 0.46.1 empty-server native images, eighteen exact image refusals and full preservation checks now pass.
 
 - Server source 0.46.0 registers terrain_image: bounded native voxel capture followed by game-free top/section PNG encoding and exact coordinate/raw-material/reference-pin metadata. Strict complete-capture and request gates preserve unknowns and refuse writes. Source/replay qualification is separate from pending matched deployment and live native acceptance.

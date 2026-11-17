@@ -30,3 +30,5 @@ Decision 0075 qualifies six consumer model cases for published unstable Join/Lea
 Decision 0076 qualifies installed 0.46.1 empty-server terrain PNGs after a visible-axis defect was reproduced and fixed. Three native views, 172,215 independent pixel checks, eighteen exact image refusals and complete preservation pass. Connected-client consumption, capture-time error presentation and engine mesh/contact remain open.
 
 2026-11-16 SDK qualification increment: decision 0077 preserves an inactive ABI 12.11 whole-product migration with a clean source replay. Both copies pass 391 Rust/94 Python and all required checks while active ABI 12.1 and installed files remain unchanged. Matching-provider and actual lifecycle acceptance remain open.
+
+2026-11-16 bounded provider result: decision 0078 qualifies actual ABI 12.11 header/table size and scoped isolated native server reads/images/shutdown while preserving the signed primary installation. Native client/Join/Leave, credentials, general provider fidelity and release adoption remain open.
