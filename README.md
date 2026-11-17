@@ -365,3 +365,6 @@ An [inactive damage-hook coverage consumer](qualification/sdk-damage/README.md) 
 
 
 Optional [process handoff qualification](qualification/process-handoff/README.md) now records each checked launcher sample before refusing a nonzero exit. Evidence-write failures refuse too. Eight owned-process methods and thirteen separate private controller models qualify retention while preserving existing identity and once-only guards. The old Menu trial remains consumed; no game retry or launcher-cause diagnosis is claimed.
+
+
+The terrain viewer measures any selected pin, captured cell minimum or proposed target minimum from a reference pin. Change the reference to update delta/distance, or choose None to restore the base description. Proposed/unobserved labels remain explicit; straight-line coordinate distance proves no traversable route or build clearance. Decision 0117 records event and native-data arithmetic checks; browser visual acceptance remains pending.

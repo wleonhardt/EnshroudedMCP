@@ -129,15 +129,17 @@
       "primary_installation_changed": false,
       "status": "candidate and clean replay each pass 404 Rust/97 Python, strict checks/releases/contracts; exact 274-file reconstruction; not installed",
       "timing_limit": "original unmodified cold cohort has two positive-fixture deadline refusals; passing warm/instrumented/candidate cohorts do not resolve their cause",
-      "native_review_status": "Fresh record-before-refusal closure staged: 13 frozen controller models, eight owned-process methods, four candidates/five originals and fresh preflight pass. No installation or launch; fresh explicit temporary exception pending. Consumed 0103/0107 cannot be reused.",
+      "native_review_status": "Review0115 explicitly approved and consumed: one phase-one launch retains initial exit53 then refuses. Cleanup-only fresh Menu and one held close/exit0 precede exact signed rollback. No phase accepted; phase two never starts; no retry authorized. Code meaning remains unknown.",
       "native_review": "plans/decisions/0115-recorded-launcher-menu-review.md",
       "previous_native_review": "plans/decisions/0107-held-launcher-current-menu-review.md",
       "previous_native_review_evidence": "plans/decisions/0113-stopped-held-launcher-menu-trial.md",
-      "native_review_evidence": "plans/decisions/0113-stopped-held-launcher-menu-trial.md",
+      "native_review_evidence": "plans/decisions/0116-retained-exit53-menu-stop.md",
       "temporary_provider_test_attempted": true,
       "primary_installation_restored": true,
       "launcher_evidence_retention": "eight owned-process methods and thirteen private controller models qualify record-before-refusal and write-error refusal; inactive fragment only; consumed review and original controller unchanged",
-      "launcher_evidence_retention_reference": "plans/decisions/0114-retain-launcher-samples-before-refusal.md"
+      "launcher_evidence_retention_reference": "plans/decisions/0114-retain-launcher-samples-before-refusal.md",
+      "initial_launcher_exit_code_observed": 53,
+      "native_launcher_exit_meaning_known": false
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",

@@ -154,3 +154,8 @@ Decision 0114 advances goals 2 and 4 by recording held-handle samples before non
 ## Fresh recorded-launcher Menu review — 2026-11-17
 
 Decision 0115 stages a new source/controller/probe/binary/rollback closure after the record-before-refusal qualification. Thirteen frozen controller models and eight owned-process methods pass; stale-copy refusal and exact signed-runtime checks pass. Archived SDK405/97 and current product409/100 remain distinct. No game launch occurs. Fresh explicit temporary exception is required; consumed 0107 and earlier approvals grant none.
+
+
+## Retained native exit and selection measurement — 2026-11-17
+
+Decision 0116 records native initial exit53 before refusal, no phase acceptance and exact signed rollback. Its meaning remains unknown; inspect a supported published launch route before another trial. Decision 0117 advances technical scene inspection by measuring captured cell minima and proposed targets from references without losing observation/planning labels. Expanded DOM scenarios pass within 100 Python methods; six outputs over 4,096 fresh native cells agree with independent arithmetic. Browser visual acceptance remains pending.

@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Measure selected terrain cells and proposed targets from reference pins, preserving existing pin measurements. Origin changes and None retain the original selection description and planning limits; distances are straight-line coordinates, not route or clearance proof.
+
 - Record held-launcher facts before nonzero-exit refusal, and propagate evidence-write failure before returning a usable sample. Owned-process tests and an inactive controller fragment preserve future failure evidence; no game executor or retry is added.
 
 - Add an inactive read-only SDK 12.14 damage-hook coverage consumer with exact raw codes and typed unavailability. Hook coverage never becomes a damage-protection or quiet-condition claim. Product SDK, tools and installation remain unchanged.

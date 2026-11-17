@@ -17,12 +17,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <label id="pitch-control">Elevation <input id="pitch" type="range" min="10" max="85" value="32"></label>
 <label>Zoom <input id="zoom" type="range" min="60" max="220" value="100"></label>
 <label id="slice-control" hidden>Slice <input id="slice" type="range"><output id="slice-value"></output></label>
-<label>Measure from <select id="measure"><option value="">None</option></select></label>
+<label>Measure selection from <select id="measure"><option value="">None</option></select></label>
 <button id="export" type="button">Save PNG</button>
 <button id="section-xy" type="button" disabled aria-describedby="section-selection-help">X/Y through selection</button>
 <button id="section-zy" type="button" disabled aria-describedby="section-selection-help">Z/Y through selection</button>
 </div>
-<p class="hint" id="section-selection-help">Select a pin, cell or proposed target inside the captured box to open its exact half-metre section. Outside selections stay unobserved.</p>
+<p class="hint" id="section-selection-help">Select a pin, cell or proposed target inside the captured box to open its exact half-metre section. Outside selections stay unobserved. Measurements use pin coordinates or cell/target minima; straight-line distance does not establish a traversable route.</p>
 <div id="plan-controls" hidden>
 <label><input id="show-plan" type="checkbox" checked> Show proposed cells</label>
 <label>Inspect target <select id="plan-target"></select></label>

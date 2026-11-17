@@ -15,7 +15,7 @@ This is the operational product-version checkpoint. The tables below are checked
 | `abi` | `12.1` |
 | `rust` | `1.99.1` |
 
-The signed product remains installed. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Fresh review 0115 stages recorded launcher samples and mandatory signed rollback; its explicit temporary exception is pending, with no installation or launch. Join/Leave and private profile resolution remain unavailable in the product. Client stays closed; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. Browser acceptance for the external viewer remains pending. See [next-up.md](next-up.md) for the latest source verification and next actions.
+The signed product remains installed. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Review 0115 is also consumed after one observed initial exit53 and complete signed rollback (decision 0116). Its meaning remains unknown; no phase is accepted or retry authorized. Join/Leave and private profile resolution remain unavailable in the product. Client stays closed; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. Browser acceptance for the external viewer remains pending. See [next-up.md](next-up.md) for the latest source verification and next actions.
 
 ## Inactive damage-hook coverage consumer
 
@@ -24,6 +24,10 @@ Decision 0112 qualifies an independent read-only SDK e8dc967 / ABI 12.14 / Rust 
 ## Launcher failure-evidence retention
 
 Decision 0114 adds an optional record-before-refusal helper and inactive controller fragment. Eight owned-process methods and thirteen separate private controller models verify exact sample retention, write-failure refusal and unchanged launch admission. Exact normalized fragment replay passes. This adds no product tool, native launch/compatibility acceptance or retry authority; review 0107 stays consumed and the original native failure cause remains unknown.
+
+## Selection measurement correspondence
+
+Decision 0117 fixes reference measurements for selected pins, captured cell minima and proposed target minima. Origin switching/clearing preserves observed/planned labels. Expanded DOM tests and six independent Python arithmetic checks over 4,096 fresh native cells pass. Browser visual acceptance remains pending; no MCP schema, installed behavior or native control changes.
 
 ## Historical development checkpoints
 

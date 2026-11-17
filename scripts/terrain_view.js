@@ -62,7 +62,7 @@
   const proposal = data.plan || null, showPlan=document.getElementById("show-plan"), planTarget=document.getElementById("plan-target");
   const colors = {air: "#253347", terrain: "#b5986b", building: "#63b7d0", unknown: "#be97e8"};
   let pick = [], selected = null, selectedTarget = null;
-  let selectedPosition = null;
+  let selectedPosition = null, selectionText = "";
   const sectionButtons = {xy:document.getElementById("section-xy"),zy:document.getElementById("section-zy")};
   for (const [view, button] of Object.entries(sectionButtons)) {
     button.disabled = true;
@@ -102,17 +102,21 @@
       body.append(row);
     }
   }
+  function describeSelection(text) {
+    selectionText = text;
+    info.textContent = text;
+    if(measure.value!==""){
+      const origin=data.pins[Number(measure.value)],delta=selectedPosition.map((v,i)=>v-origin.position[i]);
+      info.textContent+=` · from ${origin.label}: ΔXYZ [${delta.map(v=>v.toFixed(3)).join(", ")}] m; distance ${Math.hypot(...delta).toFixed(3)} m`;
+    }
+  }
   function describePin(index) {
     const pin = data.pins[index];
     selected = index;
     selectedTarget = null;
     const cell = pin.position.map(v => Math.floor(v*2));
     describeColumn(pin.position, pin.label);
-    info.textContent = `${index+1}. ${pin.label} · ${pin.kind} · XYZ metres [${pin.position.join(", ")}] · containing cell [${cell.join(", ")}] · ${pin.inside_capture ? "inside capture" : "OUTSIDE capture"}`;
-    if(measure.value!==""){
-      const origin=data.pins[Number(measure.value)],delta=pin.position.map((v,i)=>v-origin.position[i]);
-      info.textContent+=` · from ${origin.label}: ΔXYZ [${delta.map(v=>v.toFixed(3)).join(", ")}] m; distance ${Math.hypot(...delta).toFixed(3)} m`;
-    }
+    describeSelection(`${index+1}. ${pin.label} · ${pin.kind} · XYZ metres [${pin.position.join(", ")}] · containing cell [${cell.join(", ")}] · ${pin.inside_capture ? "inside capture" : "OUTSIDE capture"}`);
     draw();
   }
   data.pins.forEach((pin,index) => {
@@ -127,7 +131,7 @@
     const target=proposal.targets[index],observed=target.observed;
     selected=null;selectedTarget=index;planTarget.value=String(index);
     describeColumn(target.min_cells.map(v=>v/2), "proposed target");
-    info.textContent=`PROPOSED cell [${target.min_cells.join(", ")}] · minimum XYZ metres [${target.min_cells.map(v=>v/2).join(", ")}] · ${target.state}${observed?`; observed ID ${observed.id}, raw fill ${observed.fill}`:"; outside capture, not drawn"} · geometry only; clearance and execution NOT authorized`;
+    describeSelection(`PROPOSED cell [${target.min_cells.join(", ")}] · minimum XYZ metres [${target.min_cells.map(v=>v/2).join(", ")}] · ${target.state}${observed?`; observed ID ${observed.id}, raw fill ${observed.fill}`:"; outside capture, not drawn"} · geometry only; clearance and execution NOT authorized`);
     draw();
   }
   document.getElementById("plan-controls").hidden=!proposal;
@@ -246,15 +250,15 @@
       else if(item.plan!==undefined&&contains(item.points,x,y)){describeTarget(item.plan);return;}
       else if(contains(item.points,x,y)){
         const c=item.cell;if(!c)continue;selected=null;selectedTarget=null;
-        info.textContent=`Cell [${c.slice(0,3).join(", ")}] · minimum XYZ metres [${c.slice(0,3).map(v=>v/2).join(", ")}] · ${c[3]} ID ${c[4]===null?"unavailable":c[4]} · raw fill ${c[5]} · half-open 0.5 m cube`;
         describeColumn(c.slice(0,3).map(v=>v/2), "selected cell minimum");
+        describeSelection(`Cell [${c.slice(0,3).join(", ")}] · minimum XYZ metres [${c.slice(0,3).map(v=>v/2).join(", ")}] · ${c[3]} ID ${c[4]===null?"unavailable":c[4]} · raw fill ${c[5]} · half-open 0.5 m cube`);
         draw();return;
       }
     }
   });
   for(const element of Object.values(controls))element.addEventListener(element.tagName==="SELECT"?"change":"input",()=>{if(element===controls.view)setupSlice();draw();});
   window.addEventListener("resize",draw);
-  measure.addEventListener("change",()=>{if(selected!==null)describePin(selected);});
+  measure.addEventListener("change",()=>{if(selectedPosition!==null)describeSelection(selectionText);});
   document.getElementById("export").addEventListener("click",()=>{const a=document.createElement("a");a.download="native-terrain-occupancy.png";a.href=canvas.toDataURL("image/png");a.click();});
   setupSlice();draw();
 })();

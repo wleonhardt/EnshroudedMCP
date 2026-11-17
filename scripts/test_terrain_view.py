@@ -290,12 +290,23 @@ assert.equal(nodes['column-profile'].hidden,true);
 assert.equal(nodes['section-xy'].disabled,true);
 nodes['section-xy'].dispatchEvent(new Event('click'));
 assert.equal(nodes.terrain.dataset.view,'orbit');
-if(JSON.parse(process.argv[2]).pins.length===0){
+if(JSON.parse(process.argv[2]).pins.every(pin=>!pin.inside_capture)){
   const face=polygons.at(-1),x=face.reduce((s,p)=>s+p[0],0)/4,y=face.reduce((s,p)=>s+p[1],0)/4;
   nodes.terrain.dispatchEvent(Object.assign(new Event('click'),{clientX:x,clientY:y}));
   assert.equal(nodes['column-title'].textContent,'Observed column at selected cell minimum');
   const cell=JSON.parse(nodes.selection.textContent.match(/Cell (\[[^\]]+\])/)[1]);
   assert.ok(JSON.parse(process.argv[2]).cells.some(c=>c.slice(0,3).join(',')===cell.join(',')));
+  const base=nodes.selection.textContent,data=JSON.parse(process.argv[2]);
+  for(let origin=0;origin<data.pins.length;origin++){
+    nodes.measure.value=String(origin);nodes.measure.dispatchEvent(new Event('change'));
+    const delta=cell.map((v,i)=>v/2-data.pins[origin].position[i]);
+    const distance=Math.sqrt(delta.reduce((sum,n)=>sum+n*n,0));
+    assert.ok(nodes.selection.textContent.endsWith(`from ${data.pins[origin].label}: ΔXYZ [${delta.map(n=>n.toFixed(3)).join(', ')}] m; distance ${distance.toFixed(3)} m`), 'cell selection must measure from current reference');
+    assert.equal(nodes.selection.textContent.split('ΔXYZ').length,2);
+    assert.equal(nodes['column-title'].textContent,'Observed column at selected cell minimum');
+  }
+  nodes.measure.value='';nodes.measure.dispatchEvent(new Event('change'));
+  assert.equal(nodes.selection.textContent,base);
   nodes['section-xy'].dispatchEvent(new Event('click'));
   assert.equal(nodes.terrain.dataset.view,'xy');assert.equal(nodes.slice.value,String(cell[2]));
   nodes['section-zy'].dispatchEvent(new Event('click'));
@@ -303,6 +314,11 @@ if(JSON.parse(process.argv[2]).pins.length===0){
   process.exit(0);
 }
 nodes.pins.children[0].dispatchEvent(new Event('click'));
+const pinBase=nodes.selection.textContent;
+nodes.measure.value='1';nodes.measure.dispatchEvent(new Event('change'));
+assert.ok(nodes.selection.textContent.endsWith('from Outside column: ΔXYZ [-0.750, 0.000, 0.000] m; distance 0.750 m'));
+nodes.measure.value='';nodes.measure.dispatchEvent(new Event('change'));
+assert.equal(nodes.selection.textContent,pinBase);
 assert.equal(nodes['column-profile'].hidden,false);
 assert.equal(nodes['column-title'].textContent,'Observed column at Band boundary');
 assert.ok(nodes['column-summary'].textContent.includes('X [10, 10.5) m; Z [30, 30.5) m'));
@@ -368,10 +384,23 @@ if(hasPlan){
   nodes['plan-target'].value='3';nodes['plan-target'].dispatchEvent(new Event('change'));
   assert.ok(nodes.selection.textContent.includes('unobserved; outside capture, not drawn'));
   assert.ok(nodes.selection.textContent.includes('execution NOT authorized'));
+  const targetBase=nodes.selection.textContent;
+  nodes.measure.value='0';nodes.measure.dispatchEvent(new Event('change'));
+  assert.ok(nodes.selection.textContent.startsWith(targetBase));
+  assert.ok(nodes.selection.textContent.endsWith('from Band boundary: ΔXYZ [0.750, -0.500, -0.250] m; distance 0.935 m'));
+  nodes.measure.value='1';nodes.measure.dispatchEvent(new Event('change'));
+  assert.ok(nodes.selection.textContent.endsWith('from Outside column: ΔXYZ [0.000, -0.500, -0.250] m; distance 0.559 m'));
+  assert.equal(nodes.selection.textContent.split('ΔXYZ').length,2);
+  nodes.measure.value='';nodes.measure.dispatchEvent(new Event('change'));
+  assert.equal(nodes.selection.textContent,targetBase);
+  nodes.measure.value='0';nodes.measure.dispatchEvent(new Event('change'));
   assert.equal(nodes['section-xy'].disabled,true);
   nodes['section-xy'].dispatchEvent(new Event('click'));
   assert.equal(nodes.terrain.dataset.view,'top');
   nodes['plan-target'].value='0';nodes['plan-target'].dispatchEvent(new Event('change'));
+  assert.ok(nodes.selection.textContent.startsWith('PROPOSED cell [20, 40, 60]'));
+  assert.ok(nodes.selection.textContent.includes('execution NOT authorized'));
+  assert.ok(nodes.selection.textContent.endsWith('from Band boundary: ΔXYZ [-0.250, -0.500, -0.250] m; distance 0.612 m'));
   nodes['section-xy'].dispatchEvent(new Event('click'));
   assert.equal(nodes.terrain.dataset.view,'xy');
   assert.equal(nodes.slice.value,'60');
@@ -384,7 +413,7 @@ if(hasPlan){
             {"label": "Partial building", "position": [10.75, 21.25, 31.75]},
             {"label": "Below capture", "position": [10.25, 19.5, 30.25]},
         ])
-        for value in [base,with_plan(base,preview([[20,40,60],[20,41,60],[21,42,63],[22,40,60]])),scene(survey())]:
+        for value in [base,with_plan(base,preview([[20,40,60],[20,41,60],[21,42,63],[22,40,60]])),scene(survey()), scene(survey(), [{"label":"Reference A","position":[9,19,29]}, {"label":"Reference B","position":[8,18,28]}])]:
             result=subprocess.run([shutil.which("node"), "-e", script,
                                    str(Path(__file__).with_name("terrain_view.js")),
                                    json.dumps(value)], capture_output=True,text=True)

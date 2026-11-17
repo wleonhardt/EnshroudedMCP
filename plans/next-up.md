@@ -2,6 +2,10 @@
 
 ## Queue
 
+- **source/native-data replay verified; measure all viewer selections** Decision 0117 fixes reference measurements for captured cell minima and proposed target minima while preserving existing pin behavior and observation/planning labels. Origin changes and None update/clear exactly once. All 16 terrain cases pass; Python remains 100 methods with expanded event scenarios. Six outputs over a fresh 4096-cell native survey match independent Python arithmetic. Browser visual acceptance remains pending; no mod/schema/version or installed change.
+
+- **native attempt stopped; initial exit53 retained** Decision 0116 consumes approved review 0115 after one phase-one launch. Two held-handle samples retain running then exited53; refusal stops binding, retry and phase two. Cleanup-only readiness reobservation leads to one exact held close/exit0, then all five originals, twelve hashes and durable namespace are restored. Numerical code is known; its meaning/cause remains unknown. Next inspect a published supported launch route, not another unchanged trial.
+
 - **staged; recorded-launcher Menu review** Decision 0115 freezes 0d14d59 helpers/probes, thirteen controller models, eight owned-process methods, four candidates and five originals. Every completed launcher poll is recorded before nonzero refusal; write failure stops admission. Fresh preflight and stale-copy refusal pass. Archived SDK405/97 and current product409/100 stay distinct. No installation or launch. Fresh explicit exception required; consumed 0103/0107 cannot be reused.
 
 - **source/process qualified; retain launcher samples before refusal** Decision 0114 reproduces lost nonzero facts in a disposable copy and repairs recording order without relaxing admission. Eight optional owned-process methods include actual exits 0/7/259 and write-collision refusal; thirteen private controller models pass. Exact normalized inactive patch replay is verified. Consumed review 0107 and original controller remain immutable. No game retry or native cause/compatibility claim; future runtime closure needs fresh review.
