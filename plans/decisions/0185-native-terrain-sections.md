@@ -1,0 +1,17 @@
+# 0185: Verify native vertical sections and reference-pin boundaries
+
+Date: 2026-11-20. Status: native copied occupancy projections verified; engine surfaces and latest capture lifecycle remain unverified.
+
+One bounded read-only observation uses the unchanged signed server 0.48.0, companion 0.22.0 and SDK 12.1. The server process creation identity and loopback listener ownership are checked before each request. Original signed runtime, durable namespace, closed client, empty roster and disabled write flags are rechecked. No installation, restart, client launch, provider swap, native Join or gameplay write occurs.
+
+Three native reads are made: one complete 4,096-cell building_survey, one terrain_image X/Y section at fixed Z, and one terrain_image Z/Y section at fixed X. Each section crosses an interior building cell in the survey. Requests and raw replies remain private and are retained before interpretation. These are separate reads, not an atomic world snapshot; their observed values compare equal in this cohort.
+
+Each section contains 256 displayed cells. All 512 coordinate/material-ID/raw-fill tuples match the corresponding raw survey cells. Every pixel rectangle, grid corner and an unobscured material-color pixel per displayed cell match the declared axes, upward Y orientation and half-metre scale. PNG bounds, chunk CRCs and bounded decompression pass. Both native images are visually inspected: classified terrain lies beneath the small classified structure, with the reference marker and off-view annotation present. This is the tool's diagnostic raster, not the game camera or an engine mesh.
+
+For each view, one caller reference lies exactly on the slice's lower perpendicular boundary and another on its upper boundary. Both remain inside the capture; only the lower-boundary reference appears in the section. Their reported pixels and four full X/Z columns match the survey, including all 64 descending raw bands, material IDs, fill and half-open contains-pin-Y flags. References are caller coordinates, not independently located entities or safe movement targets.
+
+The initial verifier incorrectly assumes that PNG rows use filter zero. The first X/Y request is already retained when that local assertion fails. Correct the checker offline with all five standard PNG row filters and independently hand-calculated two-pixel residual cases. Replay the retained X/Y image successfully; five mutations to axis, rectangle, raw fill, upper-boundary inclusion and column fill are all refused. No survey or X/Y request is repeated. A separate exclusive intent then permits the previously unrequested Z/Y read, which also passes. The initial failure is a checker defect, not a native renderer failure.
+
+The pure terrain-image policy is byte-identical between the installed-source checkpoint and current public source. Its SHA-256 is a5e60347ea258f1fb53d699a50529274a2bb238f4a57bd6b79dafdd892e0e560. This supports the projection/pin implementation only. It does not qualify newer source0.51.4 capture admission/execution lifecycle guards against the installed0.48.0 server.
+
+Final preservation confirms the same primary identity, original signed images and durable state, closed client and absent write flags. No ground contact, interpolation, collision, support, clearance, persistence, entity correspondence, rendered-game surface or direct-join acceptance is established. Next qualify those workflows independently rather than treating dark Air pixels as traversal authority.

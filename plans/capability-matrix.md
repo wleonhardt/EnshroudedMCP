@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0185 qualifies native X/Y and Z/Y diagnostic sections on signed server0.48.0:512 displayed cells match raw coordinates/material IDs/fill, pixel mappings and four full reference columns. Lower/upper half-open pin boundaries pass. Current pure policy bytes match, while newer native capture lifecycle and physical/rendered surfaces remain unverified. Three read-only requests; no replay, client launch or writes.
+
 Decision0184 records one native SDK12.16/source0.51.3 Join reaching Applied/Menu then Failed(TimedOut)/Menu. Outer execution remains unknown, with no qualified connection, Leave or Cancel. Original signed restoration and independent normal exits pass. The user reports automatic character selection; the failure cause remains unknown. This is neither current-source0.51.4 native acceptance nor a saved-profile solution.
 
 Decision0181 qualifies a separate inactive current-source 0.51.4/0.22.0 SDK 12.16 migration at an exact base: 29-file patch, 393 identical reconstructed source files/tree, 491 Rust/131 Python and optional 14 debug/optimized cases per candidate/replay. Default product remains SDK 12.1. Installed/native histories and prepared client candidates retain their original scope; current-candidate native behavior remains unverified.

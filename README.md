@@ -357,7 +357,9 @@ Add `--plan geometry-preview.json` to inspect up to 256 proposed cells separatel
 
 MCP PNG presentation is source-qualified with exact legacy JSON behavior retained by default. Decision 0072 establishes the synthetic foundation; server source 0.46.0 now registers terrain_image in decision 0073, with deployment/native acceptance still pending. See [bounded image presentation and remaining integration](plans/decisions/0072-bounded-mcp-png-presentation.md).
 
-## Native terrain_image (source 0.46.0; deployment pending)
+## Native terrain_image
+
+Native signed-server0.48.0 checks now verify both vertical sections against raw survey cells, exact pixel mappings and half-open reference-pin boundaries. This covers the unchanged projection policy; latest-source capture lifecycle and engine ground/contact remain unverified. See [native section evidence](plans/decisions/0185-native-terrain-sections.md).
 
 The server now registers a bounded diagnostic PNG read, with JSON metadata first and an image/png block second. For example, call terrain_image with `{"x":10,"y":20,"z":30,"width":1,"height":1.5,"depth":2,"view":"xy","slice":30,"pins":[{"label":"Reference","position":[10.25,20.75,30.25]}]}`. Choose coordinates in the intended world. The native voxel read runs on the game thread; raster/PNG encoding uses copied data afterward. At most 4,096 half-metre cells, sixteen pins and an 8 m box side; no writes or game-frame capture. Installed 0.46.1 now passes empty-server native image, corrected-axis, refusal and preservation checks. Connected-client and engine-surface/contact acceptance remain open. See [scope, axes, unknowns and deployment gates](plans/decisions/0073-native-terrain-image.md).
 
