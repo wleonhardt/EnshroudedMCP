@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Watched cohort consumed before Join; fix handoff timing first** Decision0189 records155 native probe observations and zero submissions after a30-second human page-confirmation window. Controller normal close/client exit0, native server exit0 and exact six-file restoration pass; no accepted attestation exists. Preserve generic inner-error uncertainty. Before another provider exception, separate observer and command-admission budgets, retain typed reasons and test delayed readiness without resetting command authority or retrying. Initial-page Join and saved profiles remain open.
+
 - **Native0.51.5 weather and contracts passed** Decision0187 verifies37 normal/optimized controller models, exact compiler/signed assets and32 independent staged files before one fresh server launch. All46 fixed probes and all40 server contracts pass, including observed weather and two weather refusals. One native stop independently exits0 without force; originals/durable state, closed client, absent flag and free ports pass. Broad verdict remains incomplete. Next independently qualify controlled native interruption and rendered weather; remaining entity/scene audit candidates still need retained-positive SDK discriminators.
 
 - **Weather lifecycle source fix; native qualification next** Decision0186 reproduces three retained-positive weather reads across queued reload/shutdown and inactive admission, then source0.51.5 reuses existing active/epoch policy before SDK sample/world-key reads. Unchanged weather and existing unavailable/non-finite semantics remain intact. Next fresh signed-provider native cohort, then separate controlled interruption/rendered weather acceptance. Four dynamic scene/entity audit candidates remain unproven.

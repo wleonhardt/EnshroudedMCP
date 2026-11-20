@@ -45,3 +45,9 @@ cargo +stable build --locked --release
 ```
 
 Default workspace checks do not execute this independent workspace. Its policy dependency is ordinary game-free product policy; its SDK pin does not change the product dependency. Do not install or launch from these instructions. Preserve the signed baseline until the project's fresh bounded native review passes.
+
+## Watched-client handoff limitation
+
+One approved watched SDK12.16/source0.51.3 cohort reaches fresh Menu/header/modules but submits no command. Its30-second human page-confirmation gate ends without an attestation; the last probe is30.119 seconds after the challenge. The controller retains a generic inner error, requests normal client close and observes exit0. Native server shutdown independently exits0 and six original files are restored. The approval is consumed. See [decision0189](../../plans/decisions/0189-watched-client-confirmation-timeout.md).
+
+The source still measures its180-second qualifier lease from initialization, while the private controller admits Join only within the first60 seconds. A longer human wait alone is insufficient. Separate bounded observer and command-admission timing, preserve once-only authority/context/deadline checks and test delayed readiness before another trial. No source change, lease extension, retry, native Join acceptance or provider adoption is implied here.

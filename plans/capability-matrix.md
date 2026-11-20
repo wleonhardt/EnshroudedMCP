@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0189 records a consumed watched SDK12.16/source0.51.3 cohort reaching fresh Menu but dispatching zero Join/Leave/Cancel requests. Timing matches its30-second human confirmation gate; client/server independently exit0 and exact signed restoration passes. This is a controller handoff limitation, with a generic inner error, not native connection acceptance or an SDK failure classification. Default source0.51.5/installed0.48.0 profiles remain unchanged.
+
 Decision0187 qualifies a fresh signed-provider source0.51.5/companion0.22.0 server: native ABI12.1/table1680 and four loaded modules, all46 fixed probes and exact40 server contracts pass. Weather weights [1,0,0,0], sum1 and SDK clear plus two refusals are observed. One native shutdown independently exits0; originals remain unchanged. Broad validation remains incomplete; native interruption and rendered/physical/client workflow acceptance remain open.
 
 Source0.51.5 adds weather_read active admission and unchanged active execution scope. Decision0186 retains three failing-before/four passing-after SDK dispatcher cases, with direct positive weather/world data independently retained across events. Success output/SDK/companion/tools stay unchanged; native interruption and rendered weather remain unverified. The exact source0.51.4 SDK migration remains a separate earlier checkpoint.
