@@ -502,7 +502,14 @@ mod tests {
             .unwrap(),
             result
         );
-        assert!(f.0.join("server-shutdown/stop-con.json").is_file());
+        let intent: Value =
+            serde_json::from_slice(&fs::read(f.0.join("server-shutdown/stop-con.json")).unwrap())
+                .unwrap();
+        let expected: Value = serde_json::from_str(include_str!(
+            "../../../qualification/server-shutdown/intent.json"
+        ))
+        .unwrap();
+        assert_eq!(intent, expected);
         assert_eq!(calls.get(), 1);
         assert_eq!(f.records(), 2);
         request.operation = "another".into();
