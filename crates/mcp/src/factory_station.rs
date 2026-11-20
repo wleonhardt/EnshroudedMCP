@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> policy::mcp::Tool {
     policy::mcp::Tool {
         name: "factory_station_read",
-        description: "Read one session-local server entity's published typed FactoryStation component on the game thread. Preserve running/next recipe IDs, up to four raw category choices each, raw signed times, player-stop/use-all flags and SDK missing-requirement names. Not every crafting station has this component. Unavailable differs from not observed; no complete queue, current client selection, eligibility, safe-removal, crafting execution or time-unit claim.",
+        description: "Read one session-local server entity's published typed FactoryStation component on the game thread. Requires active MCP world lifecycle at admission and execution with unchanged epoch. Preserve running/next recipe IDs, up to four raw category choices each, raw signed times, player-stop/use-all flags and SDK missing-requirement names. Not every crafting station has this component. Unavailable differs from not observed; no complete queue, current client selection, eligibility, safe-removal, crafting execution or time-unit claim.",
         schema: policy::factory_station::schema(),
     }
 }

@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Feature-branch source server **0.50.2** / companion **0.22.0** adds read-only `player_waypoint` and explicit configured-catalogue coverage for `entity_components` on the existing SDK12.1. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
+Feature-branch source server **0.50.3** / companion **0.22.0** adds read-only `player_waypoint` and explicit configured-catalogue coverage for `entity_components` on the existing SDK12.1. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
 
 Last verified signed checkpoint: Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 
@@ -40,7 +40,7 @@ Server 0.42.0 adds read-only `weather_read` with required finite world-bounded `
 
 Server 0.41.0 adds explicit multi-output recipe planning with shared batches and stock, strict producer choices and complete surplus accounting. Matched 0.41.0/0.18.0 deployment passes 1,296 native synthetic batch/yield/cost/inventory-balance comparisons, branching and explicit-overlap sequences, strict bounds, legacy compatibility and read-only preservation. Game coproduct/crafting semantics and eligible stock remain unverified. See [multi-output planning](plans/decisions/0041-multi-output-recipe-planning.md).
 
-Server 0.40.0 adds read-only `factory_station_read` through the published typed server component API. Matched 0.40.0/0.18.0 deployment verifies handle resolution, unobserved reads and strict refusals with full preservation checks. Present factory state, complete queue, client selection, time units, eligibility, crafting and safe removal remain unverified. See [factory-station scope](plans/decisions/0037-native-factory-station-observation.md).
+Server 0.40.0 adds read-only `factory_station_read` through the published typed server component API. Matched 0.40.0/0.18.0 deployment verifies handle resolution, unobserved reads and strict refusals with full preservation checks. Present factory state, complete queue, client selection, time units, eligibility, crafting and safe removal remain unverified. Source0.50.3 now requires active MCP lifecycle at admission and queued execution with an unchanged MCP epoch; this cannot detect an old entity ID supplied after reload. Reacquire session-only IDs. See [factory-station scope](plans/decisions/0037-native-factory-station-observation.md) and [lifecycle refusal](plans/decisions/0144-factory-read-lifecycle-guard.md).
 
 # Enshrouded MCP
 

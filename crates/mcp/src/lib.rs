@@ -161,3 +161,6 @@ side = "server""#
         );
     }
 }
+
+#[cfg(test)]
+mod factory_station_lifecycle;

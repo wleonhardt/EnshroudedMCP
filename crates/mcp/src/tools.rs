@@ -391,8 +391,15 @@ impl Tools for GameTools {
             }
             "factory_station_read" => {
                 let entity = policy::factory_station::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 let game = self.game;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     crate::factory_station::read(game, entity)
                 })?
             }

@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.3 (source feature branch; not deployed)
+
+- Refuse factory_station_read during inactive MCP lifecycle or a lifecycle epoch change before queued execution. A failing dispatcher regression retains a positively decoded synthetic station across reload. Existing typed projection stays unchanged; caller must still reacquire session-only entity IDs.
+
 ## Server 0.50.2 (source feature branch; not deployed)
 
 - Refuse entity_buffs_read while the MCP world lifecycle is inactive or changes before queued execution. An independently failing dispatcher regression retains buff data across the event. Preserve all existing buff projection and error semantics; caller must still reacquire session-only IDs after reload.
