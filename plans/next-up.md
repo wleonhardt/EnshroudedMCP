@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Native terrain view verified; positive annotations remain open** Decision0178 records one identity-bound read-only capture through signed server0.48.0, matching all 4,096 raw cells and preserving 64 caller references. BrowserOS orbit/section and last-pin selection pass. Roster/prop set are empty; qualify positive annotations separately without treating this reconstruction as engine surfaces, contact or connection evidence. Frozen native Join trial remains unchanged.
+
 - **Shared terrain pin capacity fixed; native annotation acceptance remains separate** Decision0177 preserves up to64 caller pins, fills remaining slots with players then props, avoids generated-label collisions and reports omitted annotations in provenance. Three failing regressions precede the fix. Native caller/player/prop correspondence and rendered-game surfaces remain unverified; no frozen connection trial or installed module changes.
 
 - **native bootstrap reached; fix readiness use of unknown snapshot** Decision0174 retains valid companion observation=null/age=null/stale=true and capability/header replies. The external controller raises AttributeError before any native request. Both owned processes independently exit0 and exact signed/durable restoration is verified. Replay this actual bootstrap through the existing state validator, wait for a fresh Menu on the same owned process, and preserve consumed scope/identities. No upstream Join failure or #1144 solution is claimed.

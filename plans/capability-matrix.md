@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0178 verifies a live read-only standalone terrain capture against signed server0.48.0: all 4,096 cells match retained raw data, 64 caller references survive, and BrowserOS orbit/section views and last-pin selection work. Empty roster/prop results leave positive annotations unverified. This does not qualify engine surfaces, atomic cross-tool state, latest source DLLs or native connection control.
+
 ## Current product checkpoint
 
 Decision0174 records a companion endpoint reply with valid unknown bootstrap UI on SDK12.16. The external controller dereferences the null observation and stops before any request. Client capability/header metadata is retained, but fresh Menu/module/connection qualification is not reached. Game and isolated native server independently exit0; exact signed rollback is verified. This does not qualify default source0.51.4 or any native Join/Leave/Cancel workflow.

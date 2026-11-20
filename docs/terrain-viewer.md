@@ -20,6 +20,8 @@ Live captures share a 64-pin budget. Caller pins are preserved first; available 
 
 ## Vertical column profile
 
+Decision0178 verifies one current native capture through the signed server0.48.0: all 4,096 cells match the retained raw survey, all 64 caller reference pins survive, and BrowserOS renders orbit/section views and selects the last pin. Its roster and prop set are empty, so positive automatic annotations remain unverified live. This diagnostic view does not establish engine surfaces, collision, ground contact or an atomic cross-tool snapshot.
+
 Select a numbered pin, a drawn cell or a proposed target to inspect every sampled half-metre Y band at that point's containing X/Z column. Bands are listed highest first, with material ID, raw fill and a highlight only where the selected Y lies in the half-open band. The complete captured column remains visible regardless of the current projection or section slice.
 
 Outside the sampled X/Z box means an unobserved column. A point outside sampled Y can still show the known column, with no selected band. No sample is extrapolated and no extra MCP request is made. Partial/zero fill, Air and unknown materials remain raw data; the profile proves no surface height, support, contact or clearance. Save PNG still exports only the main geometry canvas. Save column JSON downloads the complete selected column, raw bands and capture provenance; outside X/Z remains unobserved with no bands, while above/below Y retains known bands without a selected marker. No extra MCP read occurs. Previously saved HTML remains unchanged: generate a new output file to include this feature.
