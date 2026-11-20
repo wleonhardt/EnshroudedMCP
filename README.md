@@ -47,6 +47,8 @@ A separate signed-provider server0.51.5/companion0.22.0 cohort now passes all46 
 
 A separate signed-provider server0.51.6/companion0.22.0 cohort passes native ABI12.1/table1680, four expected modules, all46 fixed probes and exact40 server contracts. One owned shutdown independently exits0; originals remain unchanged. The fixed allowlist does not execute props_in, so its native data/interruption acceptance remains open. See [runtime cohort scope](plans/decisions/0193-native-0516-signed-runtime-cohort.md).
 
+Decision0195 qualifies one native scoped empty props_in result and three extent/world/write-argument refusals on unchanged signed SDK12.1/server0.51.6. All50 fixed probes and40 exact server contracts pass; owned shutdown independently exits0 and originals remain preserved. Positive functional props, metadata/state/ownership, rendered appearance and controlled native interruption remain unverified. See [bounded native prop cohort](plans/decisions/0195-native-bounded-prop-cohort.md).
+
 The standalone fixed validator now executes50 checks, adding a bounded props_in observation and box/world/write-argument refusals. Raw rows stay out of reports; functional state, ownership, rendered behavior and native interruption remain unverified. Historical46-check cohorts retain their original scope. See [bounded prop validation](plans/decisions/0194-bounded-native-prop-validation.md).
 
 Source0.51.6 `props_in` refuses inactive admission and queued reads whose active world epoch changed before execution. Successful bounded output and nullable metadata are unchanged. Four dispatcher regressions pass; native interruption remains unverified. See [props lifecycle guard](plans/decisions/0192-props-lifecycle-guard.md).

@@ -1450,10 +1450,11 @@
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
         "plans/decisions/0192-props-lifecycle-guard.md",
-        "plans/decisions/0194-bounded-native-prop-validation.md"
+        "plans/decisions/0194-bounded-native-prop-validation.md",
+        "plans/decisions/0195-native-bounded-prop-cohort.md"
       ],
-      "source_checks": "Four SDK dispatcher lifecycle cases and fixed bounded-prop validator behavior tests pass; new native probes and interruption remain unverified",
-      "native_acceptance": "Historical player-built container discovery qualified; world-loot and complete stateful-prop coverage differ.",
+      "source_checks": "Four SDK dispatcher lifecycle cases and fixed bounded-prop validator behavior tests pass; bounded native empty read/three refusals pass; native interruption remains unverified",
+      "native_acceptance": "Decision0195: one scoped empty box and three extent/world/write-argument refusals pass on signed SDK12.1/server0.51.6; positive functional props, complete state and native interruption remain unverified. Historical player-built container discovery has separate scope.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Label presence is not verified stable ownership across reload.",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
