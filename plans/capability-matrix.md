@@ -2,6 +2,8 @@
 
 ## Current product checkpoint
 
+Decision0174 records a companion endpoint reply with valid unknown bootstrap UI on SDK12.16. The external controller dereferences the null observation and stops before any request. Client capability/header metadata is retained, but fresh Menu/module/connection qualification is not reached. Game and isolated native server independently exit0; exact signed rollback is verified. This does not qualify default source0.51.4 or any native Join/Leave/Cancel workflow.
+
 Source server0.51.4 distinguishes lost game-thread reply channels from elapsed receive deadlines using real std-channel behavior tests. Both preserve unknown execution, status/journal reconciliation and no automatic replay. Queueing, wait length, SDK, companion and tools remain unchanged; this diagnostic behavior has not been deployed or fault-tested natively (decision 0173).
 
 Decision 0171 records native SDK12.16 Menu callbacks in one temporary client cohort, followed by an external controller readiness exception before any Join request. Client module/capability qualification was not reached. The game is force-closed for cleanup (exit1), the isolated server shuts down natively (independent exit0), and exact signed rollback is verified. Client connection, cancellation, Leave, character, rendering and saved credentials remain unverified; default pins/tools are unchanged.

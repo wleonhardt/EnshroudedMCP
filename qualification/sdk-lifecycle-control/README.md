@@ -20,6 +20,8 @@ Dispatch has the existing two-second request deadline. UI/native freshness use t
 
 ## Evidence limits
 
+A later corrected controller reaches companion bootstrap responses, then dereferences a valid null observation and aborts before any qualifier request (decision 0174). Its empty qualifier journal is not proof that callbacks are unavailable; both owned processes exit normally with code0 and exact signed rollback is verified. The earlier115 Menu observations remain historical evidence; no native command acceptance is claimed.
+
 `observations.jsonl` is the bounded synced private journal. It records submissions, status changes, session binding, replies and periodic copied metadata. It omits the query address and reports target-text agreement as true/false/unknown. Matching text is not authentication. First-session association combines copied observations and Join status non-atomically; later sessions cannot rebind that operation. Terminal observations remain historical facts beside a later unavailable status.
 
 No record establishes independent roster, selected character, rendered behavior, provider fidelity or workflow success. Selected-character observation/locking is not supplied here; the published executor requires a selected character and the controller must independently check the result. Normal Join also changes game-owned Steam connection history. Applied, acceptance, timeout or cancellation submission alone proves no successful connection or completed cancellation.

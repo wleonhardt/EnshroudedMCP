@@ -218,7 +218,9 @@
       "server_evidence": "plans/decisions/0168-isolated-lifecycle-provider-readiness.md",
       "native_client_menu_callback_observed": true,
       "native_client_commands_submitted": 0,
-      "client_observation_evidence": "plans/decisions/0171-native-menu-and-controller-startup-refusal.md"
+      "client_observation_evidence": "plans/decisions/0171-native-menu-and-controller-startup-refusal.md",
+      "native_companion_bootstrap_reply_observed": true,
+      "bootstrap_evidence": "plans/decisions/0174-native-companion-bootstrap-and-rollback.md"
     }
   },
   "counts": {
