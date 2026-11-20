@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.5 (source feature branch; not deployed)
+
+- Refuse world/player knowledge_read while the MCP world lifecycle is inactive or changes before queued execution. Both modes independently fail a retained scoped-value regression before correction. Preserve raw type/scope/value/flags and unknown semantics; no progression grants or crafting authority.
+
 ## Server 0.50.4 (source feature branch; not deployed)
 
 - Refuse player_interaction_target during inactive MCP lifecycle or a changed queued lifecycle epoch before selecting the current roster and prompt target. Actual dispatcher regression fails before correction despite retained roster, prompt and UsedItem data. Preserve target projection, metadata and missing-value semantics.

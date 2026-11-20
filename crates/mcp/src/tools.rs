@@ -405,8 +405,17 @@ impl Tools for GameTools {
             }
             "knowledge_read" => {
                 let spec = policy::knowledge_read::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 let game = self.game;
-                on_game_thread(scheduler, move || crate::knowledge_read::read(game, spec))?
+                on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    crate::knowledge_read::read(game, spec)
+                })?
             }
             "player_interaction_target" => {
                 let selector = policy::interaction_target::check(a)?;

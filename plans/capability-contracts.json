@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.4 is not deployed; native correspondence remains separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.5 is not deployed; native correspondence remains separate",
   "profiles": {
     "product": {
-      "server_version": "0.50.4",
+      "server_version": "0.50.5",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -392,7 +392,7 @@
     {
       "scope": "server",
       "name": "knowledge_read",
-      "description": "Read at most eight explicit native knowledge IDs on the server game thread. Without player, query world values; optional unique connected player queries that actor and world-scoped values. Preserve raw type/scope/value/expected flags; unavailable stays unknown, not zero/false. No progression writes, current crafting eligibility or client identity mapping.",
+      "description": "Read at most eight explicit native knowledge IDs on the server game thread. Requires active MCP world lifecycle at admission and execution with unchanged epoch in world and player modes. Without player, query world values; optional unique connected player queries that actor and world-scoped values. Preserve raw type/scope/value/expected flags; unavailable stays unknown, not zero/false. No progression writes, current crafting eligibility or client identity mapping.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -423,23 +423,25 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "admission": "Strict bounded named knowledge IDs and optional exact player selector; active MCP lifecycle at admission and queued execution with unchanged epoch in both modes; fresh unique player roster where requested; read only",
       "evidence_summary": "Raw world/player knowledge IDs preserve unknown, row scope and flags; not eligibility.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0146-knowledge-read-lifecycle-guard.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "Independent actual-dispatcher world/player reload regressions first fail with retained scoped values. Three new cases cover queued unchanged/reload/shutdown in both modes and pre-admission shutdown. Existing type/scope/value/flags, row order and unknown projections remain covered; fake grants stay empty.",
       "native_acceptance": "Installed read probes exist; independently valued present world/player entries remain unqualified.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Not a persistence or unlock-retention test.",
-      "freshness_completeness": "Scheduled raw observations preserve per-row scope/unknowns; player query may return shared world-scoped values. No eligibility inference.",
+      "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle in both modes; optional player re-resolves the current roster. MCP epoch is not a native world identity or connection lock. Independent per-ID reads are not an atomic knowledge snapshot or crafting/progression authority.",
       "next_missing_check": "Correlate one observed knowledge value and scope with an independent in-game prerequisite.",
-      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse in both modes despite retained SDK values and player roster. Historical native applicability stays unchanged; native event timing remains unverified.",
       "independent_effect_acceptance": "No progression change or craftability proof.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/knowledge_read.rs"
+        "crates/policy/src/knowledge_read.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
