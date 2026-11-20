@@ -51,10 +51,13 @@ fn observation(input: Input, status: CommandStatus) -> Value {
         CommandState::Failed(reason) => ("failed", Some(format!("{reason:?}"))),
         _ => ("unknown", None),
     };
-    let snapshot = input.client_snapshot().unwrap();
+    let (peer, snapshot_error) = match input.client_snapshot() {
+        Ok(snapshot) => (snapshot.server().map(|s| s == "127.0.0.1:15637"), None),
+        Err(error) => (None, Some(format!("{error:?}"))),
+    };
     json!({"native_state":state,"native_reason":reason,
         "native_phase":status.phase.map(|p|format!("{p:?}")),"native_age_ms":status.age_ms,
-        "snapshot_server_matches_fixture":snapshot.server().map(|s|s=="127.0.0.1:15637"),
+        "snapshot_server_matches_fixture":peer,"snapshot_read_error":snapshot_error,
         "independent_roster_verified":false,"character_verified":false,
         "rendered_verified":false,"workflow_accepted":false,"automatic_retry":false})
 }
@@ -115,6 +118,7 @@ fn missing_matching_and_different_snapshot_peers_remain_distinct() {
         });
         let observed = observation(input, input.command_status(id).unwrap());
         assert_eq!(observed["snapshot_server_matches_fixture"], expected);
+        assert_eq!(observed["snapshot_read_error"], Value::Null);
         assert_eq!(observed["workflow_accepted"], false);
         assert!(!observed.to_string().contains("127.0.0.1"));
         assert!(!observed.to_string().contains("synthetic-fixture-password"));
@@ -200,4 +204,43 @@ fn join_and_leave_admission_do_not_implicitly_switch_worlds() {
     let observed = observation(input, input.command_status(leave).unwrap());
     assert_eq!(observed["native_phase"], "Left");
     assert_eq!(observed["workflow_accepted"], false);
+}
+
+#[test]
+fn unavailable_snapshot_keeps_command_facts_without_panicking_or_retrying() {
+    let (client, input) = start();
+    let id = input.client_command(&join()).unwrap();
+    client.set_command_status(1, Raw::APPLIED, 0);
+    client.set_command_phase(1, Raw::PHASE_MENU, 0);
+    let mut status = input.command_status(id).unwrap();
+    status.age_ms = 123;
+    assert_eq!(client.client_commands().len(), 1);
+    drop(client);
+
+    // The published fake's server getter supplies a real typed Unavailable.
+    let server = enshwick::test::FakeHost::new()
+        .side(Side::SERVER)
+        .player_input()
+        .install();
+    // SAFETY: these are this module's generated exports on its own SDK fake.
+    assert_eq!(
+        unsafe { server.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+        Status::OK
+    );
+    let input = INPUT.lock().unwrap().unwrap();
+    assert!(matches!(
+        input.client_snapshot(),
+        Err(WorldError::Unavailable)
+    ));
+    let observed = observation(input, status);
+    assert_eq!(observed["native_state"], "applied");
+    assert_eq!(observed["native_phase"], "Menu");
+    assert_eq!(observed["native_age_ms"], 123);
+    assert_eq!(observed["snapshot_read_error"], "Unavailable");
+    assert_eq!(observed["snapshot_server_matches_fixture"], Value::Null);
+    assert_eq!(observed["workflow_accepted"], false);
+    assert_eq!(observed["automatic_retry"], false);
+    assert_eq!(server.client_commands().len(), 0);
+    assert!(!observed.to_string().contains("127.0.0.1"));
+    assert!(!observed.to_string().contains("synthetic-fixture-password"));
 }

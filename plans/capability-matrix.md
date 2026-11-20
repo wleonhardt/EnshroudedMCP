@@ -21,6 +21,10 @@ The tables retain the last verified signed product checkpoint. Current client/pr
 
 Decision 0120 verifies one original-signed Steam startup: initial exit0, independently owned child/listener and fresh copied Menu, three loaded hashes, ABI12.1/table1680, thirteen fixed read/refusal checks and full client contract. One exact close exits0; twelve installed hashes and durable baseline remain unchanged. Native simulation snapshot stays never/session0, broad verdict incomplete. No environment-forwarding, native lifecycle, unsigned-provider, rendered or exit53-cause claim. Twenty-two private controller models pass; new cleanup metadata is model-only. Next freeze a fresh provider review; consumed approvals remain unusable.
 
+## Inactive lifecycle snapshot diagnostics
+
+Decision0125 fixes observer panic on a typed unavailable getter. Nine optional debug/release cases (seven consumer/two provider) preserve command facts, null peer/error distinction and false workflow acceptance with no replacement submission. Product SDK/tools/installation are unchanged. The separate live trial records Applied/Menu and empty rosters; no Join/Leave acceptance or native crash cause is established.
+
 ## Selected-column JSON export
 
 Decision0124 adds Save column JSON to the external inspector. Seventeen terrain methods and three real BrowserOS downloads verify raw bands, bounds, selected-Y markers and provenance against32 native bands. Exports add no world read or installed change. Separate client/provider changes are owner-confirmed; current whole-client preservation is unverified and frozen review0123 preflight refuses. The signed checkpoint remains the last qualified reference.

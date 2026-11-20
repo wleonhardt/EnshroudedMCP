@@ -184,3 +184,7 @@ Decision 0123 advances goals2/3 with a fresh exact two-phase Menu-only review af
 ## Raw column artifact checkpoint — 2026-11-19
 
 Decision0124 advances goals5/9 with selected-column JSON downloads carrying complete raw bands and provenance. Seventeen terrain methods and three BrowserOS downloads match32 independent native bands from4096 fresh cells. Outside coverage remains explicit; no extra read, gameplay or installed change occurs. Whole-client preservation is unverified after a separate owner-confirmed test; frozen review0123 remains unexecuted and its preflight currently refuses.
+
+## Lifecycle diagnostic error checkpoint — 2026-11-19
+
+Decision0125 advances goals1/3 by preserving command facts when an inactive consumer snapshot getter returns a typed error. The exact Unavailable panic is reproduced; nine optional debug/release cases and strict checks pass after the correction. Separate live Applied/Menu/empty-roster evidence remains failed or incomplete. This adds no native executor, retry or provider adoption.
