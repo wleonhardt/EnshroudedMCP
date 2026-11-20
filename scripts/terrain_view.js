@@ -181,7 +181,7 @@
   document.getElementById("provenance").textContent = JSON.stringify({
     bounds_metres: {min:data.min_m,max_exclusive:data.max_m}, cell_size_m: .5,
     counts:data.material_counts, native_session:data.native_session, atomic_snapshot:data.atomic_snapshot,
-    capture:data.capture, missing_player_positions:data.missing_player_positions,
+    capture:data.capture, missing_player_positions:data.missing_player_positions, player_positions:data.player_positions,
     prop_origins:data.prop_origins, plan:proposal?{counts:proposal.counts,source:proposal.source,executable:false,clearance_verified:false}:null, rendered_surface_verified:false
   },null,2);
   function setupSlice() {

@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Shared terrain pin capacity fixed; native annotation acceptance remains separate** Decision0177 preserves up to64 caller pins, fills remaining slots with players then props, avoids generated-label collisions and reports omitted annotations in provenance. Three failing regressions precede the fix. Native caller/player/prop correspondence and rendered-game surfaces remain unverified; no frozen connection trial or installed module changes.
+
 - **native bootstrap reached; fix readiness use of unknown snapshot** Decision0174 retains valid companion observation=null/age=null/stale=true and capability/header replies. The external controller raises AttributeError before any native request. Both owned processes independently exit0 and exact signed/durable restoration is verified. Replay this actual bootstrap through the existing state validator, wait for a fresh Menu on the same owned process, and preserve consumed scope/identities. No upstream Join failure or #1144 solution is claimed.
 
 - **reply-loss diagnostics source qualified; native timing pending** Decision0173 advances source server0.51.4 with distinct channel-disconnected and deadline-elapsed messages. Four real-channel cases preserve unknown execution, buffered game replies, late-producer behavior and no cancellation/replay. SDK/compiler/companion/tools and installed runtime remain unchanged. Qualify controlled native reply loss/deadline timing separately; keep the pending exact client connection review and frozen candidates unchanged.

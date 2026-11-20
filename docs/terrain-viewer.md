@@ -16,6 +16,8 @@ Open the generated file in a browser. Choose 3D orbit, top X/Z, section X/Y or s
 
 Save PNG exports the drawn canvas, including bounds, axis directions, material legend and the first five numbered pin coordinates. All pins remain available in the viewer. Files contain local world observations; review them before sharing. Account names/keys and entity identities are discarded from live pin data. Player pins are numbered in capture order and must not be reused as persistent selectors. Prop pins identify origins only; no footprint or collision box is inferred.
 
+Live captures share a 64-pin budget. Caller pins are preserved first; available player positions and then up to 32 prop origins fill the remaining slots. Generated labels receive a numeric suffix if a caller already uses that label. Provenance reports available/shown player positions, missing player positions, and total/shown/truncated prop origins. A full caller budget can omit all automatic annotations without failing the capture. Omitted pins are not evidence that players or props are absent.
+
 ## Vertical column profile
 
 Select a numbered pin, a drawn cell or a proposed target to inspect every sampled half-metre Y band at that point's containing X/Z column. Bands are listed highest first, with material ID, raw fill and a highlight only where the selected Y lies in the half-open band. The complete captured column remains visible regardless of the current projection or section slice.

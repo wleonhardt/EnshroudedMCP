@@ -99,27 +99,42 @@ def capture(read, box, pins=()):
     players = observe("players", {})
     require(isinstance(players, list) and len(players) <= 16, "invalid player roster")
     observations = list(pins)
-    missing_players = 0
+    labels = {pin["label"] for pin in pins}
+    def append_pin(label, position, kind):
+        if len(observations) == 64:
+            return False
+        base, suffix = label, 2
+        while label in labels:
+            label = f"{base} ({suffix})"
+            suffix += 1
+        labels.add(label)
+        observations.append({"label": label, "position": position, "kind": kind})
+        return True
+    missing_players = shown_players = 0
     for index, player in enumerate(players):
         require(isinstance(player, dict), "invalid player")
         position = player.get("position")
         if position is None:
             missing_players += 1
         else:
-            observations.append({"label": f"Player {index + 1}", "position": position, "kind": "player"})
+            shown_players += append_pin(f"Player {index + 1}", position, "player")
     bounds = dict(zip(("x1", "y1", "z1", "x2", "y2", "z2"), result["min_m"] + result["max_m"]))
     props = observe("props_in", bounds)
     require(isinstance(props, dict) and isinstance(props.get("props"), list) and
             type(props.get("total")) is int and 0 <= len(props["props"]) <= props["total"] and
             type(props.get("truncated")) is bool, "invalid props")
+    shown_props = 0
     for index, prop in enumerate(props["props"][:32]):
         require(isinstance(prop, dict), "invalid prop")
-        observations.append({"label": f"Prop {index + 1}", "position": prop.get("position"), "kind": "prop"})
+        shown_props += append_pin(f"Prop {index + 1}", prop.get("position"), "prop")
     result = scene(survey, observations)
     result["capture"] = times
     result["missing_player_positions"] = missing_players
-    result["prop_origins"] = {"total": props["total"], "shown": min(32, len(props["props"])),
-                              "truncated": props["truncated"] or props["total"] > min(32, len(props["props"]))}
+    available_players = len(players) - missing_players
+    result["player_positions"] = {"available": available_players, "shown": shown_players,
+                                  "truncated": available_players > shown_players}
+    result["prop_origins"] = {"total": props["total"], "shown": shown_props,
+                              "truncated": props["truncated"] or props["total"] > shown_props}
     return result
 
 

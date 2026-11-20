@@ -153,6 +153,41 @@ class TerrainViewTests(unittest.TestCase):
         self.assertEqual(value["prop_origins"], {"total": 2, "shown": 1, "truncated": True})
         self.assertEqual(value["pins"][0]["kind"], "prop")
 
+    def test_live_capture_preserves_a_full_caller_pin_budget_and_reports_omissions(self):
+        pins = [{"label": f"Reference {i}", "position": [10, 20, 30]} for i in range(64)]
+        calls = []
+        def read(name, args):
+            calls.append(name)
+            return {"building_survey": survey(), "players": [{"position": [10, 21, 31]}, {"position": None}],
+                    "props_in": {"total": 1, "props": [{"position": [10, 21, 31]}], "truncated": False}}[name]
+        value = capture(read, [10, 20, 30, 1, 1.5, 2], pins)
+        self.assertEqual(value["pins"], scene(survey(), pins)["pins"])
+        self.assertEqual(value["player_positions"], {"available": 1, "shown": 0, "truncated": True})
+        self.assertEqual(value["missing_player_positions"], 1)
+        self.assertEqual(value["prop_origins"], {"total": 1, "shown": 0, "truncated": True})
+        self.assertEqual(calls, ["building_survey", "players", "props_in"])
+
+    def test_live_capture_assigns_remaining_pin_capacity_to_players_then_props(self):
+        pins = [{"label": f"Reference {i}", "position": [10, 20, 30]} for i in range(62)]
+        def read(name, args):
+            return {"building_survey": survey(), "players": [{"position": [10, 21, 31]}],
+                    "props_in": {"total": 2, "props": [{"position": [10, 21, 31]}] * 2, "truncated": False}}[name]
+        value = capture(read, [10, 20, 30, 1, 1.5, 2], pins)
+        self.assertEqual(value["pins"][:62], scene(survey(), pins)["pins"])
+        self.assertEqual([p["kind"] for p in value["pins"][-2:]], ["player", "prop"])
+        self.assertEqual(value["player_positions"], {"available": 1, "shown": 1, "truncated": False})
+        self.assertEqual(value["prop_origins"], {"total": 2, "shown": 1, "truncated": True})
+
+    def test_automatic_observation_labels_do_not_collide_with_caller_labels(self):
+        pins = [{"label": name, "position": [10, 20, 30]} for name in ["Player 1", "Player 1 (2)", "Prop 1"]]
+        def read(name, args):
+            return {"building_survey": survey(), "players": [{"position": [10, 21, 31]}],
+                    "props_in": {"total": 1, "props": [{"position": [10, 21, 31]}], "truncated": False}}[name]
+        value = capture(read, [10, 20, 30, 1, 1.5, 2], pins)
+        self.assertEqual([p["label"] for p in value["pins"]],
+                         ["Player 1", "Player 1 (2)", "Prop 1", "Player 1 (3)", "Prop 1 (2)"])
+        self.assertIn('"player_positions"', html(value))
+
     def test_failed_or_mismatched_capture_never_becomes_empty_geometry(self):
         calls = []
         def read(name, args):

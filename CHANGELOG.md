@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased standalone tools
+
+- Fix live terrain-view capture refusing valid caller pins when player/prop annotations exceed the shared 64-pin limit or reuse a caller label. Preserve caller pins, fill remaining capacity with players then props, and report omitted observations in provenance. No MCP tool, DLL, SDK pin or installed runtime changes.
+
 ## 0.51.4
 
 - Source server 0.51.4 distinguishes a disconnected game-thread reply channel from an elapsed five-second reply deadline. Both preserve unknown execution and retained-status/journal recovery guidance; no cancellation or replay is added. Real-channel regressions cover sender loss, empty producer, buffered replies and late execution. Native fault timing remains unverified.
