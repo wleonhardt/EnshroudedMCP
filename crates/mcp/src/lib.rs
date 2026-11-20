@@ -17,6 +17,7 @@ mod journal;
 mod knowledge;
 mod knowledge_read;
 mod pacification;
+mod player_shroud;
 mod player_vitals;
 mod player_waypoint;
 mod prop_observation;

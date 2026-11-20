@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all52 source contracts indexed:38 server and14 companion; feature-branch server0.49.1 is not deployed; native correspondence remains separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.0 is not deployed; native correspondence remains separate",
   "profiles": {
     "product": {
-      "server_version": "0.49.1",
+      "server_version": "0.50.0",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -187,7 +187,7 @@
     }
   },
   "counts": {
-    "server": 38,
+    "server": 39,
     "client": 14
   },
   "tools": [
@@ -4222,6 +4222,54 @@
       "observation_side_effects": "One published safe getter after current roster selection; no commands or journal append.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
       "evidence_applicability": "Feature-branch source server0.49.1 on existing SDK12.1; main and installed runtime remain unchanged."
+    },
+    {
+      "scope": "server",
+      "name": "player_shroud",
+      "description": "READ: one current SDK server-player character's shroud flag and timer, selected by exact case-insensitive name or account key. Requires active MCP world lifecycle and a nonempty SDK world key; re-resolves the roster on the game thread. Preserve independent null versus false/zero and signed SDK integer seconds; partial availability is explicit. No current client, displayed countdown, damage deadline, traversal safety, refill or movement authority.",
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "player": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "player"
+        ],
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/mcp/src/player_shroud.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Current MCP lifecycle and SDK roster selection with independent nullable shroud flag/timer; no safety or UI proof.",
+      "evidence_references": [
+        "plans/decisions/0139-pinned-sdk-shroud-observation.md",
+        "plans/decisions/0140-queued-player-shroud-read.md"
+      ],
+      "source_checks": "Game-free selector/context/projection and scheduled SDK-fake adapter cases; required feature-branch checks apply.",
+      "native_acceptance": "Not installed or positively native-qualified; source fixtures do not establish native field or countdown fidelity.",
+      "rendered_acceptance": "No displayed countdown, damage-deadline, terrain/contact or traversal acceptance.",
+      "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
+      "freshness_completeness": "Active MCP lifecycle required at admission and queued execution; epoch changes refuse. Re-resolves SDK roster and fields per call; world key is identity metadata, not liveness proof. Native world_session remains unavailable.",
+      "next_missing_check": "Independently match a current native player flag/timer with displayed countdown on a qualified isolated runtime.",
+      "refusal_acceptance": "Source strict arguments, unknown/ambiguous selectors, invalid native entity and lifecycle shutdown refusals; native matrix unverified.",
+      "independent_effect_acceptance": "No refill, actor input, movement, journal append or gameplay mutation.",
+      "admission_sources": [
+        "crates/policy/src/args.rs",
+        "crates/policy/src/player_shroud.rs",
+        "crates/policy/src/interaction_target.rs",
+        "crates/policy/src/inspection.rs",
+        "crates/policy/src/construction.rs"
+      ],
+      "observation_side_effects": "Two published server getters after current lifecycle/roster admission; no commands or journal append.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Feature-branch source server0.50.0 on existing SDK12.1; main and installed runtime remain unchanged."
     }
   ]
 }

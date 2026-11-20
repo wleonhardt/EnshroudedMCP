@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **implemented; queued player shroud read** Decision0140 adds source server0.50.0 player_shroud on unchanged SDK12.1. Strict policy selector/projection, active MCP lifecycle and queued epoch check, nonempty SDK key and fresh unique roster precede independent nullable timer/flag reads. Five adapter/three policy cases pass; fixed probes remain refusal-only evidence. Full product checks pass 432 Rust/109 Python, strict lint/format, releases and contracts; 44 fixed read/refusal probes remain incomplete. Exact publication audits are required. No deploy, refill, movement or native/UI/safety acceptance.
+
 - **source qualification; independent shroud state/timer** Decision0139 uses existing SDK12.1 with an inactive rlib consumer. Eight debug/release cases and strict lint/format preserve null versus false/zero, signed values, partial availability and changing observations without safety or mutation authority. No MCP registration, install or real Shroud exposure. Next review current-player admission and game-thread routing; native flag/timer/countdown correspondence remains open.
 
 - **implemented; terrain coordinate ruler** Decision0138 adds projected ruler geometry and horizontal/signed-height/3D captions to PNG exports. Nineteen terrain cases pass after an independently failing event regression. Four real browser exports over a fresh 4096-cell native capture verify positive/negative height and outside-capture suppression. Full source checks pass 424 Rust/108 Python, strict lint/format, releases and contracts; exact publication audits remain required. This changes only the local saved viewer; no game input, contact or traversal proof.

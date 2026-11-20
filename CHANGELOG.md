@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.0 (source feature branch; not deployed)
+
+- Add read-only player_shroud with strict current-player selection, MCP lifecycle/epoch guards and independent nullable shroud flag/timer observations. Preserve signed SDK seconds; no refill, damage deadline, traversal safety or client UI authority.
+
 ## 0.49.1
 
 - Correct `entity_components` coverage claims: results contain configured and resolved names only. New explicit metadata denies complete inventory and component-absence proof.

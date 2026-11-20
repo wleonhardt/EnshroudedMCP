@@ -34,7 +34,7 @@ class Fixture:
             error = True
             value = ("unknown argument 'confirm'" if "confirm" in args else
                      "shutdown operation must contain" if "/" in args.get("operation", "") else "unknown shutdown operation")
-        elif name == "player_waypoint":
+        elif name in ("player_waypoint", "player_shroud"):
             error = self.broken != name
             value = "no connected player matches this selector" if error else {}
         elif name == "player_reposition_status":
@@ -202,6 +202,15 @@ class ValidationTests(unittest.TestCase):
                 self.assertEqual(report["verdict"],verdict)
                 self.assertTrue(any("Waypoint refusals" in note for note in report["incomplete"]))
 
+    def test_shroud_refusals_remain_incomplete_and_false_success_fails(self):
+        normal = Validation(Fixture(), pause=lambda _: None).run()
+        self.assertEqual(normal["verdict"], "incomplete")
+        self.assertTrue(any("Shroud refusals" in note for note in normal["incomplete"]))
+        wrong = Validation(Fixture("player_shroud"), pause=lambda _: None).run()
+        self.assertEqual(wrong["verdict"], "failed")
+        for report in (normal, wrong):
+            self.assertTrue(any("Shroud refusals" in note for note in report["incomplete"]))
+
     def test_capabilities_refuse_wrong_framework_provenance(self):
         for key, wrong in (("mod_version", "0.47.0"),
                            ("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
@@ -289,7 +298,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 42)
+        self.assertEqual(len(report["checks"]), 44)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -359,7 +368,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 38)
+        self.assertEqual(len(SERVER_TOOLS), 39)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

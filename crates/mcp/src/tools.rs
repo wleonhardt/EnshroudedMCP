@@ -166,6 +166,7 @@ impl GameTools {
             crate::journal::tool(),
             crate::knowledge_read::tool(),
             crate::interaction_target::tool(),
+            crate::player_shroud::tool(),
             crate::player_waypoint::tool(),
             crate::building_access::tool(),
             Tool {
@@ -334,6 +335,23 @@ impl Tools for GameTools {
             native_knowledge: _,
         } = self.game;
         match name {
+            "player_shroud" => {
+                let selector = policy::player_shroud::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
+                on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    let mut result = crate::player_shroud::read(world, &selector)?;
+                    result["context_session"] = json!(active);
+                    result["context_session_scope"] =
+                        json!("MCP boot/world lifecycle epoch; not a native world identifier");
+                    Ok(result)
+                })?
+            }
             "player_waypoint" => {
                 let selector = policy::player_waypoint::check(a)?;
                 let map = self.waypoint_map;
