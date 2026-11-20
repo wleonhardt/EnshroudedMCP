@@ -1,0 +1,11 @@
+# 0142: Refuse waypoint reads across MCP lifecycle changes
+
+Date: 2026-11-20. Status: independently reproduced and corrected; full source checks pass; native timing remains unverified.
+
+The player_waypoint listener queued a read without checking the MCP world lifecycle at admission or execution. A fresh roster lookup did not prevent a request admitted before WorldLoaded from returning after it. A deterministic regression queues the actual GameTools request, observes the pinned SDK scheduler pending state, raises the documented SDK-fake WorldLoaded event, then drives the server tick. The test independently confirms the waypoint getter still returns typed data. It fails on exact base 70087a0 because the queued request returns an observation across the epoch change.
+
+Reuse the existing Construction lifecycle state and game-free policy::construction::check_session, matching player_shroud. Require an active lifecycle at admission and queued execution and compare their epochs before reading the roster or waypoint. Add a pre-admission shutdown regression and queued unchanged, reload and shutdown scenarios. The unchanged case preserves coordinates. No native world identifier, setter, movement, current-client selection or rendered acceptance is added. This fixes request lifecycle boundaries; roster membership remains no connection lock.
+
+Bump source server to0.50.1 before compiling changed runtime code. Preserve companion0.22.0, SDK6a151a95/ABI12.1, tool count and input schema. The scheduler Debug pending field is an enqueue barrier only, under an exact SDK pin and an isolated queue. It proves neither native event delivery nor game timing. The fake starts by publishing WorldLoaded explicitly; stop_world remains only a fixture control and is not substituted for lifecycle events.
+
+Native runtime, provider files, pending review and process state remain untouched. Original installed contracts can stay consistent while this undeployed source version is different. Native reload/shutdown timing and positive waypoint correspondence remain unverified. Full checks pass: 435 Rust and 109 Python tests, strict lint/format, release builds and source contract checks. Exact publication audits are required before publishing.

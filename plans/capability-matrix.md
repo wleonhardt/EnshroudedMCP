@@ -2,13 +2,13 @@
 
 ## Current product checkpoint
 
-Feature branch adds source server0.50.0 player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and native runtime remain unchanged.
+Feature branch adds source server0.50.1 player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and native runtime remain unchanged.
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 
 | Component | Source version | Installed version |
 |---|---|---|
-| Server | `0.50.0` | `0.48.0` |
+| Server | `0.50.1` | `0.48.0` |
 | Companion | `0.22.0` | `0.21.1` |
 
 | Product profile field | Value |

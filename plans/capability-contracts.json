@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.0 is not deployed; native correspondence remains separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.1 is not deployed; native correspondence remains separate",
   "profiles": {
     "product": {
-      "server_version": "0.50.0",
+      "server_version": "0.50.1",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -4179,7 +4179,7 @@
     {
       "scope": "server",
       "name": "player_waypoint",
-      "description": "READ: one current server player's shared map waypoint, selected by exact case-insensitive name or account key. Re-resolves the current SDK roster on the game thread. Unset stays null; zero coordinates stay observed; SDK failures remain errors. Session-only character identity; no world-session identifier, current client UI, player position, rendered marker, arrival, waypoint setter or movement authority.",
+      "description": "READ: one current server player's shared map waypoint, selected by exact case-insensitive name or account key. Requires active MCP world lifecycle at admission and execution with unchanged epoch; re-resolves the current SDK roster on the game thread. Unset stays null; zero coordinates stay observed; SDK failures remain errors. Session-only character identity; no world-session identifier, current client UI, player position, rendered marker, arrival, waypoint setter or movement authority.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -4199,29 +4199,31 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "admission": "Strict named player selector; active MCP world lifecycle at admission and queued execution with unchanged epoch; read only; no write authorization",
       "evidence_summary": "One fresh SDK roster match and shared-waypoint read; unset differs from zero and SDK errors.",
       "evidence_references": [
         "plans/decisions/0134-queued-player-waypoint-read.md",
-        "plans/decisions/0133-shared-waypoint-consumer-cohorts.md"
+        "plans/decisions/0133-shared-waypoint-consumer-cohorts.md",
+        "plans/decisions/0142-waypoint-lifecycle-guard.md"
       ],
-      "source_checks": "Game-free admission/projection and scheduled SDK-fake adapter cases; required feature-branch checks apply.",
+      "source_checks": "Game-free selector/projection and existing lifecycle/session policy; SDK-fake queued unchanged/shutdown/reload and pre-admission shutdown cases with independently retained waypoint data; full source checks required.",
       "native_acceptance": "Not installed or positively native-qualified; SDK-fake results are not a native provider proof.",
       "rendered_acceptance": "No rendered marker, player-position or arrival acceptance.",
       "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
-      "freshness_completeness": "Re-resolves the current SDK roster for each request; world_session remains unavailable and roster membership is not a connection lock.",
+      "freshness_completeness": "Re-resolves the current SDK roster after active MCP lifecycle and epoch checks; MCP epoch is not a native identifier, world_session remains unavailable and roster membership is not a connection lock.",
       "next_missing_check": "Independently set, move and clear one current player shared waypoint on a qualified native runtime.",
-      "refusal_acceptance": "Source malformed arguments, unknown/ambiguous selectors, unavailable layout and stopped-world refusals; native matrix remains unverified.",
+      "refusal_acceptance": "Source malformed arguments, unknown/ambiguous selectors, unavailable layout and stopped-world refusals plus inactive admission and queued lifecycle epoch changes; native timing remains unverified.",
       "independent_effect_acceptance": "No waypoint setter, input, movement or gameplay mutation.",
       "admission_sources": [
         "crates/policy/src/args.rs",
         "crates/policy/src/player_waypoint.rs",
         "crates/policy/src/interaction_target.rs",
-        "crates/policy/src/inspection.rs"
+        "crates/policy/src/inspection.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "One published safe getter after current roster selection; no commands or journal append.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
-      "evidence_applicability": "Feature-branch source server0.49.1 on existing SDK12.1; main and installed runtime remain unchanged."
+      "evidence_applicability": "Feature-branch source server0.50.1 on existing SDK12.1; main and installed runtime remain unchanged."
     },
     {
       "scope": "server",

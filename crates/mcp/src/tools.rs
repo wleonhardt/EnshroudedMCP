@@ -354,8 +354,15 @@ impl Tools for GameTools {
             }
             "player_waypoint" => {
                 let selector = policy::player_waypoint::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 let map = self.waypoint_map;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     crate::player_waypoint::read(world, map, &selector)
                 })?
             }

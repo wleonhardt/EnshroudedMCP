@@ -4,7 +4,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "player_waypoint",
-        description: "READ: one current server player's shared map waypoint, selected by exact case-insensitive name or account key. Re-resolves the current SDK roster on the game thread. Unset stays null; zero coordinates stay observed; SDK failures remain errors. Session-only character identity; no world-session identifier, current client UI, player position, rendered marker, arrival, waypoint setter or movement authority.",
+        description: "READ: one current server player's shared map waypoint, selected by exact case-insensitive name or account key. Requires active MCP world lifecycle at admission and execution with unchanged epoch; re-resolves the current SDK roster on the game thread. Unset stays null; zero coordinates stay observed; SDK failures remain errors. Session-only character identity; no world-session identifier, current client UI, player position, rendered marker, arrival, waypoint setter or movement authority.",
         schema: policy::player_waypoint::schema(),
     }
 }
@@ -46,10 +46,14 @@ mod tests {
     };
 
     static TOOLS: Mutex<Option<Arc<GameTools>>> = Mutex::new(None);
+    static SCHEDULER: Mutex<Option<enshwick::schedule::Scheduler>> = Mutex::new(None);
+    static MAP: Mutex<Option<enshwick::map::Map>> = Mutex::new(None);
     struct Reader;
     impl Mod for Reader {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             *TOOLS.lock().unwrap() = Some(Arc::new(crate::Mcp::init(load)?.tools));
+            *SCHEDULER.lock().unwrap() = Some(load.scheduler()?);
+            *MAP.lock().unwrap() = Some(load.map()?);
             Ok(Self)
         }
     }
@@ -98,6 +102,7 @@ mod tests {
             unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
             Status::OK
         );
+        assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
         let tools = TOOLS.lock().unwrap().as_ref().unwrap().clone();
         (loader, tools)
     }
@@ -237,5 +242,97 @@ mod tests {
         assert!(request(&loader, &tools, "7").is_ok());
         loader.stop_world();
         assert!(request(&loader, &tools, "7").is_err());
+    }
+    #[test]
+    fn queued_reads_refuse_shutdown_or_changed_epoch_before_execution() {
+        for phase in ["unchanged", "reload", "shutdown"] {
+            let (loader, tools) = start(
+                enshwick::test::FakeHost::new().map_waypoints(),
+                &[player(17, 7)],
+                Some((1, [12., 23., 34.])),
+            );
+            let scheduler = SCHEDULER.lock().unwrap().unwrap();
+            let _ = loader.tick(Duration::from_millis(1));
+            assert_eq!(format!("{scheduler:?}"), "Scheduler { pending: false }");
+            let worker = thread::spawn(move || {
+                tools.call(
+                    "player_waypoint",
+                    json!({"player":"7"}).as_object().unwrap(),
+                )
+            });
+            // Pinned SDK Debug only observes enqueue; it is not game execution
+            // or liveness proof. This isolated scheduler has no other tasks.
+            let until = Instant::now() + Duration::from_secs(2);
+            while format!("{scheduler:?}") != "Scheduler { pending: true }" {
+                assert!(
+                    !worker.is_finished(),
+                    "{phase}: request finished without queueing"
+                );
+                assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                thread::yield_now();
+            }
+            match phase {
+                "shutdown" => {
+                    assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+                }
+                "reload" => {
+                    assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+                }
+                _ => {}
+            }
+            // A retained waypoint independently proves refusal is lifecycle-based.
+            assert!(
+                MAP.lock()
+                    .unwrap()
+                    .unwrap()
+                    .waypoint(Entity(17))
+                    .unwrap()
+                    .is_some()
+            );
+            let until = Instant::now() + Duration::from_secs(2);
+            while !worker.is_finished() && Instant::now() < until {
+                let _ = loader.tick(Duration::from_millis(1));
+                thread::yield_now();
+            }
+            let result = worker.join().unwrap();
+            if phase == "unchanged" {
+                let value = result.unwrap();
+                assert_eq!(value["position_m"], json!([12., 23., 34.]));
+                assert_eq!(value["roster_match_verified"], true);
+            } else {
+                let error =
+                    result.expect_err("queued changed-context read returned an observation");
+                assert!(
+                    error.contains(if phase == "shutdown" {
+                        "active"
+                    } else {
+                        "session"
+                    }),
+                    "{phase}: {error}"
+                );
+            }
+        }
+    }
+    #[test]
+    fn shutdown_before_admission_refuses_even_with_retained_waypoint() {
+        let (loader, tools) = start(
+            enshwick::test::FakeHost::new().map_waypoints(),
+            &[player(17, 7)],
+            Some((1, [12., 23., 34.])),
+        );
+        assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+        assert!(
+            MAP.lock()
+                .unwrap()
+                .unwrap()
+                .waypoint(Entity(17))
+                .unwrap()
+                .is_some()
+        );
+        assert!(
+            request(&loader, &tools, "7")
+                .unwrap_err()
+                .contains("active")
+        );
     }
 }

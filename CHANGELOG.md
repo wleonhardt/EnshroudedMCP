@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.1 (source feature branch; not deployed)
+
+- Refuse player_waypoint requests admitted during shutdown or crossing an MCP world lifecycle epoch before queued execution. Keep fresh roster selection, nullable coordinates and SDK errors; no native session identity or movement authority. Two source regressions cover retained waypoint data at admission and after queueing.
+
 ## Server 0.50.0 (source feature branch; not deployed)
 
 - Add read-only player_shroud with strict current-player selection, MCP lifecycle/epoch guards and independent nullable shroud flag/timer observations. Preserve signed SDK seconds; no refill, damage deadline, traversal safety or client UI authority.
