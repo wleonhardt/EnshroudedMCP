@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> policy::mcp::Tool {
     policy::mcp::Tool {
         name: "player_interaction_target",
-        description: "Read one uniquely selected connected server player's native interaction-prompt target. Session-only server entity, optional position/template and native UsedItem ID; unavailable differs from no target. Template uses file-order hex. Item ID is an observation, not a resolved effective definition. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
+        description: "Read one uniquely selected connected server player's native interaction-prompt target. Requires active MCP world lifecycle at admission and execution with unchanged epoch. Session-only server entity, optional position/template and native UsedItem ID; unavailable differs from no target. Template uses file-order hex. Item ID is an observation, not a resolved effective definition. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
         schema: policy::interaction_target::schema(),
     }
 }
@@ -144,5 +144,166 @@ side = "server""#
         assert!(result["target"]["position"].is_null());
         assert!(result["target"]["template_guid"].is_null());
         assert!(result["target"].get("item_id").is_some_and(Value::is_null));
+    }
+}
+
+#[cfg(test)]
+mod lifecycle_tests {
+    use crate::tools::GameTools;
+    use enshwick::{
+        Entity, Load, Mod, Off, PlayerKey,
+        abi::{Header, PlayerInfo, Status},
+        content::EngineFacts,
+        interactions::Targets,
+        schedule::Scheduler,
+        test::facts,
+        world::World,
+    };
+    use policy::mcp::Tools;
+    use serde_json::json;
+    use std::{
+        sync::{Arc, Mutex},
+        thread,
+        time::{Duration, Instant},
+    };
+    #[derive(Clone)]
+    struct Context {
+        tools: Arc<GameTools>,
+        world: World,
+        targets: Targets,
+        scheduler: Scheduler,
+    }
+    static CONTEXT: Mutex<Option<Context>> = Mutex::new(None);
+    struct Reader;
+    impl Mod for Reader {
+        fn init(load: &mut Load<'_>) -> Result<Self, Off> {
+            *CONTEXT.lock().unwrap() = Some(Context {
+                tools: Arc::new(crate::Mcp::init(load)?.tools),
+                world: load.world()?,
+                targets: load.interaction_targets()?,
+                scheduler: load.scheduler()?,
+            });
+            Ok(Self)
+        }
+    }
+    enshwick::test::declare_mod!(Reader, "id = \"test.prompt-lifecycle\"\nside = \"server\"");
+    fn start() -> (enshwick::test::Installed, Context) {
+        let fake = enshwick::test::FakeHost::new()
+            .world()
+            .interaction_targets();
+        let used_item = fake.hash(facts::USED_ITEM.id()).unwrap();
+        let ty = fake.hash(facts::SELECTED_TARGETS.id()).unwrap();
+        let mut bytes = vec![0; fake.size(facts::SELECTED_TARGETS.id()).unwrap()];
+        let stride = fake.size(facts::TARGET_INFO.id()).unwrap();
+        let offset = fake.offset(facts::TARGET_INFO_ENTITY.id()).unwrap();
+        bytes[offset..offset + 4].copy_from_slice(&77u32.to_le_bytes());
+        let at = stride * 2 + offset;
+        bytes[at..at + 4].copy_from_slice(&512u32.to_le_bytes());
+        let mut player = PlayerInfo {
+            header: Header::of::<PlayerInfo>(),
+            slot: 0,
+            entity: Entity(40),
+            key: PlayerKey::new(7),
+            permissions: 0,
+            name_len: 10,
+            name: [0; PlayerInfo::NAME_MAX],
+        };
+        player.name[..10].copy_from_slice(b"Researcher");
+        let loader = fake
+            .player(player)
+            .component(Entity(40), ty, &bytes)
+            .component(Entity(512), used_item, &41u32.to_le_bytes())
+            .install();
+        // SAFETY: generated exports belong to this isolated fake-only reader.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            Status::OK
+        );
+        assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+        let context = CONTEXT.lock().unwrap().as_ref().unwrap().clone();
+        (loader, context)
+    }
+    fn assert_retained(context: &Context) {
+        let players = context.world.players();
+        assert_eq!(players.len(), 1);
+        assert_eq!(players[0].entity, Entity(40));
+        assert_eq!(players[0].key, PlayerKey::new(7));
+        assert_eq!(
+            context.targets.target(Entity(40)).unwrap(),
+            Some(Entity(512))
+        );
+        assert_eq!(
+            context.world.used_item(Entity(512)).map(|item| item.0),
+            Some(41)
+        );
+    }
+    #[test]
+    fn queued_prompt_reads_refuse_changed_lifecycle_with_retained_player_target() {
+        for phase in ["unchanged", "reload", "shutdown"] {
+            let (loader, context) = start();
+            let _ = loader.tick(Duration::from_millis(1));
+            let scheduler = context.scheduler;
+            assert_eq!(format!("{scheduler:?}"), "Scheduler { pending: false }");
+            let tools = context.tools.clone();
+            let worker = thread::spawn(move || {
+                tools.call(
+                    "player_interaction_target",
+                    json!({"player":"7"}).as_object().unwrap(),
+                )
+            });
+            // Pinned SDK Debug observes enqueue only in this isolated queue.
+            let until = Instant::now() + Duration::from_secs(2);
+            while format!("{scheduler:?}") != "Scheduler { pending: true }" {
+                assert!(!worker.is_finished(), "{phase}: read did not queue");
+                assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                thread::yield_now();
+            }
+            match phase {
+                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+                _ => {}
+            }
+            assert_retained(&context);
+            let until = Instant::now() + Duration::from_secs(2);
+            while !worker.is_finished() && Instant::now() < until {
+                let _ = loader.tick(Duration::from_millis(1));
+                thread::yield_now();
+            }
+            let result = worker.join().unwrap();
+            if phase == "unchanged" {
+                let value = result.unwrap();
+                assert_eq!(value["player"]["entity"], 40);
+                assert_eq!(value["observation"]["state"], "observed");
+                assert_eq!(value["observation"]["target"]["entity"], 512);
+                assert_eq!(value["observation"]["target"]["item_id"], 41);
+            } else {
+                let error =
+                    result.expect_err("queued changed-context prompt read returned an observation");
+                assert!(
+                    error.contains(if phase == "reload" {
+                        "session"
+                    } else {
+                        "active"
+                    }),
+                    "{phase}: {error}"
+                );
+            }
+        }
+    }
+    #[test]
+    fn shutdown_before_prompt_admission_refuses_retained_player_target() {
+        let (loader, context) = start();
+        assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+        assert_retained(&context);
+        assert!(
+            context
+                .tools
+                .call(
+                    "player_interaction_target",
+                    json!({"player":"7"}).as_object().unwrap()
+                )
+                .unwrap_err()
+                .contains("active")
+        );
     }
 }

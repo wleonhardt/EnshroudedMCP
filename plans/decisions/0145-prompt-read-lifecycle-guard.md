@@ -1,0 +1,15 @@
+# 0145: Refuse prompt-target reads across MCP lifecycle changes
+
+Date: 2026-11-20. Status: independently reproduced and corrected; full source checks pass; native timing remains unverified.
+
+Decision0144 leaves player_interaction_target as the next independently testable player-selector observation. It re-resolved the SDK roster on the game thread but had no lifecycle admission or execution epoch check. On exact basec06f661, a real GameTools request queued before documented SDK-fake WorldLoaded returns its target afterward. The regression independently retains one player40/account7, prompt target512 and UsedItem41. Combat slot77 remains distinct. The unchanged scenario positively returns512/41; the reload scenario fails because it also returns an observation. This demonstrates fresh roster lookup alone is not an epoch boundary.
+
+Reuse existing Construction active lifecycle checks at admission and queued execution plus game-free policy::construction::check_session before selecting the current roster and reading the target. Two new cases cover pre-admission shutdown and queued unchanged/reload/shutdown with independently available roster, prompt and item data. Preserve the observer, nullable metadata, unavailable versus no target, GUID encoding, prompt-versus-combat selection and all authority limitations. Bump source server to0.50.4 before compiling runtime changes; SDK6a151a95/ABI12.1, Rust1.99.1, companion0.22.0, tool count and input schema remain unchanged.
+
+A separate cfg(test) reader initializes actual MCP dispatch and independent published SDK handles. Synthetic layout comes solely from published fake EngineFacts and the existing prompt-slot fixture; no game memory or undocumented offsets are read. Pinned Scheduler Debug pending is an enqueue barrier for an isolated queue, not execution, liveness or provider fidelity. Documented fake lifecycle events model the boundary, not native delivery timing.
+
+The gate detects lifecycle changes during a request; it is not a native world identifier, actor generation or player connection lock. Server target IDs remain session-only and are not client entity mappings. Observation still provides no terrain hit, camera/collision query, rendered prompt, interaction or movement authority. Native target/actor/UI correspondence remains separate.
+
+Source lifecycle boundaries now cover the five independently reproduced player/entity observations in decisions0140–0145. Optional-player knowledge and building-access reads remain separate contract-specific next checks; coordinate queries and status are not claimed fixed. Require deterministic retained-data reproduction before broadening behavior.
+
+Full checks pass 441 Rust/109 Python tests, strict lint/format, releases and source contracts. Prompt adapter runtime logic matches the prior source, apart from the tool description. Exact publication audits remain required. Native event timing, target/session correspondence and rendered prompt acceptance remain unverified. No installation, game input, process action, native lifecycle event or interaction request occurs.

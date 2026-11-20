@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.3 is not deployed; native correspondence remains separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.4 is not deployed; native correspondence remains separate",
   "profiles": {
     "product": {
-      "server_version": "0.50.3",
+      "server_version": "0.50.4",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -448,7 +448,7 @@
     {
       "scope": "server",
       "name": "player_interaction_target",
-      "description": "Read one uniquely selected connected server player's native interaction-prompt target. Session-only server entity, optional position/template and native UsedItem ID; unavailable differs from no target. Template uses file-order hex. Item ID is an observation, not a resolved effective definition. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
+      "description": "Read one uniquely selected connected server player's native interaction-prompt target. Requires active MCP world lifecycle at admission and execution with unchanged epoch. Session-only server entity, optional position/template and native UsedItem ID; unavailable differs from no target. Template uses file-order hex. Item ID is an observation, not a resolved effective definition. Not a terrain hit, camera raycast, collision test, client entity mapping or interaction executor. No writes.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -468,23 +468,25 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "admission": "Strict named exact player selector; active MCP lifecycle at admission and queued execution with unchanged epoch, then fresh unique roster selection; read only",
       "evidence_summary": "Server prompt/combat target namespaces remain distinct from client entities or scene raycasts.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0145-prompt-read-lifecycle-guard.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "Actual dispatcher reload regression first fails with independently retained player, prompt target and UsedItem data. New cases cover pre-admission shutdown and queued unchanged/reload/shutdown; existing prompt-versus-combat slot, unknown/none and nullable metadata behavior remains covered.",
       "native_acceptance": "Source adapter cases and installed probes; independent present-target coverage remains incomplete.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Session-local entity identity only.",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle and re-resolve the current SDK roster before target read. MCP epoch is not a native session ID or connection lock; this does not map current client entity or verify rendered prompt.",
       "next_missing_check": "Correlate one present prompt target with a visible known object without moving the avatar.",
-      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse despite retained SDK roster/target/item data. Historical native evidence retains original applicability; native event timing remains unverified.",
       "independent_effect_acceptance": "No interaction, hit, collision or navigation execution.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/interaction_target.rs"
+        "crates/policy/src/interaction_target.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",

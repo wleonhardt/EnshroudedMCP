@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.4 (source feature branch; not deployed)
+
+- Refuse player_interaction_target during inactive MCP lifecycle or a changed queued lifecycle epoch before selecting the current roster and prompt target. Actual dispatcher regression fails before correction despite retained roster, prompt and UsedItem data. Preserve target projection, metadata and missing-value semantics.
+
 ## Server 0.50.3 (source feature branch; not deployed)
 
 - Refuse factory_station_read during inactive MCP lifecycle or a lifecycle epoch change before queued execution. A failing dispatcher regression retains a positively decoded synthetic station across reload. Existing typed projection stays unchanged; caller must still reacquire session-only entity IDs.
