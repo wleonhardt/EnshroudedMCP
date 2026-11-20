@@ -14,7 +14,9 @@
       "installed_client_version": "0.21.1",
       "signed_steam_menu_baseline": "plans/decisions/0120-signed-steam-menu-baseline.md",
       "resumed_signed_server_baseline": "plans/decisions/0122-resumed-signed-server-baseline.md",
-      "current_client_preservation": "unverified after separate owner-confirmed local experiment; this helper increment changes no installed file; prior signed checkpoint remains qualification reference"
+      "current_client_preservation": "unverified after separate owner-confirmed local experiment; this helper increment changes no installed file; prior signed checkpoint remains qualification reference",
+      "current_client_metadata_evidence": "plans/decisions/0126-enforce-client-probe-freshness.md",
+      "current_client_read_status": "immutable header12.11/table1744 observed with compiled12.1 companion; copied Menu stale, native snapshot Never, fresh-context acceptance refused; no adoption or review phase accepted"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",

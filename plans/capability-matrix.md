@@ -21,6 +21,10 @@ The tables retain the last verified signed product checkpoint. Current client/pr
 
 Decision 0120 verifies one original-signed Steam startup: initial exit0, independently owned child/listener and fresh copied Menu, three loaded hashes, ABI12.1/table1680, thirteen fixed read/refusal checks and full client contract. One exact close exits0; twelve installed hashes and durable baseline remain unchanged. Native simulation snapshot stays never/session0, broad verdict incomplete. No environment-forwarding, native lifecycle, unsigned-provider, rendered or exit53-cause claim. Twenty-two private controller models pass; new cleanup metadata is model-only. Next freeze a fresh provider review; consumed approvals remain unusable.
 
+## Copied-UI freshness consistency
+
+Decision0126 adds diagnostic age/stale consistency under the existing1000ms companion contract. Nineteen helper methods and two retained native-reply replays pass;102 Python methods remain separate from409 Rust. Current live metadata/header/module checks pass, with actual12.11/table1744 and compiled12.1. Copied Menu is over100 minutes stale and native snapshot Never, so fresh-context acceptance refuses and thirteen archive/read probes are not run. No installation, native input, lifecycle retry or adoption occurs.
+
 ## Inactive lifecycle snapshot diagnostics
 
 Decision0125 fixes observer panic on a typed unavailable getter. Nine optional debug/release cases (seven consumer/two provider) preserve command facts, null peer/error distinction and false workflow acceptance with no replacement submission. Product SDK/tools/installation are unchanged. The separate live trial records Applied/Menu and empty rosters; no Join/Leave acceptance or native crash cause is established.

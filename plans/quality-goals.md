@@ -188,3 +188,7 @@ Decision0124 advances goals5/9 with selected-column JSON downloads carrying comp
 ## Lifecycle diagnostic error checkpoint — 2026-11-19
 
 Decision0125 advances goals1/3 by preserving command facts when an inactive consumer snapshot getter returns a typed error. The exact Unavailable panic is reproduced; nine optional debug/release cases and strict checks pass after the correction. Separate live Applied/Menu/empty-roster evidence remains failed or incomplete. This adds no native executor, retry or provider adoption.
+
+## Client freshness evidence checkpoint — 2026-11-19
+
+Decision0126 advances goals1/3 with consistent diagnostic freshness validation. Genuine native stale observations remain historical; flipped fresh flags refuse. Current provider/header metadata and a responsive listener cannot certify UI callback activity, rendered Menu or native lifecycle. Nineteen client-probe methods pass; inspect supported cached sampler/runtime diagnostics next without adding an executor or forcing UI input.

@@ -2,6 +2,8 @@
 
 ## Open
 
+- Which published cached client sampler/runtime read can distinguish inactive rendering from missing or stopped UI callback coverage? Decision0126 observes a responsive owned endpoint, actual12.11 header, native Never and a correctly stale copied Menu. No cause is inferred. Inspect supported thread/availability semantics before adding a read; metadata is not an executor or fresh-context proof.
+
 - What supported native prerequisite or provider correction prevents the separate Join attempt from ending after Applied/Menu while the isolated roster stays empty? Read-only reconciliation in decision0125 establishes no InWorld or Leave acceptance; native exit cause remains unknown. Preserve the interrupted follow-up and exact provider/command/roster evidence. The inactive observer snapshot-error correction is unrelated to the native crash cause and grants no retry.
 
 - Why do qualified native building reads report fill 7 while the pinned Voxel::fill documentation says building voxels carry zero? A complete source-region read observes 1,912 building cells across two material IDs with fill 7, and the preserved 16-cell platform has the same byte with operator-confirmed standing contact. Preserve raw bytes; no causal fill-to-mesh or density equation is established. See decision 0055.

@@ -106,6 +106,7 @@ def native_snapshot(value):
 def state(value):
     age = value.get("age_ms")
     require((age is None or integer(age)) and type(value.get("stale")) is bool and integer(value.get("sequence")))
+    require(value["stale"] is (age is None or age > 1000))
     observation = value.get("observation")
     require(observation is None or isinstance(observation, dict))
     if observation is not None:

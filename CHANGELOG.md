@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Reject client-probe UI freshness flags that contradict the existing age rule. Preserve genuine historical observations; no runtime threshold, native input or provider change.
+
 - Preserve command evidence and typed copied-snapshot errors in the inactive lifecycle consumer instead of panicking on an unavailable getter. No live executor, retry or native crash fix is added.
 
 - Export selected terrain columns as JSON, preserving complete raw bands, selected coordinates, capture provenance and unobserved coverage without another native read.

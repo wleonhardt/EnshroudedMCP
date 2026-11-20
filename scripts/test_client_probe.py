@@ -230,6 +230,19 @@ class ClientProbeTests(unittest.TestCase):
         prompt.update(verb_text_state="observed", verb_text="", verb_text_truncated=False)
         state(value)
 
+    def test_ui_freshness_flag_matches_unknown_age_and_exact_boundary(self):
+        base = json.loads(Fixture().call("tools/call", {"name":"client_state", "arguments":{}})["content"][0]["text"])
+        for age, stale in ((None, True), (0, False), (1000, False), (1001, True), (6_000_000, True)):
+            value = {**base, "age_ms": age, "stale": stale}
+            if age is None:
+                value.update(observation=None, sequence=0)
+            with self.subTest(age=age):
+                report = state(value)
+                self.assertEqual(report["age_ms"], age)
+                self.assertIs(report["stale"], stale)
+                with self.assertRaises(ValueError):
+                    state({**value, "stale": not stale})
+
     def test_fixed_reads_only_and_no_sensitive_values_saved(self):
         client = Fixture()
         report = Probe(client, pause=lambda _: None).run()
