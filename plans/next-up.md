@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Terrain JSON consumption bounded** Decision0180 fixes growing input files bypassing the standalone viewer's metadata-only budget. Capture, pin and plan inputs consume at most 2 MiB plus one sentinel byte and refuse overflow before decoding/output/RPC creation. Real growth, instrumented consumption and exact-budget acceptance are tested; an unbounded-read mutation with the post-read check intact fails. Native modules and frozen connection qualification remain unchanged.
+
 - **Current signed server qualified; native interruption and client acceptance remain open** Decision0179 verifies one isolated source 0.51.4/companion 0.22.0 cohort using unchanged signed ABI 12.1 providers and public namespaces. Thirty-seven controller models and 46 native fixed checks pass; one acknowledged native shutdown independently exits 0. Overall validation stays incomplete for broader semantics. Preserve the unchanged primary/client and frozen Join review; no provider adoption, live interruption or client connection proof follows.
 
 - **Native terrain view verified; positive annotations remain open** Decision0178 records one identity-bound read-only capture through signed server0.48.0, matching all 4,096 raw cells and preserving 64 caller references. BrowserOS orbit/section and last-pin selection pass. Roster/prop set are empty; qualify positive annotations separately without treating this reconstruction as engine surfaces, contact or connection evidence. Frozen native Join trial remains unchanged.

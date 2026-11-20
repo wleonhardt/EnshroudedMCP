@@ -193,7 +193,10 @@ def main(argv=None):
     require(not args.output.exists(), "output already exists")
     def load(path):
         require(path.is_file() and path.stat().st_size <= MAX_BYTES, "input missing or too large")
-        return json.loads(path.read_text(encoding="utf-8"))
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_BYTES + 1)
+        require(len(raw) <= MAX_BYTES, "input missing or too large")
+        return json.loads(raw.decode("utf-8"))
     pins = load(args.pins) if args.pins else []
     plan = load(args.plan) if args.plan else None
     if args.plan:

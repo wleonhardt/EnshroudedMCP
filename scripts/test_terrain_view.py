@@ -10,7 +10,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from terrain_view import capture, scene, html, main, with_plan
+from terrain_view import capture, scene, html, main, with_plan, MAX_BYTES
 
 
 def survey():
@@ -213,6 +213,75 @@ class TerrainViewTests(unittest.TestCase):
             page = before.decode()
             payload = page.split('<script id="terrain-data" type="application/json">')[1].split("</script>")[0]
             self.assertEqual(json.loads(payload)["pins"][0]["label"], "__TERRAIN_SCRIPT__")
+
+    def test_cli_refuses_each_json_input_that_grows_after_its_size_check(self):
+        real_stat, real_open, real_is_file = Path.stat, Path.open, Path.is_file
+        for flag, value in [("input", {"survey": survey()}), ("pins", []), ("plan", preview([[20, 40, 60]]))]:
+            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as folder:
+                base = Path(folder)
+                capture_file, source, output = base/"capture.json", base/f"{flag}.json", base/"view.html"
+                capture_file.write_text(json.dumps({"survey": survey()}))
+                source.write_text(json.dumps(value))
+                checked = 0
+                def stale_stat(path, *args, **kwargs):
+                    nonlocal checked
+                    info = real_stat(path, *args, **kwargs)
+                    if path == source:
+                        checked += 1
+                        if checked == 1:
+                            with real_open(source, "ab") as stream: stream.write(b" " * (MAX_BYTES + 1))
+                    return info
+                args = ["--output", str(output)]
+                if flag == "input": args += ["--input", str(source)]
+                elif flag == "pins": args += ["--port", "8753", "--box", "10", "20", "30", "1", "1.5", "2", "--pins", str(source)]
+                else: args += ["--input", str(capture_file), "--plan", str(source)]
+                with patch.object(Path, "is_file", lambda path: path == source or real_is_file(path)), \
+                     patch.object(Path, "stat", stale_stat), patch("terrain_view.Client") as rpc, redirect_stdout(io.StringIO()):
+                    rpc.side_effect = AssertionError("oversized input reached RPC construction")
+                    with self.assertRaisesRegex(ValueError, "input missing or too large"): main(args)
+                    rpc.assert_not_called()
+                self.assertEqual(checked, 1)
+                self.assertFalse(output.exists())
+
+    def test_cli_consumes_at_most_one_oversize_sentinel_byte_from_a_growing_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source, output = Path(folder)/"capture.json", Path(folder)/"view.html"
+            source.write_bytes(json.dumps({"survey": survey()}).encode() + b" " * (MAX_BYTES * 4))
+            real_stat, real_open, readers = Path.stat, Path.open, []
+            class CountedReader:
+                def __init__(self, stream): self.stream, self.consumed = stream, 0
+                def __enter__(self): return self
+                def __exit__(self, *args): self.stream.close()
+                def read(self, *args):
+                    data = self.stream.read(*args)
+                    self.consumed += len(data)
+                    return data
+            def stale_stat(path, *args, **kwargs):
+                info = real_stat(path, *args, **kwargs)
+                return type(info)((*info[:6], 1, *info[7:])) if path == source else info
+            def counted_open(path, *args, **kwargs):
+                stream = real_open(path, *args, **kwargs)
+                if path == source:
+                    stream = CountedReader(stream)
+                    readers.append(stream)
+                return stream
+            with patch.object(Path, "stat", stale_stat), patch.object(Path, "open", counted_open), redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(ValueError, "input missing or too large"):
+                    main(["--input", str(source), "--output", str(output)])
+            self.assertGreater(sum(reader.consumed for reader in readers), 0)
+            self.assertLessEqual(sum(reader.consumed for reader in readers), MAX_BYTES + 1)
+            self.assertFalse(output.exists())
+
+    def test_cli_accepts_a_complete_json_input_at_the_exact_byte_budget(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source, output = Path(folder)/"capture.json", Path(folder)/"view.html"
+            raw = json.dumps({"survey": survey()}).encode()
+            source.write_bytes(raw + b" " * (MAX_BYTES - len(raw)))
+            with redirect_stdout(io.StringIO()), patch("terrain_view.Client") as rpc:
+                main(["--input", str(source), "--output", str(output)])
+                rpc.assert_not_called()
+            payload = output.read_text().split('<script id="terrain-data" type="application/json">')[1].split("</script>")[0]
+            self.assertEqual(len(json.loads(payload)["cells"]), 24)
 
     @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer geometry checks")
     def test_inspection_coordinates_preserve_precision_and_refuse_invalid_world_points(self):

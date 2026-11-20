@@ -18,6 +18,8 @@ Save PNG exports the drawn canvas, including bounds, axis directions, material l
 
 Live captures share a 64-pin budget. Caller pins are preserved first; available player positions and then up to 32 prop origins fill the remaining slots. Generated labels receive a numeric suffix if a caller already uses that label. Provenance reports available/shown player positions, missing player positions, and total/shown/truncated prop origins. A full caller budget can omit all automatic annotations without failing the capture. Omitted pins are not evidence that players or props are absent.
 
+Each `--input`, `--pins` and `--plan` JSON file has a 2 MiB byte budget. The reader consumes at most that budget plus one overflow byte, checks the actual byte count, then decodes UTF-8 and parses JSON. Files that grow past the budget after metadata inspection refuse before output or live RPC construction. An input exactly at the budget remains valid when its JSON and contents pass validation.
+
 ## Vertical column profile
 
 Decision0178 verifies one current native capture through the signed server0.48.0: all 4,096 cells match the retained raw survey, all 64 caller reference pins survive, and BrowserOS renders orbit/section views and selects the last pin. Its roster and prop set are empty, so positive automatic annotations remain unverified live. This diagnostic view does not establish engine surfaces, collision, ground contact or an atomic cross-tool snapshot.

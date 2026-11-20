@@ -2,6 +2,8 @@
 
 ## Unreleased standalone tools
 
+- Bound terrain-viewer JSON reads to 2 MiB plus one overflow byte before UTF-8 decoding. Capture, pin and plan files that grow after the size check refuse before output or RPC creation; exact-budget files still work. A post-read-only mutation fails the consumption regression. No MCP or runtime behavior changes.
+
 - Qualify one live read-only terrain capture through the signed installed server: all 4,096 cells and 64 caller pins survive local projection, with BrowserOS orbit/section and pin-selection checks. The roster and prop set are empty; positive annotation, engine-surface and connection acceptance remain separate.
 
 - Fix live terrain-view capture refusing valid caller pins when player/prop annotations exceed the shared 64-pin limit or reuse a caller label. Preserve caller pins, fill remaining capacity with players then props, and report omitted observations in provenance. No MCP tool, DLL, SDK pin or installed runtime changes.
