@@ -374,6 +374,8 @@ The terrain viewer measures any selected pin, captured cell minimum or proposed 
 
 Optional process handoff observation accepts a separately named expected child image while retaining the original default and all nonzero-exit/identity gates (decision 0118). Ten owned-process/refusal methods pass. Valve documents a candidate Steam launch route, but this helper starts nothing and does not explain exit53 or authorize a game retry.
 
+The terrain inspector accepts exact XYZ coordinates through **Inspect coordinate**. A white crosshair marks an in-capture selection; its column, section jumps, measurements and exports preserve the entered precision. Outside points remain unobserved, with no crosshair or containing-section jump. This changes only the local diagnostic selection. See [coordinate inspection](plans/decisions/0132-inspect-exact-terrain-coordinates.md).
+
 The terrain inspector offers **Save column JSON** after selecting a pin, cell or proposed target. Export includes complete raw half-metre bands, nullable material IDs/fill, selected-Y markers, capture bounds and provenance. Outside columns remain unobserved; raw observations do not prove ground contact or clearance. No extra MCP read occurs. See [selected-column export](plans/decisions/0124-export-selected-raw-column.md).
 
 The inactive SDK lifecycle consumer now preserves typed snapshot-read errors beside command state/phase/age. Missing observation remains a null peer, with workflow acceptance false and no retry. Nine optional SDK-fake cases qualify this diagnostic only; no native lifecycle tool or provider adoption is added. See [diagnostic evidence](plans/decisions/0125-preserve-unavailable-lifecycle-snapshot.md).

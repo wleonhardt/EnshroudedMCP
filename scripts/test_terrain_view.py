@@ -180,6 +180,25 @@ class TerrainViewTests(unittest.TestCase):
             self.assertEqual(json.loads(payload)["pins"][0]["label"], "__TERRAIN_SCRIPT__")
 
     @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer geometry checks")
+    def test_inspection_coordinates_preserve_precision_and_refuse_invalid_world_points(self):
+        script = r'''
+const assert=require('node:assert/strict');require(process.argv[1]);
+const point=globalThis.TerrainGeometry.inspectionPoint;
+for(const value of [[0,0,0],[10240,1024,10240],[10.125,20.50000001,30.875]]){
+ const input=Object.freeze(value.slice()),result=point(input);
+ assert.deepEqual(result,value);assert.notEqual(result,input);
+}
+for(const value of [null,{},[0,0],[0,0,0,0],['10',20,30],[true,20,30],
+ [NaN,20,30],[10,Infinity,30],[-.000001,20,30],[10,-.000001,30],
+ [10,20,-.000001],[10240.000001,20,30],[10,1024.000001,30],[10,20,10240.000001]]){
+ assert.equal(point(value),null);
+}
+'''
+        result=subprocess.run([shutil.which("node"), "-e", script,
+                               str(Path(__file__).with_name("terrain_view.js"))], capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+
+    @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer geometry checks")
     def test_selection_sections_use_half_open_bounds_without_clamping_or_mutation(self):
         script = r'''
 const assert = require('node:assert/strict');
@@ -291,11 +310,13 @@ class Element extends EventTarget {
   click(){if(this.tagName==='A')downloads.push({name:this.download,href:this.href});}
   append(...children){this.children.push(...children);}
   replaceChildren(...children){this.children=[...children];}
+  get valueAsNumber(){return this.value===''?NaN:Number(this.value);}
 }
 const ids=['terrain-data','terrain','view','yaw','pitch','zoom','slice','selection','measure','pins',
            'provenance','slice-control','yaw-control','pitch-control','slice-value','export','export-column',
            'show-plan','plan-target','plan-controls','plan-summary',
-           'column-profile','column-title','column-summary','column-rows','section-xy','section-zy'];
+           'column-profile','column-title','column-summary','column-rows','section-xy','section-zy',
+           'inspect-point','inspect-x','inspect-y','inspect-z','point-error'];
 const nodes=Object.fromEntries(ids.map(id=>[id,new Element()]));
 nodes['terrain-data'].textContent=process.argv[2];
 nodes.view.tagName='SELECT';nodes.view.value='orbit';nodes.yaw.value='320';
@@ -326,6 +347,42 @@ function verifyExport(position){
  assert.deepEqual(result.bands.map(b=>[...b.min_cells,b.kind,b.id,b.fill]),raw);
  assert.equal(result.rendered_surface_verified,false);assert.equal(result.atomic_snapshot,false);assert.equal(result.native_session,'unavailable');
 }
+function verifyPointInputs(){
+ const original=nodes['terrain-data'].textContent;
+ function inspect(values){
+  values.forEach((v,i)=>{nodes[`inspect-${'xyz'[i]}`].value=String(v);});
+  const event=new Event('submit',{cancelable:true});nodes['inspect-point'].dispatchEvent(event);
+  assert.equal(event.defaultPrevented,true);
+ }
+ nodes.measure.value='';nodes.measure.dispatchEvent(new Event('change'));
+ inspect([10.125,20.50000001,30.875]);
+ assert.ok(nodes.selection.textContent.includes('XYZ metres [10.125, 20.50000001, 30.875]'));
+ assert.equal(nodes.terrain.dataset.inspectionInCapture,'true');
+ verifyExport([10.125,20.50000001,30.875]);
+ nodes['section-xy'].dispatchEvent(new Event('click'));
+ assert.equal(nodes.slice.value,'61');
+ nodes['section-zy'].dispatchEvent(new Event('click'));
+ assert.equal(nodes.slice.value,'20');
+ const validSelection=nodes.selection.textContent;
+ for(const values of [['',20,30],[-1,20,30],[10,1025,30],[Infinity,20,30]]){
+  inspect(values);assert.equal(nodes.selection.textContent,validSelection);
+  assert.ok(nodes['point-error'].textContent.startsWith('Enter finite XYZ metres'));
+ }
+ inspect([11,20.5,30.25]);
+ assert.equal(nodes['point-error'].textContent,'');
+ assert.ok(nodes.selection.textContent.includes('OUTSIDE capture; point unobserved'));
+ assert.equal(nodes.terrain.dataset.inspectionInCapture,'false');
+ assert.equal(nodes['section-xy'].disabled,true);assert.equal(nodes['section-zy'].disabled,true);
+ verifyExport([11,20.5,30.25]);
+ assert.equal(nodes['column-rows'].children.length,0);
+ inspect([10.125,21.5,30.875]);
+ assert.equal(nodes.terrain.dataset.inspectionInCapture,'false');
+ assert.equal(nodes['column-rows'].children.length,3);
+ assert.ok(nodes['column-rows'].children.every(r=>r.dataset.containsPoint==='false'));
+ verifyExport([10.125,21.5,30.875]);
+ assert.equal(nodes['terrain-data'].textContent,original);
+ assert.ok(painted.some(text=>text.includes('Selected XYZ [10.125, 20.50000001, 30.875] m; white crosshair')));
+}
 
 assert.equal(nodes.terrain.dataset.view,'orbit');
 assert.equal(nodes['slice-control'].hidden,true);
@@ -355,7 +412,7 @@ if(JSON.parse(process.argv[2]).pins.every(pin=>!pin.inside_capture)){
   assert.equal(nodes.terrain.dataset.view,'xy');assert.equal(nodes.slice.value,String(cell[2]));
   nodes['section-zy'].dispatchEvent(new Event('click'));
   assert.equal(nodes.terrain.dataset.view,'zy');assert.equal(nodes.slice.value,String(cell[0]));
-  process.exit(0);
+  verifyPointInputs();process.exit(0);
 }
 nodes.pins.children[0].dispatchEvent(new Event('click'));
 verifyExport([10.25,20.5,30.25]);
@@ -451,6 +508,7 @@ if(hasPlan){
   assert.equal(nodes.terrain.dataset.view,'xy');
   assert.equal(nodes.slice.value,'60');
 }
+verifyPointInputs();
 '''
         base=scene(survey(), [
             {"label": "Band boundary", "position": [10.25, 20.5, 30.25]},

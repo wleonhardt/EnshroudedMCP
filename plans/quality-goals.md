@@ -1,5 +1,8 @@
 # Quality goals
 
+2026-11-20 increment: decision0132 adds exact XYZ selection and a white crosshair to the local technical terrain viewer. Eighteen terrain methods and three actual browser form/download cases preserve coordinate precision, raw bands, half-open coverage and uncertainty. A fresh4096-cell capture independently matches32 exported bands; exact section jumps and saved PNG pass. This remains diagnostic occupancy, with no ground-contact, traversal or gameplay authority.
+
+
 Goals 2 and 5 now include decision 0097's independent read-only respawn-target consumer at SDK daffae39 / ABI 12.13. Seven synthetic cases preserve missing observations, typed errors and raw finite transforms. Next qualify a matching provider and independently observed current-player target before proposing a game-thread product read. No setter, movement, revival, native acceptance or installed change is implied. The staged SDK 12.11 Menu review remains separate.
 
 Date: 2026-11-16. Status: open. Close independently verified workflows rather than count tools or commits. Start with goals 1, 2 and 4. The capability matrix records current versions, contracts, evidence limits and missing checks.

@@ -40,6 +40,11 @@
     if (!["xy","zy"].includes(view) || position.some((v,i) => !Number.isFinite(v) || v < min[i] || v >= max[i])) return null;
     return Math.floor(position[view === "xy" ? 2 : 0]*2);
   }
+  function inspectionPoint(value) {
+    return Array.isArray(value) && value.length === 3 && value.every((v,i) =>
+      typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= (i === 1 ? 1024 : 10240))
+      ? value.slice() : null;
+  }
   const normals = [[-1,0,0],[1,0,0],[0,-1,0],[0,1,0],[0,0,-1],[0,0,1]];
   const corners = [
     [[0,0,0],[0,0,1],[0,1,1],[0,1,0]], [[1,0,0],[1,1,0],[1,1,1],[1,0,1]],
@@ -61,7 +66,7 @@
     }
     return faces;
   }
-  globalThis.TerrainGeometry = {project, section, topCells, column, columnProfile, sectionIndex, exposedFaces};
+  globalThis.TerrainGeometry = {project, section, topCells, column, columnProfile, sectionIndex, inspectionPoint, exposedFaces};
   if (typeof document === "undefined") return;
 
   const data = JSON.parse(document.getElementById("terrain-data").textContent);
@@ -69,6 +74,9 @@
   const controls = Object.fromEntries(["view","yaw","pitch","zoom","slice"].map(k => [k,document.getElementById(k)]));
   const info = document.getElementById("selection");
   const measure = document.getElementById("measure");
+  const pointInputs = ["x","y","z"].map(axis => document.getElementById(`inspect-${axis}`));
+  const pointError = document.getElementById("point-error");
+  pointInputs.forEach((input,i) => {input.value = String(data.min_m[i]);});
   const proposal = data.plan || null, showPlan=document.getElementById("show-plan"), planTarget=document.getElementById("plan-target");
   const colors = {air: "#253347", terrain: "#b5986b", building: "#63b7d0", unknown: "#be97e8"};
   let pick = [], selected = null, selectedTarget = null;
@@ -92,6 +100,8 @@
   }
   function describeColumn(position, label) {
     selectedPosition = position.slice();
+    pointInputs.forEach((input,i) => {input.value = String(position[i]);});
+    pointError.textContent = "";
     exportColumn.disabled = false;
     for (const [view, button] of Object.entries(sectionButtons)) {
       button.disabled = sectionIndex(position,view,data.min_m,data.max_m) === null;
@@ -123,6 +133,19 @@
       info.textContent+=` · from ${origin.label}: ΔXYZ [${delta.map(v=>v.toFixed(3)).join(", ")}] m; distance ${Math.hypot(...delta).toFixed(3)} m`;
     }
   }
+  document.getElementById("inspect-point").addEventListener("submit",event => {
+    event.preventDefault();
+    const position = inspectionPoint(pointInputs.map(input => input.valueAsNumber));
+    if (position === null) {
+      pointError.textContent = "Enter finite XYZ metres: X/Z from 0 to 10240; Y from 0 to 1024.";
+      return;
+    }
+    selected = null;selectedTarget = null;
+    describeColumn(position,"inspection coordinate");
+    const inside = position.every((v,i) => v >= data.min_m[i] && v < data.max_m[i]);
+    describeSelection(`Inspection point · XYZ metres [${position.join(", ")}] · containing cell [${position.map(v => Math.floor(v*2)).join(", ")}] · ${inside ? "inside capture" : "OUTSIDE capture; point unobserved"}`);
+    draw();
+  });
   function describePin(index) {
     const pin = data.pins[index];
     selected = index;
@@ -177,7 +200,7 @@
     ctx.setTransform(ratio,0,0,ratio,0,0);
     ctx.fillStyle="#182332";ctx.fillRect(0,0,width,height);
     const view=controls.view.value, yaw=Number(controls.yaw.value)*Math.PI/180, pitch=Number(controls.pitch.value)*Math.PI/180;
-    const pinRows=Math.min(data.pins.length,5),sectionMode=["xy","zy"].includes(view),plotTop=(proposal?110:90)+(sectionMode?20:0),plotBottom=height-90-pinRows*16;
+    const pinRows=Math.min(data.pins.length,5),sectionMode=["xy","zy"].includes(view),plotTop=(proposal?110:90)+(sectionMode?20:0)+(selectedPosition?20:0),plotBottom=height-90-pinRows*16;
     const raw=p=>project(local(p),view,yaw,pitch);
     const extent=bounds.map(raw), xs=extent.map(p=>p.x), ys=extent.map(p=>p.y);
     const fit=Math.min((width-120)/Math.max(.5,Math.max(...xs)-Math.min(...xs)),(plotBottom-plotTop)/Math.max(.5,Math.max(...ys)-Math.min(...ys)))*Number(controls.zoom.value)/100;
@@ -237,6 +260,14 @@
       if(outsideSection){ctx.fillStyle="#b6c5d7";ctx.fillText("off slice",p.x+16,p.y+4);}
       pick.push({pin:index,x:p.x,y:p.y});
     });
+    const inspectionInCapture = selectedPosition !== null && selectedPosition.every((v,i) => v >= data.min_m[i] && v < data.max_m[i]);
+    if (inspectionInCapture) {
+      const p=screen(selectedPosition),offSlice=sectionMode&&Math.floor(selectedPosition[sliceAxis]*2)!==slice;
+      ctx.strokeStyle="#ffffff";ctx.fillStyle="#ffffff";ctx.lineWidth=2;ctx.globalAlpha=offSlice?.4:1;
+      ctx.beginPath();ctx.moveTo(p.x-17,p.y);ctx.lineTo(p.x+17,p.y);ctx.moveTo(p.x,p.y-17);ctx.lineTo(p.x,p.y+17);ctx.stroke();
+      ctx.fillText(offSlice?"selected point · off slice":"selected point",p.x+20,p.y-10);ctx.globalAlpha=1;
+    }
+    canvas.dataset.inspectionInCapture=String(inspectionInCapture);
     ctx.fillStyle="#e3eaf3";ctx.font="bold 16px system-ui";ctx.fillText("Native voxel occupancy · "+(view==="orbit"?"3D orbit":view==="top"?"top X/Z":`section ${view.toUpperCase()}`),16,27,width-32);
     ctx.fillStyle="#b6c5d7";ctx.font="12px system-ui";
     function fitText(text,y){ctx.fillText(text,16,y,width-32);}
@@ -244,6 +275,7 @@
     fitText(`Capture minimum XYZ [${data.min_m.join(", ")}] m; maximum exclusive [${data.max_m.join(", ")}] m`,66);
     if(proposal)fitText(`PROPOSED ${showPlan.checked?"x-ray":"hidden"}: ${proposal.counts.sampled_air} Air, ${proposal.counts.sampled_terrain} terrain, ${proposal.counts.sampled_building} building, ${proposal.counts.sampled_unknown} unknown, ${proposal.counts.unobserved} unobserved/not drawn; clearance NOT verified`,84);
     if(sectionMode)fitText(`Section ${"XYZ"[sliceAxis]} [${slice/2}, ${(slice+1)/2}) m; off-section pins projected faintly`,proposal?102:84);
+    if(selectedPosition)fitText(`Selected XYZ [${selectedPosition.join(", ")}] m; ${inspectionInCapture?"white crosshair (projected; not contact proof)":"OUTSIDE capture; point unobserved, crosshair not drawn"}`,(proposal?102:84)+(sectionMode?20:0));
     data.pins.slice(0,5).forEach((pin,index)=>fitText(`${index+1}. ${pin.label} · XYZ ≈ [${pin.position.map(v=>v.toFixed(3)).join(", ")}] m${pin.inside_capture?"":" · outside capture"}`,height-55-(pinRows-1-index)*16));
     fitText("Terrain: tan   Building: cyan   Unknown: violet   Pins: gold"+(proposal?"   Proposed: dashed (white selection)":""),height-31);
     fitText("Diagnostic reconstruction; rendered terrain/contact NOT verified",height-12);

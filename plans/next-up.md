@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **browser verified; exact terrain coordinate inspection** Decision0132 adds a local XYZ form and white selected-point crosshair with precise export caption. Eighteen terrain methods pass; three real form submissions/downloads match32 bands from a fresh4096-cell native capture. Exact section jumps and actual PNG export pass. Invalid input preserves selection; outside points remain unobserved. Private/public414 Rust/106 Python checks, strict lint/format, releases and live server metadata contracts pass. Exact eight-file diff and316-file snapshot pass identifier/secret audits. No game input or capture, provider replacement or game-process action.
+
 - **source verification; explicit cached diagnostic age** The client probe now requires the age_ms field while preserving explicit null as unknown. A malformed missing-field reproduction fails before the fix and passes afterward. One behavior regression is added; matched native getter acceptance remains pending.
 
 - **source verified; cached client sampler diagnostic** Decision0127 adds source companion0.22.0 client_input_status on unchanged SDK12.1. Empty schema, game-free bounded projection, raw weak flags/nullable age, typed errors and no command/UI authority. New catalog37/14; installed0.21.1 and archived review0123 remain separate. Five Rust/two Python cases added;414 Rust/104 Python and required source checks pass. Matched cold/native getter acceptance remains required. No deployment, sampling request, input or lifecycle retry.
