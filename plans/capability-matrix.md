@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0187 qualifies a fresh signed-provider source0.51.5/companion0.22.0 server: native ABI12.1/table1680 and four loaded modules, all46 fixed probes and exact40 server contracts pass. Weather weights [1,0,0,0], sum1 and SDK clear plus two refusals are observed. One native shutdown independently exits0; originals remain unchanged. Broad validation remains incomplete; native interruption and rendered/physical/client workflow acceptance remain open.
+
 Source0.51.5 adds weather_read active admission and unchanged active execution scope. Decision0186 retains three failing-before/four passing-after SDK dispatcher cases, with direct positive weather/world data independently retained across events. Success output/SDK/companion/tools stay unchanged; native interruption and rendered weather remain unverified. The exact source0.51.4 SDK migration remains a separate earlier checkpoint.
 
 Decision0185 qualifies native X/Y and Z/Y diagnostic sections on signed server0.48.0:512 displayed cells match raw coordinates/material IDs/fill, pixel mappings and four full reference columns. Lower/upper half-open pin boundaries pass. Current pure policy bytes match, while newer native capture lifecycle and physical/rendered surfaces remain unverified. Three read-only requests; no replay, client launch or writes.
@@ -161,7 +163,7 @@ Each row links its full schema and limits through the JSON by exact tool name. T
 
 | Scope / tool | Execution ownership | Evidence / next check |
 |---|---|---|
-| server / `weather_read` | server game-thread scheduler (including delegated controllers) | Native point samples/refusals; rendered weather and shelter interpretation open. Next: Matched source0.51.5 native server and controlled interruption; correlate sampled weather with independent rendered evidence without inferring shelter/actor safety. |
+| server / `weather_read` | server game-thread scheduler (including delegated controllers) | Matched source0.51.5 signed-provider native point weights, two refusals and exact tool/header/module contracts pass; rendered weather and shelter interpretation remain open. Next: Controlled native interruption and independent rendered weather correspondence without inferring shelter/actor safety. |
 | server / `entity_buffs_read` | server game-thread scheduler (including delegated controllers) | Native read-error/refusals and later positive holder observation; countdown, effect and UI agreement open. Next: Observe one bounded countdown with independent value/time evidence. |
 | server / `factory_station_read` | server game-thread scheduler (including delegated controllers) | Typed handle and unobserved/refusal checks; present-state semantics open. Next: Correlate a present station and its independently observed production state. |
 | server / `construction_budget` | listener; copied/retained state or filesystem budget; no World access | Native owner lifecycle 0→1→2→1→0 and retained bytes 0→196608→393216→196608→0 qualified; acceptance preserves credit. Next: Qualify actual storage sync/power-loss faults and higher-level/native interruption separately; source budget observations do not establish native undo-storage capacity. |

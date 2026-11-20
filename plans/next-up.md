@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Native0.51.5 weather and contracts passed** Decision0187 verifies37 normal/optimized controller models, exact compiler/signed assets and32 independent staged files before one fresh server launch. All46 fixed probes and all40 server contracts pass, including observed weather and two weather refusals. One native stop independently exits0 without force; originals/durable state, closed client, absent flag and free ports pass. Broad verdict remains incomplete. Next independently qualify controlled native interruption and rendered weather; remaining entity/scene audit candidates still need retained-positive SDK discriminators.
+
 - **Weather lifecycle source fix; native qualification next** Decision0186 reproduces three retained-positive weather reads across queued reload/shutdown and inactive admission, then source0.51.5 reuses existing active/epoch policy before SDK sample/world-key reads. Unchanged weather and existing unavailable/non-finite semantics remain intact. Next fresh signed-provider native cohort, then separate controlled interruption/rendered weather acceptance. Four dynamic scene/entity audit candidates remain unproven.
 
 - **Native technical sections verified** Decision0185 compares both vertical terrain_image views against one retained raw survey:512 cells, pixel rectangles/grid/material colors, four complete reference columns and half-open slice boundaries pass. One checker PNG-filter assumption fails, is corrected offline and passes five mutations without repeating reads. Original signed server0.48.0/runtime/durable state stays exact; no client launch or write. Policy bytes match current source, but latest capture lifecycle, engine ground/contact and positive entity correspondence remain unverified.

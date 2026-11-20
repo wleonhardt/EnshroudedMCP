@@ -25,7 +25,8 @@
       "server_lifecycle_coverage_audit": "plans/decisions/0157-server-lifecycle-coverage-audit.md",
       "isolated_roster_status_native_cohort": "plans/decisions/0159-native-roster-status-cohort.md",
       "isolated_voxel_image_native_cohort": "plans/decisions/0161-native-voxel-image-cohort.md",
-      "isolated_current_signed_native_cohort": "plans/decisions/0179-current-signed-server-qualification.md"
+      "isolated_current_signed_native_cohort": "plans/decisions/0179-current-signed-server-qualification.md",
+      "isolated_weather_native_cohort": "plans/decisions/0187-native-weather-signed-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -294,17 +295,18 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments and bounded point; active MCP world session captured before queueing, active unchanged epoch rechecked on game thread before weather/world-key reads; no write authorization",
-      "evidence_summary": "Native point samples/refusals; rendered weather and shelter interpretation open.",
+      "evidence_summary": "Matched source0.51.5 signed-provider native point weights, two refusals and exact tool/header/module contracts pass; rendered weather and shelter interpretation remain open.",
       "evidence_references": [
         "plans/decisions/0046-bounded-server-weather-observation.md",
-        "plans/decisions/0186-weather-lifecycle-guard.md"
+        "plans/decisions/0186-weather-lifecycle-guard.md",
+        "plans/decisions/0187-native-weather-signed-cohort.md"
       ],
       "source_checks": "Four dispatcher SDK-fake cases: unchanged positive weights/key, queued reload, queued shutdown and shutdown before admission. Three regressions fail before the fix; direct SDK weather/world remain positive across events. Existing unavailable/non-finite/dominance tests retained.",
-      "native_acceptance": "partial; see evidence_summary",
+      "native_acceptance": "Decision0187: one active observed point with weights [1,0,0,0], sum1 and SDK clear; bounds/write-argument refusals; exact signed-provider/source contracts. Controlled native reload/shutdown interruption remains unverified.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Active MCP admission and unchanged active execution epoch; not an atomic native world identity, rendered weather or actor-safety proof. Unavailable samples retain null weights.",
-      "next_missing_check": "Matched source0.51.5 native server and controlled interruption; correlate sampled weather with independent rendered evidence without inferring shelter/actor safety.",
+      "next_missing_check": "Controlled native interruption and independent rendered weather correspondence without inferring shelter/actor safety.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [
