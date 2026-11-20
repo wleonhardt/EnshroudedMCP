@@ -401,11 +401,18 @@ impl Tools for GameTools {
             }
             "weather_read" => {
                 let position = policy::weather_read::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     let mut result = crate::weather_read::read(weather, position);
                     result["world_key"] = json!(world.key());
-                    result
-                })
+                    Ok(result)
+                })?
             }
             "factory_station_read" => {
                 let entity = policy::factory_station::check(a)?;

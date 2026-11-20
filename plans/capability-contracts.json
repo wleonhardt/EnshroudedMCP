@@ -1,14 +1,14 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.4 reply-loss/deadline diagnostics qualified; installed/native historical cohorts and remaining interruption/physical/client checks stay separate",
+  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.5 weather active/epoch guards qualified; installed/native historical cohorts and remaining interruption/physical/client checks stay separate",
   "profiles": {
     "product": {
-      "server_version": "0.51.4",
+      "server_version": "0.51.5",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
-      "installed": "Verified signed checkpoint: server0.48.0 / companion0.22.0 on unchanged official SDK6a151a95/ABI12.1; one cold update/native shutdown exit0, server restart and fresh Steam Menu/fifteen read-refusal/contract baseline pass; one normal close exits0; client closed. Feature source server0.51.4 remains separate.",
+      "installed": "Verified signed checkpoint: server0.48.0 / companion0.22.0 on unchanged official SDK6a151a95/ABI12.1; one cold update/native shutdown exit0, server restart and fresh Steam Menu/fifteen read-refusal/contract baseline pass; one normal close exits0; client closed. Feature source server0.51.5 remains separate.",
       "game_build": "not observed by capability getter; do not infer from framework version",
       "installed_server_version": "0.48.0",
       "installed_client_version": "0.22.0",
@@ -293,17 +293,18 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "admission": "Strict named arguments and bounded point; active MCP world session captured before queueing, active unchanged epoch rechecked on game thread before weather/world-key reads; no write authorization",
       "evidence_summary": "Native point samples/refusals; rendered weather and shelter interpretation open.",
       "evidence_references": [
-        "plans/decisions/0046-bounded-server-weather-observation.md"
+        "plans/decisions/0046-bounded-server-weather-observation.md",
+        "plans/decisions/0186-weather-lifecycle-guard.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "Four dispatcher SDK-fake cases: unchanged positive weights/key, queued reload, queued shutdown and shutdown before admission. Three regressions fail before the fix; direct SDK weather/world remain positive across events. Existing unavailable/non-finite/dominance tests retained.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Correlate one point with independent weather evidence.",
+      "freshness_completeness": "Active MCP admission and unchanged active execution epoch; not an atomic native world identity, rendered weather or actor-safety proof. Unavailable samples retain null weights.",
+      "next_missing_check": "Matched source0.51.5 native server and controlled interruption; correlate sampled weather with independent rendered evidence without inferring shelter/actor safety.",
       "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [

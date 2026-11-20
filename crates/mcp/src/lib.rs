@@ -33,6 +33,8 @@ mod terrain_image;
 mod tools;
 #[cfg(test)]
 mod voxel_lifecycle;
+#[cfg(test)]
+mod weather_lifecycle;
 mod weather_read;
 mod world_clock;
 

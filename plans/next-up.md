@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Weather lifecycle source fix; native qualification next** Decision0186 reproduces three retained-positive weather reads across queued reload/shutdown and inactive admission, then source0.51.5 reuses existing active/epoch policy before SDK sample/world-key reads. Unchanged weather and existing unavailable/non-finite semantics remain intact. Next fresh signed-provider native cohort, then separate controlled interruption/rendered weather acceptance. Four dynamic scene/entity audit candidates remain unproven.
+
 - **Native technical sections verified** Decision0185 compares both vertical terrain_image views against one retained raw survey:512 cells, pixel rectangles/grid/material colors, four complete reference columns and half-open slice boundaries pass. One checker PNG-filter assumption fails, is corrected offline and passes five mutations without repeating reads. Original signed server0.48.0/runtime/durable state stays exact; no client launch or write. Policy bytes match current source, but latest capture lifecycle, engine ground/contact and positive entity correspondence remain unverified.
 
 - **Native Join reached Menu timeout; cause unknown** Decision0184 reconciles one SDK12.16/source0.51.3 submission: Pending/Queued, Applied/Menu, then Failed(TimedOut)/Menu at about20 seconds. Outer workflow remains unknown, no connected session is qualified and no Leave/Cancel is submitted. Normal client/server exit0, exact signed restoration and later original preservation/free ports pass. Character auto-selection is a human observation, not a timeout cause. Approval consumed; next use a concrete supported-API discriminator rather than replay. Successful connection, saved profiles and #1144 resolution remain unverified.

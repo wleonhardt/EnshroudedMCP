@@ -8,6 +8,10 @@
 
 - Fix live terrain-view capture refusing valid caller pins when player/prop annotations exceed the shared 64-pin limit or reuse a caller label. Preserve caller pins, fill remaining capacity with players then props, and report omitted observations in provenance. No MCP tool, DLL, SDK pin or installed runtime changes.
 
+## 0.51.5
+
+- Refuse weather_read when the MCP world is inactive at admission or changes before queued execution. Three retained-positive SDK regressions fail before the fix; unchanged active weather preserves weights, dominance, world key and diagnostic semantics. Native interruption/rendered weather remain unverified.
+
 ## 0.51.4
 
 - Add an inactive current-source SDK 12.16 migration with exact clean replay: 491 Rust/131 Python and optional fourteen debug/optimized cases pass in both copies. Correct 17 stale test-helper diagnostics while preserving all policy and current receiver/write routes. Default SDK and installed files remain unchanged; no native adoption or connection acceptance.
