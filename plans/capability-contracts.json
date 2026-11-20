@@ -12,7 +12,8 @@
       "game_build": "not observed by capability getter; do not infer from framework version",
       "installed_server_version": "0.48.0",
       "installed_client_version": "0.21.1",
-      "signed_steam_menu_baseline": "plans/decisions/0120-signed-steam-menu-baseline.md"
+      "signed_steam_menu_baseline": "plans/decisions/0120-signed-steam-menu-baseline.md",
+      "resumed_signed_server_baseline": "plans/decisions/0122-resumed-signed-server-baseline.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -130,7 +131,7 @@
       "primary_installation_changed": false,
       "status": "candidate and clean replay each pass 404 Rust/97 Python, strict checks/releases/contracts; exact 274-file reconstruction; not installed",
       "timing_limit": "original unmodified cold cohort has two positive-fixture deadline refusals; passing warm/instrumented/candidate cohorts do not resolve their cause",
-      "native_review_status": "Fresh Steam-route review0121 staged; thirty controller methods include nineteen launch/refusal methods in both phases and ten actual owned-process helper methods. Four candidates/five originals and stale-copy refusal verified. Explicit decision0059 exception required; no approval, install or game launch. Review0115 remains consumed; no native candidate phase accepted.",
+      "native_review_status": "Review0121 retired before execution on2026-11-19: exact old server identity unavailable and preflight refuses. Review/source/candidates/rollback remain immutable; no approval/install/client launch. Decision0122 establishes fresh signed-server baseline; prepare a new current-runtime closure and explicit exception before any provider trial.",
       "native_review": "plans/decisions/0121-steam-two-phase-menu-review.md",
       "previous_native_review": "plans/decisions/0115-recorded-launcher-menu-review.md",
       "previous_native_review_evidence": "plans/decisions/0116-retained-exit53-menu-stop.md",
@@ -142,7 +143,8 @@
       "initial_launcher_exit_code_observed": 53,
       "native_launcher_exit_meaning_known": false,
       "launch_route_candidate": "Original-signed Steam route passes one owned fresh Menu/header/three-module/thirteen-read/full-contract baseline and exact close0/preservation. Twenty-two controller models pass. No unsigned-provider acceptance, environment-forwarding qualification, native MCP executor or exit53 meaning.",
-      "launch_route_evidence": "plans/decisions/0120-signed-steam-menu-baseline.md"
+      "launch_route_evidence": "plans/decisions/0120-signed-steam-menu-baseline.md",
+      "native_review_retirement_evidence": "plans/decisions/0122-resumed-signed-server-baseline.md"
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",

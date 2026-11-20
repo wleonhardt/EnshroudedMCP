@@ -172,3 +172,7 @@ Decision 0120 advances goals2/3 with one original-signed startup, owned fresh Me
 ## Fresh Steam provider-review checkpoint — 2026-11-17
 
 Decision0121 stages goals2/3 next discriminator: exact two-phase Menu closure using the signed-baseline Steam route. Thirty controller model methods, ten owned-process helper methods, candidate/rollback/source closure and stale-copy refusal pass. No installation or game launch. Fresh explicit provider exception is required before execution; native compatibility, Join/Leave and credentials stay unqualified.
+
+## Resumed runtime checkpoint — 2026-11-19
+
+Decision0122 re-establishes goals2/10 current signed-server readiness and protected-state evidence after process absence. Header/listener readiness precedes world readiness; the same exact process later passes forty probes and10,864 protected cell comparisons. Review0121 remains unchanged and retires before execution because its runtime binding is stale. Next prepare a fresh current-runtime review; no provider adoption or native lifecycle acceptance.
