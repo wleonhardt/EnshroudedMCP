@@ -1,0 +1,15 @@
+# 0179: Qualify current server source with unchanged signed providers
+
+Date: 2026-11-20. Status: one isolated current server cohort passes fixed native probes and owned shutdown; broad functional acceptance remains incomplete.
+
+Current source `9c56767` builds server 0.51.4 and companion 0.22.0 against the default official SDK revision `6a151a95` / ABI 12.1. Compiler artifact records resolve the exact two release DLLs, package versions and public mod IDs. A fresh independent fixture uses the public `enshrouded.mcp` and `enshrouded.mcp-client` directories without changing the existing primary or client installation. Its loader/framework DLLs and both detached signatures are byte-identical to the preserved signed baseline; no development provider or signature-removal exception is used.
+
+Thirty-seven normal and optimized controller models pass. They cover independent staging, launch/stop identities, authority/recording failures, exact headers and bounded same-process readiness. Thirty-two independent regular files are staged from 23 explicit dedicated-server assets, four known signed-provider images, the provider license, two current product DLLs and two generated configurations. No existing configuration, credential, save or game log is read. The new fixture has a passwordless loopback-only single-slot configuration and separate ports, world and log paths.
+
+One hidden launch observes the exact server 0.51.4 compiled profile, native ABI 12.1/table 1680, four expected loaded provider/product paths and hashes, empty roster and owned loopback query socket. Both product mods load from their public directories. Bounded readiness reads stay on that same process; no relaunch occurs.
+
+All 46 fixed discovery/read/refusal checks in the current validation script pass with each raw response retained before interpretation. The script's overall verdict remains incomplete: these fixed checks do not prove every tool, positive player/factory values, real crafting, physical geometry or client behavior. No synthetic fixture is promoted into independent game semantics. Native channel-loss/deadline fault timing is not exercised by these successful reads.
+
+One owned native shutdown is acknowledged as `stop_accepted_exit_unverified`. A held process observer independently verifies exit 0, and the retained launcher separately agrees. The temporary owned write flag is removed; fixture ports are free. Exit does not establish causal final-save completion. No force cleanup is needed, and no launch or stop identity is reused.
+
+The original primary process, signed client/provider images and MCP durable state remain exact; the client stays closed. Frozen SDK 12.16 Join review0175 and its candidates remain unchanged and unstarted. This server-only cohort does not qualify Menu callbacks, native Join/Leave/Cancel, character agreement, saved credentials or provider adoption. The installed primary remains server 0.48.0/companion 0.22.0; this qualification is a separate stopped fixture, not deployment to that installation.

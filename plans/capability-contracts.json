@@ -24,7 +24,8 @@
       "isolated_inventory_native_cohort": "plans/decisions/0156-canonical-inventory-native-cohort.md",
       "server_lifecycle_coverage_audit": "plans/decisions/0157-server-lifecycle-coverage-audit.md",
       "isolated_roster_status_native_cohort": "plans/decisions/0159-native-roster-status-cohort.md",
-      "isolated_voxel_image_native_cohort": "plans/decisions/0161-native-voxel-image-cohort.md"
+      "isolated_voxel_image_native_cohort": "plans/decisions/0161-native-voxel-image-cohort.md",
+      "isolated_current_signed_native_cohort": "plans/decisions/0179-current-signed-server-qualification.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",

@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0179 qualifies a separate current server 0.51.4/companion 0.22.0 fixture with unchanged signed SDK 12.1 providers and public mod directories: exact native header/modules, 46 fixed checks and one native shutdown with independently observed exit 0 pass. The validation verdict remains incomplete for broader semantics. Primary 0.48.0 and the closed client remain unchanged; native reply-loss timing, client lifecycle and final-save causality are unverified.
+
 Decision0178 verifies a live read-only standalone terrain capture against signed server0.48.0: all 4,096 cells match retained raw data, 64 caller references survive, and BrowserOS orbit/section views and last-pin selection work. Empty roster/prop results leave positive annotations unverified. This does not qualify engine surfaces, atomic cross-tool state, latest source DLLs or native connection control.
 
 ## Current product checkpoint

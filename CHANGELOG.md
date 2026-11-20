@@ -8,6 +8,8 @@
 
 ## 0.51.4
 
+- Qualify current server 0.51.4/companion 0.22.0 in a fresh public-namespace fixture with unchanged signed SDK 12.1 providers. Exact headers/modules, 46 fixed native probes and one acknowledged shutdown with independent exit 0 pass. Primary/client installations remain unchanged; the broad validation verdict stays incomplete and native fault timing/client control remain unverified.
+
 - Source server 0.51.4 distinguishes a disconnected game-thread reply channel from an elapsed five-second reply deadline. Both preserve unknown execution and retained-status/journal recovery guidance; no cancellation or replay is added. Real-channel regressions cover sender loss, empty producer, buffered replies and late execution. Native fault timing remains unverified.
 
 ## 0.51.3

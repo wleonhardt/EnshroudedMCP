@@ -347,6 +347,8 @@ Use `python scripts/terrain_view.py --port 8751 --box 10 20 30 8 8 8 --output te
 
 One live read-only capture preserves all 4,096 sampled cells and 64 caller pins through the signed installed server, with local BrowserOS orbit/section and pin-selection checks. Its empty roster and prop set do not qualify positive entity annotations; see [the exact evidence limits](plans/decisions/0178-native-terrain-capture-and-view.md).
 
+Current server 0.51.4/companion 0.22.0 also passes a separate signed-provider server-only fixture in public mod directories: exact native header/modules, 46 fixed checks and one acknowledged shutdown with independent exit 0. Broader functional validation remains incomplete; the installed primary and closed client stay unchanged. See [the isolated cohort and limits](plans/decisions/0179-current-signed-server-qualification.md).
+
 Add `--plan geometry-preview.json` to inspect up to 256 proposed cells separately from observed terrain. The file must contain a geometry-only `building_plan` result. Outside-capture targets remain unobserved and are listed without drawing; proposed outlines never authorize placement or establish clearance. Section PNG exports identify the exact half-metre plane. See [proposed geometry evidence](plans/decisions/0071-proposed-geometry-observation.md).
 
 MCP PNG presentation is source-qualified with exact legacy JSON behavior retained by default. Decision 0072 establishes the synthetic foundation; server source 0.46.0 now registers terrain_image in decision 0073, with deployment/native acceptance still pending. See [bounded image presentation and remaining integration](plans/decisions/0072-bounded-mcp-png-presentation.md).
