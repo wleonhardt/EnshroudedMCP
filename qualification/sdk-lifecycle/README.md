@@ -12,7 +12,7 @@ cargo +stable clippy --locked --manifest-path qualification/sdk-lifecycle/Cargo.
 cargo +stable fmt --manifest-path qualification/sdk-lifecycle/Cargo.toml -- --check
 ```
 
-Seven consumer tests exercise ABI shape and SDK Debug redaction; queued/menu/connecting/loading/in-world phases; missing/matching/different copied peers; all nine named failures plus unknown failure/phase preservation; cancellation without implicit replacement or exit acceptance; and join/leave overlap/world admission. The observer omits addresses and passwords, retains unknown peer identity and never promotes a native state into independent roster, character or rendered acceptance. These constant proof limits describe the prototype's scope, not implemented workflow admission or a durable operation store. A failed copied-snapshot getter retains the typed snapshot_read_error and null peer while preserving command state/phase/age; an available missing peer instead has null read error. The published fake supplies Unavailable in the ninth total case (seven consumer plus two provider/report cases). This cfg(test)-only correction does not fix or retry the independently failed native Join; see [decision0125](../../plans/decisions/0125-preserve-unavailable-lifecycle-snapshot.md).
+Eight consumer tests exercise ABI shape and SDK Debug redaction; queued/menu/connecting/loading/in-world phases; missing/matching/different copied peers; all nine named failures plus unknown failure/phase preservation; cancellation without implicit replacement or exit acceptance; and join/leave overlap/world admission. The observer omits addresses and passwords, retains unknown peer identity and never promotes a native state into independent roster, character or rendered acceptance. These constant proof limits describe the prototype's scope, not implemented workflow admission or a durable operation store. A failed copied-snapshot getter retains the typed snapshot_read_error and null peer while preserving command state/phase/age; an available missing peer instead has null read error. The published fake supplies Unavailable in the previous ninth total case (seven consumer plus two provider/report cases). This cfg(test)-only correction does not fix or retry the independently failed native Join; see [decision0125](../../plans/decisions/0125-preserve-unavailable-lifecycle-snapshot.md).
 
 A copied snapshot requests sampling on first read; the fake needs an interface frame before supplied peer values become available. The fixture explicitly checks the initial absence and drives that frame before positive peer checks. It does not weaken expected matching/different results. Fake phase/failure setters inject provider replies; passing cases do not prove actual connection transitions, timing, password hashing, cancellation returning to Menu or native provider fidelity.
 
@@ -136,3 +136,31 @@ Pop-Location
 ```
 
 The latest published release remains alpha.17; the candidate uses a later exact main commit. Upstream includes published Join-state and joined-terrain corrections, but no native provider, intended-peer/character/roster, Join/Leave, credential-resolution, rendered or persistence acceptance follows from these source checks. No candidate DLL is installed, no current process is controlled and no native command is submitted.
+
+## Lifecycle snapshot freshness and SDK 12.16 comparison
+
+The inactive consumer now preserves snapshot_metadata with the SDK state, nullable age_ms and session separately from copied-target matching and command status. A failed getter retains snapshot_read_error and null metadata; it does not fabricate a Never/zero-session observation. Matching target text remains possible for Fresh, Stale, Off or Never copies. None authenticates a current peer, proves a character/roster match or accepts a workflow. The observer still emits no address or credential and never retries a command.
+
+One new regression fails before the correction and passes afterward. The ABI12.11 cohort, exact SDK33cf4dc149f88d1abe3d3c11a12053d0ab94967f/ABI12.16 cohort and independent patched replay each pass ten debug and ten release cases, strict Clippy and formatting using exact Rust/Cargo1.100.0. Their consumer sources agree after normalizing only pinned revision/ABI expectations. Product workspace checks remain a separate cohort; no product SDK pin or MCP surface changes.
+
+The [inactive optional-consumer patch](consumer-sdk1216-observer.patch) applies only to public base `ff0759f625594c92fa9e53bed41bd1db224be7b0`. It changes four optional-workspace paths and reconstructs tree `5f7844bab7502b258dceefa39c04681bad022e61`. SHA-256: `473c9721d401748fbbd39f4bc7d089c5b6e55e2427126046823e917dfdaa3b8a`. It includes the freshness correction and changes the optional dependency lock/provenance to the later exact SDK; it does not apply the separate whole-product migration.
+
+```powershell
+$observerPatch = (Resolve-Path qualification/sdk-lifecycle/consumer-sdk1216-observer.patch).Path
+git worktree add --detach ../enshrouded-lifecycle-observer-check ff0759f625594c92fa9e53bed41bd1db224be7b0
+git -C ../enshrouded-lifecycle-observer-check apply --check $observerPatch
+git -C ../enshrouded-lifecycle-observer-check apply $observerPatch
+Push-Location ../enshrouded-lifecycle-observer-check
+rustc +stable --version
+cargo +stable --version
+# Proceed only when both report exactly 1.100.0.
+$env:CARGO_BUILD_JOBS='2'
+$env:RUST_TEST_THREADS='1'
+cargo +stable test --locked --manifest-path qualification/sdk-lifecycle/Cargo.toml
+cargo +stable test --locked --release --manifest-path qualification/sdk-lifecycle/Cargo.toml
+cargo +stable clippy --locked --manifest-path qualification/sdk-lifecycle/Cargo.toml --all-targets -- -D warnings
+cargo +stable fmt --manifest-path qualification/sdk-lifecycle/Cargo.toml -- --check
+Pop-Location
+```
+
+These SDK fakes supply lifecycle transitions. They do not qualify provider fidelity, an actual connection, cancellation/Leave effects, credential provisioning, current-peer identity or native crash causes. No candidate is installed. Nested qualification target directories are ignored to keep ordinary local build output outside publication; source files remain visible.

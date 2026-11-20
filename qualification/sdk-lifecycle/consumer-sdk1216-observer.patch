@@ -1,0 +1,261 @@
+diff --git a/qualification/sdk-lifecycle/Cargo.toml b/qualification/sdk-lifecycle/Cargo.toml
+--- a/qualification/sdk-lifecycle/Cargo.toml
++++ b/qualification/sdk-lifecycle/Cargo.toml
+@@ -17,8 +17,8 @@
+ side = "both"
+
+ [dependencies]
+-enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a5966ee6683fde480ac9dd3654f91e73da6e2a5", features = ["unstable"] }
++enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", features = ["unstable"] }
+ serde_json = "=1.0.154"
+
+ [dev-dependencies]
+-enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a5966ee6683fde480ac9dd3654f91e73da6e2a5", features = ["unstable", "test"] }
++enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", features = ["unstable", "test"] }
+diff --git a/qualification/sdk-lifecycle/Cargo.lock b/qualification/sdk-lifecycle/Cargo.lock
+--- a/qualification/sdk-lifecycle/Cargo.lock
++++ b/qualification/sdk-lifecycle/Cargo.lock
+@@ -97,7 +97,7 @@
+ [[package]]
+ name = "enshwick"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "document-features",
+  "enshwick-abi",
+@@ -118,7 +118,7 @@
+ [[package]]
+ name = "enshwick-abi"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "enshwick-values",
+@@ -129,7 +129,7 @@
+ [[package]]
+ name = "enshwick-actions"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "enshwick-abi",
+@@ -145,7 +145,7 @@
+ [[package]]
+ name = "enshwick-base"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "aho-corasick",
+  "bytemuck",
+@@ -166,7 +166,7 @@
+ [[package]]
+ name = "enshwick-content"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bcdec_rs",
+  "enshwick-abi",
+@@ -183,7 +183,7 @@
+ [[package]]
+ name = "enshwick-core"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-actions",
+@@ -203,9 +203,10 @@
+ [[package]]
+ name = "enshwick-fake"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
++ "enshwick-base",
+  "enshwick-core",
+  "enshwick-macros",
+  "postcard",
+@@ -218,7 +219,7 @@
+ [[package]]
+ name = "enshwick-inventory"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -236,7 +237,7 @@
+ [[package]]
+ name = "enshwick-knowledge"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -252,7 +253,7 @@
+ [[package]]
+ name = "enshwick-macros"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+@@ -263,7 +264,7 @@
+ [[package]]
+ name = "enshwick-packs"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -282,7 +283,7 @@
+ [[package]]
+ name = "enshwick-typed"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-values",
+  "thiserror",
+@@ -291,7 +292,7 @@
+ [[package]]
+ name = "enshwick-ui"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -307,7 +308,7 @@
+ [[package]]
+ name = "enshwick-values"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "const-sha1",
+@@ -321,7 +322,7 @@
+ [[package]]
+ name = "enshwick-world"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a5966ee6683fde480ac9dd3654f91e73da6e2a5#6a5966ee6683fde480ac9dd3654f91e73da6e2a5"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+diff --git a/qualification/sdk-lifecycle/src/provider.rs b/qualification/sdk-lifecycle/src/provider.rs
+--- a/qualification/sdk-lifecycle/src/provider.rs
++++ b/qualification/sdk-lifecycle/src/provider.rs
+@@ -12,7 +12,7 @@
+ const REPORT: &str = "provider-observation.json";
+
+ fn observation(header: Header) -> Value {
+-    json!({"compiled_sdk_revision":"6a5966ee6683fde480ac9dd3654f91e73da6e2a5",
++    json!({"compiled_sdk_revision":"33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
+         "compiled_abi":{"major":enshwick::abi::ABI_MAJOR,"minor":enshwick::abi::ABI_MINOR},
+         "compiled_table_bytes":std::mem::size_of::<enshwick::abi::HostApi>(),
+         "reported_provider_header":{"abi_major":header.abi_major,"abi_minor":header.abi_minor,"table_bytes":header.size},
+@@ -67,7 +67,7 @@
+             copied["reported_provider_header"],
+             json!({"abi_major":42,"abi_minor":99,"table_bytes":4096})
+         );
+-        assert_eq!(copied["compiled_abi"], json!({"major":12,"minor":11}));
++        assert_eq!(copied["compiled_abi"], json!({"major":12,"minor":16}));
+         assert_eq!(copied["world_read"], false);
+         assert_eq!(copied["commands_submitted"], false);
+         assert_eq!(copied["native_lifecycle_verified"], false);
+diff --git a/qualification/sdk-lifecycle/src/lib.rs b/qualification/sdk-lifecycle/src/lib.rs
+--- a/qualification/sdk-lifecycle/src/lib.rs
++++ b/qualification/sdk-lifecycle/src/lib.rs
+@@ -51,13 +51,20 @@
+         CommandState::Failed(reason) => ("failed", Some(format!("{reason:?}"))),
+         _ => ("unknown", None),
+     };
+-    let (peer, snapshot_error) = match input.client_snapshot() {
+-        Ok(snapshot) => (snapshot.server().map(|s| s == "127.0.0.1:15637"), None),
+-        Err(error) => (None, Some(format!("{error:?}"))),
++    let (peer, snapshot_error, snapshot_metadata) = match input.client_snapshot() {
++        Ok(snapshot) => (
++            snapshot.server().map(|s| s == "127.0.0.1:15637"),
++            None,
++            Some(
++                json!({"state":format!("{:?}",snapshot.state()).to_ascii_lowercase(),
++                "session":snapshot.session(),"age_ms":snapshot.age_ms()}),
++            ),
++        ),
++        Err(error) => (None, Some(format!("{error:?}")), None),
+     };
+     json!({"native_state":state,"native_reason":reason,
+         "native_phase":status.phase.map(|p|format!("{p:?}")),"native_age_ms":status.age_ms,
+-        "snapshot_server_matches_fixture":peer,"snapshot_read_error":snapshot_error,
++        "snapshot_server_matches_fixture":peer,"snapshot_read_error":snapshot_error,"snapshot_metadata":snapshot_metadata,
+         "independent_roster_verified":false,"character_verified":false,
+         "rendered_verified":false,"workflow_accepted":false,"automatic_retry":false})
+ }
+@@ -66,7 +73,7 @@
+ fn abi_and_debug_redaction_are_pinned_without_real_credentials() {
+     assert_eq!(
+         (enshwick::abi::ABI_MAJOR, enshwick::abi::ABI_MINOR),
+-        (12, 11)
++        (12, 16)
+     );
+     let password = Password::new("synthetic-fixture-password");
+     assert_eq!(format!("{password:?}"), "Password(..)");
+@@ -237,6 +244,7 @@
+     assert_eq!(observed["native_phase"], "Menu");
+     assert_eq!(observed["native_age_ms"], 123);
+     assert_eq!(observed["snapshot_read_error"], "Unavailable");
++    assert_eq!(observed["snapshot_metadata"], Value::Null);
+     assert_eq!(observed["snapshot_server_matches_fixture"], Value::Null);
+     assert_eq!(observed["workflow_accepted"], false);
+     assert_eq!(observed["automatic_retry"], false);
+@@ -244,3 +252,39 @@
+     assert!(!observed.to_string().contains("127.0.0.1"));
+     assert!(!observed.to_string().contains("synthetic-fixture-password"));
+ }
++
++#[test]
++fn matching_target_keeps_snapshot_age_state_and_session_without_acceptance() {
++    let (loader, input) = start();
++    input.client_snapshot().unwrap();
++    let _ = loader.draw_frame();
++    let id = input.client_command(&join()).unwrap();
++    for (state, name, age, session, expected_age) in [
++        (Snapshot::FRESH, "fresh", 16, 7, Some(16u64)),
++        (Snapshot::STALE, "stale", 4200, 7, Some(4200)),
++        (Snapshot::OFF, "off", 4200, 8, Some(4200)),
++        (Snapshot::NEVER, "never", u64::MAX, 0, None),
++    ] {
++        loader.set_client_snapshot(Snapshot {
++            state,
++            age_ms: age,
++            session,
++            server: Str::new("127.0.0.1:15637"),
++            ..Snapshot::EMPTY
++        });
++        let value = observation(input, input.command_status(id).unwrap());
++        assert_eq!(
++            value["snapshot_metadata"],
++            json!({"state":name,"age_ms":expected_age,"session":session})
++        );
++        assert_eq!(value["snapshot_server_matches_fixture"], true);
++        assert_eq!(value["snapshot_read_error"], Value::Null);
++        assert_eq!(value["workflow_accepted"], false);
++        assert_eq!(value["independent_roster_verified"], false);
++        assert_eq!(value["character_verified"], false);
++        assert_eq!(value["automatic_retry"], false);
++        assert_eq!(loader.client_commands().len(), 1);
++        assert!(!value.to_string().contains("127.0.0.1"));
++        assert!(!value.to_string().contains("synthetic-fixture-password"));
++    }
++}

@@ -10,6 +10,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Inactive lifecycle consumer retains copied snapshot freshness and session beside target matching. Add an exact SDK12.16 optional-consumer replay artifact; no product route, SDK adoption or native action. Ignore nested qualification build output.
+
 - Add an inactive shared-waypoint read consumer pinned to exact SDK12.16, with a source-identical SDK12.1 comparison cohort. Preserve unset-versus-zero, typed errors and raw coordinates; no MCP registration, waypoint setter, movement or SDK adoption.
 
 - Terrain viewer adds exact XYZ inspection with a selected-point crosshair, precise PNG caption, existing column export and section jumps. Invalid input preserves selection; outside capture remains explicit and unobserved. No additional native read or game action.

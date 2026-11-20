@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source verified; lifecycle snapshot freshness** Decision0137 preserves nullable copied state/age/session separately from target-match and command facts. New regression fails before correction; old SDK12.11, exact SDK12.16 and independent replay each pass ten debug/release cases plus lint/format. Four-file optional migration is reproducible; product SDK and runtime remain unchanged. Nested qualification targets stay outside publication. Native provider fidelity and Join/Leave acceptance remain open.
+
 - **source qualification; replayable SDK 12.16 feature candidate** Decision0136 preserves the SDK12.1 product while independently reconstructing source 0.49.1/0.22.0 on exact SDK 33cf4dc1/ABI12.16 and Rust 1.100.0. Candidate/replay each pass 424 Rust/107 Python plus required checks; all 325 tracked files match byte for byte and Git trees agree. Sixteen-path patch keeps runtime gates and deadlines unchanged; initialization-specific fixture failures are retained separately. Native provider fidelity and Join/Leave acceptance remain open. No installation or lifecycle retry.
 
 - **source correction; configured component coverage** Decision0135 corrects the entity_components completeness claim in server0.49.1. An SDK-fake subset catalogue omits an independently present component; explicit coverage fields deny completeness and absence. Two new Rust cases bring branch checks to424 Rust/107 Python. Matched native response acceptance and positive factory correspondence remain open; main and installed runtime stay unchanged.

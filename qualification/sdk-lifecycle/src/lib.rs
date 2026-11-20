@@ -51,13 +51,20 @@ fn observation(input: Input, status: CommandStatus) -> Value {
         CommandState::Failed(reason) => ("failed", Some(format!("{reason:?}"))),
         _ => ("unknown", None),
     };
-    let (peer, snapshot_error) = match input.client_snapshot() {
-        Ok(snapshot) => (snapshot.server().map(|s| s == "127.0.0.1:15637"), None),
-        Err(error) => (None, Some(format!("{error:?}"))),
+    let (peer, snapshot_error, snapshot_metadata) = match input.client_snapshot() {
+        Ok(snapshot) => (
+            snapshot.server().map(|s| s == "127.0.0.1:15637"),
+            None,
+            Some(
+                json!({"state":format!("{:?}",snapshot.state()).to_ascii_lowercase(),
+                "session":snapshot.session(),"age_ms":snapshot.age_ms()}),
+            ),
+        ),
+        Err(error) => (None, Some(format!("{error:?}")), None),
     };
     json!({"native_state":state,"native_reason":reason,
         "native_phase":status.phase.map(|p|format!("{p:?}")),"native_age_ms":status.age_ms,
-        "snapshot_server_matches_fixture":peer,"snapshot_read_error":snapshot_error,
+        "snapshot_server_matches_fixture":peer,"snapshot_read_error":snapshot_error,"snapshot_metadata":snapshot_metadata,
         "independent_roster_verified":false,"character_verified":false,
         "rendered_verified":false,"workflow_accepted":false,"automatic_retry":false})
 }
@@ -237,10 +244,47 @@ fn unavailable_snapshot_keeps_command_facts_without_panicking_or_retrying() {
     assert_eq!(observed["native_phase"], "Menu");
     assert_eq!(observed["native_age_ms"], 123);
     assert_eq!(observed["snapshot_read_error"], "Unavailable");
+    assert_eq!(observed["snapshot_metadata"], Value::Null);
     assert_eq!(observed["snapshot_server_matches_fixture"], Value::Null);
     assert_eq!(observed["workflow_accepted"], false);
     assert_eq!(observed["automatic_retry"], false);
     assert_eq!(server.client_commands().len(), 0);
     assert!(!observed.to_string().contains("127.0.0.1"));
     assert!(!observed.to_string().contains("synthetic-fixture-password"));
+}
+
+#[test]
+fn matching_target_keeps_snapshot_age_state_and_session_without_acceptance() {
+    let (loader, input) = start();
+    input.client_snapshot().unwrap();
+    let _ = loader.draw_frame();
+    let id = input.client_command(&join()).unwrap();
+    for (state, name, age, session, expected_age) in [
+        (Snapshot::FRESH, "fresh", 16, 7, Some(16u64)),
+        (Snapshot::STALE, "stale", 4200, 7, Some(4200)),
+        (Snapshot::OFF, "off", 4200, 8, Some(4200)),
+        (Snapshot::NEVER, "never", u64::MAX, 0, None),
+    ] {
+        loader.set_client_snapshot(Snapshot {
+            state,
+            age_ms: age,
+            session,
+            server: Str::new("127.0.0.1:15637"),
+            ..Snapshot::EMPTY
+        });
+        let value = observation(input, input.command_status(id).unwrap());
+        assert_eq!(
+            value["snapshot_metadata"],
+            json!({"state":name,"age_ms":expected_age,"session":session})
+        );
+        assert_eq!(value["snapshot_server_matches_fixture"], true);
+        assert_eq!(value["snapshot_read_error"], Value::Null);
+        assert_eq!(value["workflow_accepted"], false);
+        assert_eq!(value["independent_roster_verified"], false);
+        assert_eq!(value["character_verified"], false);
+        assert_eq!(value["automatic_retry"], false);
+        assert_eq!(loader.client_commands().len(), 1);
+        assert!(!value.to_string().contains("127.0.0.1"));
+        assert!(!value.to_string().contains("synthetic-fixture-password"));
+    }
 }
