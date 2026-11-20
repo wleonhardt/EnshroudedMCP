@@ -433,7 +433,14 @@ impl Tools for GameTools {
             }
             "building_access" => {
                 let spec = policy::building_access::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     let actor = spec
                         .player
                         .as_deref()

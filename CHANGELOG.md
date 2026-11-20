@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.6 (source fix; not deployed)
+
+- Refuse building_access across inactive or changed queued MCP lifecycle in world-only and optional-player modes. Independent regressions retain positive zone retention/build rights; existing projection and read-only scope remain unchanged. New behavior is outside the earlier0.50.5 native cohort.
+
 ## Unreleased
 
 - Qualification only: isolated same-SDK0.50.5 server passes44 fixed and seven targeted read/refusal checks plus one native shutdown/independent exit0. Positive player/client UI, native interruption timing and final-save causality remain open; no product runtime or schema change.

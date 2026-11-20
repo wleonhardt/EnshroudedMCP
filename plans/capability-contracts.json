@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; isolated0.50.5 empty-world server read/refusal/exit cohort verified; primary adoption and positive player/client correspondence remain separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; source0.50.6 access lifecycle fix is not deployed; isolated0.50.5 empty-world cohort remains bounded historical native evidence",
   "profiles": {
     "product": {
-      "server_version": "0.50.5",
+      "server_version": "0.50.6",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -502,7 +502,7 @@
     {
       "scope": "server",
       "name": "building_access",
-      "description": "Read-only native permission/persistence observations for explicit ordered site corners, each side >0 and <=64 metres. Optional player name/account key must match exactly one connected actor; omitted player leaves build rights unknown. No item footprint, collision, terrain contact, save/reload proof or write authority. Errors remain unknown, not false.",
+      "description": "Read-only native permission/persistence observations for explicit ordered site corners, each side >0 and <=64 metres. Requires active MCP world lifecycle at admission and execution with unchanged epoch. Optional player name/account key must match exactly one connected actor; omitted player leaves build rights unknown. No item footprint, collision, terrain contact, save/reload proof or write authority. Errors remain unknown, not false.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -545,23 +545,25 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "admission": "Strict ordered bounded site box and optional exact player selector; active MCP lifecycle at admission and queued execution with unchanged epoch in both modes; read-only observations, no write authority",
       "evidence_summary": "Explicit ordered site box only; persistence/build-rights results are not an item footprint or authorization.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0150-building-access-lifecycle-guard.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Installed bounded reads; complete altar boundary and representative actor-rights coverage remain unqualified.",
+      "source_checks": "Independent world/player actual-dispatcher reload regressions first fail with retained positive SDK zone retention and build rights. Three new cases cover queued unchanged/reload/shutdown and pre-admission shutdown in both modes; existing strict bounds and unknown/false/allowed projections remain covered.",
+      "native_acceptance": "Historical linked read/refusal evidence retains its exact fixture. The source0.50.6 lifecycle fix is not installed or natively qualified; do not apply the earlier0.50.5 cohort to this change.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "SDK persistence answer does not prove cold reload.",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle before current player/zone/permission reads. MCP epoch is no native world identifier or connection lock. Zone retention is not save/reload proof; allowed rights never grant write authority.",
       "next_missing_check": "Check a predefined inside/outside boundary and actor-rights case independently.",
-      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test. Source0.50.6 pre-admission shutdown and queued reload/shutdown now refuse in both modes despite retained positive SDK observations; native interruption timing is unverified.",
       "independent_effect_acceptance": "No placement, collision or terrain-contact effect.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/building_access.rs"
+        "crates/policy/src/building_access.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
