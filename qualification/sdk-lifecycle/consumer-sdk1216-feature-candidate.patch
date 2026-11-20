@@ -1,0 +1,466 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 733b0981067ec8ab15a03cae6bee8c3989674306..478c0e32ab5f8f77aed9dad1abfe048d4ec27a43 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -103,7 +103,7 @@ checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
+ [[package]]
+ name = "enshwick"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "document-features",
+  "enshwick-abi",
+@@ -124,7 +124,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-abi"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "enshwick-values",
+@@ -135,12 +135,13 @@ dependencies = [
+ [[package]]
+ name = "enshwick-actions"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "enshwick-abi",
+  "enshwick-base",
+  "enshwick-content",
++ "enshwick-inventory",
+  "enshwick-macros",
+  "enshwick-values",
+  "enshwick-world",
+@@ -150,7 +151,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-base"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "aho-corasick",
+  "bytemuck",
+@@ -171,7 +172,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-content"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bcdec_rs",
+  "enshwick-abi",
+@@ -188,7 +189,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-core"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-actions",
+@@ -208,9 +209,10 @@ dependencies = [
+ [[package]]
+ name = "enshwick-fake"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
++ "enshwick-base",
+  "enshwick-core",
+  "enshwick-macros",
+  "postcard",
+@@ -223,7 +225,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-inventory"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -241,7 +243,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-knowledge"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -257,7 +259,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-macros"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+@@ -268,7 +270,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-packs"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -287,7 +289,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-typed"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-values",
+  "thiserror",
+@@ -296,11 +298,12 @@ dependencies = [
+ [[package]]
+ name = "enshwick-ui"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+  "enshwick-content",
++ "enshwick-inventory",
+  "enshwick-macros",
+  "enshwick-values",
+  "enshwick-world",
+@@ -311,7 +314,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-values"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "const-sha1",
+@@ -325,7 +328,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-world"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+diff --git a/Cargo.toml b/Cargo.toml
+index 181da89448b71d0f24dac2b2f56e8e630d0e5f7d..3917bd879bef38e3a2570bd7045169e4787e614d 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -4,12 +4,12 @@ members = ["crates/policy", "crates/mcp", "crates/transport", "crates/client"]
+
+ [workspace.package]
+ edition = "2024"
+-rust-version = "1.99"
++rust-version = "1.100"
+ license = "MIT"
+
+ [workspace.dependencies]
+-# Pin the exact official alpha.17 release qualified with its matching signed loader.
+-enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" }
++# Inactive source qualification only; no installed provider adoption.
++enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f" }
+ policy = { path = "crates/policy" }
+ mcp-transport = { path = "crates/transport" }
+ serde_json = "1"
+diff --git a/README.md b/README.md
+index a71a6611d27a09fc8603c0084a80913a69554588..937fd195937faf6e6a61f6fcce08092ee3636fa0 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
+
+-Feature-branch source server **0.49.1** / companion **0.22.0** adds read-only `player_waypoint` and explicit configured-catalogue coverage for `entity_components` on the existing SDK12.1. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
++Inactive SDK12.16 source qualification of server **0.49.1** / companion **0.22.0**, including read-only `player_waypoint` and configured-catalogue coverage. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
+
+ Last verified signed checkpoint: Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
+
+diff --git a/crates/client/src/control.rs b/crates/client/src/control.rs
+index 68c20df7190330b1ed1ba937768464be6ad1f17a..e09237ab67e099f40fbae7cc4f714bfffbbad62b 100644
+--- a/crates/client/src/control.rs
++++ b/crates/client/src/control.rs
+@@ -494,6 +494,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         let input_value = input.unwrap();
+         loader.set_client_snapshot(snapshot(1, "InGame", ""));
+         let fixture = Fixture::new();
+@@ -714,6 +716,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         loader.set_client_snapshot(snapshot(7, "InGame", ""));
+         let fixture = Fixture::new();
+         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+@@ -1004,6 +1008,7 @@ mod tests {
+         }
+         thread_local! {
+             static SCRIPT: RefCell<Option<Script>> = const { RefCell::new(None) };
++            static INITIAL_READS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+         }
+         extern "system" fn read_snapshot(_me: ModHandle, out: *mut Raw) -> Status {
+             if out.is_null() {
+@@ -1011,7 +1016,12 @@ mod tests {
+             }
+             SCRIPT.with(|slot| {
+                 let mut slot = slot.borrow_mut();
+-                let script = slot.as_mut().unwrap();
++                let Some(script) = slot.as_mut() else {
++                    INITIAL_READS.with(|count| count.set(count.get() + 1));
++                    // SAFETY: initialization supplied the same full-size SDK output.
++                    unsafe { out.write(Raw::EMPTY) };
++                    return Status::OK;
++                };
+                 script.calls += 1;
+                 let value = if script.calls == 1 {
+                     script.initial
+@@ -1046,6 +1056,7 @@ mod tests {
+             unsafe { enshwick_mod_init(api, loader.handle()) },
+             Status::OK
+         );
++        INITIAL_READS.with(|count| assert_eq!(count.get(), 1));
+         // SAFETY: this mod's matching init just succeeded on this fake.
+         assert_eq!(unsafe { loader.ready(enshwick_mod_ready) }, Status::OK);
+         let input = *INPUT.lock().unwrap();
+@@ -1195,6 +1206,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         loader.set_client_snapshot(snapshot(9, "InGame", ""));
+         let fixture = Fixture::new();
+         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+@@ -1274,6 +1287,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         loader.set_client_snapshot(snapshot(9, "InGame", ""));
+         let fixture = Fixture::new();
+         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+diff --git a/crates/client/src/input_status.rs b/crates/client/src/input_status.rs
+index 849e232eb471d87277b29388a2e68cd4f23a5239..c18b27b1f692dad384f9016f0c2134b34a8adb59 100644
+--- a/crates/client/src/input_status.rs
++++ b/crates/client/src/input_status.rs
+@@ -57,6 +57,8 @@ side = "both""#
+     #[test]
+     fn cached_status_preserves_weak_flags_age_and_does_not_submit_commands() {
+         let (loader, input) = start(Side::CLIENT);
++        // SDK12.16 Input construction starts held sampling before this getter.
++        assert_eq!(read(input).unwrap()["requested"], true);
+         for (flags, age) in [
+             (0, u64::MAX),
+             (Raw::FRESH, 0),
+@@ -78,7 +80,7 @@ side = "both""#
+                 ("sample_present", Raw::SAMPLE_PRESENT),
+                 ("fresh", Raw::FRESH),
+             ] {
+-                assert_eq!(value[key], flags & mask != 0);
++                assert_eq!(value[key], (flags | Raw::REQUESTED) & mask != 0);
+             }
+             assert_eq!(
+                 value["age_ms"],
+diff --git a/crates/client/src/lib.rs b/crates/client/src/lib.rs
+index bd2fb54373a0ef845b72cd3c6a82cd760f027724..9fbd5b0a1addbe5ae56f94e388b0de8bcc5e4193 100644
+--- a/crates/client/src/lib.rs
++++ b/crates/client/src/lib.rs
+@@ -308,7 +308,7 @@ impl Tools for ClientTools {
+                 self.request(Request::Markers(spec))
+             }
+             "client_capabilities" => Ok(
+-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_cached_input_status":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
++                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"33cf4dc149f88d1abe3d3c11a12053d0ab94967f","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"inactive SDK main qualification; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_cached_input_status":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
+             ),
+             "client_state" => Ok(self
+                 .shared
+@@ -823,9 +823,9 @@ side = "both""#
+         assert_eq!(value["enshwick"], "1.0.0-alpha.17");
+         assert_eq!(
+             value["compiled_framework_revision"],
+-            "6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++            "33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+         );
+-        assert_eq!(value["compiled_framework_abi"], "12.1");
++        assert_eq!(value["compiled_framework_abi"], "12.16");
+         assert_eq!(value["screen_host_template_observation"], true);
+         assert_eq!(value["live_verified"], false);
+         assert_eq!(value["semantic_gameplay_actions"], json!([]));
+@@ -842,7 +842,7 @@ side = "both""#
+         assert_eq!(value["runtime_framework"]["abi_major"], 42);
+         assert_eq!(value["runtime_framework"]["abi_minor"], 99);
+         assert_eq!(value["runtime_framework"]["api_table_bytes"], 4096);
+-        assert_eq!(value["compiled_framework_abi"], "12.1");
++        assert_eq!(value["compiled_framework_abi"], "12.16");
+         assert_eq!(value["live_verified"], false);
+     }
+
+diff --git a/crates/client/src/native_snapshot.rs b/crates/client/src/native_snapshot.rs
+index 3eb8babc9f50ab7031b3dc4e351e1ed594ac7668..fe7e7d42fb0fb9d9e2da97267336e1812b971577 100644
+--- a/crates/client/src/native_snapshot.rs
++++ b/crates/client/src/native_snapshot.rs
+@@ -68,6 +68,7 @@ mod tests {
+         assert_eq!(never["state"], "never");
+         assert_eq!(never["session"], 0);
+         assert!(never["age_ms"].is_null());
++        let _ = loader.draw_frame();
+         for (state, expected, age) in [
+             (Raw::FRESH, "fresh", 16),
+             (Raw::STALE, "stale", 4200),
+diff --git a/crates/mcp/src/lib.rs b/crates/mcp/src/lib.rs
+index 88c1e2d58694faa396ef27363e45f48c4958bb93..e042017833e67942b56515f94103fd17d1f7209f 100644
+--- a/crates/mcp/src/lib.rs
++++ b/crates/mcp/src/lib.rs
+@@ -136,7 +136,7 @@ mod provider_tests {
+             assert_eq!(value["runtime_framework"]["abi_major"], header.abi_major);
+             assert_eq!(value["runtime_framework"]["abi_minor"], header.abi_minor);
+             assert_eq!(value["runtime_framework"]["api_table_bytes"], header.size);
+-            assert_eq!(value["compiled_framework_abi"], "12.1");
++            assert_eq!(value["compiled_framework_abi"], "12.16");
+             assert_eq!(value["new_inspection_tools_live_verified"], false);
+             Ok(Self)
+         }
+diff --git a/crates/mcp/src/tools.rs b/crates/mcp/src/tools.rs
+index a3f5978d2ad6d3f448bb92b15a933e112b58022c..2dc4705e87bf949cf94c7b8072e7cb050fd358ce 100644
+--- a/crates/mcp/src/tools.rs
++++ b/crates/mcp/src/tools.rs
+@@ -602,7 +602,7 @@ impl Tools for GameTools {
+                 "native_clock_advance_live_verified":false,
+                 "native_reposition_live_verified":false,
+                 "enshwick":"1.0.0-alpha.17",
+-                "compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
++                "compiled_framework_revision":"33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
+                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
+                 "runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),
+                 "game_build":null,
+diff --git a/plans/capability-contracts.json b/plans/capability-contracts.json
+index b9adf33a561276bcd1193a0bbb4067b6a4cbf426..af745fe3e94aecdbb5297625f42deb19ce468108 100644
+--- a/plans/capability-contracts.json
++++ b/plans/capability-contracts.json
+@@ -1,13 +1,13 @@
+ {
+   "date": "2026-11-20",
+-  "status": "all52 source contracts indexed:38 server and14 companion; feature-branch server0.49.1 is not deployed; native correspondence remains separate",
++  "status": "Inactive whole-product SDK12.16 source qualification only; no provider adoption, deployment or native acceptance",
+   "profiles": {
+     "product": {
+       "server_version": "0.49.1",
+       "client_version": "0.22.0",
+-      "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
+-      "abi": "12.1",
+-      "rust": "1.99.1",
++      "sdk_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
++      "abi": "12.16",
++      "rust": "1.100.0",
+       "installed": "last verified checkpoint: server 0.48.0 / companion 0.21.1 on unchanged signed SDK 6a151a95/ABI 12.1; empty-server column/read/refusal and cold/protected preservation pass; one original-signed Steam Menu/read/contract baseline passes with exact close0; client closed",
+       "game_build": "not observed by capability getter; do not infer from framework version",
+       "installed_server_version": "0.48.0",
+diff --git a/plans/capability-matrix.md b/plans/capability-matrix.md
+index 2f10492028fe867d0beffcf1c45875f69b25f337..ff2fd4be8877106f9d12c0b0925486ea3ff87b77 100644
+--- a/plans/capability-matrix.md
++++ b/plans/capability-matrix.md
+@@ -2,7 +2,7 @@
+
+ ## Current product checkpoint
+
+-Feature branch adds source server0.49.1 player_waypoint; main0.48.0 and native runtime remain unchanged.
++Inactive whole-product SDK12.16 source qualification of feature server0.49.1/client0.22.0 only. Main, feature branch baseline and installed runtime remain unchanged.
+
+ This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
+
+@@ -13,9 +13,9 @@ This is the operational product-version checkpoint. The tables below are checked
+
+ | Product profile field | Value |
+ |---|---|
+-| `sdk_revision` | `6a151a9550ed7a6ade99c23fa817a91e25b71bc9` |
+-| `abi` | `12.1` |
+-| `rust` | `1.99.1` |
++| `sdk_revision` | `33cf4dc149f88d1abe3d3c11a12053d0ab94967f` |
++| `abi` | `12.16` |
++| `rust` | `1.100.0` |
+
+ The tables retain the last verified signed product checkpoint. Current client/provider preservation is unverified after a separate owner-confirmed experiment; this viewer increment changes no installation. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Review 0115 is also consumed after one observed initial exit53 and complete signed rollback (decision 0116). Its meaning remains unknown; no phase is accepted or retry authorized. Join/Leave and private profile resolution remain unavailable in the product. Current client remains running after a separate interrupted test; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. One native desktop BrowserOS viewer fixture now passes interaction, raw-profile and PNG-export acceptance (decision 0119); game rendering/contact and broader responsive interaction remain unverified. See [next-up.md](next-up.md) for the latest source verification and next actions.
+
+diff --git a/rust-toolchain.toml b/rust-toolchain.toml
+index 965841b03ac56bb1157c685e93ad79bbac54d44a..410751d0abaed1a4591926c271c2addebdfa4294 100644
+--- a/rust-toolchain.toml
++++ b/rust-toolchain.toml
+@@ -1,5 +1,5 @@
+ [toolchain]
+-channel = "1.99.1"
++channel = "1.100.0"
+ components = ["rustfmt", "clippy"]
+ targets = ["x86_64-pc-windows-msvc"]
+ profile = "minimal"
+diff --git a/scripts/client_probe.py b/scripts/client_probe.py
+index b254221fdd559338815aa862ab9c8f977806c2b1..f7b80aef37472805769fb191c7ed7a08731d5851 100644
+--- a/scripts/client_probe.py
++++ b/scripts/client_probe.py
+@@ -27,8 +27,8 @@ def require(condition):
+ def capabilities(value):
+     require(value.get("role") == "optional_client_companion" and value.get("version") == "0.22.0" and
+             value.get("enshwick") == "1.0.0-alpha.17" and
+-            value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
+-            value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
++            value.get("compiled_framework_revision") == "33cf4dc149f88d1abe3d3c11a12053d0ab94967f" and
++            value.get("compiled_framework_abi") == "12.16" and value.get("live_verified") is False and
+             value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == (["client_command.look", "client_command.move"] if value.get("native_client_commands") else []) and
+             type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and value.get("native_command_live_verified") is False and
+             value.get("semantic_ui_actions") == ((["client_map_markers"] if value["native_map_marker_ui"] else []) + (["client_command"] if value.get("native_client_commands") else [])) and
+diff --git a/scripts/test_client_probe.py b/scripts/test_client_probe.py
+index 95ba5d1fd8e5d835b5c9d13c180f922117b464c2..9c493c68e509884ab9d72180e5989d2d6b64bc59 100644
+--- a/scripts/test_client_probe.py
++++ b/scripts/test_client_probe.py
+@@ -36,7 +36,7 @@ class Fixture:
+         elif name == "client_capabilities":
+             value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.17",
+                      "native_client_snapshot": True, "native_cached_input_status":True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "workshop_layout":True, "live_verified": False,
+-                     "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9", "compiled_framework_abi": "12.1",
++                     "compiled_framework_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", "compiled_framework_abi": "12.16",
+                      "screen_host_template_observation": True,
+                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
+                      "semantic_gameplay_actions": ["client_command.look", "client_command.move"], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers", "client_command"]}
+diff --git a/scripts/test_validate_tools.py b/scripts/test_validate_tools.py
+index 2c6999cc22d44863156b12280d9eab77b1f7ac88..88e1cb4fb7d29e6fdfd9d7005be4fac33b337a22 100644
+--- a/scripts/test_validate_tools.py
++++ b/scripts/test_validate_tools.py
+@@ -94,8 +94,8 @@ class Fixture:
+                                                "night_starts_hours": 22.0, "day_duration_seconds": 1800.0,
+                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
+         elif name == "capabilities":
+-            value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
+-                     "compiled_framework_abi": "12.1", "mod_version": VERSION, "native_waypoint_map": True, "inventory_read": True, "item_info": True, "item_lookup": True,
++            value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
++                     "compiled_framework_abi": "12.16", "mod_version": VERSION, "native_waypoint_map": True, "inventory_read": True, "item_info": True, "item_lookup": True,
+                      "typed_network_health": True, "typed_factory_station": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
+         elif name == "construction_budget":
+             value = {"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":0,"journal_limit_bytes":8388608,
+diff --git a/scripts/validate_tools.py b/scripts/validate_tools.py
+index 5658a9ce9b6b4bde6eecb47dde000e3c8b745a9c..ce6d6d5a008b09239299613438dad10065654001 100644
+--- a/scripts/validate_tools.py
++++ b/scripts/validate_tools.py
+@@ -166,8 +166,8 @@ class Validation:
+         except (OSError, ValueError, TypeError, KeyError):
+             return self.report("failed", "discovery failed; no probes attempted")
+         self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.49.1" and
+-                   v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
+-                   v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
++                   v.get("compiled_framework_revision") == "33cf4dc149f88d1abe3d3c11a12053d0ab94967f" and
++                   v.get("compiled_framework_abi") == "12.16" and v.get("enshwick") == "1.0.0-alpha.17" and
+                    v.get("native_clock_advance_live_verified") is False and
+                    all(type(v.get(k)) is bool for k in ("native_waypoint_map", "inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
+         self.probe("shutdown_status_unknown_operation", "server_shutdown_status", {"operation":"_validation_absent_shutdown_045"}, refusal="unknown shutdown operation")

@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source qualification; replayable SDK 12.16 feature candidate** Decision0136 preserves the SDK12.1 product while independently reconstructing source 0.49.1/0.22.0 on exact SDK 33cf4dc1/ABI12.16 and Rust 1.100.0. Candidate/replay each pass 424 Rust/107 Python plus required checks; all 325 tracked files match byte for byte and Git trees agree. Sixteen-path patch keeps runtime gates and deadlines unchanged; initialization-specific fixture failures are retained separately. Native provider fidelity and Join/Leave acceptance remain open. No installation or lifecycle retry.
+
 - **source correction; configured component coverage** Decision0135 corrects the entity_components completeness claim in server0.49.1. An SDK-fake subset catalogue omits an independently present component; explicit coverage fields deny completeness and absence. Two new Rust cases bring branch checks to424 Rust/107 Python. Matched native response acceptance and positive factory correspondence remain open; main and installed runtime stay unchanged.
 
 - **source verified feature branch; queued shared-waypoint read** Decision0134 adds source server0.49.0 player_waypoint on existing SDK12.1; main and native runtime remain unchanged. Strict selector admission, fresh roster selection and one queued SDK read preserve errors, raw positions and null absence. Source catalog38/14; actual SDK-fake catalog/schema comparison passes. Branch422 Rust/107 Python, strict lint/format, releases and source contract checks pass. Fixed probe has42 read/refusal checks; native37-tool catalog correctly reports drift. Positive native and rendered correspondence remain unverified. Branch00c9c47 is pushed after exact publication audits; native acceptance remains pending.

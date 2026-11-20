@@ -104,3 +104,35 @@ Apply the new patch outside a clean checkout of that exact base, using the repro
 An initial unmodified cold baseline fails two positive command fixtures with the existing deadline error and native_submitted false. Two instrumented cohorts and an unmodified warm cohort later pass; they do not fix or identify the original cause. Production waits and guards are unchanged. Merged test-harness labels are not reliable attribution for fixture-local timing sequences. Preserve failed fixture evidence and add explicit bounded request provenance before storage/timing conclusions. See [source proof and limitations](../../plans/decisions/0100-current-server048-sdk1211-replay.md).
 
 The actual signed 0.48.0/0.21.1 installation remains on SDK 6a151a95/ABI12.1. Old native review 0093 is retired. A fresh source-matched consumer, provider/probe/rollback closure and explicit temporary exception under decision 0059 are required before an unsigned Menu test. No clean-source pass authorizes that swap or validates character, peer, Join/Leave, credentials, rendered or gameplay behavior.
+
+## SDK 12.16 feature-source migration qualification
+
+The separate [SDK 12.16 feature patch](consumer-sdk1216-feature-candidate.patch) applies only to public base `27ffaa1481e7e1fe0e5c55aa8a38703f49f52f70` (server0.49.1 / companion0.22.0). It pins official main revision `33cf4dc149f88d1abe3d3c11a12053d0ab94967f`, ABI12.16, with Rust/Cargo1.100.0. This is an inactive source candidate, not SDK/provider adoption, a deployment procedure or permission to retry a native lifecycle request. Product main and the feature branch retain SDK 12.1/Rust 1.99.1.
+
+Sixteen paths update exact dependency/compiler provenance, source profiles and fixed probes; five snapshot fixtures explicitly establish sampling/frame prerequisites. Two further test fixtures account for SDK 12.16 Input construction starting snapshot and held-input sampling: the scripted getter returns an empty initialization observation, and cached diagnostics preserve the resulting requested flag. The request still requires exactly two scripted reads, including the post-intent guard, and cached reads submit no commands. Runtime admission, write gates, deadlines, session checks and once-only rules are unchanged.
+
+The initial ABI assertion failure, the scripted initialization callback abort and the requested-flag mismatch are distinct retained qualification failures. Correcting fixture assumptions does not diagnose an earlier native Join failure or establish that the new provider fixes it.
+
+Candidate and independently patched replay each pass 424 Rust executions, 107 Python tests, strict Clippy, formatting, release builds and source contracts. All 325 tracked files match byte for byte, and both indices reconstruct tree `049da547eb234955b055fb7e401e7817ce2e48fe`. Patch SHA-256: `5f2f8d1bc156c014fee4fac96099abce8c0eae08803141906619c8f3b83b6669`. Resolve the patch before creating a clean checkout of its exact base:
+
+```powershell
+$sdkPatch = (Resolve-Path qualification/sdk-lifecycle/consumer-sdk1216-feature-candidate.patch).Path
+git worktree add --detach ../enshrouded-mcp-sdk1216-check 27ffaa1481e7e1fe0e5c55aa8a38703f49f52f70
+git -C ../enshrouded-mcp-sdk1216-check apply --check $sdkPatch
+git -C ../enshrouded-mcp-sdk1216-check apply $sdkPatch
+Push-Location ../enshrouded-mcp-sdk1216-check
+rustc +stable --version
+cargo +stable --version
+# Proceed only when both report exactly 1.100.0.
+$env:CARGO_BUILD_JOBS='2'
+$env:RUST_TEST_THREADS='1'
+cargo +stable test --locked --workspace
+python -B -m unittest discover -s scripts -p test_*.py
+cargo +stable clippy --locked --workspace --all-targets -- -D warnings
+cargo +stable fmt --check
+cargo +stable build --locked --release -p mcp -p mcp-client
+python -B scripts/check_contracts.py
+Pop-Location
+```
+
+The latest published release remains alpha.17; the candidate uses a later exact main commit. Upstream includes published Join-state and joined-terrain corrections, but no native provider, intended-peer/character/roster, Join/Leave, credential-resolution, rendered or persistence acceptance follows from these source checks. No candidate DLL is installed, no current process is controlled and no native command is submitted.
