@@ -225,6 +225,32 @@ assert.equal(JSON.stringify(cells),before);
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    @unittest.skipUnless(shutil.which("node"), "Node is optional; required for profile export checks")
+    def test_column_export_preserves_raw_bands_bounds_and_uncertainty(self):
+        script = r'''
+const assert = require('node:assert/strict');require(process.argv[1]);
+const data={min_m:[10,20,30],max_m:[11,21.5,32],native_session:'unavailable',atomic_snapshot:false,
+ capture:[{tool:'building_survey',started_utc:'2026-11-19T00:00:00Z',completed_utc:'2026-11-19T00:00:01Z'}],
+ cells:[[20,40,60,'terrain',2,128],[20,42,60,'unknown',255,0],[20,41,60,'air',null,255],[21,40,60,'building',157,7]]};
+const original=JSON.stringify(data),point=[10.25,20.5,30.25];
+const value=JSON.parse(JSON.stringify(globalThis.TerrainGeometry.columnProfile(data,point)));
+assert.equal(value.version,1);assert.equal(value.state,'observed');assert.deepEqual(value.selected_m,point);
+assert.deepEqual(value.xz_min_cells,[20,60]);assert.equal(value.selected_y_inside_capture,true);
+assert.deepEqual(value.capture_bounds_m,{min:[10,20,30],max_exclusive:[11,21.5,32]});
+assert.equal(value.native_session,'unavailable');assert.equal(value.atomic_snapshot,false);assert.equal(value.rendered_surface_verified,false);
+assert.deepEqual(value.capture,data.capture);
+assert.deepEqual(value.bands,[
+ {min_cells:[20,42,60],y_min_m:21,y_max_exclusive_m:21.5,kind:'unknown',id:255,fill:0,contains_selected_y:false},
+ {min_cells:[20,41,60],y_min_m:20.5,y_max_exclusive_m:21,kind:'air',id:null,fill:255,contains_selected_y:true},
+ {min_cells:[20,40,60],y_min_m:20,y_max_exclusive_m:20.5,kind:'terrain',id:2,fill:128,contains_selected_y:false}]);
+for(const y of [19.999,21.5]){const r=globalThis.TerrainGeometry.columnProfile(data,[10.25,y,30.25]);assert.equal(r.state,'observed');assert.equal(r.selected_y_inside_capture,false);assert.ok(r.bands.every(b=>!b.contains_selected_y));}
+for(const xz of [[9.999,30.25],[11,30.25],[10.25,29.999],[10.25,32]]){const r=globalThis.TerrainGeometry.columnProfile(data,[xz[0],20.5,xz[1]]);assert.equal(r.state,'unobserved');assert.deepEqual(r.bands,[]);}
+assert.equal(JSON.stringify(data),original);assert.deepEqual(point,[10.25,20.5,30.25]);
+'''
+        result = subprocess.run([shutil.which("node"), "-e", script,
+                                 str(Path(__file__).with_name("terrain_view.js"))], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     @unittest.skipUnless(shutil.which("node"), "Node is optional; required for renderer geometry checks")
     def test_renderer_coordinates_sections_front_faces_and_top_selection(self):
         script = r'''
@@ -259,13 +285,15 @@ assert.equal(g.exposedFaces([[20,40,60,'air',null,255]],-.7,.6).length,0);
         # Standard EventTarget; canvas is a drawing sink, not a second renderer.
         script = r'''
 const assert = require('node:assert/strict');
+const downloads=[];
 class Element extends EventTarget {
   constructor(tagName='DIV'){super();this.tagName=tagName;this.value='';this.hidden=false;this.dataset={};this.children=[];}
+  click(){if(this.tagName==='A')downloads.push({name:this.download,href:this.href});}
   append(...children){this.children.push(...children);}
   replaceChildren(...children){this.children=[...children];}
 }
 const ids=['terrain-data','terrain','view','yaw','pitch','zoom','slice','selection','measure','pins',
-           'provenance','slice-control','yaw-control','pitch-control','slice-value','export',
+           'provenance','slice-control','yaw-control','pitch-control','slice-value','export','export-column',
            'show-plan','plan-target','plan-controls','plan-summary',
            'column-profile','column-title','column-summary','column-rows','section-xy','section-zy'];
 const nodes=Object.fromEntries(ids.map(id=>[id,new Element()]));
@@ -284,6 +312,21 @@ nodes.terrain.getBoundingClientRect=()=>({left:0,top:0});
 globalThis.document={getElementById:id=>nodes[id],createElement:tag=>new Element(tag.toUpperCase())};
 globalThis.window={devicePixelRatio:1,addEventListener:()=>{}};
 require(process.argv[1]);
+assert.equal(nodes['export-column'].disabled,true);
+nodes['export-column'].dispatchEvent(new Event('click'));assert.equal(downloads.length,0);
+function verifyExport(position){
+ assert.equal(nodes['export-column'].disabled,false);
+ nodes['export-column'].dispatchEvent(new Event('click'));
+ const artifact=downloads.at(-1);assert.equal(artifact.name,'native-terrain-column.json');
+ assert.ok(artifact.href.startsWith('data:application/json;charset=utf-8,'));
+ const result=JSON.parse(decodeURIComponent(artifact.href.split(',')[1]));
+ assert.deepEqual(result.selected_m,position);
+ const raw=JSON.parse(process.argv[2]).cells.filter(c=>c[0]===Math.floor(position[0]*2)&&c[2]===Math.floor(position[2]*2)).sort((a,b)=>b[1]-a[1]);
+ assert.equal(result.state,raw.length?'observed':'unobserved');
+ assert.deepEqual(result.bands.map(b=>[...b.min_cells,b.kind,b.id,b.fill]),raw);
+ assert.equal(result.rendered_surface_verified,false);assert.equal(result.atomic_snapshot,false);assert.equal(result.native_session,'unavailable');
+}
+
 assert.equal(nodes.terrain.dataset.view,'orbit');
 assert.equal(nodes['slice-control'].hidden,true);
 assert.equal(nodes['column-profile'].hidden,true);
@@ -296,6 +339,7 @@ if(JSON.parse(process.argv[2]).pins.every(pin=>!pin.inside_capture)){
   assert.equal(nodes['column-title'].textContent,'Observed column at selected cell minimum');
   const cell=JSON.parse(nodes.selection.textContent.match(/Cell (\[[^\]]+\])/)[1]);
   assert.ok(JSON.parse(process.argv[2]).cells.some(c=>c.slice(0,3).join(',')===cell.join(',')));
+  verifyExport(cell.map(v=>v/2));
   const base=nodes.selection.textContent,data=JSON.parse(process.argv[2]);
   for(let origin=0;origin<data.pins.length;origin++){
     nodes.measure.value=String(origin);nodes.measure.dispatchEvent(new Event('change'));
@@ -314,6 +358,7 @@ if(JSON.parse(process.argv[2]).pins.every(pin=>!pin.inside_capture)){
   process.exit(0);
 }
 nodes.pins.children[0].dispatchEvent(new Event('click'));
+verifyExport([10.25,20.5,30.25]);
 const pinBase=nodes.selection.textContent;
 nodes.measure.value='1';nodes.measure.dispatchEvent(new Event('change'));
 assert.ok(nodes.selection.textContent.endsWith('from Outside column: ΔXYZ [-0.750, 0.000, 0.000] m; distance 0.750 m'));
@@ -327,6 +372,7 @@ const values=row=>row.children.map(cell=>cell.textContent);
 assert.deepEqual(values(nodes['column-rows'].children[1]),['[20.5, 21)','air (no ID)','0','Selected Y']);
 assert.deepEqual(values(nodes['column-rows'].children[2]),['[20, 20.5)','terrain ID 2','128','']);
 nodes.pins.children[1].dispatchEvent(new Event('click'));
+verifyExport([11,20.5,30.25]);
 assert.equal(nodes['column-rows'].children.length,0);
 assert.equal(nodes['column-summary'].textContent,'Outside sampled X/Z; column unobserved.');
 nodes.pins.children[2].dispatchEvent(new Event('click'));

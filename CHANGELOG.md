@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Export selected terrain columns as JSON, preserving complete raw bands, selected coordinates, capture provenance and unobserved coverage without another native read.
+
 - Allow an explicit absolute effective image in optional handoff observation, preserving the same-image default and nonzero-exit/identity refusals. Owned command-to-Python qualification passes; no Steam or game executor is added. BrowserOS separately verifies one diagnostic-viewer interaction/export fixture.
 
 - Measure selected terrain cells and proposed targets from reference pins, preserving existing pin measurements. Origin changes and None retain the original selection description and planning limits; distances are straight-line coordinates, not route or clearance proof.

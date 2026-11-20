@@ -33,9 +33,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div id="pins" aria-label="Coordinate pins"></div>
 <div id="selection" aria-live="polite">Select a cell or numbered pin to inspect its exact coordinates.</div>
 <section id="column-profile" hidden aria-label="Vertical cell profile">
-<h2 id="column-title">Observed column</h2><p id="column-summary" aria-live="polite"></p>
+<h2 id="column-title">Observed column</h2>
+<button id="export-column" type="button" disabled>Save column JSON</button><p id="column-summary" aria-live="polite"></p>
 <table><thead><tr><th>Y interval (m)</th><th>Material / ID</th><th>Raw fill (0–255)</th><th>Selected point</th></tr></thead><tbody id="column-rows"></tbody></table>
-<p class="hint">Highest sampled band first. Raw cells, not a surface-height equation; no support, contact or clearance proof. This profile stays in the HTML inspector; Save PNG exports the main geometry canvas.</p>
+<p class="hint">Highest sampled band first. Raw cells, not a surface-height equation; no support, contact or clearance proof. Save column JSON exports the selected column with raw bands and capture provenance. Save PNG exports the main geometry canvas.</p>
 </section>
 <p class="hint">Outside dashed box: unobserved. Filled cubes show material classification only; raw fill is not a verified surface-height equation. Proposed cells use dashed x-ray outlines: gold over sampled Air, coral over sampled terrain/building, violet over unknown material. Outside-capture targets are listed, not drawn. Neither Air nor an outline proves clearance. Prop pins show origins only. Pins outside a section are explicitly marked. Separate reads are not atomic; native world session is unavailable. No gameplay commands.</p>
 <details><summary>Capture provenance and coverage</summary><pre id="provenance"></pre></details>

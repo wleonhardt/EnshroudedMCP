@@ -371,3 +371,5 @@ The terrain viewer measures any selected pin, captured cell minimum or proposed 
 
 
 Optional process handoff observation accepts a separately named expected child image while retaining the original default and all nonzero-exit/identity gates (decision 0118). Ten owned-process/refusal methods pass. Valve documents a candidate Steam launch route, but this helper starts nothing and does not explain exit53 or authorize a game retry.
+
+The terrain inspector offers **Save column JSON** after selecting a pin, cell or proposed target. Export includes complete raw half-metre bands, nullable material IDs/fill, selected-Y markers, capture bounds and provenance. Outside columns remain unobserved; raw observations do not prove ground contact or clearance. No extra MCP read occurs. See [selected-column export](plans/decisions/0124-export-selected-raw-column.md).

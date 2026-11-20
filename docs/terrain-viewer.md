@@ -20,9 +20,9 @@ Save PNG exports the drawn canvas, including bounds, axis directions, material l
 
 Select a numbered pin, a drawn cell or a proposed target to inspect every sampled half-metre Y band at that point's containing X/Z column. Bands are listed highest first, with material ID, raw fill and a highlight only where the selected Y lies in the half-open band. The complete captured column remains visible regardless of the current projection or section slice.
 
-Outside the sampled X/Z box means an unobserved column. A point outside sampled Y can still show the known column, with no selected band. No sample is extrapolated and no extra MCP request is made. Partial/zero fill, Air and unknown materials remain raw data; the profile proves no surface height, support, contact or clearance. Save PNG still exports only the main geometry canvas; the profile stays in the HTML. Previously saved HTML remains unchanged: generate a new output file to include this feature.
+Outside the sampled X/Z box means an unobserved column. A point outside sampled Y can still show the known column, with no selected band. No sample is extrapolated and no extra MCP request is made. Partial/zero fill, Air and unknown materials remain raw data; the profile proves no surface height, support, contact or clearance. Save PNG still exports only the main geometry canvas. Save column JSON downloads the complete selected column, raw bands and capture provenance; outside X/Z remains unobserved with no bands, while above/below Y retains known bands without a selected marker. No extra MCP read occurs. Previously saved HTML remains unchanged: generate a new output file to include this feature.
 
-Source behavior and fresh native-data DOM correspondence pass. Browser visual/layout acceptance for this new profile remains pending a disconnected BrowserOS link; see decision 0095. Earlier browser acceptance below covers the older projection/pin/proposal features.
+Source behavior and fresh native-data correspondence pass. Decision 0119 accepts one desktop BrowserOS profile interaction fixture; decision 0124 verifies three real JSON downloads and32 independently matched native bands. Broader responsive/browser coverage and engine surface/contact remain unverified.
 
 ## Offline input and reference pins
 

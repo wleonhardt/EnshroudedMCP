@@ -180,3 +180,7 @@ Decision0122 re-establishes goals2/10 current signed-server readiness and protec
 ## Current-runtime provider-review checkpoint — 2026-11-19
 
 Decision 0123 advances goals2/3 with a fresh exact two-phase Menu-only review after runtime re-establishment. Thirty controller methods, ten actual owned-process helper methods, candidate/rollback/source closure, current read-only runtime guard and stale-copy refusal pass. Earlier retired review remains immutable. Execution needs a new explicit provider exception and mandatory rollback; no native Join/Leave, credentials or adoption is implied.
+
+## Raw column artifact checkpoint — 2026-11-19
+
+Decision0124 advances goals5/9 with selected-column JSON downloads carrying complete raw bands and provenance. Seventeen terrain methods and three BrowserOS downloads match32 independent native bands from4096 fresh cells. Outside coverage remains explicit; no extra read, gameplay or installed change occurs. Whole-client preservation is unverified after a separate owner-confirmed test; frozen review0123 remains unexecuted and its preflight currently refuses.
