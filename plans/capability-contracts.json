@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.3 voxel read/capture lifecycle guards await native acceptance; prior0.51.2 native evidence retains its scope",
+  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.3 same-process voxel/image follow-up and exit verified after initial survey refusal; cause, native interruption and physical/client correspondence remain separate",
   "profiles": {
     "product": {
       "server_version": "0.51.3",
@@ -23,7 +23,8 @@
       "isolated_current_player_buff_cohort": "plans/decisions/0153-isolated-current-player-buff-cohort.md",
       "isolated_inventory_native_cohort": "plans/decisions/0156-canonical-inventory-native-cohort.md",
       "server_lifecycle_coverage_audit": "plans/decisions/0157-server-lifecycle-coverage-audit.md",
-      "isolated_roster_status_native_cohort": "plans/decisions/0159-native-roster-status-cohort.md"
+      "isolated_roster_status_native_cohort": "plans/decisions/0159-native-roster-status-cohort.md",
+      "isolated_voxel_image_native_cohort": "plans/decisions/0161-native-voxel-image-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -741,14 +742,15 @@
       "evidence_summary": "Source0.51.3 retained positive SDK terrain reproductions fail before the fix and pass with active admission/execution epoch guards; unchanged raw data and diagnostic limits remain preserved.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0160-voxel-observation-lifecycle-guards.md"
+        "plans/decisions/0160-voxel-observation-lifecycle-guards.md",
+        "plans/decisions/0161-native-voxel-image-cohort.md"
       ],
       "source_checks": "Separate queued unchanged/reload/shutdown and pre-admission shutdown cases for each of three tools; direct SDK terrain remains positive. Refused calls add no voxel read. Copied-image presentation still encodes after shutdown without native reads.",
-      "native_acceptance": "Historical indexed evidence and isolated0.51.2 cohort retain their original scope. New0.51.3 active/queued capture guard behavior is source-qualified only; native interruption and physical/rendered correspondence remain open.",
+      "native_acceptance": "Isolated0.51.3/SDK12.1: first new survey read refuses with initial error unretained; same-process read-only follow-up passes unchanged assertions. A256-cell survey agrees with all256 displayed diagnostic cells; one sample matches one included cell. Initial cause, native interruption and physical/rendered-game correspondence remain unverified.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Historical baseline preservation is not complete built-structure persistence.",
       "freshness_completeness": "Require active MCP lifecycle and unchanged admission/execution epoch before native voxel observation. Output/capture remains non-atomic, may load chunks and grants no physical support, collision, clearance or movement authority.",
-      "next_missing_check": "Qualify source0.51.3 active-world guarded read/capture and native interruption; keep diagnostic raster separate from physical/rendered acceptance.",
+      "next_missing_check": "Persist every native reply before assertions; investigate initial availability refusal, native interruption and independent physical/rendered correspondence without promoting diagnostic cells to safety proof.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Existing platform standing correspondence is narrow; grass/rock occlusion and fill semantics remain unresolved.",
       "admission_sources": [
@@ -873,14 +875,15 @@
         "plans/decisions/0076-native-terrain-caption-acceptance.md",
         "plans/decisions/0098-native-pin-column-metadata.md",
         "plans/decisions/0099-signed-server-pin-column-acceptance.md",
-        "plans/decisions/0160-voxel-observation-lifecycle-guards.md"
+        "plans/decisions/0160-voxel-observation-lifecycle-guards.md",
+        "plans/decisions/0161-native-voxel-image-cohort.md"
       ],
       "source_checks": "Separate queued unchanged/reload/shutdown and pre-admission shutdown cases for each of three tools; direct SDK terrain remains positive. Refused calls add no voxel read. Copied-image presentation still encodes after shutdown without native reads.",
-      "native_acceptance": "Historical indexed evidence and isolated0.51.2 cohort retain their original scope. New0.51.3 active/queued capture guard behavior is source-qualified only; native interruption and physical/rendered correspondence remain open.",
+      "native_acceptance": "Isolated0.51.3/SDK12.1: first new survey read refuses with initial error unretained; same-process read-only follow-up passes unchanged assertions. Diagnostic PNG/metadata agree with all256 native survey cells; two reference positions and image envelope/visual checks pass. Initial cause, native interruption and physical/rendered-game correspondence remain unverified.",
       "rendered_acceptance": "Diagnostic raster only; no game-frame, camera, interpolated surface or contact proof.",
       "persistence_acceptance": "No write or save/recovery authority.",
       "freshness_completeness": "Require active MCP lifecycle and unchanged admission/execution epoch before native voxel observation. Output/capture remains non-atomic, may load chunks and grants no physical support, collision, clearance or movement authority. Copied rasterization remains game-free and can encode a previously captured diagnostic after shutdown.",
-      "next_missing_check": "Qualify source0.51.3 active-world guarded read/capture and native interruption; keep diagnostic raster separate from physical/rendered acceptance.",
+      "next_missing_check": "Persist every native reply before assertions; investigate initial availability refusal, native interruption and independent physical/rendered correspondence without promoting diagnostic cells to safety proof.",
       "refusal_acceptance": "Eighteen exact native argument refusals return only one error-text block, with no PNG or ledger changes. Native capture-time failure presentation remains separately unverified.",
       "independent_effect_acceptance": "PNG encoding is game-free; reference pins do not move or select anything.",
       "admission_sources": [
@@ -1316,14 +1319,15 @@
       "evidence_summary": "Source0.51.3 retained positive SDK terrain reproductions fail before the fix and pass with active admission/execution epoch guards; unchanged raw data and diagnostic limits remain preserved.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0160-voxel-observation-lifecycle-guards.md"
+        "plans/decisions/0160-voxel-observation-lifecycle-guards.md",
+        "plans/decisions/0161-native-voxel-image-cohort.md"
       ],
       "source_checks": "Separate queued unchanged/reload/shutdown and pre-admission shutdown cases for each of three tools; direct SDK terrain remains positive. Refused calls add no voxel read. Copied-image presentation still encodes after shutdown without native reads.",
-      "native_acceptance": "Historical indexed evidence and isolated0.51.2 cohort retain their original scope. New0.51.3 active/queued capture guard behavior is source-qualified only; native interruption and physical/rendered correspondence remain open.",
+      "native_acceptance": "Isolated0.51.3/SDK12.1: first new survey read refuses with initial error unretained; same-process read-only follow-up passes unchanged assertions. One native sample agrees with one included survey/image cell; the sample API is not called for all256 cells. Initial cause, native interruption and physical/rendered-game correspondence remain unverified.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Historical baseline/reload fixtures are narrow, not arbitrary construction persistence.",
       "freshness_completeness": "Require active MCP lifecycle and unchanged admission/execution epoch before native voxel observation. Output/capture remains non-atomic, may load chunks and grants no physical support, collision, clearance or movement authority.",
-      "next_missing_check": "Qualify source0.51.3 active-world guarded read/capture and native interruption; keep diagnostic raster separate from physical/rendered acceptance.",
+      "next_missing_check": "Persist every native reply before assertions; investigate initial availability refusal, native interruption and independent physical/rendered correspondence without promoting diagnostic cells to safety proof.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Raw cell correspondence does not prove complete physical surface/collision.",
       "admission_sources": [

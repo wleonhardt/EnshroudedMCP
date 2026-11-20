@@ -2,6 +2,8 @@
 
 ## 0.51.3
 
+- Native qualification:51 models,46 fixed probes and23 separately logged same-process follow-up targets pass, including256-cell survey/image agreement and one-point sample consistency, PNG envelope and two reference pins. Initial survey refusal reason was not retained; cause stays unverified. One shutdown has independent exit0 with old durable prefix/five intents preserved. Diagnostic visibility is not physical/rendered-game or native interruption proof.
+
 - Fix survey, terrain-image capture and voxel sample returning retained terrain after lifecycle changes. Require active admission/execution with unchanged epoch before native reads. Preserve raw data, chunk-loading caveats and pure copied-image encoding after shutdown. No physical/rendered or movement authority is added; native qualification remains open.
 
 
