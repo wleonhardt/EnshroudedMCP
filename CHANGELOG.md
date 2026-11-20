@@ -2,6 +2,8 @@
 
 ## 0.51.3
 
+- Preserve an inactive current-feature SDK12.16 compatibility patch with published cross-game queue-discard models, unchanged retained-data shutdown guards and stopped-world regression. Correct the signed installed README checkpoint; no product SDK adoption or native direct-join acceptance.
+
 - Record matched signed server0.48.0/companion0.22.0 cold deployment and bounded fresh Menu/header/fifteen-read/contract acceptance with independently observed normal exit0. Update installed checkpoint; native Join/Leave and rendered/callback causality remain unverified.
 
 - Add qualification observation ordering helper: record intent before authorized callback and reply before caller assertions. Preserve native refusals; bound transport/parse reasons and abort on unconfirmed recording without retry. No mod/runtime behavior change.

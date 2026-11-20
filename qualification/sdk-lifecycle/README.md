@@ -164,3 +164,31 @@ Pop-Location
 ```
 
 These SDK fakes supply lifecycle transitions. They do not qualify provider fidelity, an actual connection, cancellation/Leave effects, credential provisioning, current-peer identity or native crash causes. No candidate is installed. Nested qualification target directories are ignored to keep ordinary local build output outside publication; source files remain visible.
+
+## Current feature source against exact SDK 12.16
+
+Decision0165 adds consumer-sdk1216-current-feature.patch against exact feature base `291ae31292c429c573552f12664657891dbff29b` (server 0.51.3 / companion 0.22.0). This inactive migration affecting 29 files reconstructs 373 source files. Candidate and clean replay each pass 472 Rust tests and 125 Python tests and required checks. The two extra scheduling discriminators and stopped-world regression are source/fake evidence only. Existing signed product SDK 12.1 and its lifecycle tests remain unchanged; no provider or Join/Leave workflow is adopted.
+
+SDK 12.16 passes the scheduler before WorldLoaded and discards tasks from an ended game. Cross-game tests use the published end_game boundary and assert no returned old-world data. Same-game shutdown tests retain positive SDK observations and exact active-lifecycle refusal. These do not establish the same claim. The transport error alone supplies no native cancellation or replay authority. Source compatibility cannot replace actual header, peer, character, roster, private credential and Leave acceptance.
+
+```powershell
+$migrationPatch = (Resolve-Path qualification/sdk-lifecycle/consumer-sdk1216-current-feature.patch).Path
+git worktree add --detach ../enshrouded-sdk1216-current-check 291ae31292c429c573552f12664657891dbff29b
+git -C ../enshrouded-sdk1216-current-check apply --check $migrationPatch
+git -C ../enshrouded-sdk1216-current-check apply $migrationPatch
+Push-Location ../enshrouded-sdk1216-current-check
+rustc +stable --version
+cargo +stable --version
+# Proceed only when both report exactly 1.100.0.
+$env:CARGO_BUILD_JOBS='2'
+$env:RUST_TEST_THREADS='1'
+cargo +stable test --locked --workspace
+python -B -m unittest discover -s scripts -p 'test_*.py'
+cargo +stable clippy --locked --workspace --all-targets -- -D warnings
+cargo +stable fmt --check
+cargo +stable build --locked --release -p mcp -p mcp-client
+python -B scripts/check_contracts.py
+Pop-Location
+```
+
+The replay can reuse a dependency artifact cache while Cargo rebuilds its distinct workspace packages; compiler-artifact package identities and metadata are checked independently. The exact checked sources and DLLs are private qualification artifacts, not an installed provider. Official matching development providers lack detached signatures and need the project's fresh signed-provider exception review before any temporary native test. Six rollback files are verified; no installation or test approval is implied by source checks.

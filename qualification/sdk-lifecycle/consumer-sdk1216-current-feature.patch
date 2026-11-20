@@ -1,0 +1,1034 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index 477e38072a673ad87a82892843262566c81d9ac8..64834832786b15c9138b8d52e96e613584700c90 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -103,7 +103,7 @@ checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
+ [[package]]
+ name = "enshwick"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "document-features",
+  "enshwick-abi",
+@@ -124,7 +124,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-abi"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "enshwick-values",
+@@ -135,12 +135,13 @@ dependencies = [
+ [[package]]
+ name = "enshwick-actions"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "enshwick-abi",
+  "enshwick-base",
+  "enshwick-content",
++ "enshwick-inventory",
+  "enshwick-macros",
+  "enshwick-values",
+  "enshwick-world",
+@@ -150,7 +151,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-base"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "aho-corasick",
+  "bytemuck",
+@@ -171,7 +172,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-content"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bcdec_rs",
+  "enshwick-abi",
+@@ -188,7 +189,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-core"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-actions",
+@@ -208,9 +209,10 @@ dependencies = [
+ [[package]]
+ name = "enshwick-fake"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
++ "enshwick-base",
+  "enshwick-core",
+  "enshwick-macros",
+  "postcard",
+@@ -223,7 +225,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-inventory"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -241,7 +243,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-knowledge"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -257,7 +259,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-macros"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+@@ -268,7 +270,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-packs"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+@@ -287,7 +289,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-typed"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-values",
+  "thiserror",
+@@ -296,11 +298,12 @@ dependencies = [
+ [[package]]
+ name = "enshwick-ui"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+  "enshwick-content",
++ "enshwick-inventory",
+  "enshwick-macros",
+  "enshwick-values",
+  "enshwick-world",
+@@ -311,7 +314,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-values"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "bytemuck",
+  "const-sha1",
+@@ -325,7 +328,7 @@ dependencies = [
+ [[package]]
+ name = "enshwick-world"
+ version = "1.0.0-alpha.17"
+-source = "git+https://github.com/enshwick/enshwick?rev=6a151a9550ed7a6ade99c23fa817a91e25b71bc9#6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++source = "git+https://github.com/enshwick/enshwick?rev=33cf4dc149f88d1abe3d3c11a12053d0ab94967f#33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+ dependencies = [
+  "enshwick-abi",
+  "enshwick-base",
+diff --git a/Cargo.toml b/Cargo.toml
+index 181da89448b71d0f24dac2b2f56e8e630d0e5f7d..1d409e603be3346d773927f71107df20edc1f79a 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -4,12 +4,12 @@ members = ["crates/policy", "crates/mcp", "crates/transport", "crates/client"]
+
+ [workspace.package]
+ edition = "2024"
+-rust-version = "1.99"
++rust-version = "1.100"
+ license = "MIT"
+
+ [workspace.dependencies]
+-# Pin the exact official alpha.17 release qualified with its matching signed loader.
+-enshwick = { git = "https://github.com/enshwick/enshwick", rev = "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" }
++# Inactive exact-SDK source qualification; no installed provider adoption.
++enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f" }
+ policy = { path = "crates/policy" }
+ mcp-transport = { path = "crates/transport" }
+ serde_json = "1"
+diff --git a/README.md b/README.md
+index 2c6588d0b52d2f6d323084b563d5f03580375598..e506021621c8239914535ae0f7ef37f4c7a2d728 100644
+--- a/README.md
++++ b/README.md
+@@ -1,8 +1,8 @@
+ <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
+
+-Feature-branch source server **0.51.3** / companion **0.22.0** adds read-only `player_waypoint` and explicit configured-catalogue coverage for `entity_components` on the existing SDK12.1. Main remains server0.48.0; the original server/client installation remains unchanged. A separate owned server0.50.6 cold cohort qualifies bounded native reads/refusals and one native shutdown/exit0; companion file identity is checked while client UI remains untested. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
++Inactive source candidate: server **0.51.3** / companion **0.22.0** against exact official SDK33cf4dc1/ABI12.16 and Rust1.100.0. Product dependency pins and the signed installed ABI12.1 baseline are not adopted or changed by this candidate. Existing source controls and schemas remain unchanged. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for separate qualification scope.
+
+-Last verified signed checkpoint: Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
++Last verified signed checkpoint: installed server0.48.0 / companion0.22.0 on unchanged signed SDK6a151a95/ABI12.1. Decision0164 verifies cold product deployment, server restart, fresh Steam Menu/header/three loaded client hashes, fifteen read/refusal probes, client contracts and normal client close with independent exit0. Client is closed; native simulation snapshot remains never/session0. Direct Join/Leave, rendered UI, callback cause, connected-player and physical/contact acceptance remain open.
+
+
+
+diff --git a/crates/client/src/control.rs b/crates/client/src/control.rs
+index 68c20df7190330b1ed1ba937768464be6ad1f17a..e09237ab67e099f40fbae7cc4f714bfffbbad62b 100644
+--- a/crates/client/src/control.rs
++++ b/crates/client/src/control.rs
+@@ -494,6 +494,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         let input_value = input.unwrap();
+         loader.set_client_snapshot(snapshot(1, "InGame", ""));
+         let fixture = Fixture::new();
+@@ -714,6 +716,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         loader.set_client_snapshot(snapshot(7, "InGame", ""));
+         let fixture = Fixture::new();
+         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+@@ -1004,6 +1008,7 @@ mod tests {
+         }
+         thread_local! {
+             static SCRIPT: RefCell<Option<Script>> = const { RefCell::new(None) };
++            static INITIAL_READS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+         }
+         extern "system" fn read_snapshot(_me: ModHandle, out: *mut Raw) -> Status {
+             if out.is_null() {
+@@ -1011,7 +1016,12 @@ mod tests {
+             }
+             SCRIPT.with(|slot| {
+                 let mut slot = slot.borrow_mut();
+-                let script = slot.as_mut().unwrap();
++                let Some(script) = slot.as_mut() else {
++                    INITIAL_READS.with(|count| count.set(count.get() + 1));
++                    // SAFETY: initialization supplied the same full-size SDK output.
++                    unsafe { out.write(Raw::EMPTY) };
++                    return Status::OK;
++                };
+                 script.calls += 1;
+                 let value = if script.calls == 1 {
+                     script.initial
+@@ -1046,6 +1056,7 @@ mod tests {
+             unsafe { enshwick_mod_init(api, loader.handle()) },
+             Status::OK
+         );
++        INITIAL_READS.with(|count| assert_eq!(count.get(), 1));
+         // SAFETY: this mod's matching init just succeeded on this fake.
+         assert_eq!(unsafe { loader.ready(enshwick_mod_ready) }, Status::OK);
+         let input = *INPUT.lock().unwrap();
+@@ -1195,6 +1206,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         loader.set_client_snapshot(snapshot(9, "InGame", ""));
+         let fixture = Fixture::new();
+         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+@@ -1274,6 +1287,8 @@ mod tests {
+             enshwick::abi::Status::OK
+         );
+         let input = *INPUT.lock().unwrap();
++        input.unwrap().client_snapshot().unwrap();
++        let _ = loader.draw_frame();
+         loader.set_client_snapshot(snapshot(9, "InGame", ""));
+         let fixture = Fixture::new();
+         fs::write(fixture.0.join(write_gate::FLAG), b"").unwrap();
+diff --git a/crates/client/src/input_status.rs b/crates/client/src/input_status.rs
+index 849e232eb471d87277b29388a2e68cd4f23a5239..c18b27b1f692dad384f9016f0c2134b34a8adb59 100644
+--- a/crates/client/src/input_status.rs
++++ b/crates/client/src/input_status.rs
+@@ -57,6 +57,8 @@ side = "both""#
+     #[test]
+     fn cached_status_preserves_weak_flags_age_and_does_not_submit_commands() {
+         let (loader, input) = start(Side::CLIENT);
++        // SDK12.16 Input construction starts held sampling before this getter.
++        assert_eq!(read(input).unwrap()["requested"], true);
+         for (flags, age) in [
+             (0, u64::MAX),
+             (Raw::FRESH, 0),
+@@ -78,7 +80,7 @@ side = "both""#
+                 ("sample_present", Raw::SAMPLE_PRESENT),
+                 ("fresh", Raw::FRESH),
+             ] {
+-                assert_eq!(value[key], flags & mask != 0);
++                assert_eq!(value[key], (flags | Raw::REQUESTED) & mask != 0);
+             }
+             assert_eq!(
+                 value["age_ms"],
+diff --git a/crates/client/src/lib.rs b/crates/client/src/lib.rs
+index bd2fb54373a0ef845b72cd3c6a82cd760f027724..9fbd5b0a1addbe5ae56f94e388b0de8bcc5e4193 100644
+--- a/crates/client/src/lib.rs
++++ b/crates/client/src/lib.rs
+@@ -308,7 +308,7 @@ impl Tools for ClientTools {
+                 self.request(Request::Markers(spec))
+             }
+             "client_capabilities" => Ok(
+-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_cached_input_status":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
++                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"33cf4dc149f88d1abe3d3c11a12053d0ab94967f","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"inactive SDK main qualification; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_cached_input_status":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
+             ),
+             "client_state" => Ok(self
+                 .shared
+@@ -823,9 +823,9 @@ side = "both""#
+         assert_eq!(value["enshwick"], "1.0.0-alpha.17");
+         assert_eq!(
+             value["compiled_framework_revision"],
+-            "6a151a9550ed7a6ade99c23fa817a91e25b71bc9"
++            "33cf4dc149f88d1abe3d3c11a12053d0ab94967f"
+         );
+-        assert_eq!(value["compiled_framework_abi"], "12.1");
++        assert_eq!(value["compiled_framework_abi"], "12.16");
+         assert_eq!(value["screen_host_template_observation"], true);
+         assert_eq!(value["live_verified"], false);
+         assert_eq!(value["semantic_gameplay_actions"], json!([]));
+@@ -842,7 +842,7 @@ side = "both""#
+         assert_eq!(value["runtime_framework"]["abi_major"], 42);
+         assert_eq!(value["runtime_framework"]["abi_minor"], 99);
+         assert_eq!(value["runtime_framework"]["api_table_bytes"], 4096);
+-        assert_eq!(value["compiled_framework_abi"], "12.1");
++        assert_eq!(value["compiled_framework_abi"], "12.16");
+         assert_eq!(value["live_verified"], false);
+     }
+
+diff --git a/crates/client/src/native_snapshot.rs b/crates/client/src/native_snapshot.rs
+index 3eb8babc9f50ab7031b3dc4e351e1ed594ac7668..fe7e7d42fb0fb9d9e2da97267336e1812b971577 100644
+--- a/crates/client/src/native_snapshot.rs
++++ b/crates/client/src/native_snapshot.rs
+@@ -68,6 +68,7 @@ mod tests {
+         assert_eq!(never["state"], "never");
+         assert_eq!(never["session"], 0);
+         assert!(never["age_ms"].is_null());
++        let _ = loader.draw_frame();
+         for (state, expected, age) in [
+             (Raw::FRESH, "fresh", 16),
+             (Raw::STALE, "stale", 4200),
+diff --git a/crates/mcp/src/buff_read.rs b/crates/mcp/src/buff_read.rs
+index 78642d5fdfdb45a64995bcd37d5caf9e28648669..2ba8b3654a8744bede5adab949da019bb10d1050 100644
+--- a/crates/mcp/src/buff_read.rs
++++ b/crates/mcp/src/buff_read.rs
+@@ -238,10 +238,12 @@ mod lifecycle_tests {
+                 assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             let retained = buffs.of(Entity(17)).unwrap();
+             assert_eq!(retained.len(), 1);
+@@ -259,14 +261,7 @@ mod lifecycle_tests {
+             } else {
+                 let error =
+                     result.expect_err("queued changed-context buff read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "reload" {
+-                        "session"
+-                    } else {
+-                        "active"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/building_access.rs b/crates/mcp/src/building_access.rs
+index d374cb9df99e3623edb500231e3c819b12072535..ef6bfc68d7c7db41c59d81b1f22708da9f0d51a0 100644
+--- a/crates/mcp/src/building_access.rs
++++ b/crates/mcp/src/building_access.rs
+@@ -148,10 +148,12 @@ mod lifecycle_tests {
+                 assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             assert_retained(&context);
+             let until = Instant::now() + Duration::from_secs(2);
+@@ -177,14 +179,7 @@ mod lifecycle_tests {
+             } else {
+                 let error =
+                     result.expect_err("queued changed-context access read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "reload" {
+-                        "session"
+-                    } else {
+-                        "active"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/factory_station_lifecycle.rs b/crates/mcp/src/factory_station_lifecycle.rs
+index ea8a575dd692bbd0bcb6b08b626d663184e4de56..c9b03325936bcfc4edf4cc1b7b3632d941828dbe 100644
+--- a/crates/mcp/src/factory_station_lifecycle.rs
++++ b/crates/mcp/src/factory_station_lifecycle.rs
+@@ -91,10 +91,12 @@ fn queued_station_reads_refuse_changed_lifecycle_with_retained_typed_data() {
+             assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+             thread::yield_now();
+         }
+-        match phase {
+-            "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-            "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-            _ => {}
++        if phase == "reload" {
++            crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++            continue;
++        }
++        if phase == "shutdown" {
++            assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+         }
+         assert_retained(&context);
+         let until = Instant::now() + Duration::from_secs(2);
+@@ -111,14 +113,7 @@ fn queued_station_reads_refuse_changed_lifecycle_with_retained_typed_data() {
+         } else {
+             let error =
+                 result.expect_err("queued changed-context station read returned an observation");
+-            assert!(
+-                error.contains(if phase == "reload" {
+-                    "session"
+-                } else {
+-                    "active"
+-                }),
+-                "{phase}: {error}"
+-            );
++            assert!(error.contains("active"), "{phase}: {error}");
+         }
+     }
+ }
+diff --git a/crates/mcp/src/interaction_target.rs b/crates/mcp/src/interaction_target.rs
+index 7b9824520d2144aa4b368c0bc26d858067176e4b..672dc847b6478a1d3bdd78b8f55e65b518a79599 100644
+--- a/crates/mcp/src/interaction_target.rs
++++ b/crates/mcp/src/interaction_target.rs
+@@ -258,10 +258,12 @@ mod lifecycle_tests {
+                 assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             assert_retained(&context);
+             let until = Instant::now() + Duration::from_secs(2);
+@@ -279,14 +281,7 @@ mod lifecycle_tests {
+             } else {
+                 let error =
+                     result.expect_err("queued changed-context prompt read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "reload" {
+-                        "session"
+-                    } else {
+-                        "active"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/inventory_lifecycle.rs b/crates/mcp/src/inventory_lifecycle.rs
+index 36ceb3ba36c5b6e71dc9f0a9a76056a3e5873579..f2e406843a40b57655d6b18df811606b0ec22290 100644
+--- a/crates/mcp/src/inventory_lifecycle.rs
++++ b/crates/mcp/src/inventory_lifecycle.rs
+@@ -127,10 +127,12 @@ fn queued(player: bool) {
+             assert!(Instant::now() < until, "queue barrier");
+             thread::yield_now();
+         }
+-        match phase {
+-            "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-            "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-            _ => {}
++        if phase == "reload" {
++            crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++            continue;
++        }
++        if phase == "shutdown" {
++            assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+         }
+         positive(&c);
+         let result = finish(&loader, worker);
+@@ -143,14 +145,7 @@ fn queued(player: bool) {
+         } else {
+             let error = result
+                 .expect_err("queued changed-context inventory read returned retained slots/counts");
+-            assert!(
+-                error.contains(if phase == "reload" {
+-                    "session"
+-                } else {
+-                    "active"
+-                }),
+-                "{phase}: {error}"
+-            );
++            assert!(error.contains("active"), "{phase}: {error}");
+         }
+     }
+ }
+diff --git a/crates/mcp/src/knowledge_read.rs b/crates/mcp/src/knowledge_read.rs
+index 65c0e80d261f41ac6c579e81719cd66126217e2d..d5798e7af45af389131f962f56768975e468f026 100644
+--- a/crates/mcp/src/knowledge_read.rs
++++ b/crates/mcp/src/knowledge_read.rs
+@@ -275,10 +275,12 @@ mod lifecycle_tests {
+                 assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             assert_retained(&context);
+             let until = Instant::now() + Duration::from_secs(2);
+@@ -304,14 +306,7 @@ mod lifecycle_tests {
+             } else {
+                 let error = result
+                     .expect_err("queued changed-context knowledge read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "reload" {
+-                        "session"
+-                    } else {
+-                        "active"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/lib.rs b/crates/mcp/src/lib.rs
+index 58ef55a1260659a52132823807936b664208e1a0..1ec92d64294b43fc59847fcf74471bb3cbaec712 100644
+--- a/crates/mcp/src/lib.rs
++++ b/crates/mcp/src/lib.rs
+@@ -144,7 +144,7 @@ mod provider_tests {
+             assert_eq!(value["runtime_framework"]["abi_major"], header.abi_major);
+             assert_eq!(value["runtime_framework"]["abi_minor"], header.abi_minor);
+             assert_eq!(value["runtime_framework"]["api_table_bytes"], header.size);
+-            assert_eq!(value["compiled_framework_abi"], "12.1");
++            assert_eq!(value["compiled_framework_abi"], "12.16");
+             assert_eq!(value["new_inspection_tools_live_verified"], false);
+             Ok(Self)
+         }
+@@ -171,3 +171,6 @@ side = "server""#
+
+ #[cfg(test)]
+ mod factory_station_lifecycle;
++
++#[cfg(test)]
++mod sdk1216_lifecycle;
+diff --git a/crates/mcp/src/player_buffs.rs b/crates/mcp/src/player_buffs.rs
+index a710b37c40547f85347cadf62037131ab8e1e10a..a57179c48cf8260e61f017de32bdf08c7ba90956 100644
+--- a/crates/mcp/src/player_buffs.rs
++++ b/crates/mcp/src/player_buffs.rs
+@@ -259,10 +259,12 @@ mod tests {
+                 assert!(Instant::now() < until, "queue barrier");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             assert_eq!(c.world.players()[0].entity, Entity(17));
+             assert_eq!(c.buffs.of(Entity(17)).unwrap().len(), 3);
+@@ -277,14 +279,7 @@ mod tests {
+             } else {
+                 let error = result
+                     .expect_err("queued changed-context player buff read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "reload" {
+-                        "session"
+-                    } else {
+-                        "active"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/player_shroud.rs b/crates/mcp/src/player_shroud.rs
+index e173733c23d743e6463f79ba88f65a4bed7a54f5..b7174eb2725bac6c28611a3b57375ce083f6b8ec 100644
+--- a/crates/mcp/src/player_shroud.rs
++++ b/crates/mcp/src/player_shroud.rs
+@@ -227,7 +227,7 @@ mod tests {
+         }
+     }
+     #[test]
+-    fn each_request_reads_current_values_and_stopped_world_never_replays() {
++    fn each_request_reads_current_values_and_shutdown_event_refuses_until_loaded() {
+         let (loader, tools) = start(
+             host(true, true)
+                 .component(CHARACTER, 6, &timer(60, 300))
+@@ -244,8 +244,7 @@ mod tests {
+         assert_eq!(value["timer_seconds"]["current"], 0);
+         assert_eq!(value["in_shroud"], false);
+         let old_context = value["context_session"].clone();
+-        loader.stop_world();
+-        // The fake read-stop helper does not publish lifecycle events itself.
++        // Preserve positive SDK data while independently publishing shutdown.
+         assert!(loader.shut_down());
+         assert!(request(&loader, &tools, "7").is_err());
+         assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+@@ -254,6 +253,25 @@ mod tests {
+         assert_eq!(fresh["timer_seconds"]["current"], 0);
+     }
+     #[test]
++    fn loaded_notification_does_not_resume_stopped_sdk_world_reads() {
++        let (loader, tools) = start(
++            host(true, true)
++                .component(CHARACTER, 6, &timer(60, 300))
++                .component(CHARACTER, 7, &4u64.to_le_bytes()),
++            &[player(17, 7)],
++        );
++        assert_eq!(
++            request(&loader, &tools, "7").unwrap()["timer_seconds"]["current"],
++            60
++        );
++        loader.stop_world();
++        assert!(WORLD.lock().unwrap().unwrap().players().is_empty());
++        assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
++        assert!(WORLD.lock().unwrap().unwrap().players().is_empty());
++        let error = request(&loader, &tools, "7").unwrap_err();
++        assert!(error.contains("no connected player"), "{error}");
++    }
++    #[test]
+     fn missing_ambiguous_and_entity_id_selectors_refuse_current_roster_selection() {
+         for (players, selector, error) in [
+             (vec![], "7", "no connected player"),
+@@ -324,14 +342,12 @@ mod tests {
+                 assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "shutdown" => {
+-                    assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+-                }
+-                "reload" => {
+-                    assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+-                }
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             // The SDK fixture still supplies data. A changed-context refusal
+             // must come from the lifecycle guard, not a missing component.
+@@ -358,14 +374,7 @@ mod tests {
+             } else {
+                 let error =
+                     result.expect_err("queued changed-context read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "shutdown" {
+-                        "active"
+-                    } else {
+-                        "session"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/player_waypoint.rs b/crates/mcp/src/player_waypoint.rs
+index 36159540317f0571065f9be23360238cb6fa83e7..f65abc8564653dd1f62bfda71895f1ad7b5874ea 100644
+--- a/crates/mcp/src/player_waypoint.rs
++++ b/crates/mcp/src/player_waypoint.rs
+@@ -271,14 +271,12 @@ mod tests {
+                 assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                 thread::yield_now();
+             }
+-            match phase {
+-                "shutdown" => {
+-                    assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+-                }
+-                "reload" => {
+-                    assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+-                }
+-                _ => {}
++            if phase == "reload" {
++                crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++                continue;
++            }
++            if phase == "shutdown" {
++                assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+             }
+             // A retained waypoint independently proves refusal is lifecycle-based.
+             assert!(
+@@ -302,14 +300,7 @@ mod tests {
+             } else {
+                 let error =
+                     result.expect_err("queued changed-context read returned an observation");
+-                assert!(
+-                    error.contains(if phase == "shutdown" {
+-                        "active"
+-                    } else {
+-                        "session"
+-                    }),
+-                    "{phase}: {error}"
+-                );
++                assert!(error.contains("active"), "{phase}: {error}");
+             }
+         }
+     }
+diff --git a/crates/mcp/src/roster_lifecycle.rs b/crates/mcp/src/roster_lifecycle.rs
+index f939dc77a053519590d230e3f6956e7b26076198..1745015c7eb233c922493aec5ae6c322530d9150 100644
+--- a/crates/mcp/src/roster_lifecycle.rs
++++ b/crates/mcp/src/roster_lifecycle.rs
+@@ -96,10 +96,12 @@ fn queue(tool: &'static str) {
+             assert!(Instant::now() < until, "queue barrier");
+             thread::yield_now();
+         }
+-        match phase {
+-            "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-            "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-            _ => {}
++        if phase == "reload" {
++            crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++            continue;
++        }
++        if phase == "shutdown" {
++            assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+         }
+         positive(&c);
+         let result = finish(&loader, worker);
+@@ -118,14 +120,7 @@ fn queue(tool: &'static str) {
+             let error = result.expect_err(
+                 "queued changed-context roster/status read returned retained world data",
+             );
+-            assert!(
+-                error.contains(if phase == "reload" {
+-                    "session"
+-                } else {
+-                    "active"
+-                }),
+-                "{tool}/{phase}: {error}"
+-            );
++            assert!(error.contains("active"), "{tool}/{phase}: {error}");
+         }
+     }
+ }
+diff --git a/crates/mcp/src/sdk1216_lifecycle.rs b/crates/mcp/src/sdk1216_lifecycle.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..1321705bf2d5f906e83399ba728eb0ec4b28aa46
+--- /dev/null
++++ b/crates/mcp/src/sdk1216_lifecycle.rs
+@@ -0,0 +1,36 @@
++//! Test-only SDK12.16 cross-game queue behavior, separate from epoch guards.
++use enshwick::test::Installed;
++use serde_json::Value;
++use std::{
++    thread,
++    time::{Duration, Instant},
++};
++
++pub(crate) fn refuse_old_game_read(
++    loader: &Installed,
++    worker: thread::JoinHandle<Result<Value, String>>,
++) {
++    // A repeated WorldLoaded runs queued tasks before its handlers. End the
++    // actual fake game instead: SDK tasks belong to their originating game.
++    loader.end_game();
++    assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
++    let until = Instant::now() + Duration::from_secs(2);
++    while !worker.is_finished() && Instant::now() < until {
++        let _ = loader.tick(enshwick::events::Ticked::DEFAULT_EVERY);
++        thread::yield_now();
++    }
++    assert!(
++        worker.is_finished(),
++        "old-game read did not return after SDK discard"
++    );
++    let error = worker
++        .join()
++        .unwrap()
++        .expect_err("old-game read returned data");
++    // Existing transport text conflates dropped work and timeout. This fixture
++    // proves SDK discard; this string alone proves no native cancellation.
++    assert!(
++        error.starts_with("the game thread did not answer within "),
++        "{error}"
++    );
++}
+diff --git a/crates/mcp/src/tools.rs b/crates/mcp/src/tools.rs
+index a2d88877954a4864ffd96e577abbecd1b0b13dd4..75446a9f7bf4ec778f355cda38246a77934d903e 100644
+--- a/crates/mcp/src/tools.rs
++++ b/crates/mcp/src/tools.rs
+@@ -698,7 +698,7 @@ impl Tools for GameTools {
+                 "native_clock_advance_live_verified":false,
+                 "native_reposition_live_verified":false,
+                 "enshwick":"1.0.0-alpha.17",
+-                "compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
++                "compiled_framework_revision":"33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
+                 "compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),
+                 "runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),
+                 "game_build":null,
+diff --git a/crates/mcp/src/voxel_lifecycle.rs b/crates/mcp/src/voxel_lifecycle.rs
+index d7d7f71019b8082342dc45be05729aca84e7d8ce..4602e6f663ee4ef214915a1ba3dda4c38de69856 100644
+--- a/crates/mcp/src/voxel_lifecycle.rs
++++ b/crates/mcp/src/voxel_lifecycle.rs
+@@ -96,10 +96,12 @@ fn queued(tool: &'static str) {
+             assert!(Instant::now() < until, "queue barrier");
+             thread::yield_now();
+         }
+-        match phase {
+-            "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+-            "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+-            _ => {}
++        if phase == "reload" {
++            crate::sdk1216_lifecycle::refuse_old_game_read(&loader, worker);
++            continue;
++        }
++        if phase == "shutdown" {
++            assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+         }
+         positive(&c);
+         let reads = loader.voxel_reads().len();
+@@ -145,14 +147,7 @@ fn queued(tool: &'static str) {
+         } else {
+             let error =
+                 result.expect_err("queued changed-context voxel read returned retained terrain");
+-            assert!(
+-                error.contains(if phase == "reload" {
+-                    "session"
+-                } else {
+-                    "active"
+-                }),
+-                "{tool}/{phase}: {error}"
+-            );
++            assert!(error.contains("active"), "{tool}/{phase}: {error}");
+             assert_eq!(
+                 loader.voxel_reads().len(),
+                 reads,
+diff --git a/crates/mcp/tests/sdk1216_order.rs b/crates/mcp/tests/sdk1216_order.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..7791e5d2e2403cb2adbc44d6023995c9a9d220e6
+--- /dev/null
++++ b/crates/mcp/tests/sdk1216_order.rs
+@@ -0,0 +1,50 @@
++//! Published SDK fake ordering discriminator, not a product lifecycle fix.
++use enshwick::{Load, Mod, Off, abi::Status, schedule::Scheduler};
++use std::sync::Mutex;
++
++static SCHEDULER: Mutex<Option<Scheduler>> = Mutex::new(None);
++static EVENTS: Mutex<Vec<&'static str>> = Mutex::new(Vec::new());
++struct Driver;
++impl Mod for Driver {
++    fn init(load: &mut Load<'_>) -> Result<Self, Off> {
++        *SCHEDULER.lock().unwrap() = Some(load.scheduler()?);
++        load.on::<enshwick::events::WorldLoaded>(|()| EVENTS.lock().unwrap().push("loaded"))?;
++        Ok(Self)
++    }
++}
++enshwick::test::declare_mod!(Driver, "id = \"test.sdk-order\"\nside = \"server\"");
++
++fn start() -> (enshwick::test::Installed, Scheduler) {
++    EVENTS.lock().unwrap().clear();
++    let loader = enshwick::test::FakeHost::new().world().install();
++    // SAFETY: the exports belong to this isolated fake-only driver.
++    assert_eq!(
++        unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
++        Status::OK
++    );
++    assert_eq!(loader.raise::<enshwick::events::WorldLoaded>(&()), 1);
++    let _ = loader.tick(enshwick::events::Ticked::DEFAULT_EVERY);
++    EVENTS.lock().unwrap().clear();
++    let scheduler = SCHEDULER.lock().unwrap().unwrap();
++    (loader, scheduler)
++}
++
++#[test]
++fn repeated_loaded_event_runs_queued_task_before_loaded_handler() {
++    let (loader, scheduler) = start();
++    scheduler.next_tick(|| EVENTS.lock().unwrap().push("old-task"));
++    assert_eq!(loader.raise::<enshwick::events::WorldLoaded>(&()), 1);
++    assert_eq!(*EVENTS.lock().unwrap(), ["old-task", "loaded"]);
++}
++
++#[test]
++fn real_fake_game_boundary_discards_old_task_and_runs_new_game_task() {
++    let (loader, scheduler) = start();
++    scheduler.next_tick(|| EVENTS.lock().unwrap().push("old-task"));
++    loader.end_game();
++    assert_eq!(loader.raise::<enshwick::events::WorldLoaded>(&()), 1);
++    assert_eq!(*EVENTS.lock().unwrap(), ["loaded"]);
++    scheduler.next_tick(|| EVENTS.lock().unwrap().push("new-task"));
++    let _ = loader.tick(enshwick::events::Ticked::DEFAULT_EVERY);
++    assert_eq!(*EVENTS.lock().unwrap(), ["loaded", "new-task"]);
++}
+diff --git a/plans/capability-contracts.json b/plans/capability-contracts.json
+index 32a457273c7c8bfee7bb7651f2630e6279974823..e29df06bc7ceeb901fcc48562cee4fead2e2b935 100644
+--- a/plans/capability-contracts.json
++++ b/plans/capability-contracts.json
+@@ -1,13 +1,13 @@
+ {
+   "date": "2026-11-20",
+-  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.3 same-process voxel/image follow-up and exit verified after initial survey refusal; cause, native interruption and physical/client correspondence remain separate",
++  "status": "Inactive exact SDK12.16 source compatibility only; installed signed ABI12.1 checkpoint remains separate",
+   "profiles": {
+     "product": {
+       "server_version": "0.51.3",
+       "client_version": "0.22.0",
+-      "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
+-      "abi": "12.1",
+-      "rust": "1.99.1",
++      "sdk_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
++      "abi": "12.16",
++      "rust": "1.100.0",
+       "installed": "Verified signed checkpoint: server0.48.0 / companion0.22.0 on unchanged official SDK6a151a95/ABI12.1; one cold update/native shutdown exit0, server restart and fresh Steam Menu/fifteen read-refusal/contract baseline pass; one normal close exits0; client closed. Feature source server0.51.3 remains separate.",
+       "game_build": "not observed by capability getter; do not infer from framework version",
+       "installed_server_version": "0.48.0",
+diff --git a/plans/capability-matrix.md b/plans/capability-matrix.md
+index 27f5037ba39cde38b38626990c06f308f3898037..0b1df8fc125e63efe4d9c3217b63c014ff772f4b 100644
+--- a/plans/capability-matrix.md
++++ b/plans/capability-matrix.md
+@@ -2,6 +2,8 @@
+
+ ## Current product checkpoint
+
++This inactive candidate qualifies source against SDK33cf4dc1/ABI12.16 only. Installed versions and all historical native cohorts below refer to the separate signed ABI12.1 runtime. Source compatibility does not adopt or native-qualify this provider.
++
+ Feature branch adds source server0.51.3 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main source remains0.48.0; the signed primary installation is now server0.48.0/companion0.22.0 (decision0164). Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; A further0.51.0 cohort passes46 fixed and16 targeted checks plus one native shutdown/exit0, including new current-player buff refusal paths; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
+
+ This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
+@@ -13,9 +15,9 @@ This is the operational product-version checkpoint. The tables below are checked
+
+ | Product profile field | Value |
+ |---|---|
+-| `sdk_revision` | `6a151a9550ed7a6ade99c23fa817a91e25b71bc9` |
+-| `abi` | `12.1` |
+-| `rust` | `1.99.1` |
++| `sdk_revision` | `33cf4dc149f88d1abe3d3c11a12053d0ab94967f` |
++| `abi` | `12.16` |
++| `rust` | `1.100.0` |
+
+ Decision0164 is the current verified installed checkpoint. Signed provider DLLs/signatures are restored and remain unchanged at ABI12.1. One native shutdown/exit0, verified cold archive, matched product installation and server restart pass. Fresh Steam Menu, three loaded client hashes, companion0.22.0, native header/table, fifteen fixed reads/refusals and full client contract pass. One normal close exits0; client is closed, roster empty and durable history preserved. Initial restarted-server world-read refusal is retained; the same process later passes readiness without relaunch. No Join/Leave, callback-cause, rendered or save-causality acceptance. Historical trial/current-state descriptions below refer to their dated cohorts and do not override this checkpoint. Feature source0.51.3 remains separate from installed0.48.0. Windows MCP/capture remain off.
+
+diff --git a/rust-toolchain.toml b/rust-toolchain.toml
+index 965841b03ac56bb1157c685e93ad79bbac54d44a..410751d0abaed1a4591926c271c2addebdfa4294 100644
+--- a/rust-toolchain.toml
++++ b/rust-toolchain.toml
+@@ -1,5 +1,5 @@
+ [toolchain]
+-channel = "1.99.1"
++channel = "1.100.0"
+ components = ["rustfmt", "clippy"]
+ targets = ["x86_64-pc-windows-msvc"]
+ profile = "minimal"
+diff --git a/scripts/client_probe.py b/scripts/client_probe.py
+index b254221fdd559338815aa862ab9c8f977806c2b1..f7b80aef37472805769fb191c7ed7a08731d5851 100644
+--- a/scripts/client_probe.py
++++ b/scripts/client_probe.py
+@@ -27,8 +27,8 @@ def require(condition):
+ def capabilities(value):
+     require(value.get("role") == "optional_client_companion" and value.get("version") == "0.22.0" and
+             value.get("enshwick") == "1.0.0-alpha.17" and
+-            value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
+-            value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
++            value.get("compiled_framework_revision") == "33cf4dc149f88d1abe3d3c11a12053d0ab94967f" and
++            value.get("compiled_framework_abi") == "12.16" and value.get("live_verified") is False and
+             value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == (["client_command.look", "client_command.move"] if value.get("native_client_commands") else []) and
+             type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and value.get("native_command_live_verified") is False and
+             value.get("semantic_ui_actions") == ((["client_map_markers"] if value["native_map_marker_ui"] else []) + (["client_command"] if value.get("native_client_commands") else [])) and
+diff --git a/scripts/test_client_probe.py b/scripts/test_client_probe.py
+index 95ba5d1fd8e5d835b5c9d13c180f922117b464c2..9c493c68e509884ab9d72180e5989d2d6b64bc59 100644
+--- a/scripts/test_client_probe.py
++++ b/scripts/test_client_probe.py
+@@ -36,7 +36,7 @@ class Fixture:
+         elif name == "client_capabilities":
+             value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.17",
+                      "native_client_snapshot": True, "native_cached_input_status":True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "workshop_layout":True, "live_verified": False,
+-                     "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9", "compiled_framework_abi": "12.1",
++                     "compiled_framework_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", "compiled_framework_abi": "12.16",
+                      "screen_host_template_observation": True,
+                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
+                      "semantic_gameplay_actions": ["client_command.look", "client_command.move"], "native_map_marker_ui": True, "native_map_marker_rendered_verified": False, "semantic_ui_actions": ["client_map_markers", "client_command"]}
+diff --git a/scripts/test_validate_tools.py b/scripts/test_validate_tools.py
+index 6d756fa8d0533b04b677b35f9136604594fc5bad..2c76c129ebbde883c5390e0ee8b022b310f06ac1 100644
+--- a/scripts/test_validate_tools.py
++++ b/scripts/test_validate_tools.py
+@@ -94,8 +94,8 @@ class Fixture:
+                                                "night_starts_hours": 22.0, "day_duration_seconds": 1800.0,
+                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
+         elif name == "capabilities":
+-            value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
+-                     "compiled_framework_abi": "12.1", "mod_version": VERSION, "native_waypoint_map": True, "inventory_read": True, "item_info": True, "item_lookup": True,
++            value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
++                     "compiled_framework_abi": "12.16", "mod_version": VERSION, "native_waypoint_map": True, "inventory_read": True, "item_info": True, "item_lookup": True,
+                      "typed_network_health": True, "typed_factory_station": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
+         elif name == "construction_budget":
+             value = {"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":0,"journal_limit_bytes":8388608,
+diff --git a/scripts/validate_tools.py b/scripts/validate_tools.py
+index c5e3c4fc097ba5680c6171c4b8aeb12062faa2d3..ff9b33c68e6544f8bb40dbe467fb45a470b2b3f2 100644
+--- a/scripts/validate_tools.py
++++ b/scripts/validate_tools.py
+@@ -166,8 +166,8 @@ class Validation:
+         except (OSError, ValueError, TypeError, KeyError):
+             return self.report("failed", "discovery failed; no probes attempted")
+         self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.51.3" and
+-                   v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
+-                   v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
++                   v.get("compiled_framework_revision") == "33cf4dc149f88d1abe3d3c11a12053d0ab94967f" and
++                   v.get("compiled_framework_abi") == "12.16" and v.get("enshwick") == "1.0.0-alpha.17" and
+                    v.get("native_clock_advance_live_verified") is False and
+                    all(type(v.get(k)) is bool for k in ("native_waypoint_map", "inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
+         self.probe("shutdown_status_unknown_operation", "server_shutdown_status", {"operation":"_validation_absent_shutdown_045"}, refusal="unknown shutdown operation")
