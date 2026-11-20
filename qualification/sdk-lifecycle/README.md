@@ -1,5 +1,19 @@
 # Native lifecycle and provider qualification
 
+## Current server 0.51.4 source migration
+
+The inactive [0.51.4 migration patch](consumer-sdk1216-source0514.patch) applies only to `acd5b81fa1033767bf1425ae3edc0efdf424738e`. Its [descriptor](source0514-sdk1216.json) records SDK `33cf4dc149f88d1abe3d3c11a12053d0ab94967f` / ABI 12.16, exact Rust/Cargo 1.100.0, patch hash and reconstructed tree. Candidate and clean replay each pass 491 Rust/131 Python checks and strict lint/format/releases/contracts; the optional lifecycle qualifier also passes fourteen debug and optimized cases in each copy. All 393 source files and the tree match. See [decision0181](../../plans/decisions/0181-current-source0514-sdk1216-replay.md) for the 17 stale diagnostic assertions and preserved production gates.
+
+```powershell
+$migrationPatch = (Resolve-Path qualification/sdk-lifecycle/consumer-sdk1216-source0514.patch).Path
+git worktree add --detach ../enshrouded-sdk1216-source0514-check acd5b81fa1033767bf1425ae3edc0efdf424738e
+git -C ../enshrouded-sdk1216-source0514-check apply --check $migrationPatch
+git -C ../enshrouded-sdk1216-source0514-check apply $migrationPatch
+```
+
+In that checkout, verify `rustc +stable --version` and `cargo +stable --version` both report exactly 1.100.0 before running the workspace test, strict Clippy, formatting, release-build and contract commands with that compiler. No installation or native operation follows from these instructions. Default signed SDK 12.1 and existing prepared native candidates are unchanged. Older probe and migration sections below retain their exact historical bases and scopes.
+
+
 This independent experimental workspace pins official commit `6a5966ee6683fde480ac9dd3654f91e73da6e2a5` from merged [PR #1150](https://github.com/enshwick/enshwick/pull/1150), ABI 12.11. It uses only the published SDK fake. It does not add an MCP endpoint, resolve a real profile, read a credential store, connect to a server or change the product SDK/installed files.
 
 The revision requires Rust 1.100. The qualification used installed `stable` at exactly Rust/Cargo 1.100.0, with Windows MSVC tools. Verify that version before reproducing; `stable` is not a permanent compiler pin. From the project root:

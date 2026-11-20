@@ -1,0 +1,32 @@
+{
+  "status": "inactive source-only compatibility",
+  "base_commit": "acd5b81fa1033767bf1425ae3edc0efdf424738e",
+  "sdk_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
+  "abi": "12.16",
+  "rust": "1.100.0",
+  "server_version": "0.51.4",
+  "client_version": "0.22.0",
+  "patch": "qualification/sdk-lifecycle/consumer-sdk1216-source0514.patch",
+  "patch_sha256": "221128c66049b24fcac5a3fe9f54d5b16ea4498aa7c8c86e9f5b58a16cf326ba",
+  "reconstructed_tree": "22f71016f3c2585ed16f81b772bbc8b6fd01a5a8",
+  "reconstructed_source_files": 393,
+  "changed_files": 29,
+  "candidate_replay_byte_identical": true,
+  "checks_each": {
+    "rust_tests": 491,
+    "python_tests": 131,
+    "clippy": true,
+    "fmt": true,
+    "release": true,
+    "contracts": true,
+    "optional_debug_tests": 14,
+    "optional_optimized_tests": 14,
+    "optional_strict_checks": true
+  },
+  "default_sdk_changed": false,
+  "primary_installation_changed": false,
+  "native_current_candidate_verified": false,
+  "native_reply_loss_timing_verified": false,
+  "credential_resolver_implemented": false,
+  "evidence": "plans/decisions/0181-current-source0514-sdk1216-replay.md"
+}

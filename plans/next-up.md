@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Current 0.51.4 SDK 12.16 replay qualified; native scope remains separate** Decision0181 supplies a new exact-base passive patch/descriptor while retaining the old migration. Candidate and clean replay each pass 491 Rust/131 Python plus optional 14 debug/optimized and strict checks. All 393 files/tree match; policies and production receiver/write routes are preserved. No install or native operation occurs. Keep the already prepared native cohort immutable; latest-source provider/connection and interruption acceptance still require their own concrete qualification.
+
 - **Terrain JSON consumption bounded** Decision0180 fixes growing input files bypassing the standalone viewer's metadata-only budget. Capture, pin and plan inputs consume at most 2 MiB plus one sentinel byte and refuse overflow before decoding/output/RPC creation. Real growth, instrumented consumption and exact-budget acceptance are tested; an unbounded-read mutation with the post-read check intact fails. Native modules and frozen connection qualification remain unchanged.
 
 - **Current signed server qualified; native interruption and client acceptance remain open** Decision0179 verifies one isolated source 0.51.4/companion 0.22.0 cohort using unchanged signed ABI 12.1 providers and public namespaces. Thirty-seven controller models and 46 native fixed checks pass; one acknowledged native shutdown independently exits 0. Overall validation stays incomplete for broader semantics. Preserve the unchanged primary/client and frozen Join review; no provider adoption, live interruption or client connection proof follows.
