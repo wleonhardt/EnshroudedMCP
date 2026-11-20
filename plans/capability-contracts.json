@@ -21,7 +21,8 @@
       "isolated_empty_world_native_cohort": "plans/decisions/0149-isolated-empty-world-native-cohort.md",
       "isolated_cold_native_cohort": "plans/decisions/0151-isolated-cold-native-cohort.md",
       "isolated_current_player_buff_cohort": "plans/decisions/0153-isolated-current-player-buff-cohort.md",
-      "isolated_inventory_native_cohort": "plans/decisions/0156-canonical-inventory-native-cohort.md"
+      "isolated_inventory_native_cohort": "plans/decisions/0156-canonical-inventory-native-cohort.md",
+      "server_lifecycle_coverage_audit": "plans/decisions/0157-server-lifecycle-coverage-audit.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",

@@ -234,3 +234,5 @@ Run `python -B scripts/check_contracts.py` for index, table, references and sour
 | server / `player_buffs_read` | server game-thread scheduler (including delegated controllers) | Source tests cover current roster selection, bounded buff projection, error versus empty and lifecycle refusal with retained SDK state. Next: Matched native current-player buff/error correspondence; no client, effects or safety acceptance. |
 
 The isolated0.51.1 cohort verifies canonical receipt/typed-intent integration,48 controller models,46 fixed and18 targeted native checks, and one shutdown/independent exit0. Inventory active-world empty/absent and unmatched-player paths pass; native interruption/positive-player acceptance stays open. See [canonical inventory cohort](decisions/0156-canonical-inventory-native-cohort.md).
+
+[Decision0157 audits lifecycle coverage for all40 server tools](decisions/0157-server-lifecycle-coverage-audit.md), separating active/epoch guards, deliberate retained-status outcomes and pure/static metadata. Ten dynamic paths require independent reproductions; this source audit adds no native acceptance or runtime change.
