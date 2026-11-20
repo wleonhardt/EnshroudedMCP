@@ -2,17 +2,19 @@
 
 ## Current product checkpoint
 
+Source server0.51.4 distinguishes lost game-thread reply channels from elapsed receive deadlines using real std-channel behavior tests. Both preserve unknown execution, status/journal reconciliation and no automatic replay. Queueing, wait length, SDK, companion and tools remain unchanged; this diagnostic behavior has not been deployed or fault-tested natively (decision 0173).
+
 Decision 0171 records native SDK12.16 Menu callbacks in one temporary client cohort, followed by an external controller readiness exception before any Join request. Client module/capability qualification was not reached. The game is force-closed for cleanup (exit1), the isolated server shuts down natively (independent exit0), and exact signed rollback is verified. Client connection, cancellation, Leave, character, rendering and saved credentials remain unverified; default pins/tools are unchanged.
 
 Decision 0166 adds an independent, unregistered SDK 12.16 native lifecycle qualifier. Game-free policy and SDK/file cases prepare guarded Join/Leave/Cancel, including four reproduced safety/resource fixes. Its client executor remains uninstalled and changes no default tool or SDK pin. Decision 0168 qualifies a separate native server-only provider cohort, including immutable ABI metadata, bounded empty-world reads and shutdown/independent exit0; this grants no client acceptance. Provider fidelity, companion Menu/module qualification, intended peer, character, roster, cancellation/Leave and rendered outcomes remain unverified; the qualifier callback observation in decision 0171 has narrower scope. See the optional qualifier README for boundaries; signed checkpoint 0164 still applies.
 
-Feature branch adds source server0.51.3 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main source remains0.48.0; the signed primary installation is now server0.48.0/companion0.22.0 (decision0164). Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; A further0.51.0 cohort passes46 fixed and16 targeted checks plus one native shutdown/exit0, including new current-player buff refusal paths; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
+Feature branch adds source server0.51.4 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main source remains0.48.0; the signed primary installation is now server0.48.0/companion0.22.0 (decision0164). Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; A further0.51.0 cohort passes46 fixed and16 targeted checks plus one native shutdown/exit0, including new current-player buff refusal paths; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 
 | Component | Source version | Installed version |
 |---|---|---|
-| Server | `0.51.3` | `0.48.0` |
+| Server | `0.51.4` | `0.48.0` |
 | Companion | `0.22.0` | `0.22.0` |
 
 | Product profile field | Value |
@@ -21,7 +23,7 @@ This is the operational product-version checkpoint. The tables below are checked
 | `abi` | `12.1` |
 | `rust` | `1.99.1` |
 
-Decision0164 is the current verified installed checkpoint. Signed provider DLLs/signatures are restored and remain unchanged at ABI12.1. One native shutdown/exit0, verified cold archive, matched product installation and server restart pass. Fresh Steam Menu, three loaded client hashes, companion0.22.0, native header/table, fifteen fixed reads/refusals and full client contract pass. One normal close exits0; client is closed, roster empty and durable history preserved. Initial restarted-server world-read refusal is retained; the same process later passes readiness without relaunch. No Join/Leave, callback-cause, rendered or save-causality acceptance. Historical trial/current-state descriptions below refer to their dated cohorts and do not override this checkpoint. Feature source0.51.3 remains separate from installed0.48.0. Windows MCP/capture remain off.
+Decision0164 is the current verified installed checkpoint. Signed provider DLLs/signatures are restored and remain unchanged at ABI12.1. One native shutdown/exit0, verified cold archive, matched product installation and server restart pass. Fresh Steam Menu, three loaded client hashes, companion0.22.0, native header/table, fifteen fixed reads/refusals and full client contract pass. One normal close exits0; client is closed, roster empty and durable history preserved. Initial restarted-server world-read refusal is retained; the same process later passes readiness without relaunch. No Join/Leave, callback-cause, rendered or save-causality acceptance. Historical trial/current-state descriptions below refer to their dated cohorts and do not override this checkpoint. Feature source0.51.4 remains separate from installed0.48.0. Windows MCP/capture remain off.
 
 ## Signed Steam Menu baseline
 

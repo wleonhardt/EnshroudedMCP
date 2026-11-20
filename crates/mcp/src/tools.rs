@@ -1075,12 +1075,7 @@ fn on_game_thread<T: Send + 'static>(
     scheduler.next_tick(move || {
         let _gone = tx.send(read()); // allow: the caller gave up waiting
     });
-    rx.recv_timeout(GAME_WAIT).map_err(|_| {
-        format!(
-            "the game thread did not answer within {} s (is a world loaded?)",
-            GAME_WAIT.as_secs()
-        )
-    })
+    policy::game_reply::receive(&rx, GAME_WAIT)
 }
 
 #[cfg(test)]
