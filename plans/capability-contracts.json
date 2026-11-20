@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; player_buffs_read is source-qualified only; prior isolated0.50.6 native evidence does not qualify the new tool",
+  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.0 cold catalog/read/refusal/recovery/exit cohort verified; positive player/client correspondence and primary adoption remain separate",
   "profiles": {
     "product": {
       "server_version": "0.51.0",
@@ -19,7 +19,8 @@
       "current_client_read_status": "immutable header12.11/table1744 observed with compiled12.1 companion; copied Menu stale, native snapshot Never, fresh-context acceptance refused; no adoption or review phase accepted",
       "cached_input_status_source_evidence": "plans/decisions/0127-cached-client-input-status.md",
       "isolated_empty_world_native_cohort": "plans/decisions/0149-isolated-empty-world-native-cohort.md",
-      "isolated_cold_native_cohort": "plans/decisions/0151-isolated-cold-native-cohort.md"
+      "isolated_cold_native_cohort": "plans/decisions/0151-isolated-cold-native-cohort.md",
+      "isolated_current_player_buff_cohort": "plans/decisions/0153-isolated-current-player-buff-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -4327,15 +4328,16 @@
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
       "evidence_summary": "Source tests cover current roster selection, bounded buff projection, error versus empty and lifecycle refusal with retained SDK state.",
       "evidence_references": [
-        "plans/decisions/0152-current-player-buff-read.md"
+        "plans/decisions/0152-current-player-buff-read.md",
+        "plans/decisions/0153-isolated-current-player-buff-cohort.md"
       ],
       "source_checks": "Strict policy admission and scheduled SDK-fake behavior tests cover roster selection, bounds, unavailable versus empty, fresh changed data and retained-state lifecycle refusal.",
-      "native_acceptance": "Not exercised live. Earlier0.50.5/0.50.6 native cohorts do not include this new tool.",
+      "native_acceptance": "Isolated0.51.0/SDK12.1 empty-world cohort verifies exact catalog and missing-player, unknown-argument, type and limit refusals. No positive current-player buff data or native in-flight interruption acceptance.",
       "rendered_acceptance": "No rendered buff-panel, complete-effect or actor-safety correspondence.",
       "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
       "freshness_completeness": "Active MCP lifecycle required at admission and queued execution; epoch changes refuse. Re-resolves SDK roster and fields per call; world key is identity metadata, not liveness proof. Native world_session remains unavailable.",
       "next_missing_check": "Matched native current-player buff/error correspondence; no client, effects or safety acceptance.",
-      "refusal_acceptance": "Source strict arguments, missing/ambiguous selectors, zero native entity and pre-admission/queued lifecycle refusals; native timing matrix unverified.",
+      "refusal_acceptance": "Source strict arguments, missing/ambiguous selectors, zero native entity and pre-admission/queued lifecycle refusals. Native empty-world unknown-player and strict argument/limit/type refusals pass; native lifecycle timing remains unverified.",
       "independent_effect_acceptance": "No buff application/removal, actor input, movement, journal append or gameplay mutation.",
       "admission_sources": [
         "crates/policy/src/player_buffs.rs",
@@ -4343,7 +4345,7 @@
       ],
       "observation_side_effects": "Published server roster, active-buff and world-key getters on the game thread; SDK retrieves full entity list before bounded output.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
-      "evidence_applicability": "Feature-branch source server0.51.0 on existing SDK12.1; no installation or native action in this iteration."
+      "evidence_applicability": "Feature-branch source server0.51.0 and isolated native server0.51.0 on SDK12.1, preserving prior companion-file0.22.0. Primary installation and positive player/client acceptance remain unchanged."
     }
   ]
 }

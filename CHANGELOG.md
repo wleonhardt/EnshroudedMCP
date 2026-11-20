@@ -2,7 +2,9 @@
 
 ## 0.51.0
 
-- Add read-only `player_buffs_read`, selecting a current server player by exact name/account with strict bounded output and admission/execution lifecycle guards. Preserve existing entity buff projection and error semantics. Source tests only; new native acceptance remains open.
+- Isolated native qualification:46 fixed and16 targeted catalog/read/refusal/recovery checks pass, followed by one guarded shutdown and independent exit0. New player-buff argument/missing-player refusals pass; positive player buff and rendered effects remain unverified. Previous durable prefix and both intent files remain preserved.
+
+- Add read-only `player_buffs_read`, selecting a current server player by exact name/account with strict bounded output and admission/execution lifecycle guards. Preserve existing entity buff projection and error semantics. Source behavior tests and isolated native argument/missing-player refusals pass; positive player buff correspondence remains open.
 
 
 ## Server 0.50.6 (isolated cold cohort; primary unchanged)
