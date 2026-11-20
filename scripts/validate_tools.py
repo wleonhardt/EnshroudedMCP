@@ -1,4 +1,4 @@
-"""Read-only 0.48.0 transport/shape probes; never establishes fixture semantics."""
+"""Read-only 0.49.0 transport/shape probes; never establishes fixture semantics."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("terrain_image", "server_shutdown_status", "player_reposition_status", "entity_buffs_read", "weather_read", "factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
+READS = frozenset(("player_waypoint", "terrain_image", "server_shutdown_status", "player_reposition_status", "entity_buffs_read", "weather_read", "factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
                    "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
@@ -158,18 +158,18 @@ class Validation:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "enshrouded-validation", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.48.0"})
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.49.0"})
             require(init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require(SERVER_TOOLS.issubset({t["name"] for t in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.48.0", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.49.0", "outcome": "pass"})
         except (OSError, ValueError, TypeError, KeyError):
             return self.report("failed", "discovery failed; no probes attempted")
-        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.48.0" and
+        self.probe("capability_shapes", "capabilities", {}, lambda v: v.get("mod_version") == "0.49.0" and
                    v.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
                    v.get("compiled_framework_abi") == "12.1" and v.get("enshwick") == "1.0.0-alpha.17" and
                    v.get("native_clock_advance_live_verified") is False and
-                   all(type(v.get(k)) is bool for k in ("inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
+                   all(type(v.get(k)) is bool for k in ("native_waypoint_map", "inventory_read", "item_info", "item_lookup", "typed_network_health", "typed_factory_station", "native_interaction_target", "native_clock_advance", "new_inspection_tools_live_verified")))
         self.probe("shutdown_status_unknown_operation", "server_shutdown_status", {"operation":"_validation_absent_shutdown_045"}, refusal="unknown shutdown operation")
         self.probe("shutdown_status_path_refused", "server_shutdown_status", {"operation":"../other"}, refusal="shutdown operation must contain")
         self.probe("shutdown_status_write_refused", "server_shutdown_status", {"operation":"once","confirm":"server-write"}, refusal="unknown argument 'confirm'")
@@ -202,6 +202,8 @@ class Validation:
         self.probe("missing_inventory_selector", "inventory_read", {}, refusal="provide exactly one of player or entity")
         self.probe("invalid_inventory_selector", "inventory_read", {"entity": 0}, refusal="argument 'entity' must be at least 1")
         self.probe("unmatched_player", "inventory_read", {"player": "__mcp_validation_no_such_player__"}, refusal="no connected player")
+        self.probe("waypoint_unmatched_player", "player_waypoint", {"player":"__mcp_validation_no_such_player__"}, refusal="no connected player")
+        self.probe("waypoint_unknown_argument", "player_waypoint", {"player":"__mcp_validation_no_such_player__","validation_unknown":True}, refusal="unknown argument")
         self.probe("arbitrary_entity_empty_inventory", "inventory_read", {"entity": 4294967295, "limit": 1},
                    lambda v: v.get("slots") == [] and v.get("total_slots") == 0)
         self.probe("empty_inventory_counts_unknown_eligibility", "inventory_read", {"entity":4294967295,"limit":1,"item_ids":[213939880]},
@@ -240,6 +242,7 @@ class Validation:
     def report(self, verdict, reason=None):
         result = {"started_utc": datetime.now(timezone.utc).isoformat(), "verdict": verdict, "checks": self.checks,
                   "incomplete": ["Known stock and inventory eligibility versus UI remain unverified.",
+                                 "Waypoint refusals do not verify a present native waypoint, client identity or rendered marker.",
                                  "Known healthy/damaged fixture versus UI remains unverified.",
                                  "Synthetic planning and empty reads do not establish live game semantics.",
                                  "Survey probes cover off-grid and unknown write-argument refusal only; no valid survey read is validated.",

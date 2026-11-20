@@ -105,6 +105,7 @@ pub(crate) struct Game {
 #[derive(Debug)]
 pub(crate) struct GameTools {
     pub(crate) provider_header: Option<enshwick::abi::Header>,
+    pub(crate) waypoint_map: Option<enshwick::map::Map>,
     game: Game,
     components: Components,
     /// The mod's folder: the write flag and the journal live there.
@@ -165,6 +166,7 @@ impl GameTools {
             crate::journal::tool(),
             crate::knowledge_read::tool(),
             crate::interaction_target::tool(),
+            crate::player_waypoint::tool(),
             crate::building_access::tool(),
             Tool {
                 name: "player_restore_health",
@@ -271,6 +273,7 @@ impl GameTools {
             .map(|(dir, lifecycle)| crate::clock_control::ClockControl::new(dir, lifecycle));
         Self {
             provider_header: None,
+            waypoint_map: None,
             game,
             components,
             mod_dir,
@@ -331,6 +334,13 @@ impl Tools for GameTools {
             native_knowledge: _,
         } = self.game;
         match name {
+            "player_waypoint" => {
+                let selector = policy::player_waypoint::check(a)?;
+                let map = self.waypoint_map;
+                on_game_thread(scheduler, move || {
+                    crate::player_waypoint::read(world, map, &selector)
+                })?
+            }
             "entity_buffs_read" => {
                 let (entity, limit) = policy::buff_read::check(a)?;
                 on_game_thread(scheduler, move || {
@@ -586,6 +596,7 @@ impl Tools for GameTools {
             "capabilities" => Ok(json!({
                 "mod_version":env!("CARGO_PKG_VERSION"),
                 "native_interaction_target":interaction_targets.is_some(),
+                "native_waypoint_map":self.waypoint_map.is_some(),
                 "native_reposition":self.reposition.is_some(),
                 "native_clock_advance":self.clock_control.is_some(),
                 "native_clock_advance_live_verified":false,

@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.49.0 (source feature branch; not deployed)
+
+- Add player_waypoint: one strict current server-player selector, scheduled roster resolution and shared-waypoint read on existing SDK12.1. Preserve absent versus zero and SDK errors; no setter, movement or durable identity.
+
 ## Unreleased (phase clearance and regression coverage)
 
 - Add an inactive shared-waypoint read consumer pinned to exact SDK12.16, with a source-identical SDK12.1 comparison cohort. Preserve unset-versus-zero, typed errors and raw coordinates; no MCP registration, waypoint setter, movement or SDK adoption.

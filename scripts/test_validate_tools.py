@@ -34,6 +34,9 @@ class Fixture:
             error = True
             value = ("unknown argument 'confirm'" if "confirm" in args else
                      "shutdown operation must contain" if "/" in args.get("operation", "") else "unknown shutdown operation")
+        elif name == "player_waypoint":
+            error = self.broken != name
+            value = "no connected player matches this selector" if error else {}
         elif name == "player_reposition_status":
             error = True
             value = ("unknown argument 'confirm'" if "confirm" in args else
@@ -92,7 +95,7 @@ class Fixture:
                                                "night_duration_seconds": 720.0, "speed": 1.0}}}
         elif name == "capabilities":
             value = {"enshwick": "1.0.0-alpha.17", "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
-                     "compiled_framework_abi": "12.1", "mod_version": VERSION, "inventory_read": True, "item_info": True, "item_lookup": True,
+                     "compiled_framework_abi": "12.1", "mod_version": VERSION, "native_waypoint_map": True, "inventory_read": True, "item_info": True, "item_lookup": True,
                      "typed_network_health": True, "typed_factory_station": True, "native_interaction_target": True, "native_clock_advance": True, "native_clock_advance_live_verified": False, "new_inspection_tools_live_verified": False}
         elif name == "construction_budget":
             value = {"mode":"report_only","scope":"mod_journal_and_session_local_recovery","journal_bytes":0,"journal_limit_bytes":8388608,
@@ -183,6 +186,22 @@ class ValidationTests(unittest.TestCase):
             self.assertFalse(knowledge_observation(value))
             row.clear();row.update(original)
 
+    def test_waypoint_handle_flag_is_boolean_metadata_and_old_server_version_refuses(self):
+        for flag, version, verdict in [(True,VERSION,"incomplete"),(False,VERSION,"incomplete"),
+                                       (None,VERSION,"failed"),(1,VERSION,"failed"),(True,"0.48.0","failed")]:
+            client=Fixture();original=client.call
+            def reply(method, params=None):
+                result=original(method,params)
+                if method=="tools/call" and params["name"]=="capabilities" and not result["isError"]:
+                    value=json.loads(result["content"][0]["text"])
+                    value.update(native_waypoint_map=flag,mod_version=version)
+                    result["content"][0]["text"]=json.dumps(value)
+                return result
+            with self.subTest(flag=flag,version=version),patch.object(client,"call",side_effect=reply):
+                report=Validation(client,pause=lambda _:None).run()
+                self.assertEqual(report["verdict"],verdict)
+                self.assertTrue(any("Waypoint refusals" in note for note in report["incomplete"]))
+
     def test_capabilities_refuse_wrong_framework_provenance(self):
         for key, wrong in (("mod_version", "0.47.0"),
                            ("compiled_framework_revision", "5f647f46d7f987e93d397e00596014b23f3c1112"),
@@ -270,7 +289,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 40)
+        self.assertEqual(len(report["checks"]), 42)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -281,7 +300,7 @@ class ValidationTests(unittest.TestCase):
         self.assertFalse(any("dry" in params.get("arguments", {}) for method, params in client.calls if method == "tools/call"))
 
     def test_shape_arithmetic_provenance_and_geometry_mismatches_fail(self):
-        for tool in ("construction_budget", "capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
+        for tool in ("player_waypoint", "construction_budget", "capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
             with self.subTest(tool=tool):
                 report = Validation(Fixture(tool), pause=lambda _: None).run()
                 self.assertEqual(report["verdict"], "failed")
@@ -340,7 +359,7 @@ class ValidationTests(unittest.TestCase):
             report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
         self.assertEqual({params["name"] for method, params in client.calls if method == "tools/call"}, READS)
-        self.assertEqual(len(SERVER_TOOLS), 37)
+        self.assertEqual(len(SERVER_TOOLS), 38)
         self.assertIn("building_accept", SERVER_TOOLS)
         self.assertNotIn("building_accept", READS)
         self.assertNotIn("player_reposition", READS)

@@ -18,6 +18,7 @@ mod knowledge;
 mod knowledge_read;
 mod pacification;
 mod player_vitals;
+mod player_waypoint;
 mod prop_observation;
 mod recipe_plan;
 mod reposition;
@@ -92,6 +93,10 @@ impl Mod for Mcp {
             recovery,
         );
         tools.provider_header = Some(load.host().api().header);
+        tools.waypoint_map = load
+            .map()
+            .map_err(|error| enshwick::warn!("native map service unavailable: {error}"))
+            .ok();
         tools.register_shutdown_events(load);
         Ok(Self { tools })
     }

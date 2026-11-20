@@ -2,11 +2,13 @@
 
 ## Current product checkpoint
 
+Feature branch adds source server0.49.0 player_waypoint; main0.48.0 and native runtime remain unchanged.
+
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 
 | Component | Source version | Installed version |
 |---|---|---|
-| Server | `0.48.0` | `0.48.0` |
+| Server | `0.49.0` | `0.48.0` |
 | Companion | `0.22.0` | `0.21.1` |
 
 | Product profile field | Value |
@@ -145,6 +147,7 @@ Each row links its full schema and limits through the JSON by exact tool name. T
 | server / `construction_budget` | listener; copied/retained state or filesystem budget; no World access | Native owner lifecycle 0→1→2→1→0 and retained bytes 0→196608→393216→196608→0 qualified; acceptance preserves credit. Next: Qualify actual storage sync/power-loss faults and higher-level/native interruption separately; source budget observations do not establish native undo-storage capacity. |
 | server / `knowledge_read` | server game-thread scheduler (including delegated controllers) | Raw world/player knowledge IDs preserve unknown, row scope and flags; not eligibility. Next: Correlate one observed knowledge value and scope with an independent in-game prerequisite. |
 | server / `player_interaction_target` | server game-thread scheduler (including delegated controllers) | Server prompt/combat target namespaces remain distinct from client entities or scene raycasts. Next: Correlate one present prompt target with a visible known object without moving the avatar. |
+| server / `player_waypoint` | server game-thread scheduler (including delegated controllers) | One fresh SDK roster match and shared-waypoint read; unset differs from zero and SDK errors. Next: Independently set, move and clear one current player shared waypoint on a qualified native runtime. |
 | server / `building_access` | server game-thread scheduler (including delegated controllers) | Explicit ordered site box only; persistence/build-rights results are not an item footprint or authorization. Next: Check a predefined inside/outside boundary and actor-rights case independently. |
 | server / `player_restore_health` | server game-thread scheduler (including delegated controllers) | Positive-only administrative restoration; exact current actor/generation/health preview, no caller operation ID. Next: On naturally needed recovery, qualify actor/session invalidation and preserved readback; never lower health to manufacture a test. |
 | server / `building_survey` | server game-thread scheduler (including delegated controllers) | Bounded raw cells and explicit-box rights/persistence; foundation preview is not rendered ground height. Next: Correlate one fresh visible terrain seam with a bounded survey and independent contact evidence. |

@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Source server **0.48.0** / companion **0.22.0** adds the cached input-status read; it is not deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
+Feature-branch source server **0.49.0** / companion **0.22.0** adds read-only `player_waypoint` on the existing SDK12.1. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
 
 Last verified signed checkpoint: Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 
@@ -385,3 +385,5 @@ The inactive SDK lifecycle consumer now preserves typed snapshot-read errors bes
 The fixed client probe rejects copied-UI freshness flags inconsistent with the companion’s existing rule: unknown age is stale,1000 ms is still within the limit, and1001 ms is stale. A responsive endpoint or immutable provider header does not prove current UI. Historical observations remain explicit; see [native read evidence](plans/decisions/0126-enforce-client-probe-freshness.md).
 
 Source companion **0.22.0** adds `client_input_status` (`{}`): cached sampling request/layout/link/read/sample/fresh flags and nullable age. Fields are weakly consistent and never prove current UI or input execution. This getter requests no sampling and submits no command. Source catalog is37 server/14 companion tools; the tool is not installed or native-qualified. Installed0.21.1 and frozen older SDK experiments remain separate. See [cached diagnostic contract](plans/decisions/0127-cached-client-input-status.md).
+
+`player_waypoint({"player":"name or account key"})` reads one current SDK-rostered server character’s shared map waypoint through the game-thread scheduler. Unset stays null, zero stays observed and SDK errors remain errors. `native_waypoint_map` is handle availability only. Session character IDs and world_key do not identify a durable player/world session; no client marker, player position, arrival, setter or movement is verified. See [queued waypoint read](plans/decisions/0134-queued-player-waypoint-read.md).
