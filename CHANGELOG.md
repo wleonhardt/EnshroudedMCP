@@ -1,6 +1,10 @@
 # Changelog
 
-## Server 0.50.5 (source feature branch; not deployed)
+## Unreleased
+
+- Qualification only: isolated same-SDK0.50.5 server passes44 fixed and seven targeted read/refusal checks plus one native shutdown/independent exit0. Positive player/client UI, native interruption timing and final-save causality remain open; no product runtime or schema change.
+
+## Server 0.50.5 (isolated native cohort; primary unchanged)
 
 - Refuse world/player knowledge_read while the MCP world lifecycle is inactive or changes before queued execution. Both modes independently fail a retained scoped-value regression before correction. Preserve raw type/scope/value/flags and unknown semantics; no progression grants or crafting authority.
 

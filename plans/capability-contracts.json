@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.5 is not deployed; native correspondence remains separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; isolated0.50.5 empty-world server read/refusal/exit cohort verified; primary adoption and positive player/client correspondence remain separate",
   "profiles": {
     "product": {
       "server_version": "0.50.5",
@@ -17,7 +17,8 @@
       "current_client_preservation": "Source0.22.0 is not installed; client/provider preservation remains unverified after separate experiment; prior signed checkpoint remains qualification reference",
       "current_client_metadata_evidence": "plans/decisions/0126-enforce-client-probe-freshness.md",
       "current_client_read_status": "immutable header12.11/table1744 observed with compiled12.1 companion; copied Menu stale, native snapshot Never, fresh-context acceptance refused; no adoption or review phase accepted",
-      "cached_input_status_source_evidence": "plans/decisions/0127-cached-client-input-status.md"
+      "cached_input_status_source_evidence": "plans/decisions/0127-cached-client-input-status.md",
+      "isolated_empty_world_native_cohort": "plans/decisions/0149-isolated-empty-world-native-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -280,15 +281,16 @@
       "evidence_summary": "Native read-error/refusals and later positive holder observation; countdown, effect and UI agreement open.",
       "evidence_references": [
         "plans/decisions/0052-observe-server-active-buffs.md",
-        "plans/decisions/0143-buff-read-lifecycle-guard.md"
+        "plans/decisions/0143-buff-read-lifecycle-guard.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "Full workspace checks plus actual dispatcher SDK-fake unchanged/reload/shutdown queued scenarios and pre-admission shutdown; typed buff data remains independently available. Existing projection cases preserve errors, empty values, truncation and duration/level semantics.",
-      "native_acceptance": "partial; see evidence_summary",
+      "native_acceptance": "Bounded isolated0.50.5/SDK12.1 empty-world cohort passes catalog, active-world read/refusal checks and selected missing-player/error/unknown paths. Historical linked fixtures retain original applicability. No positive current player/factory/UI or native interruption timing acceptance.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle; epoch is not a native session identifier. Caller must reacquire server entity IDs after reload; an already stale ID supplied after admission cannot be detected by this gate. No effect, safety or UI authority.",
       "next_missing_check": "Observe one bounded countdown with independent value/time evidence.",
-      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse with retained SDK buff data. Historical partial native refusals retain original applicability; native event timing remains unverified.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse with retained SDK buff data. Historical partial native refusals retain original applicability; native event timing remains unverified. Separate empty-world native cohort passes bounded read/refusal checks; native queued lifecycle interruption timing remains unverified.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -327,15 +329,16 @@
       "evidence_summary": "Typed handle and unobserved/refusal checks; present-state semantics open.",
       "evidence_references": [
         "plans/decisions/0037-native-factory-station-observation.md",
-        "plans/decisions/0144-factory-read-lifecycle-guard.md"
+        "plans/decisions/0144-factory-read-lifecycle-guard.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "Actual dispatcher regression independently fails across reload with a retained typed Running station and recipe42. New cases cover pre-admission shutdown and queued unchanged/reload/shutdown. Existing populated SDK reflection/projection flow shares the unchanged synthetic layout; native present-state correspondence remains open.",
-      "native_acceptance": "partial; see evidence_summary",
+      "native_acceptance": "Bounded isolated0.50.5/SDK12.1 empty-world cohort passes catalog, active-world read/refusal checks and selected missing-player/error/unknown paths. Historical linked fixtures retain original applicability. No positive current player/factory/UI or native interruption timing acceptance.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle; epoch is not a native session identifier. Caller must reacquire entity IDs after reload; an already stale ID supplied afterward cannot be detected by this gate. Unobserved component still does not prove entity absence.",
       "next_missing_check": "Correlate a present station and its independently observed production state.",
-      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse despite retained decoded station data. Historical partial native refusals retain original applicability; native event timing remains unverified.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse despite retained decoded station data. Historical partial native refusals retain original applicability; native event timing remains unverified. Separate empty-world native cohort passes bounded read/refusal checks; native queued lifecycle interruption timing remains unverified.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -427,15 +430,16 @@
       "evidence_summary": "Raw world/player knowledge IDs preserve unknown, row scope and flags; not eligibility.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0146-knowledge-read-lifecycle-guard.md"
+        "plans/decisions/0146-knowledge-read-lifecycle-guard.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "Independent actual-dispatcher world/player reload regressions first fail with retained scoped values. Three new cases cover queued unchanged/reload/shutdown in both modes and pre-admission shutdown. Existing type/scope/value/flags, row order and unknown projections remain covered; fake grants stay empty.",
-      "native_acceptance": "Installed read probes exist; independently valued present world/player entries remain unqualified.",
+      "native_acceptance": "Bounded isolated0.50.5/SDK12.1 empty-world cohort passes catalog, active-world read/refusal checks and selected missing-player/error/unknown paths. Historical linked fixtures retain original applicability. No positive current player/factory/UI or native interruption timing acceptance.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Not a persistence or unlock-retention test.",
       "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle in both modes; optional player re-resolves the current roster. MCP epoch is not a native world identity or connection lock. Independent per-ID reads are not an atomic knowledge snapshot or crafting/progression authority.",
       "next_missing_check": "Correlate one observed knowledge value and scope with an independent in-game prerequisite.",
-      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse in both modes despite retained SDK values and player roster. Historical native applicability stays unchanged; native event timing remains unverified.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse in both modes despite retained SDK values and player roster. Historical native applicability stays unchanged; native event timing remains unverified. Separate empty-world native cohort passes bounded read/refusal checks; native queued lifecycle interruption timing remains unverified.",
       "independent_effect_acceptance": "No progression change or craftability proof.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -474,15 +478,16 @@
       "evidence_summary": "Server prompt/combat target namespaces remain distinct from client entities or scene raycasts.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0145-prompt-read-lifecycle-guard.md"
+        "plans/decisions/0145-prompt-read-lifecycle-guard.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "Actual dispatcher reload regression first fails with independently retained player, prompt target and UsedItem data. New cases cover pre-admission shutdown and queued unchanged/reload/shutdown; existing prompt-versus-combat slot, unknown/none and nullable metadata behavior remains covered.",
-      "native_acceptance": "Source adapter cases and installed probes; independent present-target coverage remains incomplete.",
+      "native_acceptance": "Bounded isolated0.50.5/SDK12.1 empty-world cohort passes catalog, active-world read/refusal checks and selected missing-player/error/unknown paths. Historical linked fixtures retain original applicability. No positive current player/factory/UI or native interruption timing acceptance.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Session-local entity identity only.",
       "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle and re-resolve the current SDK roster before target read. MCP epoch is not a native session ID or connection lock; this does not map current client entity or verify rendered prompt.",
       "next_missing_check": "Correlate one present prompt target with a visible known object without moving the avatar.",
-      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse despite retained SDK roster/target/item data. Historical native evidence retains original applicability; native event timing remains unverified.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse despite retained SDK roster/target/item data. Historical native evidence retains original applicability; native event timing remains unverified. Separate empty-world native cohort passes bounded read/refusal checks; native queued lifecycle interruption timing remains unverified.",
       "independent_effect_acceptance": "No interaction, hit, collision or navigation execution.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -3345,16 +3350,17 @@
       "evidence_summary": "Native requests and independently observed exit code 0; causal final-save proof open.",
       "evidence_references": [
         "plans/decisions/0018-native-dedicated-shutdown.md",
-        "plans/decisions/0109-retain-shutdown-failure-evidence.md"
+        "plans/decisions/0109-retain-shutdown-failure-evidence.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "409-Rust source cohort includes panic-retained shutdown fixture bytes and cached receipt diagnostics; controlled post-intent refusal never calls stop. Organic timing cause, native interruption and causal exit/save remain unverified.",
-      "native_acceptance": "partial; see evidence_summary",
+      "native_acceptance": "Separate isolated0.50.5/SDK12.1 empty-world cohort: one guarded native shutdown accepted and independent held-process exit0 verified. Primary/client adoption, final-save causality and connected-peer races remain unverified.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Establish causal save/exit evidence in a disposable fixture.",
       "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
-      "independent_effect_acceptance": "Exact process exit code 0 independently observed; final-save causality unverified.",
+      "independent_effect_acceptance": "One independently observed owned process exit0 after one accepted native shutdown; final-save and causal completion remain unverified. Existing historical evidence retains original applicability.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
@@ -4212,15 +4218,16 @@
       "evidence_references": [
         "plans/decisions/0134-queued-player-waypoint-read.md",
         "plans/decisions/0133-shared-waypoint-consumer-cohorts.md",
-        "plans/decisions/0142-waypoint-lifecycle-guard.md"
+        "plans/decisions/0142-waypoint-lifecycle-guard.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "Game-free selector/projection and existing lifecycle/session policy; SDK-fake queued unchanged/shutdown/reload and pre-admission shutdown cases with independently retained waypoint data; full source checks required.",
-      "native_acceptance": "Not installed or positively native-qualified; SDK-fake results are not a native provider proof.",
+      "native_acceptance": "Bounded isolated0.50.5/SDK12.1 empty-world cohort passes catalog, active-world read/refusal checks and selected missing-player/error/unknown paths. Historical linked fixtures retain original applicability. No positive current player/factory/UI or native interruption timing acceptance.",
       "rendered_acceptance": "No rendered marker, player-position or arrival acceptance.",
       "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
       "freshness_completeness": "Re-resolves the current SDK roster after active MCP lifecycle and epoch checks; MCP epoch is not a native identifier, world_session remains unavailable and roster membership is not a connection lock.",
       "next_missing_check": "Independently set, move and clear one current player shared waypoint on a qualified native runtime.",
-      "refusal_acceptance": "Source malformed arguments, unknown/ambiguous selectors, unavailable layout and stopped-world refusals plus inactive admission and queued lifecycle epoch changes; native timing remains unverified.",
+      "refusal_acceptance": "Source malformed arguments, unknown/ambiguous selectors, unavailable layout and stopped-world refusals plus inactive admission and queued lifecycle epoch changes; native timing remains unverified. Separate empty-world native cohort passes bounded read/refusal checks; native queued lifecycle interruption timing remains unverified.",
       "independent_effect_acceptance": "No waypoint setter, input, movement or gameplay mutation.",
       "admission_sources": [
         "crates/policy/src/args.rs",
@@ -4261,15 +4268,16 @@
       "evidence_references": [
         "plans/decisions/0139-pinned-sdk-shroud-observation.md",
         "plans/decisions/0140-queued-player-shroud-read.md",
-        "plans/decisions/0141-queued-read-lifecycle-regression.md"
+        "plans/decisions/0141-queued-read-lifecycle-regression.md",
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
       ],
       "source_checks": "Game-free selector/context/projection plus scheduled SDK-fake cases, including deterministic queued shutdown/reload and a failing isolated epoch-guard mutation.",
-      "native_acceptance": "Not installed or positively native-qualified; source fixtures do not establish native field or countdown fidelity.",
+      "native_acceptance": "Bounded isolated0.50.5/SDK12.1 empty-world cohort passes catalog, active-world read/refusal checks and selected missing-player/error/unknown paths. Historical linked fixtures retain original applicability. No positive current player/factory/UI or native interruption timing acceptance.",
       "rendered_acceptance": "No displayed countdown, damage-deadline, terrain/contact or traversal acceptance.",
       "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
       "freshness_completeness": "Active MCP lifecycle required at admission and queued execution; epoch changes refuse. Re-resolves SDK roster and fields per call; world key is identity metadata, not liveness proof. Native world_session remains unavailable.",
       "next_missing_check": "Independently match a current native player flag/timer with displayed countdown on a qualified isolated runtime.",
-      "refusal_acceptance": "Source strict arguments, unknown/ambiguous selectors, invalid native entity and pre-admission/queued lifecycle refusals; native timing matrix unverified.",
+      "refusal_acceptance": "Source strict arguments, unknown/ambiguous selectors, invalid native entity and pre-admission/queued lifecycle refusals; native timing matrix unverified. Separate empty-world native cohort passes bounded read/refusal checks; native queued lifecycle interruption timing remains unverified.",
       "independent_effect_acceptance": "No refill, actor input, movement, journal append or gameplay mutation.",
       "admission_sources": [
         "crates/policy/src/args.rs",
