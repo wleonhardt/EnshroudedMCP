@@ -2,6 +2,8 @@
 
 ## Current product checkpoint
 
+Decision 0166 adds an independent, unregistered SDK 12.16 native lifecycle qualifier. Game-free policy and SDK/file cases prepare guarded Join/Leave/Cancel, including four reproduced safety/resource fixes. It is uninstalled and changes no default tool or SDK pin. Provider fidelity, native Menu, intended peer, character, roster, cancellation/Leave and rendered outcomes remain unverified. See the optional qualifier README for boundaries; signed checkpoint 0164 still applies.
+
 Feature branch adds source server0.51.3 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main source remains0.48.0; the signed primary installation is now server0.48.0/companion0.22.0 (decision0164). Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; A further0.51.0 cohort passes46 fixed and16 targeted checks plus one native shutdown/exit0, including new current-player buff refusal paths; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.

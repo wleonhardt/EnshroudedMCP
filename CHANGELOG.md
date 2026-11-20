@@ -2,6 +2,8 @@
 
 ## 0.51.3
 
+- Add an inactive SDK 12.16 lifecycle control qualifier with game-free admission, synced once-only identities, native Join/Leave/Cancel and redacted evidence. Fix reproduced memory replay, changed-session Leave, aged-frame dispatch and unbounded input-consumption errors before deployment. No default MCP tool, SDK adoption, credential resolver or native connection acceptance is added.
+
 - Preserve an inactive current-feature SDK12.16 compatibility patch with published cross-game queue-discard models, unchanged retained-data shutdown guards and stopped-world regression. Correct the signed installed README checkpoint; no product SDK adoption or native direct-join acceptance.
 
 - Record matched signed server0.48.0/companion0.22.0 cold deployment and bounded fresh Menu/header/fifteen-read/contract acceptance with independently observed normal exit0. Update installed checkpoint; native Join/Leave and rendered/callback causality remain unverified.

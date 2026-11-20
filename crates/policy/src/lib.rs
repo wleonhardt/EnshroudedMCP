@@ -7,6 +7,7 @@ pub mod building_access;
 pub mod building_plan;
 pub mod building_survey;
 pub mod client;
+pub mod client_connection;
 pub mod client_control;
 pub mod client_markers;
 pub mod client_recipe;

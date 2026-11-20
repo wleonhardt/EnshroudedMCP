@@ -1,0 +1,24 @@
+[package]
+name = "sdk-lifecycle-control-qualification"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.100"
+publish = false
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[package.metadata.enshwick]
+id = "enshrouded.lifecycle-control-qualification"
+name = "Bounded native lifecycle qualifier"
+side = "both"
+
+[dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", features = ["unstable"] }
+policy = { path = "../../crates/policy" }
+serde_json = "=1.0.154"
+
+[dev-dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", features = ["unstable", "test"] }
