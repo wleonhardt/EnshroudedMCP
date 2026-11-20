@@ -221,7 +221,7 @@ impl GameTools {
             },
             Tool {
                 name: "voxel_sample",
-                description: "The voxel at a point in metres: material (air, terrain id or building id) and fill 0-255.",
+                description: "The voxel at a point in metres: material (air, terrain id or building id) and fill 0-255. Native read/capture requires active MCP lifecycle at admission and execution with unchanged epoch.",
                 schema: sample,
             },
             Tool {
@@ -649,13 +649,29 @@ impl Tools for GameTools {
             "building_survey" => {
                 let spec = policy::building_survey::check(a)?;
                 let game = self.game;
-                on_game_thread(scheduler, move || crate::building_survey::read(game, spec))?
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
+                on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    crate::building_survey::read(game, spec)
+                })?
             }
             "terrain_image" => {
                 let spec = policy::terrain_image::check(a)?;
                 let request = Value::Object(a.clone());
                 let game = self.game;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     crate::terrain_image::capture(game, spec, request)
                 })?
             }
@@ -848,11 +864,20 @@ impl Tools for GameTools {
                     ));
                 }
                 let at = VoxelPos::from_metres(p).ok_or("point is outside the voxel grid")?;
-                on_game_thread(scheduler, move || match voxels.sample(at) {
-                    Ok(v) => Ok(
-                        json!({"material": format!("{:?}", v.material()), "fill": v.fill(), "voxel": format!("{at:?}")}),
-                    ),
-                    Err(e) => Err(format!("voxel read failed: {e}")),
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
+                on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    match voxels.sample(at) {
+                        Ok(v) => Ok(
+                            json!({"material": format!("{:?}", v.material()), "fill": v.fill(), "voxel": format!("{at:?}")}),
+                        ),
+                        Err(e) => Err(format!("voxel read failed: {e}")),
+                    }
                 })?
             }
             "props_in" => {

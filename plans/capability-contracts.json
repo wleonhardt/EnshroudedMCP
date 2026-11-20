@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.2 active-world roster/status/read/refusal/recovery/exit cohort verified; native interruption and positive-player/client correspondence remain separate",
+  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.3 voxel read/capture lifecycle guards await native acceptance; prior0.51.2 native evidence retains its scope",
   "profiles": {
     "product": {
-      "server_version": "0.51.2",
+      "server_version": "0.51.3",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -639,7 +639,7 @@
     {
       "scope": "server",
       "name": "building_survey",
-      "description": "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build rights. Optional foundation previews one bounded Air-only pier before occupied terrain; no rendered surface-height claim. May trigger chunk loading. No writes, prop/collision checks, crafting costs or complete altar boundary discovery.",
+      "description": "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build rights. Optional foundation previews one bounded Air-only pier before occupied terrain; no rendered surface-height claim. May trigger chunk loading. No writes, prop/collision checks, crafting costs or complete altar boundary discovery. Native read/capture requires active MCP lifecycle at admission and execution with unchanged epoch.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -738,22 +738,24 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Bounded raw cells and explicit-box rights/persistence; foundation preview is not rendered ground height.",
+      "evidence_summary": "Source0.51.3 retained positive SDK terrain reproductions fail before the fix and pass with active admission/execution epoch guards; unchanged raw data and diagnostic limits remain preserved.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0160-voxel-observation-lifecycle-guards.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Complete isolated voxel baselines and bounded source surveys preserved; broader terrain/ground-contact acceptance open.",
+      "source_checks": "Separate queued unchanged/reload/shutdown and pre-admission shutdown cases for each of three tools; direct SDK terrain remains positive. Refused calls add no voxel read. Copied-image presentation still encodes after shutdown without native reads.",
+      "native_acceptance": "Historical indexed evidence and isolated0.51.2 cohort retain their original scope. New0.51.3 active/queued capture guard behavior is source-qualified only; native interruption and physical/rendered correspondence remain open.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Historical baseline preservation is not complete built-structure persistence.",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Correlate one fresh visible terrain seam with a bounded survey and independent contact evidence.",
+      "freshness_completeness": "Require active MCP lifecycle and unchanged admission/execution epoch before native voxel observation. Output/capture remains non-atomic, may load chunks and grants no physical support, collision, clearance or movement authority.",
+      "next_missing_check": "Qualify source0.51.3 active-world guarded read/capture and native interruption; keep diagnostic raster separate from physical/rendered acceptance.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Existing platform standing correspondence is narrow; grass/rock occlusion and fill semantics remain unresolved.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/building_survey.rs"
+        "crates/policy/src/building_survey.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "May trigger SDK chunk loading; bounded cells do not imply no engine work.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
@@ -762,7 +764,7 @@
     {
       "scope": "server",
       "name": "terrain_image",
-      "description": "Read at most 4096 half-metre voxels in an 8 m box and return diagnostic top/section PNG plus exact JSON coordinates, raw materials/fill and optional caller reference pins. Native capture runs on the game thread; encoding uses copies. May load chunks. No game-frame capture, camera, props, collision, surface-height, support or movement proof. Air is not clearance; not an executor.",
+      "description": "Read at most 4096 half-metre voxels in an 8 m box and return diagnostic top/section PNG plus exact JSON coordinates, raw materials/fill and optional caller reference pins. Native capture runs on the game thread; encoding uses copies. May load chunks. No game-frame capture, camera, props, collision, surface-height, support or movement proof. Air is not clearance; not an executor. Native read/capture requires active MCP lifecycle at admission and execution with unchanged epoch.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -864,20 +866,21 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread capture; listener renders copied data",
       "admission": "Strict named args; bounded survey box, explicit section, up to 16 caller reference pins. Read-only; no write flag or execution authority.",
-      "evidence_summary": "Installed signed-SDK 0.48.0 empty-server acceptance verifies 720 complete pin-column bands, 170415 independent diagnostic pixels, five specific image refusals and protected/cold preservation.",
+      "evidence_summary": "Source0.51.3 retained positive SDK terrain reproductions fail before the fix and pass with active admission/execution epoch guards; unchanged raw data and diagnostic limits remain preserved.",
       "evidence_references": [
         "plans/decisions/0072-bounded-mcp-png-presentation.md",
         "plans/decisions/0073-native-terrain-image.md",
         "plans/decisions/0076-native-terrain-caption-acceptance.md",
         "plans/decisions/0098-native-pin-column-metadata.md",
-        "plans/decisions/0099-signed-server-pin-column-acceptance.md"
+        "plans/decisions/0099-signed-server-pin-column-acceptance.md",
+        "plans/decisions/0160-voxel-observation-lifecycle-guards.md"
       ],
-      "source_checks": "Private/public 404 Rust executions and 97 Python tests, strict lint/format/releases/contracts pass. Three new behavior cases reproduce absent metadata before implementation; independent fresh native-data replay matches all 32 bands. Native 0.48.0 endpoint acceptance remains pending.",
-      "native_acceptance": "Three actual projections with sixteen caller pins each match equal bracketing surveys; 720 bands and 170415 independent pixels agree. Five targeted refusals match their intended gate without PNG. Forty fixed probes, complete discovery and protected/cold preservation pass.",
+      "source_checks": "Separate queued unchanged/reload/shutdown and pre-admission shutdown cases for each of three tools; direct SDK terrain remains positive. Refused calls add no voxel read. Copied-image presentation still encodes after shutdown without native reads.",
+      "native_acceptance": "Historical indexed evidence and isolated0.51.2 cohort retain their original scope. New0.51.3 active/queued capture guard behavior is source-qualified only; native interruption and physical/rendered correspondence remain open.",
       "rendered_acceptance": "Diagnostic raster only; no game-frame, camera, interpolated surface or contact proof.",
       "persistence_acceptance": "No write or save/recovery authority.",
-      "freshness_completeness": "One queued voxel capture; host timestamp after read, native session unavailable. Caller pins are references, not live selectors. A timeout does not cancel the queued read.",
-      "next_missing_check": "Qualify connected-client consumption and capture-time error presentation; engine surface/contact, native world-session identity and lifecycle remain separate.",
+      "freshness_completeness": "Require active MCP lifecycle and unchanged admission/execution epoch before native voxel observation. Output/capture remains non-atomic, may load chunks and grants no physical support, collision, clearance or movement authority. Copied rasterization remains game-free and can encode a previously captured diagnostic after shutdown.",
+      "next_missing_check": "Qualify source0.51.3 active-world guarded read/capture and native interruption; keep diagnostic raster separate from physical/rendered acceptance.",
       "refusal_acceptance": "Eighteen exact native argument refusals return only one error-text block, with no PNG or ledger changes. Native capture-time failure presentation remains separately unverified.",
       "independent_effect_acceptance": "PNG encoding is game-free; reference pins do not move or select anything.",
       "admission_sources": [
@@ -886,7 +889,8 @@
         "crates/policy/src/building_survey.rs",
         "crates/policy/src/terrain_image.rs",
         "crates/policy/src/presentation.rs",
-        "crates/policy/src/mcp.rs"
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "Voxel reads can load chunks and may run after a response timeout. Encoding uses copies and no World access.",
       "effect_kind": "scheduled bounded voxel read and diagnostic PNG; no gameplay mutation",
@@ -1283,7 +1287,7 @@
     {
       "scope": "server",
       "name": "voxel_sample",
-      "description": "The voxel at a point in metres: material (air, terrain id or building id) and fill 0-255.",
+      "description": "The voxel at a point in metres: material (air, terrain id or building id) and fill 0-255. Native read/capture requires active MCP lifecycle at admission and execution with unchanged epoch.",
       "input_schema": {
         "properties": {
           "x": {
@@ -1309,22 +1313,24 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "One raw grid cell; preserve material and fill without an invented density/mesh equation.",
+      "evidence_summary": "Source0.51.3 retained positive SDK terrain reproductions fail before the fix and pass with active admission/execution epoch guards; unchanged raw data and diagnostic limits remain preserved.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0160-voxel-observation-lifecycle-guards.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Complete isolated baselines include building fill 7 despite older zero-fill documentation.",
+      "source_checks": "Separate queued unchanged/reload/shutdown and pre-admission shutdown cases for each of three tools; direct SDK terrain remains positive. Refused calls add no voxel read. Copied-image presentation still encodes after shutdown without native reads.",
+      "native_acceptance": "Historical indexed evidence and isolated0.51.2 cohort retain their original scope. New0.51.3 active/queued capture guard behavior is source-qualified only; native interruption and physical/rendered correspondence remain open.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Historical baseline/reload fixtures are narrow, not arbitrary construction persistence.",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
-      "next_missing_check": "Resolve fill-to-visible-surface semantics with a new independent discriminator.",
+      "freshness_completeness": "Require active MCP lifecycle and unchanged admission/execution epoch before native voxel observation. Output/capture remains non-atomic, may load chunks and grants no physical support, collision, clearance or movement authority.",
+      "next_missing_check": "Qualify source0.51.3 active-world guarded read/capture and native interruption; keep diagnostic raster separate from physical/rendered acceptance.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Raw cell correspondence does not prove complete physical surface/collision.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/bounds.rs"
+        "crates/policy/src/bounds.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",

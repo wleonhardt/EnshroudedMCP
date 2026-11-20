@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "terrain_image",
-        description: "Read at most 4096 half-metre voxels in an 8 m box and return diagnostic top/section PNG plus exact JSON coordinates, raw materials/fill and optional caller reference pins. Native capture runs on the game thread; encoding uses copies. May load chunks. No game-frame capture, camera, props, collision, surface-height, support or movement proof. Air is not clearance; not an executor.",
+        description: "Read at most 4096 half-metre voxels in an 8 m box and return diagnostic top/section PNG plus exact JSON coordinates, raw materials/fill and optional caller reference pins. Native capture runs on the game thread; encoding uses copies. May load chunks. No game-frame capture, camera, props, collision, surface-height, support or movement proof. Air is not clearance; not an executor. Native read/capture requires active MCP lifecycle at admission and execution with unchanged epoch.",
         schema: policy::terrain_image::schema(),
     }
 }

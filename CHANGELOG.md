@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.51.3
+
+- Fix survey, terrain-image capture and voxel sample returning retained terrain after lifecycle changes. Require active admission/execution with unchanged epoch before native reads. Preserve raw data, chunk-loading caveats and pure copied-image encoding after shutdown. No physical/rendered or movement authority is added; native qualification remains open.
+
+
 ## 0.51.2
 
 - Isolated native qualification:48 controller models,46 fixed and20 targeted checks pass, including active-world empty roster and hosted-status fields. One guarded shutdown has independent exit0; old journal prefix and four prior intents remain exact. Positive-player/UI, native hosting=false and interruption acceptance remain open.

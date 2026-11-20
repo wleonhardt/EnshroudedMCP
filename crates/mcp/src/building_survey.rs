@@ -9,7 +9,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> Tool {
     Tool {
         name: "building_survey",
-        description: "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build rights. Optional foundation previews one bounded Air-only pier before occupied terrain; no rendered surface-height claim. May trigger chunk loading. No writes, prop/collision checks, crafting costs or complete altar boundary discovery.",
+        description: "Read at most 4096 half-metre cells in a box at most 8 m per side, with whole-box persistence and optional connected-player build rights. Optional foundation previews one bounded Air-only pier before occupied terrain; no rendered surface-height claim. May trigger chunk loading. No writes, prop/collision checks, crafting costs or complete altar boundary discovery. Native read/capture requires active MCP lifecycle at admission and execution with unchanged epoch.",
         schema: policy::building_survey::schema(),
     }
 }
