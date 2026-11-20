@@ -374,6 +374,8 @@ The terrain viewer measures any selected pin, captured cell minimum or proposed 
 
 Optional process handoff observation accepts a separately named expected child image while retaining the original default and all nonzero-exit/identity gates (decision 0118). Ten owned-process/refusal methods pass. Valve documents a candidate Steam launch route, but this helper starts nothing and does not explain exit53 or authorize a game retry.
 
+The inactive [shared-waypoint qualification](qualification/sdk-waypoint/README.md) checks the published read-only `Map::waypoint` consumer against pinned SDK12.1 and main SDK12.16. It preserves raw positions, absent-versus-zero semantics and typed errors without a setter, MCP tool, provider adoption or movement authority. Native waypoint/player/session correspondence remains unverified.
+
 The terrain inspector accepts exact XYZ coordinates through **Inspect coordinate**. A white crosshair marks an in-capture selection; its column, section jumps, measurements and exports preserve the entered precision. Outside points remain unobserved, with no crosshair or containing-section jump. This changes only the local diagnostic selection. See [coordinate inspection](plans/decisions/0132-inspect-exact-terrain-coordinates.md).
 
 The terrain inspector offers **Save column JSON** after selecting a pin, cell or proposed target. Export includes complete raw half-metre bands, nullable material IDs/fill, selected-Y markers, capture bounds and provenance. Outside columns remain unobserved; raw observations do not prove ground contact or clearance. No extra MCP read occurs. See [selected-column export](plans/decisions/0124-export-selected-raw-column.md).

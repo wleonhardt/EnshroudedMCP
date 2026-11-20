@@ -1,0 +1,15 @@
+[package]
+name = "sdk-waypoint-qualification"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.100"
+publish = false
+
+[workspace]
+
+[dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", features = ["unstable"] }
+serde_json = "=1.0.154"
+
+[dev-dependencies]
+enshwick = { git = "https://github.com/enshwick/enshwick", rev = "33cf4dc149f88d1abe3d3c11a12053d0ab94967f", features = ["unstable", "test"] }

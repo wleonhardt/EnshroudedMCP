@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add an inactive shared-waypoint read consumer pinned to exact SDK12.16, with a source-identical SDK12.1 comparison cohort. Preserve unset-versus-zero, typed errors and raw coordinates; no MCP registration, waypoint setter, movement or SDK adoption.
+
 - Terrain viewer adds exact XYZ inspection with a selected-point crosshair, precise PNG caption, existing column export and section jumps. Invalid input preserves selection; outside capture remains explicit and unobserved. No additional native read or game action.
 
 - Client probe refuses a cached input-status reply that omits `age_ms`; explicit null remains a valid unknown age. This prevents malformed replies from being normalized into valid diagnostic evidence. Native getter acceptance remains pending.

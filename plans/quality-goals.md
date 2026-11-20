@@ -1,5 +1,8 @@
 # Quality goals
 
+2026-11-20 increment: decision0133 qualifies a read-only shared-waypoint consumer across pinned SDK12.1 and the appended provider transport at SDK12.16. Eight source behaviors distinguish absent points, legitimate zero, typed errors and current fixture changes without movement authority. The safe getter already exists in the pinned SDK. Native current-player/session/marker correspondence remains open; no upgrade is adopted.
+
+
 2026-11-20 increment: decision0132 adds exact XYZ selection and a white crosshair to the local technical terrain viewer. Eighteen terrain methods and three actual browser form/download cases preserve coordinate precision, raw bands, half-open coverage and uncertainty. A fresh4096-cell capture independently matches32 exported bands; exact section jumps and saved PNG pass. This remains diagnostic occupancy, with no ground-contact, traversal or gameplay authority.
 
 

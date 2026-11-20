@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source qualification; shared waypoint read** Decision0133 checks one inactive safe Map::waypoint consumer against exact SDK6a151a95/ABI12.1 and main33cf4dc1/ABI12.16. Eight behaviors cover raw positions, absent versus zero, current reads and typed refusals. The getter already exists in the pinned SDK; the main transport change does not itself require product adoption. Both SDK cohorts pass the same eight cases in debug/release and strict lint/format; private/public root414 Rust/106 Python plus required checks pass. Exact nine-file diff and321-file snapshot pass identifier/secret audits. No MCP tool, provider installation, native lifecycle retry or movement. Next qualify fresh server selector/session admission and independently set/moved/cleared native coordinates.
+
 - **browser verified; exact terrain coordinate inspection** Decision0132 adds a local XYZ form and white selected-point crosshair with precise export caption. Eighteen terrain methods pass; three real form submissions/downloads match32 bands from a fresh4096-cell native capture. Exact section jumps and actual PNG export pass. Invalid input preserves selection; outside points remain unobserved. Private/public414 Rust/106 Python checks, strict lint/format, releases and live server metadata contracts pass. Exact eight-file diff and316-file snapshot pass identifier/secret audits. No game input or capture, provider replacement or game-process action.
 
 - **source verification; explicit cached diagnostic age** The client probe now requires the age_ms field while preserving explicit null as unknown. A malformed missing-field reproduction fails before the fix and passes afterward. One behavior regression is added; matched native getter acceptance remains pending.
