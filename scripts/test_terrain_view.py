@@ -524,6 +524,63 @@ verifyPointInputs();
             self.assertEqual(result.returncode,0,result.stderr)
 
 
+    @unittest.skipUnless(shutil.which("node"), "Node is required for renderer event checks")
+    def test_coordinate_ruler_redraws_signed_dimensions_and_png_with_capture_limits(self):
+        script = r'''const assert=require('node:assert/strict');
+class Element extends EventTarget {
+ constructor(tagName='DIV'){super();this.tagName=tagName;this.value='';this.dataset={};this.children=[];}
+ append(...v){this.children.push(...v);} replaceChildren(...v){this.children=v;}
+ get valueAsNumber(){return this.value===''?NaN:Number(this.value);}
+ click(){if(this.tagName==='A')downloads.push({name:this.download,href:this.href});}
+}
+const downloads=[],painted=[],strokes=[];let points=[],exported=null;
+const ids=['terrain-data','terrain','view','yaw','pitch','zoom','slice','selection','measure','pins',
+ 'provenance','slice-control','yaw-control','pitch-control','slice-value','export','export-column',
+ 'show-plan','plan-target','plan-controls','plan-summary','column-profile','column-title','column-summary',
+ 'column-rows','section-xy','section-zy','inspect-point','inspect-x','inspect-y','inspect-z','point-error'];
+const nodes=Object.fromEntries(ids.map(id=>[id,new Element()]));
+nodes['terrain-data'].textContent=process.argv[2];nodes.view.value='orbit';nodes.view.tagName='SELECT';
+nodes.yaw.value='320';nodes.pitch.value='32';nodes.zoom.value='100';nodes['show-plan'].checked=true;
+nodes.terrain.clientWidth=800;nodes.terrain.clientHeight=520;
+const ctx=new Proxy({fillRect:()=>{painted.length=0;strokes.length=0;},fillText:t=>painted.push(t),
+ beginPath:()=>{points=[];},moveTo:(x,y)=>points.push([x,y]),lineTo:(x,y)=>points.push([x,y]),
+ stroke:()=>strokes.push({color:ctx.strokeStyle,points:points.slice(),alpha:ctx.globalAlpha})
+},{get:(obj,key)=>obj[key]??(()=>{})});
+nodes.terrain.getContext=()=>ctx;nodes.terrain.getBoundingClientRect=()=>({left:0,top:0});
+nodes.terrain.toDataURL=()=>{exported={painted:painted.slice(),strokes:structuredClone(strokes)};return 'data:image/png;base64,c3R1Yg==';};
+globalThis.document={getElementById:id=>nodes[id],createElement:tag=>new Element(tag.toUpperCase())};
+globalThis.window={devicePixelRatio:1,addEventListener:()=>{}};
+require(process.argv[1]);
+function change(id,value){nodes[id].value=value;nodes[id].dispatchEvent(new Event(nodes[id].tagName==='SELECT'?'change':'input'));}
+function inspect(position){position.forEach((v,i)=>nodes[`inspect-${'xyz'[i]}`].value=String(v));nodes['inspect-point'].dispatchEvent(new Event('submit',{cancelable:true}));}
+function ruler(){return strokes.filter(s=>s.color==='#8ce5ef');}
+change('view','xy');change('slice','60');inspect([10.75,21,30.25]);
+assert.equal(ruler().length,0);
+nodes.measure.value='0';nodes.measure.dispatchEvent(new Event('change'));
+assert.ok(painted.some(t=>t==='Ruler from Reference A: X/Z 0.500 m; ΔY +0.500 m; 3D 0.707 m · projected coordinates'));
+assert.equal(ruler().length,2);
+const leg=ruler().find(s=>s.points.length===3);assert.ok(leg);
+assert.equal(leg.points[0][1],leg.points[1][1]);assert.equal(leg.points[1][0],leg.points[2][0]);
+assert.ok(leg.points[1][0]>leg.points[0][0]);assert.ok(leg.points[2][1]<leg.points[1][1]);
+nodes.export.dispatchEvent(new Event('click'));
+assert.equal(downloads.at(-1).name,'native-terrain-occupancy.png');
+assert.ok(exported.painted.some(t=>t.includes('ΔY +0.500 m')));
+assert.equal(exported.strokes.filter(s=>s.color==='#8ce5ef').length,2);
+inspect([10.75,20.25,30.25]);assert.ok(painted.some(t=>t.includes('ΔY -0.250 m; 3D 0.559 m')));
+inspect([10.75,21,31.25]);assert.equal(ruler().length,2);
+assert.ok(ruler().every(s=>s.alpha===.4));assert.ok(painted.some(t=>t.endsWith('projected off section')));
+inspect([11,21,30.25]);assert.equal(ruler().length,0);
+assert.ok(painted.some(t=>t.endsWith('OUTSIDE capture; ruler not drawn')));
+inspect([10.75,21,30.25]);nodes.measure.value='';nodes.measure.dispatchEvent(new Event('change'));
+assert.equal(ruler().length,0);assert.ok(!painted.some(t=>t.startsWith('Ruler from')));
+assert.equal(nodes['terrain-data'].textContent,process.argv[2]);
+'''
+        value=scene(survey(), [{"label":"Reference A","position":[10.25,20.5,30.25]}])
+        result=subprocess.run([shutil.which("node"),"-e",script,
+            str(Path(__file__).with_name("terrain_view.js")),json.dumps(value)],capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+
+
 def preview(cells):
     return {'status':'geometry_preview_only','executable':False,'grid':{'cell_size_m':.5},
             'geometry':{'solid_cell_count':len(cells)},'cell_minima':cells}

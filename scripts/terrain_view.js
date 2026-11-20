@@ -200,7 +200,8 @@
     ctx.setTransform(ratio,0,0,ratio,0,0);
     ctx.fillStyle="#182332";ctx.fillRect(0,0,width,height);
     const view=controls.view.value, yaw=Number(controls.yaw.value)*Math.PI/180, pitch=Number(controls.pitch.value)*Math.PI/180;
-    const pinRows=Math.min(data.pins.length,5),sectionMode=["xy","zy"].includes(view),plotTop=(proposal?110:90)+(sectionMode?20:0)+(selectedPosition?20:0),plotBottom=height-90-pinRows*16;
+    const rulerOrigin=selectedPosition!==null&&measure.value!==""?data.pins[Number(measure.value)]:null;
+    const pinRows=Math.min(data.pins.length,5),sectionMode=["xy","zy"].includes(view),plotTop=(proposal?110:90)+(sectionMode?20:0)+(selectedPosition?20:0)+(rulerOrigin?20:0),plotBottom=height-90-pinRows*16;
     const raw=p=>project(local(p),view,yaw,pitch);
     const extent=bounds.map(raw), xs=extent.map(p=>p.x), ys=extent.map(p=>p.y);
     const fit=Math.min((width-120)/Math.max(.5,Math.max(...xs)-Math.min(...xs)),(plotBottom-plotTop)/Math.max(.5,Math.max(...ys)-Math.min(...ys)))*Number(controls.zoom.value)/100;
@@ -261,6 +262,15 @@
       pick.push({pin:index,x:p.x,y:p.y});
     });
     const inspectionInCapture = selectedPosition !== null && selectedPosition.every((v,i) => v >= data.min_m[i] && v < data.max_m[i]);
+    const rulerDrawn=rulerOrigin!==null&&rulerOrigin.inside_capture&&inspectionInCapture;
+    const rulerOffSection=rulerDrawn&&sectionMode&&[rulerOrigin.position,selectedPosition].some(p=>Math.floor(p[sliceAxis]*2)!==slice);
+    if(rulerDrawn){
+      const a=screen(rulerOrigin.position),b=screen(selectedPosition),corner=screen([selectedPosition[0],rulerOrigin.position[1],selectedPosition[2]]);
+      ctx.strokeStyle="#8ce5ef";ctx.lineWidth=2;ctx.globalAlpha=rulerOffSection?.4:1;
+      ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(corner.x,corner.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      ctx.setLineDash([]);ctx.globalAlpha=1;
+    }
     if (inspectionInCapture) {
       const p=screen(selectedPosition),offSlice=sectionMode&&Math.floor(selectedPosition[sliceAxis]*2)!==slice;
       ctx.strokeStyle="#ffffff";ctx.fillStyle="#ffffff";ctx.lineWidth=2;ctx.globalAlpha=offSlice?.4:1;
@@ -276,9 +286,13 @@
     if(proposal)fitText(`PROPOSED ${showPlan.checked?"x-ray":"hidden"}: ${proposal.counts.sampled_air} Air, ${proposal.counts.sampled_terrain} terrain, ${proposal.counts.sampled_building} building, ${proposal.counts.sampled_unknown} unknown, ${proposal.counts.unobserved} unobserved/not drawn; clearance NOT verified`,84);
     if(sectionMode)fitText(`Section ${"XYZ"[sliceAxis]} [${slice/2}, ${(slice+1)/2}) m; off-section pins projected faintly`,proposal?102:84);
     if(selectedPosition)fitText(`Selected XYZ [${selectedPosition.join(", ")}] m; ${inspectionInCapture?"white crosshair (projected; not contact proof)":"OUTSIDE capture; point unobserved, crosshair not drawn"}`,(proposal?102:84)+(sectionMode?20:0));
+    if(rulerOrigin){
+      const delta=selectedPosition.map((v,i)=>v-rulerOrigin.position[i]);
+      fitText(`Ruler from ${rulerOrigin.label}: X/Z ${Math.hypot(delta[0],delta[2]).toFixed(3)} m; ΔY ${delta[1]>=0?"+":""}${delta[1].toFixed(3)} m; 3D ${Math.hypot(...delta).toFixed(3)} m · ${rulerDrawn?(rulerOffSection?"projected off section":"projected coordinates"):"OUTSIDE capture; ruler not drawn"}`,(proposal?122:104)+(sectionMode?20:0));
+    }
     data.pins.slice(0,5).forEach((pin,index)=>fitText(`${index+1}. ${pin.label} · XYZ ≈ [${pin.position.map(v=>v.toFixed(3)).join(", ")}] m${pin.inside_capture?"":" · outside capture"}`,height-55-(pinRows-1-index)*16));
     fitText("Terrain: tan   Building: cyan   Unknown: violet   Pins: gold"+(proposal?"   Proposed: dashed (white selection)":""),height-31);
-    fitText("Diagnostic reconstruction; rendered terrain/contact NOT verified",height-12);
+    fitText("Diagnostic reconstruction; rendered terrain/contact NOT verified; ruler is not route proof",height-12);
     canvas.dataset.renderedFaces=String(faces.length);canvas.dataset.view=view;canvas.dataset.proposedTargets=String(proposedCount);
   }
   function contains(points,x,y){
@@ -303,7 +317,7 @@
   });
   for(const element of Object.values(controls))element.addEventListener(element.tagName==="SELECT"?"change":"input",()=>{if(element===controls.view)setupSlice();draw();});
   window.addEventListener("resize",draw);
-  measure.addEventListener("change",()=>{if(selectedPosition!==null)describeSelection(selectionText);});
+  measure.addEventListener("change",()=>{if(selectedPosition!==null)describeSelection(selectionText);draw();});
   exportColumn.addEventListener("click",()=>{
     if(selectedPosition===null)return;
     const a=document.createElement("a");a.download="native-terrain-column.json";

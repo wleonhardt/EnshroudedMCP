@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **implemented; terrain coordinate ruler** Decision0138 adds projected ruler geometry and horizontal/signed-height/3D captions to PNG exports. Nineteen terrain cases pass after an independently failing event regression. Four real browser exports over a fresh 4096-cell native capture verify positive/negative height and outside-capture suppression. Full source checks pass 424 Rust/108 Python, strict lint/format, releases and contracts; exact publication audits remain required. This changes only the local saved viewer; no game input, contact or traversal proof.
+
 - **source verified; lifecycle snapshot freshness** Decision0137 preserves nullable copied state/age/session separately from target-match and command facts. New regression fails before correction; old SDK12.11, exact SDK12.16 and independent replay each pass ten debug/release cases plus lint/format. Four-file optional migration is reproducible; product SDK and runtime remain unchanged. Nested qualification targets stay outside publication. Native provider fidelity and Join/Leave acceptance remain open.
 
 - **source qualification; replayable SDK 12.16 feature candidate** Decision0136 preserves the SDK12.1 product while independently reconstructing source 0.49.1/0.22.0 on exact SDK 33cf4dc1/ABI12.16 and Rust 1.100.0. Candidate/replay each pass 424 Rust/107 Python plus required checks; all 325 tracked files match byte for byte and Git trees agree. Sixteen-path patch keeps runtime gates and deadlines unchanged; initialization-specific fixture failures are retained separately. Native provider fidelity and Join/Leave acceptance remain open. No installation or lifecycle retry.

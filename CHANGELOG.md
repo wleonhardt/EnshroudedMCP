@@ -10,6 +10,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Terrain viewer PNG exports now include a projected coordinate ruler with horizontal run, signed height difference and 3D distance. Outside-capture endpoints stay undrawn; changing or clearing the reference redraws the canvas.
+
 - Inactive lifecycle consumer retains copied snapshot freshness and session beside target matching. Add an exact SDK12.16 optional-consumer replay artifact; no product route, SDK adoption or native action. Ignore nested qualification build output.
 
 - Add an inactive shared-waypoint read consumer pinned to exact SDK12.16, with a source-identical SDK12.1 comparison cohort. Preserve unset-versus-zero, typed errors and raw coordinates; no MCP registration, waypoint setter, movement or SDK adoption.
