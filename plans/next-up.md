@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source qualification; independent shroud state/timer** Decision0139 uses existing SDK12.1 with an inactive rlib consumer. Eight debug/release cases and strict lint/format preserve null versus false/zero, signed values, partial availability and changing observations without safety or mutation authority. No MCP registration, install or real Shroud exposure. Next review current-player admission and game-thread routing; native flag/timer/countdown correspondence remains open.
+
 - **implemented; terrain coordinate ruler** Decision0138 adds projected ruler geometry and horizontal/signed-height/3D captions to PNG exports. Nineteen terrain cases pass after an independently failing event regression. Four real browser exports over a fresh 4096-cell native capture verify positive/negative height and outside-capture suppression. Full source checks pass 424 Rust/108 Python, strict lint/format, releases and contracts; exact publication audits remain required. This changes only the local saved viewer; no game input, contact or traversal proof.
 
 - **source verified; lifecycle snapshot freshness** Decision0137 preserves nullable copied state/age/session separately from target-match and command facts. New regression fails before correction; old SDK12.11, exact SDK12.16 and independent replay each pass ten debug/release cases plus lint/format. Four-file optional migration is reproducible; product SDK and runtime remain unchanged. Nested qualification targets stay outside publication. Native provider fidelity and Join/Leave acceptance remain open.

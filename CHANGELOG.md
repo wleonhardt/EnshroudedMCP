@@ -10,6 +10,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add inactive pinned-SDK shroud-state/timer qualification with independent nullable fields and no safety or mutation authority. No MCP tool or SDK adoption.
+
 - Terrain viewer PNG exports now include a projected coordinate ruler with horizontal run, signed height difference and 3D distance. Outside-capture endpoints stay undrawn; changing or clearing the reference redraws the canvas.
 
 - Inactive lifecycle consumer retains copied snapshot freshness and session beside target matching. Add an exact SDK12.16 optional-consumer replay artifact; no product route, SDK adoption or native action. Ignore nested qualification build output.
