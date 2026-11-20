@@ -26,6 +26,7 @@
       "isolated_roster_status_native_cohort": "plans/decisions/0159-native-roster-status-cohort.md",
       "isolated_voxel_image_native_cohort": "plans/decisions/0161-native-voxel-image-cohort.md",
       "isolated_current_signed_native_cohort": "plans/decisions/0179-current-signed-server-qualification.md",
+      "isolated_0516_runtime_cohort": "plans/decisions/0193-native-0516-signed-runtime-cohort.md",
       "isolated_weather_native_cohort": "plans/decisions/0187-native-weather-signed-cohort.md"
     },
     "inactive_candidate": {

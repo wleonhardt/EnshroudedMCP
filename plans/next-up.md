@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Native0.51.6 runtime/contracts passed; props read gap explicit** Decision0193 verifies37 normal/optimized models,32 independent staged files, one signed-provider launch, all46 fixed probes and exact40 server contracts. Owned native shutdown and independent/held exit0 pass; originals/durable state, closed client, absent flag and free ports pass. Broad verdict stays incomplete. Fixed allowlist does not execute props_in: next add bounded native read/refusal probes, then independently known functional props and controlled interruption. Review0191 remains separate and unapproved.
+
 - **Props lifecycle source fixed; native qualification next** Decision0192 reproduces three stale retained-positive SDK outcomes, then source0.51.6 reuses active admission and execution epoch guards. Four dispatcher cases preserve normal output, nullable label observation and recovery limits. Native reload/shutdown timing and positive prop ownership remain unverified. Next fresh isolated signed-provider cohort, then controlled native interruption. Remaining audit candidates: entity_health, entities_near and entity_components.
 
 - **Phase-aware qualifier0.1.1 source fixed; fresh review/native acceptance next** Decision0190 separates observer180 from a once-started command180 lease after valid dry preview; Join is bounded to its first60 seconds. Four failing SDK and two delayed-broker cases precede fixes.499 Rust/131 Python, optional21 debug/optimized and156 broker cases (154 pass, two skips) qualify source only. Exact new artifact/controller/rollback assembly and a fresh concrete exception remain required. No install, launch, replay or lease reset occurs.

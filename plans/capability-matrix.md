@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+A separate signed-provider server0.51.6/companion0.22.0 cohort passes native ABI12.1/table1680, four expected modules, all46 fixed probes and exact40 server contracts. One owned shutdown independently exits0; originals remain unchanged. The fixed allowlist does not execute props_in, so its native data/interruption acceptance remains open. See [runtime cohort scope](plans/decisions/0193-native-0516-signed-runtime-cohort.md).
+
 Source0.51.6 guards props_in active admission and unchanged execution epoch before SDK data or metadata reads. Decision0192 records three failing-before/four passing-after dispatcher cases. Native interruption remains unverified.
 
 Decision0190 qualifies inactive qualifier0.1.1 observer/command lease separation with game-free policy, explicit clock metadata and preview-start admission. Default54 tools, source0.51.5/0.22.0 and signed installed files are unchanged. Source499 Rust/131 Python and optional21 debug/optimized cases pass; private broker delayed-readiness models pass. Current-candidate native handoff/connection remains unverified; older0.1.0 native evidence is historical.
