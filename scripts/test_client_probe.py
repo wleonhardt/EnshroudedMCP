@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from client_probe import Probe, READS, state, recipes, native_snapshot, workshops, command_inventory
+from client_probe import Probe, READS, state, recipes, native_snapshot, workshops, command_inventory, input_status
 
 
 VERSION = next(
@@ -35,7 +35,7 @@ class Fixture:
             error, value = True, "argument 'limit' must be at most 8"
         elif name == "client_capabilities":
             value = {"role": "optional_client_companion", "version": VERSION, "enshwick": "1.0.0-alpha.17",
-                     "native_client_snapshot": True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "workshop_layout":True, "live_verified": False,
+                     "native_client_snapshot": True, "native_cached_input_status":True, "native_client_commands": True, "native_command_live_verified":False, "ui_observation": True, "local_input": True, "recipe_layout": True, "workshop_layout":True, "live_verified": False,
                      "compiled_framework_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9", "compiled_framework_abi": "12.1",
                      "screen_host_template_observation": True,
                      "client_event_sources": {"open_hud_screen": True, "station_recipe_selection": True},
@@ -48,6 +48,12 @@ class Fixture:
             value={"mode":"report_only","source":"vanilla_archive_workshop_registry","identity_scope":"recipe_workshop_definition",
                 "effective_definition_verified":False,"current_availability_verified":False,"current_station_available":None,
                 "workshop_id":0,"registry_entries":1,"total_matches":0,"truncated":False,"state":"not_found","matches":[]}
+        elif name == "client_input_status":
+            value={"source":"published_cached_local_input_status","requested":False,
+                "layout_available":True,"link_available":False,"read_enabled":True,
+                "sample_present":False,"fresh":True,"age_ms":None,"weakly_consistent":True,
+                "sampling_requested_by_this_read":False,"current_ui_verified":False,
+                "commands_submitted":False,"rendered_verified":False}
         elif name == "client_snapshot":
             value = {"source":"published_native_client_snapshot", "state":"fresh", "session":789, "age_ms":0,
                      "reads":{key:True for key in ("screens","menu_tab","held","player","recipe")},
@@ -243,11 +249,30 @@ class ClientProbeTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     state({**value, "stale": not stale})
 
+    def test_cached_input_status_keeps_weak_flags_and_nullable_age_without_ui_authority(self):
+        value=json.loads(Fixture().call("tools/call", {"name":"client_input_status","arguments":{}})["content"][0]["text"])
+        for age in [None,0,1001,0xFFFFFFFFFFFFFFFE]:
+            value["age_ms"]=age
+            report=input_status(value)
+            self.assertEqual(report["age_ms"],age)
+            self.assertTrue(report["fresh"])
+            self.assertFalse(report["requested"])
+            self.assertFalse(report["current_ui_verified"])
+            self.assertFalse(report["commands_submitted"])
+
+    def test_cached_input_status_rejects_malformed_flags_age_and_proof_claims(self):
+        value=json.loads(Fixture().call("tools/call", {"name":"client_input_status","arguments":{}})["content"][0]["text"])
+        for key,bad in [("requested",1),("fresh",None),("age_ms",True),("age_ms",-1),("age_ms",1.5),
+                        ("age_ms",0x10000000000000000),("weakly_consistent",False),
+                        ("sampling_requested_by_this_read",True),("current_ui_verified",True),
+                        ("commands_submitted",True),("rendered_verified",True)]:
+            with self.subTest(key=key,bad=bad), self.assertRaises(ValueError):input_status({**value,key:bad})
+
     def test_fixed_reads_only_and_no_sensitive_values_saved(self):
         client = Fixture()
         report = Probe(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 13)
+        self.assertEqual(len(report["checks"]), 15)
         self.assertTrue(all(check["outcome"] == "pass" for check in report["checks"]))
         serialized = json.dumps(report)
         self.assertNotIn("private-", serialized)

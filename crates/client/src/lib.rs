@@ -1,6 +1,7 @@
 //! Optional native client endpoint. Published client commands; no OS input or World access.
 mod categories;
 mod control;
+mod input_status;
 mod markers;
 mod native_snapshot;
 mod recipe_reference;
@@ -158,6 +159,11 @@ impl ClientTools {
                     schema: policy::client_control::cancel_schema(),
                 },
                 Tool {
+                    name: "client_input_status",
+                    description: "Read published cached local-input sampler metadata on the listener thread: request, layout/link/read gates, sample presence, raw freshness flag and nullable age. Weakly consistent fields remain independent; this getter never starts sampling. No held input, player/session identity, current UI, execution, rendering or cause inferred. No World access or commands.",
+                    schema: policy::client_input::schema(),
+                },
+                Tool {
                     name: "client_snapshot",
                     description: "Copied native client state from the SDK, safe on the listener thread: session, freshness, per-part availability, HUD screen, actual inner menu tab, held controls, client player and highlighted recipe. Null with reads=false is unavailable; null with reads=true means none observed. Zero recipe is the SDK no-highlight sentinel. Client IDs never select server entities. Does not submit commands or prove rendering, connection, craftability or world authority.",
                     schema: json!({"type":"object"}),
@@ -284,6 +290,7 @@ impl Tools for ClientTools {
                 self.request(Request::Cancel(spec, Instant::now()))
             }
             "client_snapshot" => native_snapshot::read(self.native_input),
+            "client_input_status" => input_status::read(self.native_input),
             "client_map_markers" => {
                 let spec = policy::client_markers::check(args)?;
                 if spec.markers.is_none() {
@@ -301,7 +308,7 @@ impl Tools for ClientTools {
                 self.request(Request::Markers(spec))
             }
             "client_capabilities" => Ok(
-                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
+                json!({"role":"optional_client_companion","version":env!("CARGO_PKG_VERSION"),"enshwick":"1.0.0-alpha.17","compiled_framework_revision":"6a151a9550ed7a6ade99c23fa817a91e25b71bc9","compiled_framework_abi":format!("{}.{}",enshwick::abi::ABI_MAJOR,enshwick::abi::ABI_MINOR),"runtime_framework":policy::framework::observation(self.provider_header.map(|h|policy::framework::Header{abi_major:h.abi_major,abi_minor:h.abi_minor,api_table_bytes:h.size})),"framework_extension":"clean official alpha.17 SDK; compiled provenance is not live loader verification","screen_host_template_observation":true,"ui_observation":true,"local_input":self.input,"native_client_snapshot":self.native_input.is_some(),"native_cached_input_status":self.native_input.is_some(),"native_client_commands":self.native_input.is_some(),"native_command_live_verified":false,"native_command_availability":"published API adapter; runtime applicability and availability checked per request","recipe_layout":self.recipes,"workshop_layout":self.workshops,"client_event_sources":{"open_hud_screen":self.selection_sources[0],"station_recipe_selection":self.selection_sources[1]},"native_map_marker_ui":self.marker_ui,"native_map_marker_rendered_verified":false,"semantic_ui_actions":([self.marker_ui.then_some("client_map_markers"),self.native_input.map(|_|"client_command")].into_iter().flatten().collect::<Vec<_>>()),"semantic_gameplay_actions":if self.native_input.is_some(){vec!["client_command.look","client_command.move"]}else{vec![]},"unavailable":["screenshots","keyboard/mouse injection","server join/credentials/logout","rendered evidence","authoritative world/player state"],"limits":{"history":policy::client::HISTORY,"pending_requests":1,"wait_seconds":2,"text_bytes":policy::client::TEXT,"selection_history":policy::client_selection::HISTORY,"map_markers":1,"client_command_operations":policy::client_control::MAX_OPERATIONS,"move_hold_ms":250,"look_radians_per_axis":std::f32::consts::FRAC_PI_2},"live_verified":false}),
             ),
             "client_state" => Ok(self
                 .shared
@@ -896,7 +903,7 @@ side = "both""#
     #[test]
     fn unavailable_marker_control_and_invalid_selectors_never_enqueue() {
         let tools = ClientTools::new(Arc::default(), false, false);
-        assert_eq!(tools.list().len(), 13);
+        assert_eq!(tools.list().len(), 14);
         assert_eq!(
             tools.call("client_commands", &Map::new()).unwrap()["commands"],
             json!([])
@@ -932,5 +939,31 @@ side = "both""#
         assert_eq!(observation.sequence, 1);
         observation.at = Some(Instant::now() - Duration::from_secs(3));
         assert_eq!(observation.snapshot()["stale"], true);
+    }
+    #[test]
+    fn cached_input_status_is_discovered_and_cannot_enqueue_or_accept_arguments() {
+        let tools = ClientTools::new(Arc::default(), false, false);
+        assert!(
+            tools
+                .list()
+                .iter()
+                .any(|tool| tool.name == "client_input_status")
+        );
+        assert!(
+            tools
+                .call("client_input_status", &Map::new())
+                .unwrap_err()
+                .contains("unavailable")
+        );
+        assert!(
+            tools
+                .call(
+                    "client_input_status",
+                    json!({"requested":true}).as_object().unwrap()
+                )
+                .unwrap_err()
+                .contains("unknown argument")
+        );
+        assert!(tools.shared.pending.lock().unwrap().is_none());
     }
 }

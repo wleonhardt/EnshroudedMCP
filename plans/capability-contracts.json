@@ -1,10 +1,10 @@
 {
-  "date": "2026-11-17",
-  "status": "all 50 source contracts indexed; installed signed-SDK 0.48.0/0.21.1 empty-server pin-column/read/refusal acceptance passed; current SDK migration and broader workflows remain open",
+  "date": "2026-11-19",
+  "status": "all51 source contracts indexed:37 server and14 companion; source companion0.22.0 cached diagnostic is not installed; native/provider/workflow acceptance remains separate",
   "profiles": {
     "product": {
       "server_version": "0.48.0",
-      "client_version": "0.21.1",
+      "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
       "rust": "1.99.1",
@@ -14,9 +14,10 @@
       "installed_client_version": "0.21.1",
       "signed_steam_menu_baseline": "plans/decisions/0120-signed-steam-menu-baseline.md",
       "resumed_signed_server_baseline": "plans/decisions/0122-resumed-signed-server-baseline.md",
-      "current_client_preservation": "unverified after separate owner-confirmed local experiment; this helper increment changes no installed file; prior signed checkpoint remains qualification reference",
+      "current_client_preservation": "Source0.22.0 is not installed; client/provider preservation remains unverified after separate experiment; prior signed checkpoint remains qualification reference",
       "current_client_metadata_evidence": "plans/decisions/0126-enforce-client-probe-freshness.md",
-      "current_client_read_status": "immutable header12.11/table1744 observed with compiled12.1 companion; copied Menu stale, native snapshot Never, fresh-context acceptance refused; no adoption or review phase accepted"
+      "current_client_read_status": "immutable header12.11/table1744 observed with compiled12.1 companion; copied Menu stale, native snapshot Never, fresh-context acceptance refused; no adoption or review phase accepted",
+      "cached_input_status_source_evidence": "plans/decisions/0127-cached-client-input-status.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -147,7 +148,8 @@
       "native_launcher_exit_meaning_known": false,
       "launch_route_candidate": "Original-signed Steam route passes one owned fresh Menu/header/three-module/thirteen-read/full-contract baseline and exact close0/preservation. Twenty-two controller models pass. No unsigned-provider acceptance, environment-forwarding qualification, native MCP executor or exit53 meaning.",
       "launch_route_evidence": "plans/decisions/0120-signed-steam-menu-baseline.md",
-      "previous_native_review_retirement_evidence": "plans/decisions/0122-resumed-signed-server-baseline.md"
+      "previous_native_review_retirement_evidence": "plans/decisions/0122-resumed-signed-server-baseline.md",
+      "new_client_source_scope": "New source0.22.0 diagnostic is absent from this archived0.21.1 candidate and frozen review0123."
     },
     "attributed_timing_probe": {
       "source_base": "855e6b5deabd61df14f5f2acc71e65910b06a024",
@@ -186,7 +188,7 @@
   },
   "counts": {
     "server": 37,
-    "client": 13
+    "client": 14
   },
   "tools": [
     {
@@ -3756,6 +3758,42 @@
     },
     {
       "scope": "client",
+      "name": "client_input_status",
+      "description": "Read published cached local-input sampler metadata on the listener thread: request, layout/link/read gates, sample presence, raw freshness flag and nullable age. Weakly consistent fields remain independent; this getter never starts sampling. No held input, player/session identity, current UI, execution, rendering or cause inferred. No World access or commands.",
+      "input_schema": {
+        "type": "object"
+      },
+      "source_definitions": [
+        "crates/client/src/lib.rs",
+        "crates/client/src/input_status.rs",
+        "crates/policy/src/client_input.rs"
+      ],
+      "dispatch_source": "crates/client/src/lib.rs",
+      "thread": "listener; documented any-thread cached metadata getter; no World access",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source/fake scalar flags, nullable age, typed unavailability and no-command behavior qualified; not installed or native-qualified.",
+      "evidence_references": [
+        "plans/decisions/0127-cached-client-input-status.md"
+      ],
+      "source_checks": "five added Rust cases and two Python cases; exact new source cohort checked separately",
+      "native_acceptance": "unverified; source0.22.0 tool not installed",
+      "rendered_acceptance": "not established by this inventory",
+      "persistence_acceptance": "not established by this inventory",
+      "freshness_completeness": "Weakly consistent cached sampler metadata; raw fresh flag is not current UI or execution proof.",
+      "next_missing_check": "Qualify actual cached values and refusals after matched cold installation without claiming callback cause.",
+      "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
+      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "admission_sources": [
+        "crates/policy/src/mcp.rs",
+        "crates/policy/src/args.rs",
+        "crates/policy/src/client_input.rs"
+      ],
+      "observation_side_effects": "Published cached getter does not start sampling, enqueue UI work or submit commands.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "New source companion0.22.0 on unchanged SDK12.1. Installed0.21.1 and archived12.11 candidates do not qualify this tool."
+    },
+    {
+      "scope": "client",
       "name": "client_snapshot",
       "description": "Copied native client state from the SDK, safe on the listener thread: session, freshness, per-part availability, HUD screen, actual inner menu tab, held controls, client player and highlighted recipe. Null with reads=false is unavailable; null with reads=true means none observed. Zero recipe is the SDK no-highlight sentinel. Client IDs never select server entities. Does not submit commands or prove rendering, connection, craftability or world authority.",
       "input_schema": {
@@ -3767,7 +3805,7 @@
       "dispatch_source": "crates/client/src/lib.rs",
       "thread": "listener; copied/retained state or filesystem budget; no World access",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Copied InGame/HUD/tab fields observed historically. Current Menu UI frames are fresh while copied client state is Never; handle availability does not imply freshness. No rendered proof. Installed 0.21.1 fresh copied Menu and separate never/zero/unknown-age SDK stream are retained without current-world or rendered proof.",
+      "evidence_summary": "Copied InGame/HUD/tab fields observed historically. Historical Menu UI frames were fresh while copied client state was Never; handle availability does not imply freshness. No rendered proof. Installed 0.21.1 fresh copied Menu and separate never/zero/unknown-age SDK stream are retained without current-world or rendered proof.",
       "evidence_references": [
         "plans/decisions/0058-native-menu-tab-observations.md",
         "plans/decisions/0064-cancellation-audit-and-attempt-ownership.md",

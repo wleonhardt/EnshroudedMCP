@@ -192,3 +192,7 @@ Decision0125 advances goals1/3 by preserving command facts when an inactive cons
 ## Client freshness evidence checkpoint — 2026-11-19
 
 Decision0126 advances goals1/3 with consistent diagnostic freshness validation. Genuine native stale observations remain historical; flipped fresh flags refuse. Current provider/header metadata and a responsive listener cannot certify UI callback activity, rendered Menu or native lifecycle. Nineteen client-probe methods pass; inspect supported cached sampler/runtime diagnostics next without adding an executor or forcing UI input.
+
+## Cached sampler diagnostic source checkpoint — 2026-11-19
+
+Decision0127 advances goals1/3 with a bounded published cached client read in source0.22.0. Preserve weakly consistent availability/freshness fields without treating them as UI, world or execution proof. Source/fake checks precede deployment; installed0.21.1 and archived SDK experiments remain independent. Actual values and callback-cause discrimination remain unverified.

@@ -1,4 +1,4 @@
-"""Fixed read-only probes for native client companion 0.21.1; no actions."""
+"""Fixed read-only probes for native client companion 0.22.0; no actions."""
 
 import argparse
 from datetime import datetime, timezone
@@ -11,7 +11,7 @@ import time
 from investigate import Client, InvalidReply
 
 
-READS = frozenset(("client_capabilities", "client_commands", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes", "client_workshops"))
+READS = frozenset(("client_input_status", "client_capabilities", "client_commands", "client_snapshot", "client_state", "client_events", "client_selection_events", "client_item", "client_recipes", "client_workshops"))
 GUID = re.compile(r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\Z")
 
 
@@ -25,14 +25,14 @@ def require(condition):
 
 
 def capabilities(value):
-    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.21.1" and
+    require(value.get("role") == "optional_client_companion" and value.get("version") == "0.22.0" and
             value.get("enshwick") == "1.0.0-alpha.17" and
             value.get("compiled_framework_revision") == "6a151a9550ed7a6ade99c23fa817a91e25b71bc9" and
             value.get("compiled_framework_abi") == "12.1" and value.get("live_verified") is False and
             value.get("screen_host_template_observation") is True and value.get("semantic_gameplay_actions") == (["client_command.look", "client_command.move"] if value.get("native_client_commands") else []) and
             type(value.get("native_map_marker_ui")) is bool and value.get("native_map_marker_rendered_verified") is False and value.get("native_command_live_verified") is False and
             value.get("semantic_ui_actions") == ((["client_map_markers"] if value["native_map_marker_ui"] else []) + (["client_command"] if value.get("native_client_commands") else [])) and
-            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "workshop_layout", "live_verified", "native_client_snapshot", "native_client_commands", "native_command_live_verified")))
+            all(type(value.get(key)) is bool for key in ("ui_observation", "local_input", "recipe_layout", "workshop_layout", "live_verified", "native_client_snapshot", "native_cached_input_status", "native_client_commands", "native_command_live_verified")))
     sources = value.get("client_event_sources")
     require(isinstance(sources, dict) and all(type(sources.get(key)) is bool for key in ("open_hud_screen", "station_recipe_selection")))
     return {"compiled_framework_revision": value["compiled_framework_revision"], "compiled_framework_abi": value["compiled_framework_abi"],
@@ -77,6 +77,18 @@ def command_inventory(value):
     # Caller operation identities, payloads and errors never enter the saved probe report.
     return {"records":len(commands), "states":counts, "stale_poll_observations":stale_polls, "unpolled_operations":unpolled,
             "commands_submitted":False, "native_identity_reconstructed":False}
+
+
+def input_status(value):
+    keys = ("requested", "layout_available", "link_available", "read_enabled", "sample_present", "fresh")
+    age = value.get("age_ms")
+    require(value.get("source") == "published_cached_local_input_status" and
+            all(type(value.get(key)) is bool for key in keys) and
+            (age is None or integer(age) and age <= 0xFFFFFFFFFFFFFFFF) and
+            value.get("weakly_consistent") is True and
+            all(value.get(key) is False for key in ("sampling_requested_by_this_read", "current_ui_verified", "commands_submitted", "rendered_verified")))
+    return {**{key:value[key] for key in keys}, "age_ms":age, "weakly_consistent":True,
+            "current_ui_verified":False, "commands_submitted":False}
 
 
 def native_snapshot(value):
@@ -276,11 +288,11 @@ class Probe:
         try:
             init = self.client.call("initialize", {"protocolVersion": "2025-06-18", "capabilities": {},
                                                     "clientInfo": {"name": "native-client-probe", "version": "1"}})
-            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.21.1"} and
+            require(init["serverInfo"] == {"name": "enshrouded-mcp", "version": "0.22.0"} and
                     init.get("protocolVersion") == "2025-06-18")
             listing = self.client.call("tools/list")
             require((READS | {"client_map_markers"}).issubset({entry["name"] for entry in listing["tools"]}))
-            self.checks.append({"name": "discovery_0.21.1", "outcome": "pass"})
+            self.checks.append({"name": "discovery_0.22.0", "outcome": "pass"})
         except OSError:
             return self.report("blocked")
         except (ValueError, TypeError, KeyError):
@@ -289,6 +301,8 @@ class Probe:
         self.tool("command_inventory", "client_commands", {}, command_inventory)
         self.tool("command_inventory_unknown_argument", "client_commands", {"probe_unknown": True}, refusal="unknown argument")
         self.tool("native_snapshot_shape", "client_snapshot", {}, native_snapshot)
+        self.tool("cached_input_status", "client_input_status", {}, input_status)
+        self.tool("cached_input_unknown_argument", "client_input_status", {"probe_unknown":True}, refusal="unknown argument")
         self.tool("state_shape", "client_state", {}, state)
         self.tool("event_cursor", "client_events", {"after": 0, "limit": 2}, events)
         self.tool("selection_event_evidence", "client_selection_events", {"after": 0, "limit": 2}, selection_events)

@@ -1,12 +1,14 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
+Source server **0.48.0** / companion **0.22.0** adds the cached input-status read; it is not deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
+
+Last verified signed checkpoint: Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 
 
 
 Earlier signed Menu checkpoint was server **0.47.0 / companion 0.21.1** on unchanged signed SDK/ABI 12.1. Native Menu reads/refusals, matched files and cold preservation pass; the final-getter fault cases remain source-qualified only. Client is closed. See [matched native acceptance](plans/decisions/0091-signed-companion-menu-deployment.md).
 
-Companion source **0.21.1** rechecks write permission and expiry after its final copied snapshot, before native submission. Controlled delayed-getter and flag-removal regressions pass. Matched signed-SDK Menu/read/refusal acceptance now passes; native delayed-getter/revocation timing remains pending. See [final admission checks](plans/decisions/0090-final-client-admission-recheck.md).
+Historical companion source **0.21.1** rechecks write permission and expiry after its final copied snapshot, before native submission. Controlled delayed-getter and flag-removal regressions pass. Matched signed-SDK Menu/read/refusal acceptance now passes; native delayed-getter/revocation timing remains pending. See [final admission checks](plans/decisions/0090-final-client-admission-recheck.md).
 
 An optional [client timing qualification patch](qualification/client-timing/README.md) measures synthetic reservation stages and tests a deliberate post-sync deadline refusal. Production source, SDK pins and installed runtime remain unchanged; historical latency causes and native scheduling remain unverified.
 
@@ -377,3 +379,5 @@ The terrain inspector offers **Save column JSON** after selecting a pin, cell or
 The inactive SDK lifecycle consumer now preserves typed snapshot-read errors beside command state/phase/age. Missing observation remains a null peer, with workflow acceptance false and no retry. Nine optional SDK-fake cases qualify this diagnostic only; no native lifecycle tool or provider adoption is added. See [diagnostic evidence](plans/decisions/0125-preserve-unavailable-lifecycle-snapshot.md).
 
 The fixed client probe rejects copied-UI freshness flags inconsistent with the companion’s existing rule: unknown age is stale,1000 ms is still within the limit, and1001 ms is stale. A responsive endpoint or immutable provider header does not prove current UI. Historical observations remain explicit; see [native read evidence](plans/decisions/0126-enforce-client-probe-freshness.md).
+
+Source companion **0.22.0** adds `client_input_status` (`{}`): cached sampling request/layout/link/read/sample/fresh flags and nullable age. Fields are weakly consistent and never prove current UI or input execution. This getter requests no sampling and submits no command. Source catalog is37 server/14 companion tools; the tool is not installed or native-qualified. Installed0.21.1 and frozen older SDK experiments remain separate. See [cached diagnostic contract](plans/decisions/0127-cached-client-input-status.md).

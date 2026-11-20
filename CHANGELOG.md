@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Source companion0.22.0 adds read-only client_input_status for published cached sampler flags/age. Preserve weak consistency, typed unavailability and false UI/execution claims; no sampling request, new SDK or installed change. Native qualification pending.
+
 - Reject client-probe UI freshness flags that contradict the existing age rule. Preserve genuine historical observations; no runtime threshold, native input or provider change.
 
 - Preserve command evidence and typed copied-snapshot errors in the inactive lifecycle consumer instead of panicking on an unavailable getter. No live executor, retry or native crash fix is added.

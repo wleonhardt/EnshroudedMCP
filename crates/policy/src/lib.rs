@@ -39,3 +39,5 @@ pub mod server_save;
 
 pub mod buff_read;
 pub mod give_item;
+
+pub mod client_input;
