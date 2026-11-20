@@ -190,7 +190,7 @@ impl GameTools {
             },
             Tool {
                 name: "inventory_read",
-                description: "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Empty slots included. Optional item_ids (1..8 unique nonzero IDs) adds physical-slot-deduplicated counts over the same SDK slot read, independent of page; completeness and crafting eligibility remain unknown. Counts refuse more than 65536 returned records or conflicting aliases. Paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish absent/uninitialized inventory. Default 64, maximum 128 slots.",
+                description: "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Requires active MCP lifecycle at admission and queued execution with unchanged epoch. Empty slots included. Optional item_ids (1..8 unique nonzero IDs) adds physical-slot-deduplicated counts over the same SDK slot read, independent of page; completeness and crafting eligibility remain unknown. Counts refuse more than 65536 returned records or conflicting aliases. Paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish absent/uninitialized inventory. Default 64, maximum 128 slots.",
                 schema: json!({"type":"object","properties": {
                     "player":{"type":"string"},
                     "entity":{"type":"integer","minimum":1,"maximum":u32::MAX},
@@ -704,8 +704,15 @@ impl Tools for GameTools {
             })),
             "inventory_read" => {
                 let request = inspection::inventory(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 let inventories = inventories.ok_or("inventory API unavailable on this build")?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     let entity = match request.target {
                         inspection::InventoryTarget::Entity(id) => enshwick::Entity(id),
                         inspection::InventoryTarget::Player(who) => {

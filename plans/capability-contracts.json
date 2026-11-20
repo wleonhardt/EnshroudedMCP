@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.0 cold catalog/read/refusal/recovery/exit cohort verified; positive player/client correspondence and primary adoption remain separate",
+  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.1 inventory lifecycle fix awaits native acceptance; prior isolated0.51.0 evidence retains its scope",
   "profiles": {
     "product": {
-      "server_version": "0.51.0",
+      "server_version": "0.51.1",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -1039,7 +1039,7 @@
     {
       "scope": "server",
       "name": "inventory_read",
-      "description": "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Empty slots included. Optional item_ids (1..8 unique nonzero IDs) adds physical-slot-deduplicated counts over the same SDK slot read, independent of page; completeness and crafting eligibility remain unknown. Counts refuse more than 65536 returned records or conflicting aliases. Paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish absent/uninitialized inventory. Default 64, maximum 128 slots.",
+      "description": "Read a page of slots from exactly one connected player (name/account key) or session-only entity ID. Requires active MCP lifecycle at admission and queued execution with unchanged epoch. Empty slots included. Optional item_ids (1..8 unique nonzero IDs) adds physical-slot-deduplicated counts over the same SDK slot read, independent of page; completeness and crafting eligibility remain unknown. Counts refuse more than 65536 returned records or conflicting aliases. Paging caps output and per-slot metadata, not upstream traversal. Offsets are not stable across requests. Empty output cannot distinguish absent/uninitialized inventory. Default 64, maximum 128 slots.",
       "input_schema": {
         "properties": {
           "entity": {
@@ -1080,22 +1080,24 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Same-read counts agree with observed physical slots; alias deduplication and eligible-stock completeness open.",
+      "evidence_summary": "Source0.51.1 independently reproduces and refuses retained inventory reads across queued lifecycle changes for player/entity selectors; paging and unknown eligibility remain unchanged.",
       "evidence_references": [
-        "plans/decisions/0030-same-read-inventory-counts.md"
+        "plans/decisions/0030-same-read-inventory-counts.md",
+        "plans/decisions/0155-inventory-lifecycle-guard.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "partial; see evidence_summary",
+      "source_checks": "Independent retained positive SDK inventory/roster reproduces queued entity/player reload and pre-admission shutdown observations before the fix. Three behavior cases cover both selectors, unchanged/reload/shutdown queue barriers, item counts and shutdown admission refusal.",
+      "native_acceptance": "Historical linked inventory evidence and isolated0.51.0 bounded read/refusal cohort retain their original scope. New0.51.1 admission/execution epoch behavior is source-qualified only; no native in-flight interruption acceptance.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "One counts result uses the same SDK slot read as its page; pages are independent snapshots. Virtual-link/alias coverage and crafting eligibility are not established.",
-      "next_missing_check": "Qualify linked-slot aliases and eligible-stock scope.",
+      "freshness_completeness": "Active MCP lifecycle required at admission and execution with unchanged epoch before player resolution or slot/count reads. Each page is still an independent non-atomic observation; virtual traversal completeness and crafting eligibility remain unknown.",
+      "next_missing_check": "Qualify source0.51.1 on a fresh isolated native cohort; independently verify positive current-player slots/counts and native interruption timing.",
       "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/inspection.rs"
+        "crates/policy/src/inspection.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",

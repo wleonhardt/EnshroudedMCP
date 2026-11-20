@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.51.1
+
+- Fix queued `inventory_read` returning retained slots/counts after lifecycle changes. Require active MCP lifecycle at admission and execution with an unchanged epoch for both player and entity selectors. Preserve projection, paging and unknown crafting/completeness claims. Independent SDK-fake reproductions fail before the fix; new native acceptance remains open.
+
+
 ## 0.51.0
 
 - Add read-only canonical cohort receipt correlation with independent source/version expectations and exact shutdown-intent verification. A shared synthetic fixture checks actual Rust producer/Python verifier correspondence. No mod runtime behavior or native execution change.

@@ -12,6 +12,8 @@ mod factory_station;
 mod give_item;
 mod health_recovery;
 mod interaction_target;
+#[cfg(test)]
+mod inventory_lifecycle;
 mod item_lookup;
 mod journal;
 mod knowledge;
