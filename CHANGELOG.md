@@ -2,6 +2,8 @@
 
 ## 0.51.2
 
+- Isolated native qualification:48 controller models,46 fixed and20 targeted checks pass, including active-world empty roster and hosted-status fields. One guarded shutdown has independent exit0; old journal prefix and four prior intents remain exact. Positive-player/UI, native hosting=false and interruption acceptance remain open.
+
 - Fix `players` and hosted `status` returning retained world observations after lifecycle changes. Require active admission/execution with unchanged epoch before world reads. Preserve the immediate `hosting:false` diagnostic and existing output/null semantics. Independent SDK-fake repros fail before the fix; native acceptance remains open.
 
 

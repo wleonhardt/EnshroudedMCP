@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.2 roster/hosted-status lifecycle fixes await native acceptance; prior0.51.1 native evidence retains its scope",
+  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.2 active-world roster/status/read/refusal/recovery/exit cohort verified; native interruption and positive-player/client correspondence remain separate",
   "profiles": {
     "product": {
       "server_version": "0.51.2",
@@ -22,7 +22,8 @@
       "isolated_cold_native_cohort": "plans/decisions/0151-isolated-cold-native-cohort.md",
       "isolated_current_player_buff_cohort": "plans/decisions/0153-isolated-current-player-buff-cohort.md",
       "isolated_inventory_native_cohort": "plans/decisions/0156-canonical-inventory-native-cohort.md",
-      "server_lifecycle_coverage_audit": "plans/decisions/0157-server-lifecycle-coverage-audit.md"
+      "server_lifecycle_coverage_audit": "plans/decisions/0157-server-lifecycle-coverage-audit.md",
+      "isolated_roster_status_native_cohort": "plans/decisions/0159-native-roster-status-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -1223,14 +1224,15 @@
       "evidence_summary": "Source0.51.2 retained positive SDK hosted-status reproductions fail before the fix and pass with active admission/execution epoch guards; the inactive nonhosting diagnostic stays available.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0158-roster-status-lifecycle-guards.md"
+        "plans/decisions/0158-roster-status-lifecycle-guards.md",
+        "plans/decisions/0159-native-roster-status-cohort.md"
       ],
       "source_checks": "Scheduled positive retained-state unchanged/reload/shutdown and separate shutdown admission cases; client-side fake hosting=false branch remains immediate and inactive-safe. No actual client World access is exercised.",
-      "native_acceptance": "Historical indexed evidence and isolated0.51.1 native read/refusal cohort retain their original applicability. New0.51.2 queued/admission lifecycle behavior is source-qualified only; no native interruption or new positive-player/UI acceptance.",
+      "native_acceptance": "Isolated0.51.2/SDK12.1 cold cohort verifies exact catalog and active hosted status with zero players, nonempty world key and explicit clock availability/rendered-lighting limits. No native hosting=false/client, positive-player or interruption acceptance.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Save timestamps/size do not establish exact persisted contents.",
       "freshness_completeness": "Active MCP lifecycle and unchanged admission/execution epoch before hosted world observations; roster count/save/clock/world-key projection remains non-atomic. The hosting=false diagnostic deliberately bypasses world gating.",
-      "next_missing_check": "Qualify source0.51.2 active native read/refusal paths and independently verify current-player and lifecycle interruption correspondence.",
+      "next_missing_check": "Independently match hosted player count/save/clock observations and native lifecycle interruption correspondence on a qualified isolated fixture.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Clock/save metadata does not prove lighting, progression or final disk save.",
       "admission_sources": [
@@ -1258,14 +1260,15 @@
       "evidence_summary": "Source0.51.2 retained positive SDK roster reproductions fail before the fix and pass with active admission/execution epoch guards; roster/vitals projection remains non-atomic.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0158-roster-status-lifecycle-guards.md"
+        "plans/decisions/0158-roster-status-lifecycle-guards.md",
+        "plans/decisions/0159-native-roster-status-cohort.md"
       ],
       "source_checks": "Scheduled positive retained-state unchanged/reload/shutdown and separate shutdown admission cases; client-side fake hosting=false branch remains immediate and inactive-safe. No actual client World access is exercised.",
-      "native_acceptance": "Historical indexed evidence and isolated0.51.1 native read/refusal cohort retain their original applicability. New0.51.2 queued/admission lifecycle behavior is source-qualified only; no native interruption or new positive-player/UI acceptance.",
+      "native_acceptance": "Isolated0.51.2/SDK12.1 cold cohort verifies exact catalog and active-world empty roster through the new guard. No positive player/vitals, current-client mapping or native interruption acceptance.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Account and session entity namespaces remain distinct; entity IDs expire.",
       "freshness_completeness": "Active MCP lifecycle and unchanged admission/execution epoch before roster, position or vitals reads; no atomic roster/actor snapshot, current-client mapping or connection lock.",
-      "next_missing_check": "Qualify source0.51.2 active native read/refusal paths and independently verify current-player and lifecycle interruption correspondence.",
+      "next_missing_check": "Independently verify positive current-player roster/vitals and native lifecycle interruption correspondence on a qualified isolated fixture.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Independent pose/distance correlation exists; no arrival/contact or connection-admission lock.",
       "admission_sources": [
