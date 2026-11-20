@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Props lifecycle source fixed; native qualification next** Decision0192 reproduces three stale retained-positive SDK outcomes, then source0.51.6 reuses active admission and execution epoch guards. Four dispatcher cases preserve normal output, nullable label observation and recovery limits. Native reload/shutdown timing and positive prop ownership remain unverified. Next fresh isolated signed-provider cohort, then controlled native interruption. Remaining audit candidates: entity_health, entities_near and entity_components.
+
 - **Phase-aware qualifier0.1.1 source fixed; fresh review/native acceptance next** Decision0190 separates observer180 from a once-started command180 lease after valid dry preview; Join is bounded to its first60 seconds. Four failing SDK and two delayed-broker cases precede fixes.499 Rust/131 Python, optional21 debug/optimized and156 broker cases (154 pass, two skips) qualify source only. Exact new artifact/controller/rollback assembly and a fresh concrete exception remain required. No install, launch, replay or lease reset occurs.
 
 - **Watched cohort consumed before Join; fix handoff timing first** Decision0189 records155 native probe observations and zero submissions after a30-second human page-confirmation window. Controller normal close/client exit0, native server exit0 and exact six-file restoration pass; no accepted attestation exists. Preserve generic inner-error uncertainty. Before another provider exception, separate observer and command-admission budgets, retain typed reasons and test delayed readiness without resetting command authority or retrying. Initial-page Join and saved profiles remain open.

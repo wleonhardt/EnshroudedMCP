@@ -24,6 +24,8 @@ mod player_shroud;
 mod player_vitals;
 mod player_waypoint;
 mod prop_observation;
+#[cfg(test)]
+mod props_lifecycle;
 mod recipe_plan;
 mod reposition;
 #[cfg(test)]

@@ -895,20 +895,29 @@ impl Tools for GameTools {
                         "the box must lie in the world with no side over {PROPS_BOX} m"
                     ));
                 }
-                on_game_thread(scheduler, move || match world.props_in(p1, p2) {
-                    Ok(props) => {
-                        let total = props.len();
-                        let listed = crate::prop_observation::rows(&props, |entity| {
-                            (
-                                world.template(entity).map(|guid| guid.0),
-                                world.has_label(entity),
-                            )
-                        });
-                        Ok(json!({"total": total, "props": listed,
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
+                on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    match world.props_in(p1, p2) {
+                        Ok(props) => {
+                            let total = props.len();
+                            let listed = crate::prop_observation::rows(&props, |entity| {
+                                (
+                                    world.template(entity).map(|guid| guid.0),
+                                    world.has_label(entity),
+                                )
+                            });
+                            Ok(json!({"total": total, "props": listed,
                             "truncated":total > policy::inspection::PROP_LIMIT,
                             "recovery":"label presence only; label text and other held state are not observed; no safe-removal or undo claim"}))
+                        }
+                        Err(e) => Err(format!("prop read failed: {e}")),
                     }
-                    Err(e) => Err(format!("prop read failed: {e}")),
                 })?
             }
             "entities_near" => {

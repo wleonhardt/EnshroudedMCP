@@ -12,6 +12,10 @@
 
 - Fix live terrain-view capture refusing valid caller pins when player/prop annotations exceed the shared 64-pin limit or reuse a caller label. Preserve caller pins, fill remaining capacity with players then props, and report omitted observations in provenance. No MCP tool, DLL, SDK pin or installed runtime changes.
 
+## 0.51.6
+
+- Refuse props_in after inactive admission or a queued world epoch change before reading SDK props and metadata. Three retained-positive SDK regressions fail before correction; normal spatial output and nullable metadata stay unchanged. Four dispatcher cases pass; native interruption remains unverified.
+
 ## 0.51.5
 
 - Refuse weather_read when the MCP world is inactive at admission or changes before queued execution. Three retained-positive SDK regressions fail before the fix; unchanged active weather preserves weights, dominance, world key and diagnostic semantics. Native interruption/rendered weather remain unverified.

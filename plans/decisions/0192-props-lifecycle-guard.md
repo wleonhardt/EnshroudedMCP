@@ -1,0 +1,13 @@
+# 0192: Refuse prop reads across world lifecycle changes
+
+Date: 2026-11-20. Status: source0.51.6 behavior qualified; native interruption remains unverified.
+
+The dynamic observation audit left props_in unproven. Four dispatcher tests now use the pinned published SDK FakeHost with positive placed-item templates and synthetic reflected transform components. The fixture follows the SDK capture tests and obtains layout values only from its published fake facts. No game memory, offsets or runtime capture is used. Initial fixture attempts were invalid because a transaction prop vector alone does not populate world components, then a trait import was missing. Only the corrected fixture establishes the reproduction.
+
+Before the production fix, normal output passes but three lifecycle cases fail: queued reads return retained SDK props after WorldLoaded or ShutdownStarted, and a request admitted after shutdown occupies the scheduler queue. Each fixture independently checks positive SDK props after the event, so missing world data cannot explain the result. These are synthetic MCP scope defects, not observed native interruption timing.
+
+Source0.51.6 reuses the existing construction active-session admission and game-free session comparison. It rejects inactive admission before scheduling and checks active state plus the admitted epoch before reading SDK props, templates or label presence. The successful spatial projection, ordering, bounds, truncation, template encoding, nullable metadata and recovery disclaimer remain unchanged. No new dispatcher abstraction, SDK change or write capability is added.
+
+All four dispatcher cases pass after correction. They verify two in-box props, exclusion of a third outside the box, transforms, template GUIDs, unknown label presence, retained recovery limits and absence of label/destruction writes. Existing projection tests separately cover limits and nullable template metadata. Baseline499 Rust/131 Python cases pass; corrected source503 Rust/131 Python, strict Clippy, formatting, release builds and source contracts must pass before publication.
+
+No game/client launch, installation or native interruption is part of this increment. Default SDK12.1, companion0.22.0, all54 tool contracts and signed runtime stay separate. The inactive SDK12.16 migration retains its exact historical source0.51.4 scope. Next qualify a fresh isolated signed-provider server, then controlled native interruption and independently known functional-prop ownership/state correspondence. Remaining unproven audit candidates are entity_health, entities_near and entity_components.
