@@ -43,12 +43,14 @@ mod tests {
     };
     static TOOLS: Mutex<Option<Arc<GameTools>>> = Mutex::new(None);
     static WORLD: Mutex<Option<enshwick::world::World>> = Mutex::new(None);
+    static SCHEDULER: Mutex<Option<enshwick::schedule::Scheduler>> = Mutex::new(None);
     const CHARACTER: Entity = Entity(17);
     struct Reader;
     impl Mod for Reader {
         fn init(load: &mut Load<'_>) -> Result<Self, Off> {
             *TOOLS.lock().unwrap() = Some(Arc::new(crate::Mcp::init(load)?.tools));
             *WORLD.lock().unwrap() = Some(load.world()?);
+            *SCHEDULER.lock().unwrap() = Some(load.scheduler()?);
             Ok(Self)
         }
     }
@@ -294,5 +296,77 @@ mod tests {
                 .unwrap_err()
                 .contains("zero server entity")
         );
+    }
+
+    #[test]
+    fn queued_reads_refuse_shutdown_or_changed_epoch_before_execution() {
+        for phase in ["unchanged", "shutdown", "reload"] {
+            let (loader, tools) = start(
+                host(true, true)
+                    .component(CHARACTER, 6, &timer(60, 300))
+                    .component(CHARACTER, 7, &4u64.to_le_bytes()),
+                &[player(17, 7)],
+            );
+            let scheduler = SCHEDULER.lock().unwrap().unwrap();
+            let _ = loader.tick(Duration::from_millis(1));
+            assert_eq!(format!("{scheduler:?}"), "Scheduler { pending: false }");
+            let worker = thread::spawn(move || {
+                tools.call("player_shroud", json!({"player":"7"}).as_object().unwrap())
+            });
+            // Pinned SDK Debug only observes enqueue; it is not game execution
+            // or liveness proof. This isolated scheduler has no other tasks.
+            let until = Instant::now() + Duration::from_secs(2);
+            while format!("{scheduler:?}") != "Scheduler { pending: true }" {
+                assert!(
+                    !worker.is_finished(),
+                    "{phase}: request finished without queueing"
+                );
+                assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                thread::yield_now();
+            }
+            match phase {
+                "shutdown" => {
+                    assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+                }
+                "reload" => {
+                    assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+                }
+                _ => {}
+            }
+            // The SDK fixture still supplies data. A changed-context refusal
+            // must come from the lifecycle guard, not a missing component.
+            assert_eq!(
+                WORLD
+                    .lock()
+                    .unwrap()
+                    .unwrap()
+                    .shroud_time(CHARACTER)
+                    .unwrap()
+                    .current,
+                60
+            );
+            let until = Instant::now() + Duration::from_secs(2);
+            while !worker.is_finished() && Instant::now() < until {
+                let _ = loader.tick(Duration::from_millis(1));
+                thread::yield_now();
+            }
+            let result = worker.join().unwrap();
+            if phase == "unchanged" {
+                let value = result.unwrap();
+                assert_eq!(value["timer_seconds"]["current"], 60);
+                assert_eq!(value["roster_match_verified"], true);
+            } else {
+                let error =
+                    result.expect_err("queued changed-context read returned an observation");
+                assert!(
+                    error.contains(if phase == "shutdown" {
+                        "active"
+                    } else {
+                        "session"
+                    }),
+                    "{phase}: {error}"
+                );
+            }
+        }
     }
 }

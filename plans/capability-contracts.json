@@ -4250,15 +4250,16 @@
       "evidence_summary": "Current MCP lifecycle and SDK roster selection with independent nullable shroud flag/timer; no safety or UI proof.",
       "evidence_references": [
         "plans/decisions/0139-pinned-sdk-shroud-observation.md",
-        "plans/decisions/0140-queued-player-shroud-read.md"
+        "plans/decisions/0140-queued-player-shroud-read.md",
+        "plans/decisions/0141-queued-read-lifecycle-regression.md"
       ],
-      "source_checks": "Game-free selector/context/projection and scheduled SDK-fake adapter cases; required feature-branch checks apply.",
+      "source_checks": "Game-free selector/context/projection plus scheduled SDK-fake cases, including deterministic queued shutdown/reload and a failing isolated epoch-guard mutation.",
       "native_acceptance": "Not installed or positively native-qualified; source fixtures do not establish native field or countdown fidelity.",
       "rendered_acceptance": "No displayed countdown, damage-deadline, terrain/contact or traversal acceptance.",
       "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
       "freshness_completeness": "Active MCP lifecycle required at admission and queued execution; epoch changes refuse. Re-resolves SDK roster and fields per call; world key is identity metadata, not liveness proof. Native world_session remains unavailable.",
       "next_missing_check": "Independently match a current native player flag/timer with displayed countdown on a qualified isolated runtime.",
-      "refusal_acceptance": "Source strict arguments, unknown/ambiguous selectors, invalid native entity and lifecycle shutdown refusals; native matrix unverified.",
+      "refusal_acceptance": "Source strict arguments, unknown/ambiguous selectors, invalid native entity and pre-admission/queued lifecycle refusals; native timing matrix unverified.",
       "independent_effect_acceptance": "No refill, actor input, movement, journal append or gameplay mutation.",
       "admission_sources": [
         "crates/policy/src/args.rs",

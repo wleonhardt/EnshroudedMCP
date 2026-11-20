@@ -14,6 +14,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Add deterministic queued shroud-read lifecycle regression with unchanged/shutdown/reload scenarios. An isolated removal of only the queued epoch guard fails the new case; no runtime behavior changes.
+
 - Add inactive pinned-SDK shroud-state/timer qualification with independent nullable fields and no safety or mutation authority. No MCP tool or SDK adoption.
 
 - Terrain viewer PNG exports now include a projected coordinate ruler with horizontal run, signed height difference and 3D distance. Outside-capture endpoints stay undrawn; changing or clearing the reference redraws the canvas.

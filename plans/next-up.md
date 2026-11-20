@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source regression; queued lifecycle changes** Decision0141 independently verifies unchanged, shutdown and reload after player_shroud admission but before the server tick. A pinned SDK debug-pending barrier observes queueing only; retained typed data remains available. Removing only the queued epoch comparison in an isolated source copy fails the new case. Runtime code/version and schemas remain unchanged. Full source checks pass 433 Rust/109 Python plus strict lint/format, releases and contracts. Publication audits and native timing acceptance remain separate.
+
 - **implemented; queued player shroud read** Decision0140 adds source server0.50.0 player_shroud on unchanged SDK12.1. Strict policy selector/projection, active MCP lifecycle and queued epoch check, nonempty SDK key and fresh unique roster precede independent nullable timer/flag reads. Five adapter/three policy cases pass; fixed probes remain refusal-only evidence. Full product checks pass 432 Rust/109 Python, strict lint/format, releases and contracts; 44 fixed read/refusal probes remain incomplete. Exact publication audits are required. No deploy, refill, movement or native/UI/safety acceptance.
 
 - **source qualification; independent shroud state/timer** Decision0139 uses existing SDK12.1 with an inactive rlib consumer. Eight debug/release cases and strict lint/format preserve null versus false/zero, signed values, partial availability and changing observations without safety or mutation authority. No MCP registration, install or real Shroud exposure. Next review current-player admission and game-thread routing; native flag/timer/countdown correspondence remains open.
