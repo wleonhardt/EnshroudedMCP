@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; source0.50.6 access lifecycle fix is not deployed; isolated0.50.5 empty-world cohort remains bounded historical native evidence",
+  "status": "all53 source contracts indexed:39 server and14 companion; isolated0.50.6 cold server read/refusal/recovery/exit cohort verified; primary adoption and positive player/client correspondence remain separate",
   "profiles": {
     "product": {
       "server_version": "0.50.6",
@@ -18,7 +18,8 @@
       "current_client_metadata_evidence": "plans/decisions/0126-enforce-client-probe-freshness.md",
       "current_client_read_status": "immutable header12.11/table1744 observed with compiled12.1 companion; copied Menu stale, native snapshot Never, fresh-context acceptance refused; no adoption or review phase accepted",
       "cached_input_status_source_evidence": "plans/decisions/0127-cached-client-input-status.md",
-      "isolated_empty_world_native_cohort": "plans/decisions/0149-isolated-empty-world-native-cohort.md"
+      "isolated_empty_world_native_cohort": "plans/decisions/0149-isolated-empty-world-native-cohort.md",
+      "isolated_cold_native_cohort": "plans/decisions/0151-isolated-cold-native-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -549,15 +550,16 @@
       "evidence_summary": "Explicit ordered site box only; persistence/build-rights results are not an item footprint or authorization.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0150-building-access-lifecycle-guard.md"
+        "plans/decisions/0150-building-access-lifecycle-guard.md",
+        "plans/decisions/0151-isolated-cold-native-cohort.md"
       ],
       "source_checks": "Independent world/player actual-dispatcher reload regressions first fail with retained positive SDK zone retention and build rights. Three new cases cover queued unchanged/reload/shutdown and pre-admission shutdown in both modes; existing strict bounds and unknown/false/allowed projections remain covered.",
-      "native_acceptance": "Historical linked read/refusal evidence retains its exact fixture. The source0.50.6 lifecycle fix is not installed or natively qualified; do not apply the earlier0.50.5 cohort to this change.",
+      "native_acceptance": "Separate isolated0.50.6/SDK12.1 cold cohort passes active-world zone-rule boolean projection, omitted-player not_requested/null rights and missing-player refusal. Positive current-player rights, save persistence and native in-flight lifecycle interruption remain unverified.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "SDK persistence answer does not prove cold reload.",
       "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle before current player/zone/permission reads. MCP epoch is no native world identifier or connection lock. Zone retention is not save/reload proof; allowed rights never grant write authority.",
       "next_missing_check": "Check a predefined inside/outside boundary and actor-rights case independently.",
-      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test. Source0.50.6 pre-admission shutdown and queued reload/shutdown now refuse in both modes despite retained positive SDK observations; native interruption timing is unverified.",
+      "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test. Source0.50.6 pre-admission shutdown and queued reload/shutdown now refuse in both modes despite retained positive SDK observations; native interruption timing is unverified. The isolated0.50.6 cold cohort positively exercises the active read path and nonmatching-player refusal; native queued interruption races remain unverified.",
       "independent_effect_acceptance": "No placement, collision or terrain-contact effect.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
@@ -3353,16 +3355,17 @@
       "evidence_references": [
         "plans/decisions/0018-native-dedicated-shutdown.md",
         "plans/decisions/0109-retain-shutdown-failure-evidence.md",
-        "plans/decisions/0149-isolated-empty-world-native-cohort.md"
+        "plans/decisions/0149-isolated-empty-world-native-cohort.md",
+        "plans/decisions/0151-isolated-cold-native-cohort.md"
       ],
       "source_checks": "409-Rust source cohort includes panic-retained shutdown fixture bytes and cached receipt diagnostics; controlled post-intent refusal never calls stop. Organic timing cause, native interruption and causal exit/save remain unverified.",
-      "native_acceptance": "Separate isolated0.50.5/SDK12.1 empty-world cohort: one guarded native shutdown accepted and independent held-process exit0 verified. Primary/client adoption, final-save causality and connected-peer races remain unverified.",
+      "native_acceptance": "Separate isolated0.50.6/SDK12.1 cold cohort accepts one new-session guarded shutdown and verifies independent held-process exit0. Prior journal prefix/intent remain preserved with four owned suffix rows and one new typed intent. Historical0.50.5 evidence retains its scope; final-save causality and connected-peer races remain unverified.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
       "next_missing_check": "Establish causal save/exit evidence in a disposable fixture.",
       "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
-      "independent_effect_acceptance": "One independently observed owned process exit0 after one accepted native shutdown; final-save and causal completion remain unverified. Existing historical evidence retains original applicability.",
+      "independent_effect_acceptance": "Independent owned exit0 after exactly one current-generation submission; previous durable prefix/intent preserved. No final-save causality or reconstructed prior-boot execution authority.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
@@ -3400,16 +3403,17 @@
       "evidence_summary": "16 retained samples including 15 after ShutdownStarted; native busy branch unobserved.",
       "evidence_references": [
         "plans/decisions/0057-retained-shutdown-status.md",
-        "plans/decisions/0109-retain-shutdown-failure-evidence.md"
+        "plans/decisions/0109-retain-shutdown-failure-evidence.md",
+        "plans/decisions/0151-isolated-cold-native-cohort.md"
       ],
       "source_checks": "409-Rust source cohort includes panic-retained shutdown fixture bytes and cached receipt diagnostics; controlled post-intent refusal never calls stop. Organic timing cause, native interruption and causal exit/save remain unverified.",
-      "native_acceptance": "partial; see evidence_summary",
+      "native_acceptance": "Isolated0.50.6 cold restart: prior status is prior_boot_unavailable with null native_outcome and native_identity_reconstructed=false; retry/exit/save claims remain false and old durable bytes stay unchanged. No redispatch of prior identity.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Retained native acceptance and separately advancing lifecycle flags; no fresh World/process/save proof, and busy remains explicitly unavailable.",
       "next_missing_check": "Qualify native busy/disconnect retention with bounded fault scheduling.",
       "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
-      "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
+      "independent_effect_acceptance": "Read-only prior-boot status leaves exact prior journal and intent bytes unchanged; no current execution identity is reconstructed.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",

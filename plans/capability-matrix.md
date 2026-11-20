@@ -2,7 +2,7 @@
 
 ## Current product checkpoint
 
-Feature branch adds source server0.50.6 player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and the primary installation remain unchanged. A separate same-SDK empty-world0.50.5 cohort passes bounded native reads/refusals and one shutdown/exit0; positive player and client UI correspondence remains open. See [isolated native cohort](decisions/0149-isolated-empty-world-native-cohort.md).
+Feature branch adds source server0.50.6 player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and the primary installation remain unchanged. Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 

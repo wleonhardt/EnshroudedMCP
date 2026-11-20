@@ -1,6 +1,8 @@
 # Changelog
 
-## Server 0.50.6 (source fix; not deployed)
+## Server 0.50.6 (isolated cold cohort; primary unchanged)
+
+- Qualification: one-DLL cold update passes44 fixed and11 targeted native read/recovery checks, then one accepted shutdown/independent exit0 with exact old journal/intent preservation. Positive player/UI, native in-flight timing and final-save causality remain open.
 
 - Refuse building_access across inactive or changed queued MCP lifecycle in world-only and optional-player modes. Independent regressions retain positive zone retention/build rights; existing projection and read-only scope remain unchanged. New behavior is outside the earlier0.50.5 native cohort.
 
