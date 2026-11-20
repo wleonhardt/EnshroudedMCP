@@ -2,6 +2,8 @@
 
 ## 0.51.3
 
+- Record matched signed server0.48.0/companion0.22.0 cold deployment and bounded fresh Menu/header/fifteen-read/contract acceptance with independently observed normal exit0. Update installed checkpoint; native Join/Leave and rendered/callback causality remain unverified.
+
 - Add qualification observation ordering helper: record intent before authorized callback and reply before caller assertions. Preserve native refusals; bound transport/parse reasons and abort on unconfirmed recording without retry. No mod/runtime behavior change.
 
 - Native qualification:51 models,46 fixed probes and23 separately logged same-process follow-up targets pass, including256-cell survey/image agreement and one-point sample consistency, PNG envelope and two reference pins. Initial survey refusal reason was not retained; cause stays unverified. One shutdown has independent exit0 with old durable prefix/five intents preserved. Diagnostic visibility is not physical/rendered-game or native interruption proof.

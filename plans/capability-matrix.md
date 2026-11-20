@@ -2,14 +2,14 @@
 
 ## Current product checkpoint
 
-Feature branch adds source server0.51.3 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and the primary installation remain unchanged. Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; A further0.51.0 cohort passes46 fixed and16 targeted checks plus one native shutdown/exit0, including new current-player buff refusal paths; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
+Feature branch adds source server0.51.3 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main source remains0.48.0; the signed primary installation is now server0.48.0/companion0.22.0 (decision0164). Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; A further0.51.0 cohort passes46 fixed and16 targeted checks plus one native shutdown/exit0, including new current-player buff refusal paths; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 
 | Component | Source version | Installed version |
 |---|---|---|
 | Server | `0.51.3` | `0.48.0` |
-| Companion | `0.22.0` | `0.21.1` |
+| Companion | `0.22.0` | `0.22.0` |
 
 | Product profile field | Value |
 |---|---|
@@ -17,7 +17,7 @@ This is the operational product-version checkpoint. The tables below are checked
 | `abi` | `12.1` |
 | `rust` | `1.99.1` |
 
-The tables retain the last verified signed product checkpoint. Current client/provider preservation is unverified after a separate owner-confirmed experiment; this viewer increment changes no installation. Decision 0099 verifies server columns/read/refusals and protected/cold preservation; decision 0104 records exact rollback after a stopped temporary Menu trial. Historical native client evidence remains bounded. Menu review 0107 is consumed after a nonzero initial-launcher exit; decision 0113 records cleanup-only fresh Menu, exact exit 0 and complete signed rollback. Neither phase is accepted; no retry is authorized. Review 0115 is also consumed after one observed initial exit53 and complete signed rollback (decision 0116). Its meaning remains unknown; no phase is accepted or retry authorized. Join/Leave and private profile resolution remain unavailable in the product. Current client remains running after a separate interrupted test; Windows MCP/capture stay off. No automatic avatar movement follows the failed exact-return experiment. One native desktop BrowserOS viewer fixture now passes interaction, raw-profile and PNG-export acceptance (decision 0119); game rendering/contact and broader responsive interaction remain unverified. See [next-up.md](next-up.md) for the latest source verification and next actions.
+Decision0164 is the current verified installed checkpoint. Signed provider DLLs/signatures are restored and remain unchanged at ABI12.1. One native shutdown/exit0, verified cold archive, matched product installation and server restart pass. Fresh Steam Menu, three loaded client hashes, companion0.22.0, native header/table, fifteen fixed reads/refusals and full client contract pass. One normal close exits0; client is closed, roster empty and durable history preserved. Initial restarted-server world-read refusal is retained; the same process later passes readiness without relaunch. No Join/Leave, callback-cause, rendered or save-causality acceptance. Historical trial/current-state descriptions below refer to their dated cohorts and do not override this checkpoint. Feature source0.51.3 remains separate from installed0.48.0. Windows MCP/capture remain off.
 
 ## Signed Steam Menu baseline
 
@@ -25,7 +25,7 @@ Decision 0120 verifies one original-signed Steam startup: initial exit0, indepen
 
 ## Source cached input-status read
 
-Source companion0.22.0 adds client_input_status with documented any-thread cached metadata, weakly consistent raw flags and nullable age. It cannot start sampling, enqueue UI or establish current UI/command success. Catalog:37 server/14 companion tools. SDK/ABI/Rust pins and installed0.21.1 remain unchanged. Decision0127 records source/fake checks; actual getter values require matched cold/native qualification.
+Source companion0.22.0 adds client_input_status with documented any-thread cached metadata, weakly consistent raw flags and nullable age. It cannot start sampling, enqueue UI or establish current UI/command success. Catalog:37 server/14 companion tools. SDK/ABI/Rust pins remain unchanged. Decision0127 records source/fake checks; decision0164 verifies the getter in the installed0.22.0 signed Menu cohort without proving callback cause or native execution.
 
 ## Copied-UI freshness consistency
 
