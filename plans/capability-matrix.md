@@ -21,6 +21,10 @@ The signed product remains installed. Decision 0099 verifies server columns/read
 
 Decision 0120 verifies one original-signed Steam startup: initial exit0, independently owned child/listener and fresh copied Menu, three loaded hashes, ABI12.1/table1680, thirteen fixed read/refusal checks and full client contract. One exact close exits0; twelve installed hashes and durable baseline remain unchanged. Native simulation snapshot stays never/session0, broad verdict incomplete. No environment-forwarding, native lifecycle, unsigned-provider, rendered or exit53-cause claim. Twenty-two private controller models pass; new cleanup metadata is model-only. Next freeze a fresh provider review; consumed approvals remain unusable.
 
+## Current-runtime Menu review
+
+Decision 0123 stages a fresh two-phase Steam Menu-only trial against the current signed-server identity and a frozen read-only guard. Thirty controller methods, ten actual owned-process helper methods, four candidates/five originals, archived SDK405/97 source closure and stale-copy refusal pass. No approval, installation or client launch. Fresh explicit decision0059 exception remains required; review0121 remains retired and immutable. This is staged qualification, not native provider/lifecycle acceptance.
+
 ## Resumed signed runtime
 
 Decision0122 verifies one fresh signed-server startup after observed absence: exact new process/listener, four loaded modules, twelve installed hashes, ABI12.1/table1680, complete world readiness, forty fixed reads/refusals and10,864 protected cell observations. Durable namespace preserved; cold save bytes are a new baseline. Client stays closed. Initial world-inactive refusal remains evidence; no restart or provider change. Review0121 retains immutable source/binaries but is retired before execution because its old runtime guard refuses. A new closure and fresh explicit exception are required.

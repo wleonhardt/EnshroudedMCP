@@ -176,3 +176,7 @@ Decision0121 stages goals2/3 next discriminator: exact two-phase Menu closure us
 ## Resumed runtime checkpoint — 2026-11-19
 
 Decision0122 re-establishes goals2/10 current signed-server readiness and protected-state evidence after process absence. Header/listener readiness precedes world readiness; the same exact process later passes forty probes and10,864 protected cell comparisons. Review0121 remains unchanged and retires before execution because its runtime binding is stale. Next prepare a fresh current-runtime review; no provider adoption or native lifecycle acceptance.
+
+## Current-runtime provider-review checkpoint — 2026-11-19
+
+Decision 0123 advances goals2/3 with a fresh exact two-phase Menu-only review after runtime re-establishment. Thirty controller methods, ten actual owned-process helper methods, candidate/rollback/source closure, current read-only runtime guard and stale-copy refusal pass. Earlier retired review remains immutable. Execution needs a new explicit provider exception and mandatory rollback; no native Join/Leave, credentials or adoption is implied.
