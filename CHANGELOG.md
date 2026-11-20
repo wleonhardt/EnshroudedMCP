@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.51.2
+
+- Fix `players` and hosted `status` returning retained world observations after lifecycle changes. Require active admission/execution with unchanged epoch before world reads. Preserve the immediate `hosting:false` diagnostic and existing output/null semantics. Independent SDK-fake repros fail before the fix; native acceptance remains open.
+
+
 ## 0.51.1
 
 - Isolated native qualification:48 controller models,46 fixed and18 targeted checks pass, including active-world inventory empty/absent counts and selector refusal. Canonical receipt checks precede stateful phases; shared typed-intent verification passes after one shutdown/independent exit0. Old journal prefix and three prior intents stay preserved. Native interruption and positive-player inventory remain open.

@@ -26,6 +26,8 @@ mod player_waypoint;
 mod prop_observation;
 mod recipe_plan;
 mod reposition;
+#[cfg(test)]
+mod roster_lifecycle;
 mod server;
 mod terrain_image;
 mod tools;

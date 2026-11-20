@@ -211,12 +211,12 @@ impl GameTools {
             },
             Tool {
                 name: "status",
-                description: "Whether a world runs here, its key, save, player count and published server clock (hours, day/night, configured lengths and current speed). Unavailable differs from midnight; clock observations do not verify rendered lighting.",
+                description: "Whether a world runs here, its key, save, player count and published server clock (hours, day/night, configured lengths and current speed). Unavailable differs from midnight; clock observations do not verify rendered lighting. Hosted world observations require active MCP lifecycle at admission and execution with unchanged epoch. The hosting=false no-world diagnostic remains available without an active world.",
                 schema: json!({"type": "object"}),
             },
             Tool {
                 name: "players",
-                description: "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up), and nullable native health/stamina/mana meters. Raw SDK integer values; unavailable differs from zero and UI conversion is unverified.",
+                description: "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up), and nullable native health/stamina/mana meters. Raw SDK integer values; unavailable differs from zero and UI conversion is unverified. Requires active MCP lifecycle at admission and execution with unchanged epoch before roster, position or vitals reads.",
                 schema: json!({"type": "object"}),
             },
             Tool {
@@ -805,20 +805,39 @@ impl Tools for GameTools {
                         json!({"hosting": false, "clock":crate::world_clock::encode(None), "note": "no world runs in this process; load or host a world"}),
                     );
                 }
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+
                     let save = world.save_info().map(|s| json!({"size": s.size, "saved_at_unix": s.saved_at.as_secs(), "backups": s.backups}));
-                    json!({"hosting": true, "world_key": world.key(), "save": save, "players": world.players().len(), "clock":crate::world_clock::encode(clock.now())})
-                })
+                    Ok(
+                        json!({"hosting": true, "world_key": world.key(), "save": save, "players": world.players().len(), "clock":crate::world_clock::encode(clock.now())}),
+                    )
+                })?
             }
-            "players" => on_game_thread(scheduler, move || {
-                Value::Array(
-                    world
-                        .players()
-                        .into_iter()
-                        .map(|p| json!({"name": p.name, "key": p.key.0.to_string(), "slot": p.slot, "admin": p.is_admin(), "position": world.position(p.entity), "vitals": crate::player_vitals::encode(world.vitals(p.entity))}))
-                        .collect(),
-                )
-            }),
+            "players" => {
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
+                on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
+                    Ok(Value::Array(
+                        world
+                            .players()
+                            .into_iter()
+                            .map(|p| json!({"name": p.name, "key": p.key.0.to_string(), "slot": p.slot, "admin": p.is_admin(), "position": world.position(p.entity), "vitals": crate::player_vitals::encode(world.vitals(p.entity))}))
+                            .collect(),
+                    ))
+                })?
+            }
             "voxel_sample" => {
                 let p = args::point(a, "x", "y", "z");
                 if !bounds::in_world(p) {

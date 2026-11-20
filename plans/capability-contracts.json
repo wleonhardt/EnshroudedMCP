@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.1 active-world inventory/read/refusal/recovery/exit cohort verified; native interruption and positive player/client correspondence remain separate",
+  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.2 roster/hosted-status lifecycle fixes await native acceptance; prior0.51.1 native evidence retains its scope",
   "profiles": {
     "product": {
-      "server_version": "0.51.1",
+      "server_version": "0.51.2",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -1210,7 +1210,7 @@
     {
       "scope": "server",
       "name": "status",
-      "description": "Whether a world runs here, its key, save, player count and published server clock (hours, day/night, configured lengths and current speed). Unavailable differs from midnight; clock observations do not verify rendered lighting.",
+      "description": "Whether a world runs here, its key, save, player count and published server clock (hours, day/night, configured lengths and current speed). Unavailable differs from midnight; clock observations do not verify rendered lighting. Hosted world observations require active MCP lifecycle at admission and execution with unchanged epoch. The hosting=false no-world diagnostic remains available without an active world.",
       "input_schema": {
         "type": "object"
       },
@@ -1220,21 +1220,23 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "listener host-readiness metadata precheck; hosted World/save/roster/clock reads on server scheduler",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Host readiness precheck then scheduled save/roster/clock observations; save metadata is not causal completion.",
+      "evidence_summary": "Source0.51.2 retained positive SDK hosted-status reproductions fail before the fix and pass with active admission/execution epoch guards; the inactive nonhosting diagnostic stays available.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0158-roster-status-lifecycle-guards.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Installed hosted and lifecycle observations; no full loading-peer coverage.",
+      "source_checks": "Scheduled positive retained-state unchanged/reload/shutdown and separate shutdown admission cases; client-side fake hosting=false branch remains immediate and inactive-safe. No actual client World access is exercised.",
+      "native_acceptance": "Historical indexed evidence and isolated0.51.1 native read/refusal cohort retain their original applicability. New0.51.2 queued/admission lifecycle behavior is source-qualified only; no native interruption or new positive-player/UI acceptance.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Save timestamps/size do not establish exact persisted contents.",
-      "freshness_completeness": "Listener host readiness may differ by the later scheduled observation. Save metadata and clock are not causal completion proof.",
-      "next_missing_check": "Correlate a causal save result in a disposable controlled fixture with independent content verification.",
+      "freshness_completeness": "Active MCP lifecycle and unchanged admission/execution epoch before hosted world observations; roster count/save/clock/world-key projection remains non-atomic. The hosting=false diagnostic deliberately bypasses world gating.",
+      "next_missing_check": "Qualify source0.51.2 active native read/refusal paths and independently verify current-player and lifecycle interruption correspondence.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Clock/save metadata does not prove lighting, progression or final disk save.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
-        "crates/policy/src/args.rs"
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
@@ -1243,7 +1245,7 @@
     {
       "scope": "server",
       "name": "players",
-      "description": "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up), and nullable native health/stamina/mana meters. Raw SDK integer values; unavailable differs from zero and UI conversion is unverified.",
+      "description": "Every connected player: name (client-supplied), account key, slot, admin, position in metres (y up), and nullable native health/stamina/mana meters. Raw SDK integer values; unavailable differs from zero and UI conversion is unverified. Requires active MCP lifecycle at admission and execution with unchanged epoch before roster, position or vitals reads.",
       "input_schema": {
         "type": "object"
       },
@@ -1253,21 +1255,23 @@
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
       "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
-      "evidence_summary": "Published character roster with pose/vitals; empty does not prove no peer is loading.",
+      "evidence_summary": "Source0.51.2 retained positive SDK roster reproductions fail before the fix and pass with active admission/execution epoch guards; roster/vitals projection remains non-atomic.",
       "evidence_references": [
-        "plans/decisions/0065-complete-capability-evidence-pass.md"
+        "plans/decisions/0065-complete-capability-evidence-pass.md",
+        "plans/decisions/0158-roster-status-lifecycle-guards.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
-      "native_acceptance": "Joined pose/health and empty-roster observations qualified on isolated configurations.",
+      "source_checks": "Scheduled positive retained-state unchanged/reload/shutdown and separate shutdown admission cases; client-side fake hosting=false branch remains immediate and inactive-safe. No actual client World access is exercised.",
+      "native_acceptance": "Historical indexed evidence and isolated0.51.1 native read/refusal cohort retain their original applicability. New0.51.2 queued/admission lifecycle behavior is source-qualified only; no native interruption or new positive-player/UI acceptance.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Account and session entity namespaces remain distinct; entity IDs expire.",
-      "freshness_completeness": "One scheduled SDK character-roster observation; excludes proof about loading peers or an admission lock. Reacquire session entities.",
-      "next_missing_check": "Qualify loading/disconnect roster timing without new automatic movement.",
+      "freshness_completeness": "Active MCP lifecycle and unchanged admission/execution epoch before roster, position or vitals reads; no atomic roster/actor snapshot, current-client mapping or connection lock.",
+      "next_missing_check": "Qualify source0.51.2 active native read/refusal paths and independently verify current-player and lifecycle interruption correspondence.",
       "refusal_acceptance": "Source strict/semantic refusal contracts are checked; no complete native refusal matrix is claimed. See tool-specific positive/unknown scope and missing test.",
       "independent_effect_acceptance": "Independent pose/distance correlation exists; no arrival/contact or connection-admission lock.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
-        "crates/policy/src/args.rs"
+        "crates/policy/src/args.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
