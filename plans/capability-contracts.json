@@ -215,7 +215,10 @@
       "isolated_server_fixture_installed": true,
       "native_server_provider_readiness_verified": true,
       "native_client_lifecycle_verified": false,
-      "server_evidence": "plans/decisions/0168-isolated-lifecycle-provider-readiness.md"
+      "server_evidence": "plans/decisions/0168-isolated-lifecycle-provider-readiness.md",
+      "native_client_menu_callback_observed": true,
+      "native_client_commands_submitted": 0,
+      "client_observation_evidence": "plans/decisions/0171-native-menu-and-controller-startup-refusal.md"
     }
   },
   "counts": {
