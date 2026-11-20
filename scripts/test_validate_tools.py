@@ -5,7 +5,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation, absent_factory_observation, weather_observation
+from validate_tools import READS, SERVER_TOOLS, Validation, clock_observation, knowledge_observation, construction_budget_observation, empty_inventory_count_observation, absent_factory_observation, weather_observation, props_observation, PROPS_RECOVERY
 
 
 VERSION = next(
@@ -47,6 +47,12 @@ class Fixture:
                      "unknown argument 'confirm'" if "confirm" in args else "active buffs read failed: fixture missing holder")
         elif name == "terrain_image":
             error, value = True, "unknown argument 'confirm'" if "confirm" in args else "section requires slice"
+        elif name == "props_in":
+            error = "confirm" in args or args["x2"]-args["x1"]>64 or args["y2"]>1024
+            value = ("unknown argument 'confirm'" if "confirm" in args else
+                     "the box must lie in the world with no side over 64 m") if error else {
+                "total":0,"props":[],"truncated":False,
+                "recovery":"label presence only; label text and other held state are not observed; no safe-removal or undo claim"}
         elif name == "weather_read":
             error="confirm" in args or args["y"]>1024
             value=("unknown argument 'confirm'" if "confirm" in args else "argument 'y' must be at most 1024") if error else {
@@ -132,6 +138,39 @@ class Fixture:
 
 
 class ValidationTests(unittest.TestCase):
+    def test_props_metadata_nulls_and_truncation_are_observations_without_recovery_authority(self):
+        row={"entity":7,"item":8,"position":[5120.5,100.5,5120.5],"orientation":[0,0,0,1],
+             "template_guid":None,"label_present":None}
+        value={"total":1,"props":[row],"truncated":False,"recovery":PROPS_RECOVERY}
+        self.assertTrue(props_observation(value))
+        for present in (False,True,None):
+            self.assertTrue(props_observation({**value,"props":[{**row,"label_present":present,"template_guid":"000102030405060708090a0b0c0d0e0f"}]}))
+        self.assertTrue(props_observation({**value,"total":501,"props":[{**row,"entity":i+1} for i in range(500)],"truncated":True}))
+        self.assertTrue(props_observation({**value,"total":0,"props":[]}))
+        for key,bad in (("total",True),("total",-1),("total",2),("props",None),("truncated",True),("truncated",0),("recovery","safe removal verified")):
+            with self.subTest(key=key,bad=bad):self.assertFalse(props_observation({**value,key:bad}))
+        for key,bad in (("entity",True),("item",0),("entity",0x100000000),("position",[5120,100]),
+                        ("position",[5122,100,5120]),("position",[5120,float("nan"),5120]),
+                        ("orientation",[0,0,0,True]),("orientation",[0,0,0,float("inf")]),
+                        ("template_guid","ABC"),("template_guid",7),("label_present",0)):
+            with self.subTest(key=key,bad=bad):self.assertFalse(props_observation({**value,"props":[{**row,key:bad}]}))
+        for key in ("template_guid","label_present"):
+            absent={k:v for k,v in row.items() if k!=key}
+            self.assertFalse(props_observation({**value,"props":[absent]}))
+
+    def test_props_native_read_and_refusals_are_exercised_once_without_raw_output(self):
+        client=Fixture()
+        report=Validation(client,pause=lambda _:None).run()
+        labels={"props_bounded_observation","props_box_extent_refused","props_world_bounds_refused","props_write_argument_refused"}
+        checks={row["name"]:row["outcome"] for row in report["checks"]}
+        self.assertTrue(labels <= checks.keys())
+        self.assertTrue(all(checks[label]=="pass" for label in labels))
+        calls=[p["arguments"] for m,p in client.calls if m=="tools/call" and p["name"]=="props_in"]
+        self.assertEqual(len(calls),4)
+        self.assertEqual(sum("confirm" in a for a in calls),1)
+        self.assertTrue(any("prop" in note.casefold() and "ownership" in note.casefold() for note in report["incomplete"]))
+        self.assertNotIn("template_guid",json.dumps(report))
+
     def test_weather_probe_distinguishes_missing_clear_and_unusable_weights_without_authority(self):
         value=json.loads(Fixture().call("tools/call",{"name":"weather_read","arguments":{"x":100,"y":100,"z":100}})["content"][0]["text"])
         self.assertTrue(weather_observation(value))
@@ -305,7 +344,7 @@ class ValidationTests(unittest.TestCase):
         client = Fixture()
         report = Validation(client, pause=lambda _: None).run()
         self.assertEqual(report["verdict"], "incomplete")
-        self.assertEqual(len(report["checks"]), 46)
+        self.assertEqual(len(report["checks"]), 50)
         self.assertTrue(all(c["outcome"] == "pass" for c in report["checks"]))
         self.assertTrue(report["incomplete"])
         self.assertNotIn("private-", json.dumps(report))
@@ -316,7 +355,7 @@ class ValidationTests(unittest.TestCase):
         self.assertFalse(any("dry" in params.get("arguments", {}) for method, params in client.calls if method == "tools/call"))
 
     def test_shape_arithmetic_provenance_and_geometry_mismatches_fail(self):
-        for tool in ("player_waypoint", "construction_budget", "capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
+        for tool in ("props_in", "player_waypoint", "construction_budget", "capabilities", "item_info", "item_lookup", "inventory_read", "entity_health", "knowledge_search", "recipe_plan", "building_plan"):
             with self.subTest(tool=tool):
                 report = Validation(Fixture(tool), pause=lambda _: None).run()
                 self.assertEqual(report["verdict"], "failed")

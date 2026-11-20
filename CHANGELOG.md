@@ -6,6 +6,8 @@
 
 ## Unreleased standalone tools
 
+- Execute one bounded props_in read and three refusal probes in the fixed native validator. Validate spatial rows, nullable metadata, truncation and recovery limits without retaining raw observations. The fixed run grows to50 checks and remains incomplete; DLLs and installed runtime stay unchanged. New native acceptance remains open.
+
 - Bound terrain-viewer JSON reads to 2 MiB plus one overflow byte before UTF-8 decoding. Capture, pin and plan files that grow after the size check refuse before output or RPC creation; exact-budget files still work. A post-read-only mutation fails the consumption regression. No MCP or runtime behavior changes.
 
 - Qualify one live read-only terrain capture through the signed installed server: all 4,096 cells and 64 caller pins survive local projection, with BrowserOS orbit/section and pin-selection checks. The roster and prop set are empty; positive annotation, engine-surface and connection acceptance remain separate.

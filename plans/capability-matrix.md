@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+The standalone fixed validator now executes50 checks, adding a bounded props_in observation and box/world/write-argument refusals. Raw rows stay out of reports; functional state, ownership, rendered behavior and native interruption remain unverified. Historical46-check cohorts retain their original scope. See [bounded prop validation](plans/decisions/0194-bounded-native-prop-validation.md).
+
 A separate signed-provider server0.51.6/companion0.22.0 cohort passes native ABI12.1/table1680, four expected modules, all46 fixed probes and exact40 server contracts. One owned shutdown independently exits0; originals remain unchanged. The fixed allowlist does not execute props_in, so its native data/interruption acceptance remains open. See [runtime cohort scope](plans/decisions/0193-native-0516-signed-runtime-cohort.md).
 
 Source0.51.6 guards props_in active admission and unchanged execution epoch before SDK data or metadata reads. Decision0192 records three failing-before/four passing-after dispatcher cases. Native interruption remains unverified.

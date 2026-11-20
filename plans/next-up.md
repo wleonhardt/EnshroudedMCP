@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Native props validator source ready; fresh cohort next** Decision0194 adds one bounded props_in observation and three box/world/write-argument refusals, growing the fixed run to50 checks. A failing behavior test precedes correction; nullable metadata, raw finite transforms, spatial/truncation limits and report privacy are checked. DLL/API/installed versions stay unchanged. Next one fresh signed-provider cohort with all50 checks and exact40 contracts, then owned shutdown/independent exit0. Functional props, ownership, rendered state and controlled native interruption remain open.
+
 - **Native0.51.6 runtime/contracts passed; props read gap explicit** Decision0193 verifies37 normal/optimized models,32 independent staged files, one signed-provider launch, all46 fixed probes and exact40 server contracts. Owned native shutdown and independent/held exit0 pass; originals/durable state, closed client, absent flag and free ports pass. Broad verdict stays incomplete. Fixed allowlist does not execute props_in: next add bounded native read/refusal probes, then independently known functional props and controlled interruption. Review0191 remains separate and unapproved.
 
 - **Props lifecycle source fixed; native qualification next** Decision0192 reproduces three stale retained-positive SDK outcomes, then source0.51.6 reuses active admission and execution epoch guards. Four dispatcher cases preserve normal output, nullable label observation and recovery limits. Native reload/shutdown timing and positive prop ownership remain unverified. Next fresh isolated signed-provider cohort, then controlled native interruption. Remaining audit candidates: entity_health, entities_near and entity_components.

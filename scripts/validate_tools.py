@@ -12,7 +12,7 @@ from investigate import Client, InvalidReply
 
 
 READS = frozenset(("player_buffs_read", "player_shroud", "player_waypoint", "terrain_image", "server_shutdown_status", "player_reposition_status", "entity_buffs_read", "weather_read", "factory_station_read", "construction_budget", "knowledge_read", "status", "capabilities", "inventory_read", "item_info", "entity_health",
-                   "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup"))
+                   "knowledge_search", "recipe_plan", "building_plan", "building_survey", "building_operation", "item_lookup", "props_in"))
 # Discovery checks the known surface, but only READS may ever be invoked.
 SERVER_TOOLS = READS | frozenset(("server_save", "server_shutdown", "clock_advance", "player_interaction_target", "building_access", "player_restore_health", "enemy_pacification", "status", "players", "voxel_sample", "props_in", "entities_near",
                                   "entity_components", "give_item", "building_place_cell", "building_apply_plan",
@@ -115,6 +115,35 @@ def clock_observation(value):
                 ("hours", "day_starts_hours", "night_starts_hours", "day_duration_seconds", "night_duration_seconds", "speed")))
 
 
+PROPS_BOX = {"x1":5120,"y1":100,"z1":5120,"x2":5121,"y2":101,"z2":5121}
+PROPS_RECOVERY = "label presence only; label text and other held state are not observed; no safe-removal or undo claim"
+
+
+def props_observation(value):
+    total, rows = value.get("total"), value.get("props")
+    if (type(total) is not int or total < 0 or not isinstance(rows, list) or
+            len(rows) != min(total, 500) or type(value.get("truncated")) is not bool or
+            value["truncated"] != (total > 500) or value.get("recovery") != PROPS_RECOVERY):
+        return False
+    for row in rows:
+        if not isinstance(row, dict) or not {"entity","item","position","orientation","template_guid","label_present"} <= row.keys():
+            return False
+        if any(type(row[key]) is not int or not 1 <= row[key] <= 0xFFFFFFFF for key in ("entity","item")):
+            return False
+        for key, size in (("position",3),("orientation",4)):
+            parts = row[key]
+            if not isinstance(parts, list) or len(parts) != size or not all(type(v) in (int,float) and math.isfinite(v) for v in parts):
+                return False
+        if not all(PROPS_BOX[axis+"1"] <= row["position"][i] <= PROPS_BOX[axis+"2"] for i, axis in enumerate("xyz")):
+            return False
+        guid = row["template_guid"]
+        if guid is not None and (not isinstance(guid,str) or len(guid) != 32 or not all(c in "0123456789abcdef" for c in guid)):
+            return False
+        if row["label_present"] is not None and type(row["label_present"]) is not bool:
+            return False
+    return True
+
+
 class Validation:
     def __init__(self, client, pause=time.sleep):
         self.client, self.pause = client, pause
@@ -182,6 +211,10 @@ class Validation:
         self.probe("weather_sample_shape", "weather_read", {"x":100,"y":100,"z":100}, weather_observation)
         self.probe("weather_bounds_refused", "weather_read", {"x":100,"y":1024.5,"z":100}, refusal="argument 'y' must be at most 1024")
         self.probe("weather_write_argument_refused", "weather_read", {"x":100,"y":100,"z":100,"confirm":"server-write"}, refusal="unknown argument 'confirm'")
+        self.probe("props_bounded_observation", "props_in", PROPS_BOX, props_observation)
+        self.probe("props_box_extent_refused", "props_in", {**PROPS_BOX,"x2":5185}, refusal="box must lie in the world with no side over 64 m")
+        self.probe("props_world_bounds_refused", "props_in", {**PROPS_BOX,"y1":1024,"y2":1024.5}, refusal="box must lie in the world with no side over 64 m")
+        self.probe("props_write_argument_refused", "props_in", {**PROPS_BOX,"confirm":"server-write"}, refusal="unknown argument 'confirm'")
         self.probe("world_clock_shape", "status", {}, clock_observation)
         self.probe("factory_station_unobserved", "factory_station_read", {"entity":0xFFFFFFFF}, absent_factory_observation)
         self.probe("factory_station_zero_entity_refused", "factory_station_read", {"entity":0}, refusal="argument 'entity' must be at least 1")
@@ -250,6 +283,7 @@ class Validation:
                                  "Waypoint refusals do not verify a present native waypoint, client identity or rendered marker.",
                                  "Known healthy/damaged fixture versus UI remains unverified.",
                                  "Synthetic planning and empty reads do not establish live game semantics.",
+                                 "Bounded prop rows do not verify functional state, ownership, rendered appearance or native lifecycle interruption.",
                                  "Survey probes cover off-grid and unknown write-argument refusal only; no valid survey read is validated.",
                                  "Live building geometry comparison and persistence acceptance remain incomplete.",
                                  "Construction status refusal and shape checks do not establish live placement, read-back, undo or reload acceptance."]}

@@ -1,0 +1,13 @@
+# 0194: Add bounded native prop probes to the fixed validator
+
+Date: 2026-11-20. Status: source behavior qualified; new native prop probes remain unverified.
+
+Decision0193 exposed a coverage gap: the fixed validator checked props_in discovery but never executed it. A failing behavior test establishes that none of the requested bounded read and refusal checks is present. Add props_in to the fixed read allowlist, retaining all existing write exclusions and sanitized reports. This changes the standalone validation script, not a DLL, SDK pin, MCP schema or installed runtime.
+
+The validator now performs one read in a fixed one-metre box and three admission refusals: a65-metre side, a corner above the world height and an unknown write-confirmation argument. It does not require the box to be empty. Returned rows must match total/truncation limits and the requested box, carry typed session-only entity/item IDs and finite raw transforms, and preserve32-character file-order template GUIDs or explicit null plus boolean/null label presence. The exact recovery limitation must remain present. No quaternion normalization, functional-state inference, ownership or safe-removal claim is introduced.
+
+Behavior tests exercise the actual fixed run, verify exactly four prop calls and no raw metadata in reports, accept explicit unknown/false/true label observations and nullable templates, check the500-row truncation boundary, and reject malformed totals, missing metadata, out-of-box transforms, non-finite components and recovery-authority substitutions. A corrupted prop result makes the broad run fail without recording raw identities or coordinates. Existing write-tool refusal checks remain intact.
+
+Baseline503 Rust/131 Python cases and required checks pass before edits. After this script-only change,503 Rust/133 Python, strict Clippy, formatting, both release builds and source contracts must pass before publication. The fixed run grows from46 to50 checks and still reports incomplete when every check passes. Positive functional props, ownership, rendered appearance and controlled native lifecycle interruption remain explicit missing acceptance. Historical native cohorts retain their46-check scope.
+
+Next prepare a fresh server-only signed-provider cohort, verify the exact compiler/source/controller closure and original preservation, then run all50 checks and exact40 server contracts once. Independently verify owned shutdown and exit0. No client launch, credential access, provider exception or gameplay write is authorized by this source increment; frozen unapproved review0191 remains separate.

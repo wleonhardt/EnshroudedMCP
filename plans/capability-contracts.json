@@ -1449,9 +1449,10 @@
       "evidence_summary": "Active admission and unchanged execution epoch guard bounded prop output and nullable metadata; complete held-state and ownership remain unknown.",
       "evidence_references": [
         "plans/decisions/0065-complete-capability-evidence-pass.md",
-        "plans/decisions/0192-props-lifecycle-guard.md"
+        "plans/decisions/0192-props-lifecycle-guard.md",
+        "plans/decisions/0194-bounded-native-prop-validation.md"
       ],
-      "source_checks": "Four SDK dispatcher lifecycle cases pass; no native interruption acceptance",
+      "source_checks": "Four SDK dispatcher lifecycle cases and fixed bounded-prop validator behavior tests pass; new native probes and interruption remain unverified",
       "native_acceptance": "Historical player-built container discovery qualified; world-loot and complete stateful-prop coverage differ.",
       "rendered_acceptance": "No general rendered acceptance; historical narrow fixture does not certify every target/configuration.",
       "persistence_acceptance": "Label presence is not verified stable ownership across reload.",
