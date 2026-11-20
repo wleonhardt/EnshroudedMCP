@@ -1,6 +1,6 @@
 {
   "date": "2026-11-20",
-  "status": "all54 source contracts indexed:40 server and14 companion; source0.51.1 inventory lifecycle fix awaits native acceptance; prior isolated0.51.0 evidence retains its scope",
+  "status": "all54 source contracts indexed:40 server and14 companion; isolated0.51.1 active-world inventory/read/refusal/recovery/exit cohort verified; native interruption and positive player/client correspondence remain separate",
   "profiles": {
     "product": {
       "server_version": "0.51.1",
@@ -20,7 +20,8 @@
       "cached_input_status_source_evidence": "plans/decisions/0127-cached-client-input-status.md",
       "isolated_empty_world_native_cohort": "plans/decisions/0149-isolated-empty-world-native-cohort.md",
       "isolated_cold_native_cohort": "plans/decisions/0151-isolated-cold-native-cohort.md",
-      "isolated_current_player_buff_cohort": "plans/decisions/0153-isolated-current-player-buff-cohort.md"
+      "isolated_current_player_buff_cohort": "plans/decisions/0153-isolated-current-player-buff-cohort.md",
+      "isolated_inventory_native_cohort": "plans/decisions/0156-canonical-inventory-native-cohort.md"
     },
     "inactive_candidate": {
       "sdk_revision": "9f6efc821524df426991fb584a761eaa0e5ea898",
@@ -1083,14 +1084,15 @@
       "evidence_summary": "Source0.51.1 independently reproduces and refuses retained inventory reads across queued lifecycle changes for player/entity selectors; paging and unknown eligibility remain unchanged.",
       "evidence_references": [
         "plans/decisions/0030-same-read-inventory-counts.md",
-        "plans/decisions/0155-inventory-lifecycle-guard.md"
+        "plans/decisions/0155-inventory-lifecycle-guard.md",
+        "plans/decisions/0156-canonical-inventory-native-cohort.md"
       ],
       "source_checks": "Independent retained positive SDK inventory/roster reproduces queued entity/player reload and pre-admission shutdown observations before the fix. Three behavior cases cover both selectors, unchanged/reload/shutdown queue barriers, item counts and shutdown admission refusal.",
-      "native_acceptance": "Historical linked inventory evidence and isolated0.51.0 bounded read/refusal cohort retain their original scope. New0.51.1 admission/execution epoch behavior is source-qualified only; no native in-flight interruption acceptance.",
+      "native_acceptance": "Isolated0.51.1/SDK12.1 cold cohort verifies exact catalog, active-world empty/absent output with zero requested counts and unknown completeness/crafting eligibility, plus unmatched-player refusal. No positive current-player inventory/counts or native lifecycle interruption acceptance.",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
       "freshness_completeness": "Active MCP lifecycle required at admission and execution with unchanged epoch before player resolution or slot/count reads. Each page is still an independent non-atomic observation; virtual traversal completeness and crafting eligibility remain unknown.",
-      "next_missing_check": "Qualify source0.51.1 on a fresh isolated native cohort; independently verify positive current-player slots/counts and native interruption timing.",
+      "next_missing_check": "Independently verify positive current-player slots/counts and native interruption timing on a qualified isolated fixture.",
       "refusal_acceptance": "No complete native refusal assessment is claimed for this tool; linked source contracts and the named missing behavior test define the current limit.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [

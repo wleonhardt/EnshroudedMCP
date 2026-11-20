@@ -2,6 +2,8 @@
 
 ## 0.51.1
 
+- Isolated native qualification:48 controller models,46 fixed and18 targeted checks pass, including active-world inventory empty/absent counts and selector refusal. Canonical receipt checks precede stateful phases; shared typed-intent verification passes after one shutdown/independent exit0. Old journal prefix and three prior intents stay preserved. Native interruption and positive-player inventory remain open.
+
 - Fix queued `inventory_read` returning retained slots/counts after lifecycle changes. Require active MCP lifecycle at admission and execution with an unchanged epoch for both player and entity selectors. Preserve projection, paging and unknown crafting/completeness claims. Independent SDK-fake reproductions fail before the fix; new native acceptance remains open.
 
 
