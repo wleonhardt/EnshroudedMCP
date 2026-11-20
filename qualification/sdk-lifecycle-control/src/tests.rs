@@ -670,3 +670,212 @@ fn last_request_slot_dispatches_but_next_slot_cannot_cancel_it() {
     assert_eq!(loader.client_commands().len(), 1);
     clean(state);
 }
+
+#[test]
+fn delayed_readiness_keeps_a_full_command_phase_for_owned_leave() {
+    let (loader, input, mut state, address) = setup();
+    state.started = Instant::now() - Duration::from_secs(120);
+    state.frame(Screen::Menu, input).unwrap();
+    submit_join(&mut state, input);
+    let id = loader.client_commands()[0].0;
+    loader.set_command_status(id, Raw::OBSERVED, 0);
+    loader.set_command_phase(id, Raw::PHASE_IN_WORLD, 0);
+    loader.set_client_snapshot(Snapshot {
+        state: Snapshot::FRESH,
+        session: 9,
+        age_ms: 0,
+        server: Str::new(&address),
+        ..Snapshot::EMPTY
+    });
+    state.started = Instant::now() - Duration::from_secs(200);
+    state.frame(Screen::InGame, input).unwrap();
+    assert!(!state.halted, "human wait consumed the owned Leave budget");
+    let spec = real(
+        &mut state,
+        input,
+        Screen::InGame,
+        dry("leave-001", "leave", None),
+    );
+    assert_eq!(
+        state
+            .execute(spec, Screen::InGame, input, Instant::now(), Duration::ZERO)
+            .unwrap()["state"],
+        "submitted"
+    );
+    assert_eq!(loader.client_commands().len(), 2);
+    clean(state);
+}
+
+#[test]
+fn real_request_cannot_start_command_lease_without_accepted_preview() {
+    let (loader, input, mut state, _) = setup();
+    let mut spec = dry("join-001", "join", None);
+    spec.dry = false;
+    let (context, _) = state.context(Screen::Menu, input);
+    spec.preview = Some(admission::preview(&state.boot, &spec, &context));
+    spec.confirm = Some("server-write".into());
+    fs::write(state.dir.join(policy::write_gate::FLAG), []).unwrap();
+    assert!(
+        state
+            .execute(spec, Screen::Menu, input, Instant::now(), Duration::ZERO)
+            .is_err()
+    );
+    assert!(loader.client_commands().is_empty());
+    assert_eq!(
+        fs::read_dir(state.dir.join("operations")).unwrap().count(),
+        0
+    );
+    clean(state);
+}
+
+#[test]
+fn join_admission_expires_sixty_seconds_after_first_preview_without_reset() {
+    let (loader, input, mut state, _) = setup();
+    let spec = real(
+        &mut state,
+        input,
+        Screen::Menu,
+        dry("join-001", "join", None),
+    );
+    state.started = Instant::now() - Duration::from_secs(61);
+    state.frame(Screen::Menu, input).unwrap();
+    assert!(
+        state
+            .execute(spec, Screen::Menu, input, Instant::now(), Duration::ZERO)
+            .is_err()
+    );
+    assert!(loader.client_commands().is_empty());
+    clean(state);
+}
+
+#[test]
+fn heartbeat_distinguishes_observer_from_started_command_lease() {
+    let (loader, input, mut state, _) = setup();
+    let rows = || fs::read_to_string(state.dir.join("observations.jsonl")).unwrap();
+    let before: Value = serde_json::from_str(rows().lines().last().unwrap()).unwrap();
+    assert_eq!(before["lease_model"], "observer_then_commands_v1");
+    assert_eq!(before["lease_phase"], "observing");
+    assert!(before["command_lease_ms"].is_null());
+    assert!(before.get("session_lease_ms").is_none());
+    assert!(loader.client_commands().is_empty());
+    state
+        .execute(
+            dry("join-001", "join", None),
+            Screen::Menu,
+            input,
+            Instant::now(),
+            Duration::ZERO,
+        )
+        .unwrap();
+    state.heartbeat = None;
+    state.frame(Screen::Menu, input).unwrap();
+    let text = fs::read_to_string(state.dir.join("observations.jsonl")).unwrap();
+    let after: Value = serde_json::from_str(text.lines().last().unwrap()).unwrap();
+    assert_eq!(after["lease_phase"], "commands");
+    assert!(after["command_lease_ms"].is_u64());
+    assert_eq!(
+        text.lines()
+            .filter(|line| line.contains("command_lease_started"))
+            .count(),
+        1
+    );
+    assert!(loader.client_commands().is_empty());
+    clean(state);
+}
+
+#[test]
+fn refused_preview_does_not_start_command_authority() {
+    let (loader, input, mut state, _) = setup();
+    assert!(
+        state
+            .execute(
+                dry("join-001", "join", None),
+                Screen::Other,
+                input,
+                Instant::now(),
+                Duration::ZERO
+            )
+            .is_err()
+    );
+    assert_eq!(state.lease.phase(), "observing");
+    assert!(
+        state
+            .lease
+            .command_age(state.started.elapsed())
+            .unwrap()
+            .is_none()
+    );
+    assert!(loader.client_commands().is_empty());
+    clean(state);
+}
+
+#[test]
+fn unconfirmed_lease_start_record_halts_without_native_submission() {
+    let (loader, input, mut state, _) = setup();
+    state.journal = File::open(state.dir.join("observations.jsonl")).unwrap();
+    assert!(
+        state
+            .execute(
+                dry("join-001", "join", None),
+                Screen::Menu,
+                input,
+                Instant::now(),
+                Duration::ZERO
+            )
+            .is_err()
+    );
+    assert!(state.halted);
+    assert!(
+        state
+            .execute(
+                dry("join-002", "join", None),
+                Screen::Menu,
+                input,
+                Instant::now(),
+                Duration::ZERO
+            )
+            .is_err()
+    );
+    assert!(loader.client_commands().is_empty());
+    clean(state);
+}
+
+#[test]
+fn command_lease_expiring_after_intent_burns_identity_without_dispatch() {
+    let (loader, input, mut state, _) = setup();
+    let spec = real(
+        &mut state,
+        input,
+        Screen::Menu,
+        dry("join-001", "join", None),
+    );
+    let original_start = state.started;
+    state.before_final = Some(Box::new(|s| {
+        s.started = Instant::now() - Duration::from_secs(181)
+    }));
+    let error = state
+        .execute(
+            spec.clone(),
+            Screen::Menu,
+            input,
+            Instant::now(),
+            Duration::ZERO,
+        )
+        .unwrap_err();
+    assert_eq!(error, "command_lease_expired");
+    assert!(
+        state
+            .dir
+            .join("operations/connection-join-001.json")
+            .is_file()
+    );
+    assert!(loader.client_commands().is_empty());
+    state.started = original_start;
+    assert!(
+        state
+            .execute(spec, Screen::Menu, input, Instant::now(), Duration::ZERO)
+            .is_err()
+    );
+    assert!(loader.client_commands().is_empty());
+    clean(state);
+}

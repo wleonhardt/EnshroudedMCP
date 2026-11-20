@@ -195,34 +195,35 @@
       "quiet_conditions_verified": false
     },
     "lifecycle_control_qualifier": {
-      "version": "0.1.0",
       "sdk_revision": "33cf4dc149f88d1abe3d3c11a12053d0ab94967f",
       "abi": "12.16",
       "rust": "1.100.0",
       "workspace": "qualification/sdk-lifecycle-control",
       "mcp_registered": false,
-      "native_runtime_verified": false,
       "credential_resolver": false,
       "scope": "Inactive paired mod: passive server initialization; client-frame native Join/Leave/Cancel using one private loopback profile and no password. File-driven qualification only.",
-      "evidence": "plans/decisions/0166-native-lifecycle-control-probe.md",
-      "source_cases": {
-        "policy": 15,
-        "sdk_debug": 14,
-        "sdk_optimized": 14
-      },
-      "limits": "Memory/durable once-only identities, fresh exclusive boot, exact preview/flag/context, post-intent checks, eight operations, thirty-two requests, bounded private journal and 180-second lease. No implicit cleanup or replay.",
-      "unverified": "Native provider/header/callback, intended peer, character/roster, actual connection/cancellation/Leave, credentials, rendering and rollback.",
-      "status": "Source-qualified only: default product 484 Rust/125 Python; optional 14 debug/optimized cases and strict release checks pass. Four failing reproductions precede fixes; no native acceptance.",
+      "version": "0.1.1",
+      "native_runtime_verified": false,
       "primary_client_installed": false,
-      "isolated_server_fixture_installed": true,
-      "native_server_provider_readiness_verified": true,
-      "native_client_lifecycle_verified": false,
-      "server_evidence": "plans/decisions/0168-isolated-lifecycle-provider-readiness.md",
-      "native_client_menu_callback_observed": true,
-      "native_client_commands_submitted": 0,
-      "client_observation_evidence": "plans/decisions/0171-native-menu-and-controller-startup-refusal.md",
-      "native_companion_bootstrap_reply_observed": true,
-      "bootstrap_evidence": "plans/decisions/0174-native-companion-bootstrap-and-rollback.md"
+      "isolated_server_fixture_installed": false,
+      "evidence": "plans/decisions/0190-qualification-observer-command-leases.md",
+      "source_cases": {
+        "policy": 22,
+        "sdk_debug": 21,
+        "sdk_optimized": 21
+      },
+      "limits": "Observer phase below180 seconds; command phase starts once on valid dry preview and lasts below180 seconds; Join admits through60 seconds of command time. Existing authority/context/deadline/identity/file limits retained. No implicit cleanup or replay.",
+      "status": "Source/model qualified; changed qualifier DLL has not been installed or exercised natively.",
+      "unverified": "New candidate provider/header/callback/handoff and complete native Join/Leave/Cancel, character/peer/roster, credentials and rendered outcomes.",
+      "historical_010": {
+        "source_evidence": "plans/decisions/0166-native-lifecycle-control-probe.md",
+        "native_join_submissions": 1,
+        "native_join_verified": false,
+        "join_outcome_evidence": "plans/decisions/0184-native-join-menu-timeout.md",
+        "watched_cohort_submissions": 0,
+        "watched_outcome_evidence": "plans/decisions/0189-watched-client-confirmation-timeout.md",
+        "signed_restoration_verified": true
+      }
     },
     "source0514_sdk1216_candidate": {
       "status": "inactive source-only compatibility",

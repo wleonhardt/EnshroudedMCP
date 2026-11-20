@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0190 qualifies inactive qualifier0.1.1 observer/command lease separation with game-free policy, explicit clock metadata and preview-start admission. Default54 tools, source0.51.5/0.22.0 and signed installed files are unchanged. Source499 Rust/131 Python and optional21 debug/optimized cases pass; private broker delayed-readiness models pass. Current-candidate native handoff/connection remains unverified; older0.1.0 native evidence is historical.
+
 Decision0189 records a consumed watched SDK12.16/source0.51.3 cohort reaching fresh Menu but dispatching zero Join/Leave/Cancel requests. Timing matches its30-second human confirmation gate; client/server independently exit0 and exact signed restoration passes. This is a controller handoff limitation, with a generic inner error, not native connection acceptance or an SDK failure classification. Default source0.51.5/installed0.48.0 profiles remain unchanged.
 
 Decision0187 qualifies a fresh signed-provider source0.51.5/companion0.22.0 server: native ABI12.1/table1680 and four loaded modules, all46 fixed probes and exact40 server contracts pass. Weather weights [1,0,0,0], sum1 and SDK clear plus two refusals are observed. One native shutdown independently exits0; originals remain unchanged. Broad validation remains incomplete; native interruption and rendered/physical/client workflow acceptance remain open.

@@ -44,6 +44,7 @@ struct State {
     journal: File,
     header: Value,
     started: Instant,
+    lease: admission::QualificationLease,
     heartbeat: Option<Instant>,
     previous_screen: Option<Screen>,
     frame_at: Option<Instant>,
@@ -83,6 +84,7 @@ impl State {
             journal,
             header: json!({"abi_major":header.abi_major,"abi_minor":header.abi_minor,"table_bytes":header.size}),
             started: Instant::now(),
+            lease: admission::QualificationLease::default(),
             heartbeat: None,
             previous_screen: None,
             frame_at: None,
@@ -221,7 +223,9 @@ impl State {
         if self.halted {
             return Err("qualification halted; no native retry".into());
         }
-        admission::lease(self.started.elapsed())?;
+        self.lease
+            .admit(self.started.elapsed(), &spec.action, spec.dry)
+            .map_err(|error| error.to_string())?;
         let (context, _) = self.context(screen, input);
         let flag = policy::write_gate::flag_age(&self.dir.join(policy::write_gate::FLAG));
         admission::authorize(
@@ -238,6 +242,17 @@ impl State {
         )?;
         let preview = admission::preview(&self.boot, &spec, &context);
         if spec.dry {
+            let elapsed = self.started.elapsed();
+            if self
+                .lease
+                .begin_commands(elapsed)
+                .map_err(|error| error.to_string())?
+            {
+                self.record(json!({"kind":"command_lease_started","unix_ms":now_ms(),"observer_age_ms":elapsed.as_millis(),"native_submitted":false}))?;
+            }
+            self.lease
+                .admit(self.started.elapsed(), &spec.action, true)
+                .map_err(|error| error.to_string())?;
             return Ok(
                 json!({"state":"dry","preview":preview,"request":admission::payload(&spec.action),"native_submitted":false}),
             );
@@ -265,7 +280,9 @@ impl State {
         self.poll(input)?;
         let (final_context, _) = self.context_before(&spec, screen, input);
         let final_flag = policy::write_gate::flag_age(&self.dir.join(policy::write_gate::FLAG));
-        admission::lease(self.started.elapsed())?;
+        self.lease
+            .admit(self.started.elapsed(), &spec.action, false)
+            .map_err(|error| error.to_string())?;
         admission::authorize(
             &self.boot,
             &spec,
@@ -326,9 +343,9 @@ impl State {
             return Ok(());
         }
         self.frame_at = Some(Instant::now());
-        if admission::lease(self.started.elapsed()).is_err() {
+        if let Err(error) = self.lease.check(self.started.elapsed()) {
             self.record(
-                json!({"kind":"lease_expired","unix_ms":now_ms(),"native_cleanup_attempted":false}),
+                json!({"kind":"lease_expired","unix_ms":now_ms(),"reason":error.code(),"lease_phase":self.lease.phase(),"observer_age_ms":self.started.elapsed().as_millis(),"command_lease_ms":self.lease.command_age(self.started.elapsed()).ok().flatten().map(|age|age.as_millis()),"native_cleanup_attempted":false}),
             )?;
             self.halted = true;
             return Ok(());
@@ -372,7 +389,7 @@ impl State {
             let (context, native) = self.context(screen, input);
             self.record(json!({"kind":"probe_observation","unix_ms":now_ms(),"compiled_sdk_revision":REVISION,"compiled_abi":"12.16","provider_header":self.header,
                 "profile":self.profile.label,"ui_screen":format!("{screen:?}"),"ui_age_ms":context.age_ms,"ui_sequence":self.sequence,"owned":format!("{:?}",context.owned),"native_snapshot":native,
-                "next_request":self.next,"session_lease_ms":self.started.elapsed().as_millis(),"provider_fidelity_verified":false,"independent_roster_verified":false,"character_verified":false,"rendered_verified":false,"workflow_accepted":false}))?;
+                "next_request":self.next,"qualifier_version":env!("CARGO_PKG_VERSION"),"lease_model":"observer_then_commands_v1","lease_phase":self.lease.phase(),"observer_age_ms":self.started.elapsed().as_millis(),"command_lease_ms":self.lease.command_age(self.started.elapsed()).ok().flatten().map(|age|age.as_millis()),"provider_fidelity_verified":false,"independent_roster_verified":false,"character_verified":false,"rendered_verified":false,"workflow_accepted":false}))?;
             self.heartbeat = Some(Instant::now());
         }
         Ok(())

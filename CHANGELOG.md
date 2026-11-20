@@ -1,5 +1,9 @@
 # Changelog
 
+## Inactive qualification0.1.1
+
+- Separate bounded observer and once-started command leases for the native lifecycle qualifier. A valid dry preview starts command timing; repeated previews never renew it, real-without-preview refuses, Join closes after60 seconds and owned cleanup retains its180-second phase budget. Report explicit phase/clock/error metadata and refuse legacy broker assumptions. No default MCP or installed-runtime change; native qualification remains open.
+
 ## Unreleased standalone tools
 
 - Bound terrain-viewer JSON reads to 2 MiB plus one overflow byte before UTF-8 decoding. Capture, pin and plan files that grow after the size check refuse before output or RPC creation; exact-budget files still work. A post-read-only mutation fails the consumption regression. No MCP or runtime behavior changes.

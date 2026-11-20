@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Phase-aware qualifier0.1.1 source fixed; fresh review/native acceptance next** Decision0190 separates observer180 from a once-started command180 lease after valid dry preview; Join is bounded to its first60 seconds. Four failing SDK and two delayed-broker cases precede fixes.499 Rust/131 Python, optional21 debug/optimized and156 broker cases (154 pass, two skips) qualify source only. Exact new artifact/controller/rollback assembly and a fresh concrete exception remain required. No install, launch, replay or lease reset occurs.
+
 - **Watched cohort consumed before Join; fix handoff timing first** Decision0189 records155 native probe observations and zero submissions after a30-second human page-confirmation window. Controller normal close/client exit0, native server exit0 and exact six-file restoration pass; no accepted attestation exists. Preserve generic inner-error uncertainty. Before another provider exception, separate observer and command-admission budgets, retain typed reasons and test delayed readiness without resetting command authority or retrying. Initial-page Join and saved profiles remain open.
 
 - **Native0.51.5 weather and contracts passed** Decision0187 verifies37 normal/optimized controller models, exact compiler/signed assets and32 independent staged files before one fresh server launch. All46 fixed probes and all40 server contracts pass, including observed weather and two weather refusals. One native stop independently exits0 without force; originals/durable state, closed client, absent flag and free ports pass. Broad verdict remains incomplete. Next independently qualify controlled native interruption and rendered weather; remaining entity/scene audit candidates still need retained-positive SDK discriminators.

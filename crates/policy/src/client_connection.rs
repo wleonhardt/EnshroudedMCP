@@ -314,6 +314,76 @@ pub fn lease(age: Duration) -> Result<(), String> {
         Err("native qualification session lease expired; no automatic action".into())
     }
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LeaseError {
+    ObserverExpired,
+    CommandsExpired,
+    ClockReversed,
+    PreviewRequired,
+    JoinAdmissionExpired,
+}
+impl LeaseError {
+    pub const fn code(self) -> &'static str {
+        match self {
+            Self::ObserverExpired => "observer_lease_expired",
+            Self::CommandsExpired => "command_lease_expired",
+            Self::ClockReversed => "qualification_clock_reversed",
+            Self::PreviewRequired => "command_preview_required",
+            Self::JoinAdmissionExpired => "join_admission_expired",
+        }
+    }
+}
+impl fmt::Display for LeaseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.code())
+    }
+}
+
+/// Bounded observation followed by one command lease; elapsed is since boot.
+#[derive(Default, Debug)]
+pub struct QualificationLease {
+    command_started: Option<Duration>,
+}
+impl QualificationLease {
+    pub fn phase(&self) -> &'static str {
+        if self.command_started.is_some() {
+            "commands"
+        } else {
+            "observing"
+        }
+    }
+    pub fn command_age(&self, elapsed: Duration) -> Result<Option<Duration>, LeaseError> {
+        self.command_started
+            .map(|start| elapsed.checked_sub(start).ok_or(LeaseError::ClockReversed))
+            .transpose()
+    }
+    pub fn check(&self, elapsed: Duration) -> Result<(), LeaseError> {
+        match self.command_age(elapsed)? {
+            Some(age) => lease(age).map_err(|_| LeaseError::CommandsExpired),
+            None => lease(elapsed).map_err(|_| LeaseError::ObserverExpired),
+        }
+    }
+    pub fn admit(&self, elapsed: Duration, action: &Action, dry: bool) -> Result<(), LeaseError> {
+        self.check(elapsed)?;
+        match self.command_age(elapsed)? {
+            None if !dry => Err(LeaseError::PreviewRequired),
+            Some(age) if matches!(action, Action::Join(_)) && age > Duration::from_secs(60) => {
+                Err(LeaseError::JoinAdmissionExpired)
+            }
+            _ => Ok(()),
+        }
+    }
+    /// Call only after all dry-preview argument, context and identity checks pass.
+    pub fn begin_commands(&mut self, elapsed: Duration) -> Result<bool, LeaseError> {
+        self.check(elapsed)?;
+        if self.command_started.is_some() {
+            return Ok(false);
+        }
+        self.command_started = Some(elapsed);
+        Ok(true)
+    }
+}
 pub fn start_session(dir: &std::path::Path, boot: &str) -> Result<(), String> {
     use std::io::Write;
     label(boot)?;
@@ -386,6 +456,108 @@ pub fn reserve(
 
 #[cfg(test)]
 mod tests {
+    use super::{Action, LeaseError, QualificationLease};
+    use std::time::Duration;
+
+    #[test]
+    fn observer_expires_without_starting_command_authority() {
+        let mut clock = QualificationLease::default();
+        assert_eq!(clock.phase(), "observing");
+        assert!(clock.check(Duration::from_millis(179999)).is_ok());
+        assert_eq!(
+            clock.begin_commands(Duration::from_secs(180)),
+            Err(LeaseError::ObserverExpired)
+        );
+        assert_eq!(clock.phase(), "observing");
+    }
+    #[test]
+    fn delayed_readiness_leaves_a_full_bounded_command_phase() {
+        let mut clock = QualificationLease::default();
+        assert_eq!(clock.begin_commands(Duration::from_secs(120)), Ok(true));
+        assert_eq!(clock.phase(), "commands");
+        assert!(clock.check(Duration::from_secs(200)).is_ok());
+        assert_eq!(
+            clock.command_age(Duration::from_secs(200)),
+            Ok(Some(Duration::from_secs(80)))
+        );
+        assert_eq!(
+            clock.check(Duration::from_secs(300)),
+            Err(LeaseError::CommandsExpired)
+        );
+    }
+    #[test]
+    fn later_previews_never_reset_first_command_lease() {
+        let mut clock = QualificationLease::default();
+        clock.begin_commands(Duration::from_secs(120)).unwrap();
+        assert_eq!(clock.begin_commands(Duration::from_secs(150)), Ok(false));
+        assert_eq!(
+            clock.command_age(Duration::from_secs(150)),
+            Ok(Some(Duration::from_secs(30)))
+        );
+        assert_eq!(
+            clock.begin_commands(Duration::from_secs(300)),
+            Err(LeaseError::CommandsExpired)
+        );
+    }
+    #[test]
+    fn real_admission_requires_preview_and_dry_check_does_not_arm() {
+        let clock = QualificationLease::default();
+        let join = Action::Join("fixture".into());
+        assert!(clock.admit(Duration::ZERO, &join, true).is_ok());
+        assert_eq!(
+            clock.admit(Duration::ZERO, &join, false),
+            Err(LeaseError::PreviewRequired)
+        );
+        assert_eq!(clock.phase(), "observing");
+    }
+    #[test]
+    fn join_window_is_measured_from_first_preview_and_cannot_be_renewed() {
+        let mut clock = QualificationLease::default();
+        let join = Action::Join("fixture".into());
+        clock.begin_commands(Duration::from_secs(120)).unwrap();
+        assert!(clock.admit(Duration::from_secs(180), &join, false).is_ok());
+        assert_eq!(
+            clock.admit(
+                Duration::from_secs(180) + Duration::from_nanos(1),
+                &join,
+                false
+            ),
+            Err(LeaseError::JoinAdmissionExpired)
+        );
+        assert_eq!(
+            clock.admit(Duration::from_secs(181), &join, true),
+            Err(LeaseError::JoinAdmissionExpired)
+        );
+    }
+    #[test]
+    fn owned_cleanup_actions_keep_command_budget_after_join_window_closes() {
+        let mut clock = QualificationLease::default();
+        clock.begin_commands(Duration::from_secs(120)).unwrap();
+        for action in [Action::Leave, Action::Cancel("retained".into())] {
+            assert!(
+                clock
+                    .admit(Duration::from_secs(200), &action, false)
+                    .is_ok()
+            );
+            assert_eq!(
+                clock.admit(Duration::from_secs(300), &action, false),
+                Err(LeaseError::CommandsExpired)
+            );
+        }
+    }
+    #[test]
+    fn a_reversed_elapsed_clock_never_reopens_authority() {
+        let mut clock = QualificationLease::default();
+        clock.begin_commands(Duration::from_secs(120)).unwrap();
+        assert_eq!(
+            clock.check(Duration::from_secs(119)),
+            Err(LeaseError::ClockReversed)
+        );
+        assert_eq!(
+            clock.begin_commands(Duration::from_secs(119)),
+            Err(LeaseError::ClockReversed)
+        );
+    }
     #[test]
     fn reader_consumption_stays_bounded_when_input_exceeds_metadata_claim() {
         let mut reader = std::io::Cursor::new(vec![b'x'; 16384]);
