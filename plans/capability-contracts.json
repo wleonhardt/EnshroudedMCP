@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.1 is not deployed; native correspondence remains separate",
+  "status": "all53 source contracts indexed:39 server and14 companion; feature-branch server0.50.2 is not deployed; native correspondence remains separate",
   "profiles": {
     "product": {
-      "server_version": "0.50.1",
+      "server_version": "0.50.2",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -251,7 +251,7 @@
     {
       "scope": "server",
       "name": "entity_buffs_read",
-      "description": "Read active buffs for one session-only server entity on the game thread. At most 64 output rows, default 32; SDK first retrieves the full entity list. Read errors remain errors, not empty/healthy. Preserve type and buff-entity IDs, SDK slot/optional level and exact game-time duration nanoseconds as strings. SDK maps negative durations to zero and zero levels to null. No type-name lookup, complete physical effects, resting/safety, rendered-UI or mutation claim.",
+      "description": "Read active buffs for one session-only server entity on the game thread. Requires active MCP world lifecycle at admission and execution with unchanged epoch. At most 64 output rows, default 32; SDK first retrieves the full entity list. Read errors remain errors, not empty/healthy. Preserve type and buff-entity IDs, SDK slot/optional level and exact game-time duration nanoseconds as strings. SDK maps negative durations to zero and zero levels to null. No type-name lookup, complete physical effects, resting/safety, rendered-UI or mutation claim.",
       "input_schema": {
         "additionalProperties": false,
         "properties": {
@@ -276,23 +276,25 @@
       ],
       "dispatch_source": "crates/mcp/src/tools.rs",
       "thread": "server game-thread scheduler (including delegated controllers)",
-      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "admission": "Strict named nonzero server-session entity and bounded limit; active MCP lifecycle at admission and queued execution with unchanged epoch; read only",
       "evidence_summary": "Native read-error/refusals and later positive holder observation; countdown, effect and UI agreement open.",
       "evidence_references": [
-        "plans/decisions/0052-observe-server-active-buffs.md"
+        "plans/decisions/0052-observe-server-active-buffs.md",
+        "plans/decisions/0143-buff-read-lifecycle-guard.md"
       ],
-      "source_checks": "workspace baseline passed; no per-tool coverage completeness claim",
+      "source_checks": "Full workspace checks plus actual dispatcher SDK-fake unchanged/reload/shutdown queued scenarios and pre-admission shutdown; typed buff data remains independently available. Existing projection cases preserve errors, empty values, truncation and duration/level semantics.",
       "native_acceptance": "partial; see evidence_summary",
       "rendered_acceptance": "not established by this inventory",
       "persistence_acceptance": "not established by this inventory",
-      "freshness_completeness": "Per-response truncation, unavailable/stale and scope fields govern; no cross-page atomicity, exhaustive discovery or current-state inference from events/receipts.",
+      "freshness_completeness": "Refuse inactive or changed queued MCP lifecycle; epoch is not a native session identifier. Caller must reacquire server entity IDs after reload; an already stale ID supplied after admission cannot be detected by this gate. No effect, safety or UI authority.",
       "next_missing_check": "Observe one bounded countdown with independent value/time evidence.",
-      "refusal_acceptance": "Partial native refusal evidence is referenced in evidence_summary; exhaustive refusal coverage not established.",
+      "refusal_acceptance": "Source pre-admission shutdown and queued reload/shutdown refuse with retained SDK buff data. Historical partial native refusals retain original applicability; native event timing remains unverified.",
       "independent_effect_acceptance": "Not established by this inventory; historical evidence must be reconciled.",
       "admission_sources": [
         "crates/policy/src/mcp.rs",
         "crates/policy/src/args.rs",
-        "crates/policy/src/buff_read.rs"
+        "crates/policy/src/buff_read.rs",
+        "crates/policy/src/construction.rs"
       ],
       "observation_side_effects": "No gameplay write or durable execution identity from observation; output scope and source-specific caches still apply.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",

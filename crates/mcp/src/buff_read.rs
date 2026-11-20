@@ -8,7 +8,7 @@ use serde_json::{Value, json};
 pub(crate) fn tool() -> policy::mcp::Tool {
     policy::mcp::Tool {
         name: "entity_buffs_read",
-        description: "Read active buffs for one session-only server entity on the game thread. At most 64 output rows, default 32; SDK first retrieves the full entity list. Read errors remain errors, not empty/healthy. Preserve type and buff-entity IDs, SDK slot/optional level and exact game-time duration nanoseconds as strings. SDK maps negative durations to zero and zero levels to null. No type-name lookup, complete physical effects, resting/safety, rendered-UI or mutation claim.",
+        description: "Read active buffs for one session-only server entity on the game thread. Requires active MCP world lifecycle at admission and execution with unchanged epoch. At most 64 output rows, default 32; SDK first retrieves the full entity list. Read errors remain errors, not empty/healthy. Preserve type and buff-entity IDs, SDK slot/optional level and exact game-time duration nanoseconds as strings. SDK maps negative durations to zero and zero levels to null. No type-name lookup, complete physical effects, resting/safety, rendered-UI or mutation claim.",
         schema: policy::buff_read::schema(),
     }
 }
@@ -161,5 +161,128 @@ mod tests {
         ] {
             assert_eq!(value[key], false);
         }
+    }
+}
+
+#[cfg(test)]
+mod lifecycle_tests {
+    use crate::tools::GameTools;
+    use enshwick::{
+        Entity, Load, Mod, Off,
+        abi::{BuffTypeInfo, Header, Status},
+        buffs::{Apply, BuffTypeId, Buffs},
+        schedule::Scheduler,
+    };
+    use policy::mcp::Tools;
+    use serde_json::json;
+    use std::{
+        sync::{Arc, Mutex},
+        thread,
+        time::{Duration, Instant},
+    };
+    static CONTEXT: Mutex<Option<(Arc<GameTools>, Buffs, Scheduler)>> = Mutex::new(None);
+    struct Reader;
+    impl Mod for Reader {
+        fn init(load: &mut Load<'_>) -> Result<Self, Off> {
+            *CONTEXT.lock().unwrap() = Some((
+                Arc::new(crate::Mcp::init(load)?.tools),
+                load.buffs(),
+                load.scheduler()?,
+            ));
+            Ok(Self)
+        }
+    }
+    enshwick::test::declare_mod!(Reader, "id = \"test.buff-lifecycle\"\nside = \"server\"");
+    fn start() -> (enshwick::test::Installed, Arc<GameTools>, Buffs, Scheduler) {
+        let loader = enshwick::test::FakeHost::new().world().install();
+        // SAFETY: generated exports belong to this isolated fake-only reader.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            Status::OK
+        );
+        assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0);
+        let (tools, buffs, scheduler) = CONTEXT.lock().unwrap().as_ref().unwrap().clone();
+        loader.set_buffs(
+            &[BuffTypeInfo {
+                header: Header::of::<BuffTypeInfo>(),
+                id: BuffTypeId(1),
+                slot: BuffTypeInfo::BUFF,
+                flags: 0,
+                name: 0,
+                duration_ns: 100_000_000_000,
+            }],
+            &[Entity(17)],
+        );
+        buffs
+            .apply(Entity(17), BuffTypeId(1), Apply::new().level(3))
+            .unwrap();
+        (loader, tools, buffs, scheduler)
+    }
+    #[test]
+    fn queued_buff_reads_refuse_changed_lifecycle_with_retained_data() {
+        for phase in ["unchanged", "reload", "shutdown"] {
+            let (loader, tools, buffs, scheduler) = start();
+            let _ = loader.tick(Duration::from_millis(1));
+            assert_eq!(format!("{scheduler:?}"), "Scheduler { pending: false }");
+            let worker = thread::spawn(move || {
+                tools.call(
+                    "entity_buffs_read",
+                    json!({"entity":17}).as_object().unwrap(),
+                )
+            });
+            // Pinned SDK Debug observes queueing only, not execution or liveness.
+            // This fixture has no competing scheduler tasks.
+            let until = Instant::now() + Duration::from_secs(2);
+            while format!("{scheduler:?}") != "Scheduler { pending: true }" {
+                assert!(!worker.is_finished(), "{phase}: read did not queue");
+                assert!(Instant::now() < until, "{phase}: queue barrier not reached");
+                thread::yield_now();
+            }
+            match phase {
+                "reload" => assert!(loader.raise::<enshwick::events::WorldLoaded>(&()) > 0),
+                "shutdown" => assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0),
+                _ => {}
+            }
+            let retained = buffs.of(Entity(17)).unwrap();
+            assert_eq!(retained.len(), 1);
+            assert_eq!(retained[0].level, Some(3));
+            let until = Instant::now() + Duration::from_secs(2);
+            while !worker.is_finished() && Instant::now() < until {
+                let _ = loader.tick(Duration::from_millis(1));
+                thread::yield_now();
+            }
+            let result = worker.join().unwrap();
+            if phase == "unchanged" {
+                let value = result.unwrap();
+                assert_eq!(value["entity"], 17);
+                assert_eq!(value["buffs"][0]["level"], 3);
+            } else {
+                let error =
+                    result.expect_err("queued changed-context buff read returned an observation");
+                assert!(
+                    error.contains(if phase == "reload" {
+                        "session"
+                    } else {
+                        "active"
+                    }),
+                    "{phase}: {error}"
+                );
+            }
+        }
+    }
+    #[test]
+    fn shutdown_before_buff_admission_refuses_retained_entity_data() {
+        let (loader, tools, buffs, _) = start();
+        assert!(loader.raise::<enshwick::events::ShutdownStarted>(&()) > 0);
+        assert_eq!(buffs.of(Entity(17)).unwrap().len(), 1);
+        assert!(
+            tools
+                .call(
+                    "entity_buffs_read",
+                    json!({"entity":17}).as_object().unwrap()
+                )
+                .unwrap_err()
+                .contains("active")
+        );
     }
 }

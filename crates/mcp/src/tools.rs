@@ -368,7 +368,14 @@ impl Tools for GameTools {
             }
             "entity_buffs_read" => {
                 let (entity, limit) = policy::buff_read::check(a)?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     let mut result = crate::buff_read::read(buffs, entity, limit)?;
                     result["world_key"] = json!(world.key());
                     Ok(result)

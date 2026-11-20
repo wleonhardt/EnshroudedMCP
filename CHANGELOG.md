@@ -1,5 +1,9 @@
 # Changelog
 
+## Server 0.50.2 (source feature branch; not deployed)
+
+- Refuse entity_buffs_read while the MCP world lifecycle is inactive or changes before queued execution. An independently failing dispatcher regression retains buff data across the event. Preserve all existing buff projection and error semantics; caller must still reacquire session-only IDs after reload.
+
 ## Server 0.50.1 (source feature branch; not deployed)
 
 - Refuse player_waypoint requests admitted during shutdown or crossing an MCP world lifecycle epoch before queued execution. Keep fresh roster selection, nullable coordinates and SDK errors; no native session identity or movement authority. Two source regressions cover retained waypoint data at admission and after queueing.
