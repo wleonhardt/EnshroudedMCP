@@ -206,3 +206,9 @@ Pop-Location
 ```
 
 The replay can reuse a dependency artifact cache while Cargo rebuilds its distinct workspace packages; compiler-artifact package identities and metadata are checked independently. The exact checked sources and DLLs are private qualification artifacts, not an installed provider. Official matching development providers lack detached signatures and need the project's fresh signed-provider exception review before any temporary native test. Six rollback files are verified; no installation or test approval is implied by source checks.
+
+## Native SDK 12.16 Join outcome
+
+One approved source0.51.3/companion0.22.0 cohort submitted one native Join after fresh Menu and provider checks. Status reached Applied/Menu, then Failed(TimedOut)/Menu at approximately20 seconds. No session was qualified; outer workflow stayed unknown and neither Leave nor Cancel was submitted. Native timeout is not independent cancellation proof. Both owned processes exited normally with independently observed exit0, and six signed originals were restored. The approval is consumed; no replay is authorized.
+
+The user reports that character selection is automatic on the first main-menu page. Manual selection is not an established missing step or failure cause. Generic native Menu does not identify the rendered page. See [decision0184](../../plans/decisions/0184-native-join-menu-timeout.md) for the exact evidence limits and next discriminator. The current0.51.4 migration, saved credentials, successful Join/Leave, pending cancellation and provider adoption retain separate acceptance requirements.

@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Decision0184 records one native SDK12.16/source0.51.3 Join reaching Applied/Menu then Failed(TimedOut)/Menu. Outer execution remains unknown, with no qualified connection, Leave or Cancel. Original signed restoration and independent normal exits pass. The user reports automatic character selection; the failure cause remains unknown. This is neither current-source0.51.4 native acceptance nor a saved-profile solution.
+
 Decision0181 qualifies a separate inactive current-source 0.51.4/0.22.0 SDK 12.16 migration at an exact base: 29-file patch, 393 identical reconstructed source files/tree, 491 Rust/131 Python and optional 14 debug/optimized cases per candidate/replay. Default product remains SDK 12.1. Installed/native histories and prepared client candidates retain their original scope; current-candidate native behavior remains unverified.
 
 Decision0179 qualifies a separate current server 0.51.4/companion 0.22.0 fixture with unchanged signed SDK 12.1 providers and public mod directories: exact native header/modules, 46 fixed checks and one native shutdown with independently observed exit 0 pass. The validation verdict remains incomplete for broader semantics. Primary 0.48.0 and the closed client remain unchanged; native reply-loss timing, client lifecycle and final-save causality are unverified.

@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **Native Join reached Menu timeout; cause unknown** Decision0184 reconciles one SDK12.16/source0.51.3 submission: Pending/Queued, Applied/Menu, then Failed(TimedOut)/Menu at about20 seconds. Outer workflow remains unknown, no connected session is qualified and no Leave/Cancel is submitted. Normal client/server exit0, exact signed restoration and later original preservation/free ports pass. Character auto-selection is a human observation, not a timeout cause. Approval consumed; next use a concrete supported-API discriminator rather than replay. Successful connection, saved profiles and #1144 resolution remain unverified.
+
 - **Current 0.51.4 SDK 12.16 replay qualified; native scope remains separate** Decision0181 supplies a new exact-base passive patch/descriptor while retaining the old migration. Candidate and clean replay each pass 491 Rust/131 Python plus optional 14 debug/optimized and strict checks. All 393 files/tree match; policies and production receiver/write routes are preserved. No install or native operation occurs. Keep the already prepared native cohort immutable; latest-source provider/connection and interruption acceptance still require their own concrete qualification.
 
 - **Terrain JSON consumption bounded** Decision0180 fixes growing input files bypassing the standalone viewer's metadata-only budget. Capture, pin and plan inputs consume at most 2 MiB plus one sentinel byte and refuse overflow before decoding/output/RPC creation. Real growth, instrumented consumption and exact-budget acceptance are tested; an unbounded-read mutation with the post-read check intact fails. Native modules and frozen connection qualification remain unchanged.
