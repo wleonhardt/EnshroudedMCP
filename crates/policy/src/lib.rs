@@ -25,6 +25,7 @@ pub mod knowledge;
 pub mod knowledge_read;
 pub mod mcp;
 pub mod pacification;
+pub mod player_buffs;
 pub mod player_shroud;
 pub mod player_waypoint;
 pub mod presentation;

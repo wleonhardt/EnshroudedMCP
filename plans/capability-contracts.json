@@ -1,9 +1,9 @@
 {
   "date": "2026-11-20",
-  "status": "all53 source contracts indexed:39 server and14 companion; isolated0.50.6 cold server read/refusal/recovery/exit cohort verified; primary adoption and positive player/client correspondence remain separate",
+  "status": "all54 source contracts indexed:40 server and14 companion; player_buffs_read is source-qualified only; prior isolated0.50.6 native evidence does not qualify the new tool",
   "profiles": {
     "product": {
-      "server_version": "0.50.6",
+      "server_version": "0.51.0",
       "client_version": "0.22.0",
       "sdk_revision": "6a151a9550ed7a6ade99c23fa817a91e25b71bc9",
       "abi": "12.1",
@@ -189,7 +189,7 @@
     }
   },
   "counts": {
-    "server": 39,
+    "server": 40,
     "client": 14
   },
   "tools": [
@@ -4295,6 +4295,55 @@
       "observation_side_effects": "Two published server getters after current lifecycle/roster admission; no commands or journal append.",
       "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
       "evidence_applicability": "Feature-branch source server0.50.0 on existing SDK12.1; main and installed runtime remain unchanged."
+    },
+    {
+      "scope": "server",
+      "name": "player_buffs_read",
+      "description": "READ: active buffs for one current SDK server-player character, selected by exact case-insensitive name or account key. Requires active MCP lifecycle at admission and execution with unchanged epoch; re-resolves the roster on the game thread. At most 64 output rows, default 32; SDK first retrieves the full entity list. Preserve SDK slot, optional level and exact game-time duration nanoseconds as strings. Read errors remain errors, not empty/healthy. No current-client mapping, complete effects, actor safety, rendered UI or mutation authority.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "player": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 64
+          }
+        },
+        "required": [
+          "player"
+        ]
+      },
+      "source_definitions": [
+        "crates/mcp/src/player_buffs.rs"
+      ],
+      "dispatch_source": "crates/mcp/src/tools.rs",
+      "thread": "server game-thread scheduler (including delegated controllers)",
+      "admission": "Strict named arguments plus tool-specific policy checks; read/planning only; no write authorization",
+      "evidence_summary": "Source tests cover current roster selection, bounded buff projection, error versus empty and lifecycle refusal with retained SDK state.",
+      "evidence_references": [
+        "plans/decisions/0152-current-player-buff-read.md"
+      ],
+      "source_checks": "Strict policy admission and scheduled SDK-fake behavior tests cover roster selection, bounds, unavailable versus empty, fresh changed data and retained-state lifecycle refusal.",
+      "native_acceptance": "Not exercised live. Earlier0.50.5/0.50.6 native cohorts do not include this new tool.",
+      "rendered_acceptance": "No rendered buff-panel, complete-effect or actor-safety correspondence.",
+      "persistence_acceptance": "No persistence or durable selector; server character IDs expire with their session.",
+      "freshness_completeness": "Active MCP lifecycle required at admission and queued execution; epoch changes refuse. Re-resolves SDK roster and fields per call; world key is identity metadata, not liveness proof. Native world_session remains unavailable.",
+      "next_missing_check": "Matched native current-player buff/error correspondence; no client, effects or safety acceptance.",
+      "refusal_acceptance": "Source strict arguments, missing/ambiguous selectors, zero native entity and pre-admission/queued lifecycle refusals; native timing matrix unverified.",
+      "independent_effect_acceptance": "No buff application/removal, actor input, movement, journal append or gameplay mutation.",
+      "admission_sources": [
+        "crates/policy/src/player_buffs.rs",
+        "crates/policy/src/buff_read.rs"
+      ],
+      "observation_side_effects": "Published server roster, active-buff and world-key getters on the game thread; SDK retrieves full entity list before bounded output.",
+      "effect_kind": "bounded observation/metadata; no gameplay mutation authority",
+      "evidence_applicability": "Feature-branch source server0.51.0 on existing SDK12.1; no installation or native action in this iteration."
     }
   ]
 }

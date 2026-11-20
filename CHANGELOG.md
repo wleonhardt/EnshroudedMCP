@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.51.0
+
+- Add read-only `player_buffs_read`, selecting a current server player by exact name/account with strict bounded output and admission/execution lifecycle guards. Preserve existing entity buff projection and error semantics. Source tests only; new native acceptance remains open.
+
+
 ## Server 0.50.6 (isolated cold cohort; primary unchanged)
 
 - Qualification: one-DLL cold update passes44 fixed and11 targeted native read/recovery checks, then one accepted shutdown/independent exit0 with exact old journal/intent preservation. Positive player/UI, native in-flight timing and final-save causality remain open.

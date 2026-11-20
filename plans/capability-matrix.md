@@ -2,13 +2,13 @@
 
 ## Current product checkpoint
 
-Feature branch adds source server0.50.6 player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and the primary installation remain unchanged. Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
+Feature branch adds source server0.51.0 player_buffs_read and player_shroud alongside existing waypoint and diagnostic controls; main0.48.0 and the primary installation remain unchanged. Separate same-SDK0.50.5 initial and0.50.6 cold cohorts pass bounded native reads/refusals and shutdown/exit0; the cold cohort additionally checks prior-boot unavailability and exact journal preservation; positive player and client UI correspondence remains open. See [initial native cohort](decisions/0149-isolated-empty-world-native-cohort.md) and [cold native cohort](decisions/0151-isolated-cold-native-cohort.md).
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 
 | Component | Source version | Installed version |
 |---|---|---|
-| Server | `0.50.6` | `0.48.0` |
+| Server | `0.51.0` | `0.48.0` |
 | Companion | `0.22.0` | `0.21.1` |
 
 | Product profile field | Value |
@@ -230,3 +230,5 @@ Run `python -B scripts/check_contracts.py` for index, table, references and sour
 ## Isolated SDK 12.8 native checkpoint — 2026-11-16
 
 [Decision 0068](decisions/0068-isolated-native-sdk128-metadata.md) qualifies one prop/template mapping against two other API observations, finite declared corners without physical semantics, invalid-zero refusal, all 38 fixed server probes and one gated shutdown with independent exit 0. The exact four loaded DLLs and loopback listeners are verified. Primary twelve hashes, 88 ledger files and original setting are preserved at experiment completion; 23 copied runtime assets remain byte-identical. No client, full world baseline, cold restore, causal-save or general provider/adoption claim follows. Active product contracts remain unchanged.
+
+| server / `player_buffs_read` | server game-thread scheduler (including delegated controllers) | Source tests cover current roster selection, bounded buff projection, error versus empty and lifecycle refusal with retained SDK state. Next: Matched native current-player buff/error correspondence; no client, effects or safety acceptance. |
