@@ -2,6 +2,8 @@
 
 ## Unreleased (phase clearance and regression coverage)
 
+- Client probe refuses a cached input-status reply that omits `age_ms`; explicit null remains a valid unknown age. This prevents malformed replies from being normalized into valid diagnostic evidence. Native getter acceptance remains pending.
+
 - Source companion0.22.0 adds read-only client_input_status for published cached sampler flags/age. Preserve weak consistency, typed unavailability and false UI/execution claims; no sampling request, new SDK or installed change. Native qualification pending.
 
 - Reject client-probe UI freshness flags that contradict the existing age rule. Preserve genuine historical observations; no runtime threshold, native input or provider change.

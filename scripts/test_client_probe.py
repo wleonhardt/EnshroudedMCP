@@ -260,6 +260,13 @@ class ClientProbeTests(unittest.TestCase):
             self.assertFalse(report["current_ui_verified"])
             self.assertFalse(report["commands_submitted"])
 
+    def test_cached_input_status_requires_explicit_nullable_age(self):
+        value=json.loads(Fixture().call("tools/call", {"name":"client_input_status","arguments":{}})["content"][0]["text"])
+        value["age_ms"] = None
+        self.assertIsNone(input_status(value)["age_ms"])
+        del value["age_ms"]
+        with self.assertRaises(ValueError):input_status(value)
+
     def test_cached_input_status_rejects_malformed_flags_age_and_proof_claims(self):
         value=json.loads(Fixture().call("tools/call", {"name":"client_input_status","arguments":{}})["content"][0]["text"])
         for key,bad in [("requested",1),("fresh",None),("age_ms",True),("age_ms",-1),("age_ms",1.5),

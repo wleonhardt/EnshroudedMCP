@@ -2,6 +2,8 @@
 
 ## Queue
 
+- **source verification; explicit cached diagnostic age** The client probe now requires the age_ms field while preserving explicit null as unknown. A malformed missing-field reproduction fails before the fix and passes afterward. One behavior regression is added; matched native getter acceptance remains pending.
+
 - **source verified; cached client sampler diagnostic** Decision0127 adds source companion0.22.0 client_input_status on unchanged SDK12.1. Empty schema, game-free bounded projection, raw weak flags/nullable age, typed errors and no command/UI authority. New catalog37/14; installed0.21.1 and archived review0123 remain separate. Five Rust/two Python cases added;414 Rust/104 Python and required source checks pass. Matched cold/native getter acceptance remains required. No deployment, sampling request, input or lifecycle retry.
 
 - **verified; client probe freshness consistency** Decision0126 rejects contradictory UI age/stale flags under existing1000ms companion rule. Nineteen client-probe methods pass; product409/102 stays separate. Two real stale replies replay as historical and reject flipped fresh flags. Current client metadata contract, three module hashes and actual12.11/table1744 header are observed, but copied Menu is stale and native snapshot Never. Fresh-Menu acceptance refuses; thirteen archive/read probes remain unrun. No game input, process/file replacement or lifecycle retry. Next inspect supported cached sampler/runtime diagnostics; review0123 and existing approval question remain frozen.

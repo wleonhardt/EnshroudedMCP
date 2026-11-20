@@ -82,7 +82,7 @@ def command_inventory(value):
 def input_status(value):
     keys = ("requested", "layout_available", "link_available", "read_enabled", "sample_present", "fresh")
     age = value.get("age_ms")
-    require(value.get("source") == "published_cached_local_input_status" and
+    require("age_ms" in value and value.get("source") == "published_cached_local_input_status" and
             all(type(value.get(key)) is bool for key in keys) and
             (age is None or integer(age) and age <= 0xFFFFFFFFFFFFFFFF) and
             value.get("weakly_consistent") is True and
