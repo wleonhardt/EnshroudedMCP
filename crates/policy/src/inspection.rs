@@ -9,6 +9,18 @@ use crate::{args, bounds};
 pub const HEALTH_RADIUS: f64 = 16.0;
 pub const PROP_LIMIT: usize = 500;
 
+/// Preserve observed rows without promoting a configured catalogue to complete reflection.
+pub fn component_observations(total: usize, known_types: usize, entities: Vec<Value>) -> Value {
+    json!({
+        "total": total,
+        "known_types": known_types,
+        "entities": entities,
+        "component_inventory_source": "resolved_configured_names",
+        "complete_component_inventory_verified": false,
+        "component_absence_verified": false
+    })
+}
+
 pub fn unique_player<T>(mut matches: impl Iterator<Item = T>) -> Result<T, String> {
     let player = matches
         .next()
@@ -315,6 +327,22 @@ mod tests {
             json!({"x":1,"y":1,"z":1,"limit":21}),
         ] {
             assert!(health(&obj(v)).is_err());
+        }
+    }
+
+    #[test]
+    fn component_catalogue_rows_never_prove_completeness_or_absence() {
+        for rows in [vec![], vec![json!({"entity":17,"components":["UsedItem"]})]] {
+            let value = component_observations(3, 1, rows.clone());
+            assert_eq!(value["total"], 3);
+            assert_eq!(value["known_types"], 1);
+            assert_eq!(value["entities"], json!(rows));
+            assert_eq!(
+                value["component_inventory_source"],
+                "resolved_configured_names"
+            );
+            assert_eq!(value["complete_component_inventory_verified"], false);
+            assert_eq!(value["component_absence_verified"], false);
         }
     }
 

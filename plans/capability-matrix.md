@@ -2,13 +2,13 @@
 
 ## Current product checkpoint
 
-Feature branch adds source server0.49.0 player_waypoint; main0.48.0 and native runtime remain unchanged.
+Feature branch adds source server0.49.1 player_waypoint; main0.48.0 and native runtime remain unchanged.
 
 This is the operational product-version checkpoint. The tables below are checked against [machine-readable contracts](capability-contracts.json); source versions, SDK revision and compiler are also checked against Cargo/toolchain files. Installed versions describe the last independently verified installation, not an offline discovery. ABI here is the declared product profile, not an independently derived SDK ABI or provider-fidelity proof.
 
 | Component | Source version | Installed version |
 |---|---|---|
-| Server | `0.49.0` | `0.48.0` |
+| Server | `0.49.1` | `0.48.0` |
 | Companion | `0.22.0` | `0.21.1` |
 
 | Product profile field | Value |
@@ -163,7 +163,7 @@ Each row links its full schema and limits through the JSON by exact tool name. T
 | server / `voxel_sample` | server game-thread scheduler (including delegated controllers) | One raw grid cell; preserve material and fill without an invented density/mesh equation. Next: Resolve fill-to-visible-surface semantics with a new independent discriminator. |
 | server / `props_in` | server game-thread scheduler (including delegated controllers) | Bounded spatial output with item/template and label presence; no complete held-state or ownership read. Next: Qualify a known functional prop and exact ownership/state correspondence before recovery use. |
 | server / `entities_near` | server game-thread scheduler (including delegated controllers) | Bounded returned rows over SDK discovery; namespaces and missing component/item/template values stay explicit. Next: Correlate a known included/excluded entity and output truncation without claiming exhaustive search cost. |
-| server / `entity_components` | server game-thread scheduler (including delegated controllers) | Lists only configured/resolved reflected component types on bounded supplied session entities. Next: Check one known reflected component and a deliberately unresolved type with independent source evidence. |
+| server / `entity_components` | server game-thread scheduler (including delegated controllers) | Lists only configured/resolved reflected component types on bounded supplied session entities. Explicit metadata denies complete inventory and component-absence proof. Next: Check one known reflected component and a deliberately unresolved type with independent source evidence. |
 | server / `give_item` | server game-thread scheduler (including delegated controllers) | Caller-identified administrative grant, dry default, exact actor/item/session preview; no native undo. Next: One disposable deliberate grant: full eligible inventory baseline, same-ID reconciliation and exact independent readback. |
 | server / `knowledge_search` | listener; pure planning/search; no World access | Pure search of build-time embedded claims; applicability and uncertainty do not authorize writes. Next: Validate one retrieved claim against its independently observed build/configuration before using it as a mechanic. |
 | server / `recipe_plan` | listener; pure planning/search; no World access | Synthetic multi-output arithmetic qualified; actual coproduct/cost semantics open. Next: Verify one game recipe dependency chain with eligible stock. |

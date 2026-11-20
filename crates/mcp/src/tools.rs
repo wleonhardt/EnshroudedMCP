@@ -234,7 +234,7 @@ impl GameTools {
             },
             Tool {
                 name: "entity_components",
-                description: "Every reflected ECS component of the placed entities within radius m (default 3, at most 16) of a point, nearest first, by the game's type names (keen::ecs::...). Each: entity (this session only), position, distance, template GUID, components. At most `limit` entities (default 10, at most 20).",
+                description: "Configured and resolved ECS component names observed on placed entities within radius m (default 3, at most 16), nearest first. This is a subset catalogue, not a complete component inventory or proof of absence. known_types counts resolved configured entries. Each: entity (this session only), position, distance, template GUID, components. At most `limit` entities (default 10, at most 20).",
                 schema: describe,
             },
             Tool {
@@ -858,7 +858,11 @@ impl Tools for GameTools {
                             })
                         })
                         .collect();
-                    json!({"total": found.len(), "known_types": components.len(), "entities": described})
+                    policy::inspection::component_observations(
+                        found.len(),
+                        components.len(),
+                        described,
+                    )
                 })
             }
             "give_item" => self
@@ -1098,5 +1102,80 @@ mod tests {
                     .is_err()
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod component_coverage_tests {
+    use super::*;
+    use enshwick::content::EngineFacts;
+    use enshwick::test::facts;
+    use enshwick::{Entity, Load, Mod, Off};
+    use std::{sync::Mutex, thread, time::Instant};
+
+    static TOOLS: Mutex<Option<Arc<GameTools>>> = Mutex::new(None);
+    struct Reader;
+    impl Mod for Reader {
+        fn init(load: &mut Load<'_>) -> Result<Self, Off> {
+            let mut tools = crate::Mcp::init(load)?.tools;
+            tools.components = Arc::new(vec![(
+                "keen::ecs::CurrentTransform".into(),
+                load.world()?.transform_type(),
+            )]);
+            *TOOLS.lock().unwrap() = Some(Arc::new(tools));
+            Ok(Self)
+        }
+    }
+    enshwick::test::declare_mod!(
+        Reader,
+        "id = \"test.component-coverage\"\nside = \"server\""
+    );
+
+    #[test]
+    fn subset_catalogue_omits_a_present_component_without_claiming_completeness_or_absence() {
+        let fake = enshwick::test::FakeHost::new().world();
+        let transform = fake.hash(facts::CURRENT_TRANSFORM.id()).unwrap();
+        let used = fake.hash(facts::USED_ITEM.id()).unwrap();
+        let loader = fake
+            .placed(transform, Entity(17), [100., 100., 100.])
+            .component(Entity(17), used, &41u32.to_le_bytes())
+            .install();
+        // SAFETY: these generated exports belong to the fake-only reader.
+        assert_eq!(
+            unsafe { loader.start(enshwick_mod_query, enshwick_mod_init, enshwick_mod_ready) },
+            enshwick::abi::Status::OK
+        );
+        let tools = TOOLS.lock().unwrap().as_ref().unwrap().clone();
+        let world = tools.game.world;
+        assert_eq!(world.used_item(Entity(17)).map(|item| item.0), Some(41));
+        let request = thread::spawn(move || {
+            tools.call(
+                "entity_components",
+                json!({"x":100,"y":100,"z":100,"radius":1})
+                    .as_object()
+                    .unwrap(),
+            )
+        });
+        let until = Instant::now() + Duration::from_secs(2);
+        while !request.is_finished() && Instant::now() < until {
+            let _ = loader.tick(Duration::from_millis(1));
+            thread::sleep(Duration::from_millis(1));
+        }
+        let value = request.join().unwrap().unwrap();
+        assert_eq!(value["known_types"], 1);
+        assert_eq!(value["entities"].as_array().unwrap().len(), 1);
+        assert!(
+            !value["entities"][0]["components"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|name| name == "UsedItem")
+        );
+        assert_eq!(
+            value["component_inventory_source"],
+            "resolved_configured_names"
+        );
+        assert_eq!(value["complete_component_inventory_verified"], false);
+        assert_eq!(value["component_absence_verified"], false);
     }
 }

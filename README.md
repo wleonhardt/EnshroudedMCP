@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Feature-branch source server **0.49.0** / companion **0.22.0** adds read-only `player_waypoint` on the existing SDK12.1. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
+Feature-branch source server **0.49.1** / companion **0.22.0** adds read-only `player_waypoint` and explicit configured-catalogue coverage for `entity_components` on the existing SDK12.1. Main remains server0.48.0; neither this server feature nor the companion update is deployed. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for current qualification scope.
 
 Last verified signed checkpoint: Installed server 0.48.0 / companion 0.21.1 retains the signed SDK/ABI 12.1. Empty-server native acceptance verifies 720 pin-column bands, 170,415 independent pixels, five specific image refusals and forty fixed read/refusal probes. Protected geometry and durable namespaces remain exact. Client stays closed; connected-client, engine/contact and broader workflow acceptance remain open. Decision 0099 records the corrected launch-port mistake and exact cold recovery.
 

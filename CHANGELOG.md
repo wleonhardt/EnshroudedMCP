@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.49.1
+
+- Correct `entity_components` coverage claims: results contain configured and resolved names only. New explicit metadata denies complete inventory and component-absence proof.
+
 ## Server 0.49.0 (source feature branch; not deployed)
 
 - Add player_waypoint: one strict current server-player selector, scheduled roster resolution and shared-waypoint read on existing SDK12.1. Preserve absent versus zero and SDK errors; no setter, movement or durable identity.
