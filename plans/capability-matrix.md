@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Consumed198 submitted no Join: initial Menu was observed, but the options-page/watch challenge expired.601 observer samples, normal client/server exit0 and exact signed restoration pass. Decision0199 selects a simpler next experiment using the published native Join from fresh generic Menu, without manual Play navigation. New controller preparation, preflight and signed-provider approval remain required; no new runtime action or connection acceptance is claimed.
+
 Consumed watched191 reached native Menu but sent no Join: the user confirmed options/watch, then the sender lacked owned-client context and refused before attestation.600 probe observations, normal client/server exit0 and exact signed restoration are reconciled. Fresh offline helpers fix context propagation and pass166 models (164 pass, two skips); another native exception and complete connection acceptance remain required.
 
 Source0.51.7 `entity_health` requires active admission and an unchanged execution epoch before SDK spatial/typed/world-key reads. Four dispatcher regressions preserve present, zero and absent values plus limits; native interruption and rendered health remain unverified. Decision0196 records the source proof.
