@@ -1,6 +1,6 @@
 <p align="center"><img src="docs/assets/enshrouded-mcp-banner.svg" alt="Enshrouded MCP — Observe. Plan. Build. Verify." width="1200"></p>
 
-Feature-branch source server **0.51.6** / companion **0.22.0** includes shared-waypoint, player buff/Shroud and diagnostic controls with lifecycle guards on SDK 12.1. Main source remains server 0.48.0; the signed primary installation is server 0.48.0 / companion 0.22.0. Separate owned server cohorts qualify bounded native reads/refusals, diagnostic raster correspondence and independently observed native shutdowns. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for exact cohort scope and remaining acceptance.
+Feature-branch source server **0.51.7** / companion **0.22.0** includes shared-waypoint, player buff/Shroud and diagnostic controls with lifecycle guards on SDK 12.1. Main source remains server 0.48.0; the signed primary installation is server 0.48.0 / companion 0.22.0. Separate owned server cohorts qualify bounded native reads/refusals, diagnostic raster correspondence and independently observed native shutdowns. Use [the checked source/installed checkpoint](plans/capability-matrix.md#current-product-checkpoint) for exact cohort scope and remaining acceptance.
 
 An inactive [SDK 12.16 migration](qualification/sdk-lifecycle/README.md#current-server-0514-source-migration) replays its exact server 0.51.4 source checkpoint; later source0.51.5 weather guards are outside that patch. Candidate and clean replay pass source checks; default SDK 12.1, installed providers and native acceptance remain separate.
 
@@ -50,6 +50,8 @@ A separate signed-provider server0.51.6/companion0.22.0 cohort passes native ABI
 Decision0195 qualifies one native scoped empty props_in result and three extent/world/write-argument refusals on unchanged signed SDK12.1/server0.51.6. All50 fixed probes and40 exact server contracts pass; owned shutdown independently exits0 and originals remain preserved. Positive functional props, metadata/state/ownership, rendered appearance and controlled native interruption remain unverified. See [bounded native prop cohort](plans/decisions/0195-native-bounded-prop-cohort.md).
 
 The standalone fixed validator now executes50 checks, adding a bounded props_in observation and box/world/write-argument refusals. Raw rows stay out of reports; functional state, ownership, rendered behavior and native interruption remain unverified. Historical46-check cohorts retain their original scope. See [bounded prop validation](plans/decisions/0194-bounded-native-prop-validation.md).
+
+Source0.51.7 `entity_health` requires active admission and an unchanged execution epoch before SDK spatial/typed/world-key reads. Four dispatcher regressions preserve present, zero and absent values plus limits; native interruption and rendered health remain unverified. See [health lifecycle guard](plans/decisions/0196-entity-health-lifecycle-guard.md).
 
 Source0.51.6 `props_in` refuses inactive admission and queued reads whose active world epoch changed before execution. Successful bounded output and nullable metadata are unchanged. Four dispatcher regressions pass; native interruption remains unverified. See [props lifecycle guard](plans/decisions/0192-props-lifecycle-guard.md).
 

@@ -807,7 +807,14 @@ impl Tools for GameTools {
                 let (point, radius, limit) = inspection::health(a)?;
                 let health = network_health
                     .ok_or("typed NetworkHealth unavailable or incompatible on this build")?;
+                let lifecycle = self
+                    .construction
+                    .clone()
+                    .ok_or("world lifecycle unavailable")?;
+                let admitted = lifecycle.active_session()?;
                 on_game_thread(scheduler, move || {
+                    let active = lifecycle.active_session()?;
+                    policy::construction::check_session(&admitted, &active)?;
                     let found = world.near(point, radius, world.transform_type());
                     let listed: Vec<Value> = found.iter().take(limit).map(|e| {
                         let mut result = json!({"entity":e.entity.0,"position":e.position,"distance":e.distance(point)});
@@ -818,8 +825,10 @@ impl Tools for GameTools {
                         }
                         result
                     }).collect();
-                    json!({"world_key":world.key(),"component":"keen::ecs::NetworkHealth","scope":"nearest placed entities","total_candidates":found.len(),"truncated":found.len()>limit,"entities":listed})
-                })
+                    Ok(
+                        json!({"world_key":world.key(),"component":"keen::ecs::NetworkHealth","scope":"nearest placed entities","total_candidates":found.len(),"truncated":found.len()>limit,"entities":listed}),
+                    )
+                })?
             }
             "status" => {
                 let hosting = enshwick::host().is_some_and(|h| h.hosting());

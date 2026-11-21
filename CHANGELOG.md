@@ -14,6 +14,10 @@
 
 - Fix live terrain-view capture refusing valid caller pins when player/prop annotations exceed the shared 64-pin limit or reuse a caller label. Preserve caller pins, fill remaining capacity with players then props, and report omitted observations in provenance. No MCP tool, DLL, SDK pin or installed runtime changes.
 
+## 0.51.7
+
+- Refuse entity_health when inactive at admission or after a queued world epoch change, before SDK spatial/typed/world-key reads. Three retained-positive SDK regressions fail before correction; four cases then preserve present/zero/absent values and limits. Native interruption and rendered health remain unverified.
+
 ## 0.51.6
 
 - Refuse props_in after inactive admission or a queued world epoch change before reading SDK props and metadata. Three retained-positive SDK regressions fail before correction; normal spatial output and nullable metadata stay unchanged. Four dispatcher cases pass; native interruption remains unverified.

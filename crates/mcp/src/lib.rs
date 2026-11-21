@@ -10,6 +10,8 @@ mod clock_control;
 mod construction;
 mod factory_station;
 mod give_item;
+#[cfg(test)]
+mod health_lifecycle;
 mod health_recovery;
 mod interaction_target;
 #[cfg(test)]
