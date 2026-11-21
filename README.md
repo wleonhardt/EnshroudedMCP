@@ -51,6 +51,8 @@ Decision0195 qualifies one native scoped empty props_in result and three extent/
 
 The standalone fixed validator now executes50 checks, adding a bounded props_in observation and box/world/write-argument refusals. Raw rows stay out of reports; functional state, ownership, rendered behavior and native interruption remain unverified. Historical46-check cohorts retain their original scope. See [bounded prop validation](plans/decisions/0194-bounded-native-prop-validation.md).
 
+Consumed watched191 reached native Menu but sent no Join: the user confirmed options/watch, then the sender lacked owned-client context and refused before attestation.600 probe observations, normal client/server exit0 and exact signed restoration are reconciled. Fresh offline helpers fix context propagation and pass166 models (164 pass, two skips); another native exception and complete connection acceptance remain required. See [watched sender outcome and fix](plans/decisions/0197-watched191-sender-context-failure.md).
+
 Source0.51.7 `entity_health` requires active admission and an unchanged execution epoch before SDK spatial/typed/world-key reads. Four dispatcher regressions preserve present, zero and absent values plus limits; native interruption and rendered health remain unverified. See [health lifecycle guard](plans/decisions/0196-entity-health-lifecycle-guard.md).
 
 Source0.51.6 `props_in` refuses inactive admission and queued reads whose active world epoch changed before execution. Successful bounded output and nullable metadata are unchanged. Four dispatcher regressions pass; native interruption remains unverified. See [props lifecycle guard](plans/decisions/0192-props-lifecycle-guard.md).

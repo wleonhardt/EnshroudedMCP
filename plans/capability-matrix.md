@@ -1,5 +1,7 @@
 # Capability and acceptance matrix
 
+Consumed watched191 reached native Menu but sent no Join: the user confirmed options/watch, then the sender lacked owned-client context and refused before attestation.600 probe observations, normal client/server exit0 and exact signed restoration are reconciled. Fresh offline helpers fix context propagation and pass166 models (164 pass, two skips); another native exception and complete connection acceptance remain required.
+
 Source0.51.7 `entity_health` requires active admission and an unchanged execution epoch before SDK spatial/typed/world-key reads. Four dispatcher regressions preserve present, zero and absent values plus limits; native interruption and rendered health remain unverified. Decision0196 records the source proof.
 
 Decision0195 qualifies one native scoped empty props_in result and three extent/world/write-argument refusals on unchanged signed SDK12.1/server0.51.6. All50 fixed probes and40 exact server contracts pass; owned shutdown independently exits0 and originals remain preserved. Positive functional props, metadata/state/ownership, rendered appearance and controlled native interruption remain unverified.
